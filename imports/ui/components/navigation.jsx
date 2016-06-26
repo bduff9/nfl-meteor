@@ -1,7 +1,7 @@
 import React from 'react';
 import { IndexLink, Link } from 'react-router';
 
-import './navigation.css';
+import './navigation.scss';
 
 export const Navigation = () => (
   <ul>

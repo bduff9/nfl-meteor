@@ -5,7 +5,7 @@ import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { App } from '../../ui/layouts/app.jsx';
 import { Dashboard } from '../../ui/pages/dashboard.jsx';
 import { Register } from '../../ui/pages/register.jsx';
-import { Login } from '../../ui/pages/login.jsx';
+import Login from '../../ui/pages/login.jsx';
 import { Logout } from '../../ui/pages/logout.jsx';
 import { Switch } from '../../ui/pages/switch.jsx';
 import { MakePicks } from '../../ui/pages/make-picks.jsx';

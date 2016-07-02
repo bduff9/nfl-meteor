@@ -6,6 +6,7 @@
     "start": "meteor run"
   },
   "dependencies": {
+    "autoprefixer": "^6.3.6",
     "bootstrap": "^4.0.0-alpha.2",
     "bootstrap-sass": "^3.3.6",
     "meteor-node-stubs": "~0.2.0",

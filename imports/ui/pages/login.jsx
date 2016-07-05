@@ -49,11 +49,6 @@ console.log('form submit');
             </button>
           </li>
           <li>
-            <button type="button" className="btn" onClick={this._oauthLogin.bind(null, 'loginWithTwitter')}>
-              <i className="fa fa-twitter"></i> Sign in with Twitter
-            </button>
-          </li>
-          <li>
             <button type="button" className="btn btn-success btn-login-email" data-toggle="modal" data-target="#sign-in-with-email-modal">
               <i className="fa fa-envelope"></i> Sign in with Email
             </button>

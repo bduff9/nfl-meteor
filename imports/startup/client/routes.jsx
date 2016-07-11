@@ -13,6 +13,7 @@ import { ViewPicks } from '../../ui/pages/view-picks.jsx';
 import { ViewAllPicks } from '../../ui/pages/view-all-picks.jsx';
 import { SetSurvivor } from '../../ui/pages/set-survivor.jsx';
 import { ViewSurvivor } from '../../ui/pages/view-survivor.jsx';
+import { CreateProfile } from '../../ui/pages/create-profile.jsx';
 import { EditProfile } from '../../ui/pages/edit-profile.jsx';
 import { NotFound } from '../../ui/pages/not-found.jsx';
 
@@ -33,6 +34,10 @@ function requireNoAuth(nextState, replace) {
   }
 }
 
+function validateUser(nextState, replace) {
+  //TODO validate that user has created profile
+}
+
 function logOut(nextState, replace) {
   Meteor.logout();
 }
@@ -49,18 +54,19 @@ Meteor.startup(() => {
       <Route path="/logout" component={Logout} onEnter={logOut} />
       <Route path="/switch" component={Switch} onEnter={switchAccounts} />
       <Route path="/" component={App} onEnter={requireAuth}>
-        <IndexRoute component={Dashboard} />
-        <Route path="/picks">
+        <IndexRoute component={Dashboard} onEnter={validateUser} />
+        <Route path="/picks" onEnter={validateUser}>
           <Route path="set" component={MakePicks} />
           <Route path="view" component={ViewPicks} />
           <Route path="viewall" component={ViewAllPicks} />
         </Route>
-        <Route path="/survivor">
+        <Route path="/survivor" onEnter={validateUser}>
           <Route path="set" component={SetSurvivor} />
           <Route path="view" component={ViewSurvivor} />
         </Route>
         <Route path="/users">
-          <Route path="edit" component={EditProfile} />
+          <Route path="create" component={CreateProfile} />
+          <Route path="edit" component={EditProfile} onEnter={validateUser} />
         </Route>
       </Route>
       <Route path="*" component={NotFound} />

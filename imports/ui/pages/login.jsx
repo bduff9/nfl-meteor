@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
 
 export default class Login extends Component {
@@ -6,12 +6,9 @@ export default class Login extends Component {
   constructor(props) {
     super();
     this.state = {};
+    this._emailLogin = this._emailLogin.bind(this);
   }
 
-  _handleSubmit(ev) {
-    ev.preventDefault();
-console.log('form submit');
-  }
   _oauthLogin(service, ev) {
     const options = {
       requestPermissions: ['email']
@@ -27,16 +24,19 @@ console.log('form submit');
       }
     });
   }
+  _emailLogin(type, ev) {
+    const { router } = this.context;
+console.log(router);
+    ev.preventDefault();
+console.log('Email login type: ' + type);
+    router.transitionTo('/register');
+  }
 
   render() {
+    const user = Meteor.user();
     return (
       <div>
-        <form name="login" onSubmit={this._handleSubmit}>
-          <input type="text" />
-          <input type="password" />
-          <Link to="/register">Register</Link>
-          <button type="submit">Submit</button>
-        </form>
+        {user ? 'Welcome, ' + user : 'Please sign in'}
         <ul className="btn-list">
           <li>
             <button type="button" className="btn" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
@@ -54,7 +54,40 @@ console.log('form submit');
             </button>
           </li>
         </ul>
+        <div className="modal fade" id="sign-in-with-email-modal" tabindex="-1" role="dialog" aria-labelledby="sign-in-with-email-modal" aria-hidden="true">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <button type="button" className="close" data-dismiss="modal">
+                  <span aria-hidden="true">&times;</span>
+                  <span className="sr-only">Close</span>
+                </button>
+                <h4 className="modal-title" id="sign-in">Sign In With Email</h4>
+              </div>
+              <form id="sign-in-with-email">
+                <div className="modal-body">
+                  <div className="form-group">
+                    <label htmlFor="emailAddress">Email Address</label>
+                    <input type="email" name="emailAddress" className="form-control" placeholder="What's your email, friend?" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="password">Password</label>
+                    <input type="password" name="password" className="form-control" placeholder="How about a password, pal?" />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="submit" className="btn btn-primary" onClick={this._emailLogin.bind(null, 'create')}>Create Account</button>
+                  <button type="submit" className="btn btn-default" onClick={this._emailLogin.bind(null, 'login')}>Sign In</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-      );
-    }
+      </div>
+    );
   }
+}
+
+Login.contextTypes = {
+  router: PropTypes.object.isRequired
+};

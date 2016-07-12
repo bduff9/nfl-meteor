@@ -73,11 +73,14 @@ orgztion:meteor-global-tether@1.0.0
 promise@0.7.2_1
 random@1.0.10
 rate-limit@1.0.5
+react-meteor-data@0.2.9
+reactive-dict@1.1.8
 reactive-var@1.0.10
 reload@1.1.10
 retry@1.0.8
 routepolicy@1.0.11
 service-configuration@1.0.10
+session@1.1.6
 sha@1.0.8
 spacebars@1.0.12
 spacebars-compiler@1.0.12
@@ -85,6 +88,8 @@ srp@1.0.9
 standard-minifier-js@1.0.7_1
 templating@1.1.12_1
 templating-tools@1.0.4
+themeteorchef:bert@2.1.0
+tmeasday:check-npm-versions@0.2.0
 tracker@1.0.14
 twitter@1.1.11
 ui@1.0.11

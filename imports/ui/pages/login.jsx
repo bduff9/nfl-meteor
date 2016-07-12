@@ -1,4 +1,8 @@
+/*jshint esversion: 6 */
+'use strict';
+
 import React, { Component, PropTypes } from 'react';
+import { Meteor } from 'meteor/meteor';
 import { Link } from 'react-router';
 
 export default class Login extends Component {
@@ -6,37 +10,42 @@ export default class Login extends Component {
   constructor(props) {
     super();
     this.state = {};
+    this._oauthLogin = this._oauthLogin.bind(this);
     this._emailLogin = this._emailLogin.bind(this);
   }
 
   _oauthLogin(service, ev) {
-    const options = {
-      requestPermissions: ['email']
-    };
-
-    if (service === 'loginWithTwitter') {
-      delete options.requestPermissions;
-    }
-
+    const { router } = this.context,
+        options = {
+          requestPermissions: ['email']
+        };
+    if (service === 'loginWithTwitter') delete options.requestPermissions;
     Meteor[service](options, (err) => {
       if (err) {
-        Bert.alert(error.message, 'danger');
+        Bert.alert({
+          message: error.message,
+          type: 'danger'
+        });
+      } else {
+        Bert.alert({
+          message: 'Welcome!',
+          type: 'success',
+          icon: 'fa-thumbs-up'
+        });
       }
     });
   }
   _emailLogin(type, ev) {
     const { router } = this.context;
-console.log(router);
     ev.preventDefault();
-console.log('Email login type: ' + type);
-    router.transitionTo('/register');
+    jQuery('#sign-in-with-email-modal').modal('hide');
+//TODO handle register with Email
+    console.log('Email login type: ' + type);
   }
 
   render() {
-    const user = Meteor.user();
     return (
       <div>
-        {user ? 'Welcome, ' + user : 'Please sign in'}
         <ul className="btn-list">
           <li>
             <button type="button" className="btn" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
@@ -54,7 +63,7 @@ console.log('Email login type: ' + type);
             </button>
           </li>
         </ul>
-        <div className="modal fade" id="sign-in-with-email-modal" tabindex="-1" role="dialog" aria-labelledby="sign-in-with-email-modal" aria-hidden="true">
+        <div className="modal fade" id="sign-in-with-email-modal" tabIndex="-1" role="dialog" aria-labelledby="sign-in-with-email-modal" aria-hidden="true">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">

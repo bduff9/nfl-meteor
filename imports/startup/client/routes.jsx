@@ -24,16 +24,23 @@ function requireAuth(nextState, replace) {
     replace({
       pathname: '/login',
       state: { nextPathname: nextState.location.pathname }
-//TODO how to redirect correctly upon sign in?
     });
   }
 }
 
 function requireNoAuth(nextState, replace) {
+  const { location } = nextState;
   if (Meteor.userId()) {
-    replace({
-      pathname: '/'
-    });
+    if (location.state.nextPathname) {
+      replace({
+        pathname: location.state.nextPathname,
+        state: { nextPathname: null }
+      });
+    } else {
+      replace({
+        pathname: '/'
+      });
+    }
   }
 }
 
@@ -47,12 +54,20 @@ console.log(first_name);
   }
 }
 
+function noValidateUser(nextState, replace) {
+  const { first_name } = Meteor.user();
+  if (first_name) {
+    replace({
+      pathname: '/'
+    });
+  }
+}
+
 function logOut(nextState, replace) {
-//TODO this auto redirects to sign in page currently, but is written like it doesn't
-//Either fix the redirect or change the code
+  const { location } = nextState;
   if (Meteor.userId()) {
     Meteor.logout();
-  } else {
+  } else if (!location.state.isLogout) {
     replace({
       pathname: '/login'
     });
@@ -76,7 +91,7 @@ export const Routes = () => (
         <Route path="view" component={ViewSurvivor} />
       </Route>
       <Route path="/users">
-        <Route path="create" component={CreateProfile} />
+        <Route path="create" component={CreateProfile} onEnter={noValidateUser} />
         <Route path="edit" component={EditProfile} onEnter={validateUser} />
       </Route>
     </Route>

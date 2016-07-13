@@ -27,6 +27,7 @@ export default class Login extends Component {
           type: 'danger'
         });
       } else {
+//TODO complete info from oauth here
         Bert.alert({
           message: 'Welcome!',
           type: 'success',

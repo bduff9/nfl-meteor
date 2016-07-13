@@ -45,9 +45,8 @@ function requireNoAuth(nextState, replace) {
 }
 
 function validateUser(nextState, replace) {
-  const { first_name } = Meteor.user();
-console.log(first_name);
-  if (first_name == null) {
+  const { doneRegistering } = Meteor.user();
+  if (!doneRegistering) {
     replace({
       pathname: '/users/create'
     });

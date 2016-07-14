@@ -23,11 +23,10 @@ export default class Login extends Component {
     Meteor[service](options, (err) => {
       if (err) {
         Bert.alert({
-          message: error.message,
+          message: err.message,
           type: 'danger'
         });
       } else {
-//TODO complete info from oauth here
         Bert.alert({
           message: 'Welcome!',
           type: 'success',
@@ -37,11 +36,36 @@ export default class Login extends Component {
     });
   }
   _emailLogin(type, ev) {
-    const { router } = this.context;
+    const { router } = this.context,
+        email = '', //TODO
+        password = ''; //TODO
     ev.preventDefault();
+//TODO validation
     jQuery('#sign-in-with-email-modal').modal('hide');
-//TODO handle register with Email
-    console.log('Email login type: ' + type);
+    if (type === 'create') {
+      Accounts.createUser({
+        email: email,
+        password: password
+      }, (err) => {
+        if (err) {
+          Bert.alert(err.reason, 'danger');
+        } else {
+          Bert.alert('Please check your email to verify your account', 'success');
+        }
+      });
+    } else {
+      Meteor.loginWithPassword(email, password, (err) => {
+        if (err) {
+          Bert.alert(err.reason, 'warning');
+        } else {
+          Bert.alert({
+            message: 'Welcome!',
+            type: 'success',
+            icon: 'fa-thumbs-up'
+          });
+        }
+      });
+    }
   }
 
   render() {

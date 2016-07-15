@@ -37,8 +37,8 @@ export default class Login extends Component {
   }
   _emailLogin(type, ev) {
     const { router } = this.context,
-        email = '', //TODO
-        password = ''; //TODO
+        email = jQuery('#email').val().trim(),
+        password = jQuery('#password').val().trim();
     ev.preventDefault();
 //TODO validation
     jQuery('#sign-in-with-email-modal').modal('hide');
@@ -47,10 +47,13 @@ export default class Login extends Component {
         email: email,
         password: password
       }, (err) => {
-        if (err) {
+        if (err && err.reason !== 'Login forbidden') {
           Bert.alert(err.reason, 'danger');
         } else {
-          Bert.alert('Please check your email to verify your account', 'success');
+          Bert.alert({
+            message: 'Please check your email to verify your account',
+            type: 'success'
+          });
         }
       });
     } else {
@@ -102,11 +105,11 @@ export default class Login extends Component {
                 <div className="modal-body">
                   <div className="form-group">
                     <label htmlFor="emailAddress">Email Address</label>
-                    <input type="email" name="emailAddress" className="form-control" placeholder="What's your email, friend?" />
+                    <input type="email" name="emailAddress" id="email" className="form-control" placeholder="What's your email, friend?" />
                   </div>
                   <div className="form-group">
                     <label htmlFor="password">Password</label>
-                    <input type="password" name="password" className="form-control" placeholder="How about a password, pal?" />
+                    <input type="password" name="password" id="password" className="form-control" placeholder="How about a password, pal?" />
                   </div>
                 </div>
                 <div className="modal-footer">

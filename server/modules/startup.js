@@ -1,5 +1,4 @@
 let startup = () => {
-  Modules.server.setEnvironmentVariables();
   _setBrowserPolicies();
   Modules.server.configureServices();
 };

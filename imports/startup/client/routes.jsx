@@ -8,6 +8,7 @@ import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { App } from '../../ui/layouts/app.jsx';
 import { Dashboard } from '../../ui/pages/dashboard.jsx';
 import { Register } from '../../ui/pages/register.jsx';
+import { Loading } from '../../ui/pages/loading.jsx';
 import Login from '../../ui/pages/login.jsx';
 import { Logout } from '../../ui/pages/logout.jsx';
 import { MakePicks } from '../../ui/pages/make-picks.jsx';
@@ -15,7 +16,6 @@ import { ViewPicks } from '../../ui/pages/view-picks.jsx';
 import { ViewAllPicks } from '../../ui/pages/view-all-picks.jsx';
 import { SetSurvivor } from '../../ui/pages/set-survivor.jsx';
 import { ViewSurvivor } from '../../ui/pages/view-survivor.jsx';
-import { CreateProfile } from '../../ui/pages/create-profile.jsx';
 import { EditProfile } from '../../ui/pages/edit-profile.jsx';
 import { NotFound } from '../../ui/pages/not-found.jsx';
 
@@ -62,6 +62,21 @@ function noValidateUser(nextState, replace) {
   }
 }
 
+function verifyEmail(nextState, replace) {
+console.log(nextState);
+  const { params } = nextState;
+  Accounts.verifyEmail(params.token, (err) => {
+console.log('verified');
+    if (err) {
+      Bert.alert(err.reason, 'danger');
+    } else {
+      replace({
+        pathname: '/users/create'
+      });
+    }
+  });
+}
+
 function logOut(nextState, replace) {
   const { location } = nextState;
   if (Meteor.userId()) {
@@ -76,6 +91,7 @@ function logOut(nextState, replace) {
 export const Routes = () => (
   <Router history={browserHistory}>
     <Route path="/register" component={Register} onEnter={requireNoAuth} />
+    <Route path="/verify-email/:token" component={VerifyEmail} />//TODO make this work
     <Route path="/login" component={Login} onEnter={requireNoAuth} />
     <Route path="/logout" component={Logout} onEnter={logOut} />
     <Route path="/" component={App} onEnter={requireAuth}>
@@ -90,7 +106,7 @@ export const Routes = () => (
         <Route path="view" component={ViewSurvivor} />
       </Route>
       <Route path="/users">
-        <Route path="create" component={CreateProfile} onEnter={noValidateUser} />
+        <Route path="create" component={EditProfile} onEnter={noValidateUser} />
         <Route path="edit" component={EditProfile} onEnter={validateUser} />
       </Route>
     </Route>

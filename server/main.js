@@ -1,6 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 
 Meteor.startup(() => {
+  process.env.MAIL_URL = 'smtp://bduff9%40gmail.com:uylgjwmmtrmamhab@smtp.gmail.com:465';
+
   Accounts.onCreateUser((options, user) => {
     const EMPTY_VAL = '';
     let first_name = EMPTY_VAL,
@@ -8,7 +10,6 @@ Meteor.startup(() => {
         email = EMPTY_VAL,
         team_name = EMPTY_VAL,
         verified = true;
-//TODO grab user data from oauth here
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
       last_name = user.services.facebook.last_name;
@@ -18,7 +19,7 @@ Meteor.startup(() => {
       last_name = user.services.google.family_name;
       email = user.services.google.email;
     } else {
-      console.log('This is an email signup, ensure email and password (and verified?) are set correctly before proceeding');
+      email = options.email;
       verified = false;
     }
     user.profile = options.profile || {};
@@ -36,9 +37,22 @@ Meteor.startup(() => {
     user.picks = [];
     user.tiebreakers = [];
     user.survivor = [];
-//TODO remove when done
-    console.log(options);
-    console.log(user);
     return user;
+  });
+
+  Accounts.validateLoginAttempt((parms) => {
+console.log(parms);
+    const { allowed, methodName, user } = parms;
+    if (methodName === 'createUser') {
+      Accounts.sendVerificationEmail(parms.user._id);
+      return false;
+    }
+    if (methodName === 'verifyEmail' && allowed) return true; //TODO set verified here?
+    if (user && !user.verified) {
+      // Should we also re-send the verification email here?
+      throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
+      return false;
+    }
+    return true;
   });
 });

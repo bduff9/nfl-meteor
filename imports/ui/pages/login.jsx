@@ -19,7 +19,6 @@ export default class Login extends Component {
         options = {
           requestPermissions: ['email']
         };
-    if (service === 'loginWithTwitter') delete options.requestPermissions;
     Meteor[service](options, (err) => {
       if (err) {
         Bert.alert({

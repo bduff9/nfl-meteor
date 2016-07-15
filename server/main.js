@@ -43,15 +43,21 @@ Meteor.startup(() => {
   Accounts.validateLoginAttempt((parms) => {
 console.log(parms);
     const { allowed, methodName, user } = parms;
-    if (methodName === 'createUser') {
+    let verified = false,
+        vEmails;
+    if (methodName === 'createUser' && parms.user) {
       Accounts.sendVerificationEmail(parms.user._id);
       return false;
     }
-    if (methodName === 'verifyEmail' && allowed) return true; //TODO set verified here?
     if (user && !user.verified) {
-      // Should we also re-send the verification email here?
-      throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
-      return false;
+      vEmails = user.emails.filter(email => email.verified);
+      if (vEmails.length === 0) {
+        // Should we also re-send the verification email here?
+        throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
+        return false;
+      } else {
+        Meteor.users.update({ _id: user._id }, {$set: { verified: true }});
+      }
     }
     return true;
   });

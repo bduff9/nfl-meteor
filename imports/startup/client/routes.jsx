@@ -31,7 +31,7 @@ function requireAuth(nextState, replace) {
 function requireNoAuth(nextState, replace) {
   const { location } = nextState;
   if (Meteor.userId()) {
-    if (location.state.nextPathname) {
+    if (location.state && location.state.nextPathname) {
       replace({
         pathname: location.state.nextPathname,
         state: { nextPathname: null }
@@ -63,18 +63,23 @@ function noValidateUser(nextState, replace) {
 }
 
 function verifyEmail(nextState, replace) {
-console.log(nextState);
   const { params } = nextState;
-  Accounts.verifyEmail(params.token, (err) => {
-console.log('verified');
-    if (err) {
-      Bert.alert(err.reason, 'danger');
-    } else {
-      replace({
-        pathname: '/users/create'
-      });
-    }
-  });
+  if (Meteor.userId()) {
+    replace({
+      pathname: '/'
+    });
+  } else {
+    Accounts.verifyEmail(params.token, (err) => {
+      if (err) {
+        Bert.alert(err.reason, 'danger');
+      } else {
+        Bert.alert('Your email is now verified!', 'success');
+        replace({
+          pathname: '/users/create'
+        });
+      }
+    });
+  }
 }
 
 function logOut(nextState, replace) {
@@ -91,7 +96,7 @@ function logOut(nextState, replace) {
 export const Routes = () => (
   <Router history={browserHistory}>
     <Route path="/register" component={Register} onEnter={requireNoAuth} />
-    <Route path="/verify-email/:token" component={VerifyEmail} />//TODO make this work
+    <Route path="/verify-email/:token" component={Loading} onEnter={verifyEmail} />
     <Route path="/login" component={Login} onEnter={requireNoAuth} />
     <Route path="/logout" component={Logout} onEnter={logOut} />
     <Route path="/" component={App} onEnter={requireAuth}>

@@ -8,7 +8,6 @@ Meteor.startup(() => {
     let first_name = EMPTY_VAL,
         last_name = EMPTY_VAL,
         email = EMPTY_VAL,
-        team_name = EMPTY_VAL,
         verified = true;
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
@@ -26,7 +25,8 @@ Meteor.startup(() => {
     user.first_name = first_name;
     user.last_name = last_name;
     user.email = email;
-    user.team_name = team_name;
+    user.team_name = EMPTY_VAL;
+    user.referred_by = EMPTY_VAL;
     user.verified = verified;
     user.doneRegistering = false;
     user.paid = false;

@@ -41,7 +41,6 @@ Meteor.startup(() => {
   });
 
   Accounts.validateLoginAttempt((parms) => {
-console.log(parms);
     const { allowed, methodName, user } = parms;
     let verified = false,
         vEmails;

@@ -1,13 +1,12 @@
 /*jshint esversion: 6 */
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 
 import { App } from '../../ui/layouts/app.jsx';
 import { Dashboard } from '../../ui/pages/dashboard.jsx';
-import { Register } from '../../ui/pages/register.jsx';
 import { Loading } from '../../ui/pages/loading.jsx';
 import Login from '../../ui/pages/login.jsx';
 import { Logout } from '../../ui/pages/logout.jsx';
@@ -54,8 +53,8 @@ function validateUser(nextState, replace) {
 }
 
 function noValidateUser(nextState, replace) {
-  const { first_name } = Meteor.user();
-  if (first_name) {
+  const { doneRegistering } = Meteor.user();
+  if (doneRegistering) {
     replace({
       pathname: '/'
     });
@@ -95,7 +94,6 @@ function logOut(nextState, replace) {
 
 export const Routes = () => (
   <Router history={browserHistory}>
-    <Route path="/register" component={Register} onEnter={requireNoAuth} />
     <Route path="/verify-email/:token" component={Loading} onEnter={verifyEmail} />
     <Route path="/login" component={Login} onEnter={requireNoAuth} />
     <Route path="/logout" component={Logout} onEnter={logOut} />

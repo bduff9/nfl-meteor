@@ -1,4 +1,5 @@
-Meteor.publish('user', function() {
+Meteor.publish('userData', function() {
+  if (!this.userId) return null;
   return Meteor.users.find(this.userId, {
     fields: {
       'services.facebook.email': 1,

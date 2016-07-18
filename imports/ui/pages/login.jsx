@@ -15,8 +15,7 @@ export default class Login extends Component {
   }
 
   _oauthLogin(service, ev) {
-    const { router } = this.context,
-        options = {
+    const options = {
           requestPermissions: ['email']
         };
     Meteor[service](options, (err) => {
@@ -35,8 +34,7 @@ export default class Login extends Component {
     });
   }
   _emailLogin(type, ev) {
-    const { router } = this.context,
-        email = jQuery('#email').val().trim(),
+    const email = jQuery('#email').val().trim(),
         password = jQuery('#password').val().trim();
     ev.preventDefault();
 //TODO validation
@@ -123,7 +121,3 @@ export default class Login extends Component {
     );
   }
 }
-
-Login.contextTypes = {
-  router: PropTypes.object.isRequired
-};

@@ -19,9 +19,9 @@ export const Navigation = (props) => {
           <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
         </ul>
         :
-        <ul>
-          <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
-        </ul>
+          <ul>
+            <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
+          </ul>
       }
     </div>
   );

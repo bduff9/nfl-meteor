@@ -15,7 +15,7 @@ import { ViewPicks } from '../../ui/pages/view-picks.jsx';
 import { ViewAllPicks } from '../../ui/pages/view-all-picks.jsx';
 import { SetSurvivor } from '../../ui/pages/set-survivor.jsx';
 import { ViewSurvivor } from '../../ui/pages/view-survivor.jsx';
-import { EditProfile } from '../../ui/pages/edit-profile.jsx';
+import EditProfile from '../../ui/pages/edit-profile.jsx';
 import { NotFound } from '../../ui/pages/not-found.jsx';
 
 function requireAuth(nextState, replace) {

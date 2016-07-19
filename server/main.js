@@ -1,7 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 
+const gmailUrl = Meteor.settings.private.gmail;
+
 Meteor.startup(() => {
-  process.env.MAIL_URL = 'smtp://bduff9%40gmail.com:uylgjwmmtrmamhab@smtp.gmail.com:465';
+  process.env.MAIL_URL = gmailUrl;
 
   Accounts.onCreateUser((options, user) => {
     const EMPTY_VAL = '';
@@ -9,6 +11,7 @@ Meteor.startup(() => {
         last_name = EMPTY_VAL,
         email = EMPTY_VAL,
         verified = true;
+//TODO handle sign up expiration here
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
       last_name = user.services.facebook.last_name;

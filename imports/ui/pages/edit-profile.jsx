@@ -33,9 +33,9 @@ export default class EditProfile extends Component {
     this.setState({ showReferredBy, referredBy: (!showReferredBy ? 'RETURNING' : this.state.referredBy) });
   }
   _updateUser(ev) {
-//TODO convert to react state instead of jquery
     const { firstName, isCreate, lastName, referredBy, teamName } = this.state,
         { router } = this.context,
+        userId = Meteor.userId(),
         DONE_REGISTERING = true;
     ev.preventDefault();
     console.log('Update user');

@@ -44,8 +44,14 @@ export default class Login extends Component {
         email: email,
         password: password
       }, (err) => {
-        if (err && err.reason !== 'Login forbidden') {
-          Bert.alert(err.reason, 'danger');
+        if (err) {
+          if (err.reason !== 'Login forbidden') {
+            if (err.error && err.reason) {
+              Bert.alert({ title: err.error, message: err.reason, type: 'warning' });
+            } else {
+              Bert.alert(err.reason, 'danger');
+            }
+          }
         } else {
           Bert.alert({
             message: 'Please check your email to verify your account',
@@ -73,17 +79,17 @@ export default class Login extends Component {
       <div>
         <ul className="btn-list">
           <li>
-            <button type="button" className="btn" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
+            <button type="button" className="btn btn-primary" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
               <i className="fa fa-facebook"></i> Sign in with Facebook
             </button>
           </li>
           <li>
-            <button type="button" className="btn" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
+            <button type="button" className="btn btn-danger" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
               <i className="fa fa-google"></i> Sign in with Google
             </button>
           </li>
           <li>
-            <button type="button" className="btn btn-success btn-login-email" data-toggle="modal" data-target="#sign-in-with-email-modal">
+            <button type="button" className="btn btn-success" data-toggle="modal" data-target="#sign-in-with-email-modal">
               <i className="fa fa-envelope"></i> Sign in with Email
             </button>
           </li>

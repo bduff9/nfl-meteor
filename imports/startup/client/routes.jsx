@@ -44,8 +44,8 @@ function requireNoAuth(nextState, replace) {
 }
 
 function validateUser(nextState, replace) {
-  const { doneRegistering } = Meteor.user();
-  if (!doneRegistering) {
+  const { done_registering } = Meteor.user();
+  if (!done_registering) {
     replace({
       pathname: '/users/create'
     });
@@ -53,8 +53,8 @@ function validateUser(nextState, replace) {
 }
 
 function noValidateUser(nextState, replace) {
-  const { doneRegistering } = Meteor.user();
-  if (doneRegistering) {
+  const { done_registering } = Meteor.user();
+  if (done_registering) {
     replace({
       pathname: '/'
     });

@@ -3,6 +3,8 @@
 
 import React, { Component, PropTypes } from 'react';
 
+import { User } from '../../api/collections';
+
 export default class EditProfile extends Component {
 
   constructor(props) {
@@ -12,13 +14,15 @@ export default class EditProfile extends Component {
       user = Meteor.user();
     super();
     this.state = {
+      firstName: user.first_name,
+      hasFacebook: !!user.services.facebook,
+      hasGoogle: !!user.services.google,
       isCreate,
       isEdit,
-      showReferredBy: false,
-      firstName: user.first_name,
       lastName: user.last_name,
       teamName: user.team_name,
-      referredBy: ''
+      referredBy: user.referred_by,
+      showReferredBy: false
     };
     this._handleChanges = this._handleChanges.bind(this);
     this._handleReferredBy = this._handleReferredBy.bind(this);
@@ -32,21 +36,49 @@ export default class EditProfile extends Component {
   _handleReferredBy(showReferredBy, ev) {
     this.setState({ showReferredBy, referredBy: (!showReferredBy ? 'RETURNING' : this.state.referredBy) });
   }
+  _oauthLink(service, ev) {
+    const options = {
+          requestPermissions: ['email']
+        };
+    Meteor[service](options, (err) => {
+      if (err && err.errorType !== 'Accounts.LoginCancelledError') {
+        Bert.alert({
+          message: err.message,
+          type: 'danger'
+        });
+      } else {
+        Bert.alert({
+          message: 'Successfully linked!',
+          type: 'success'
+        });
+      }
+    });
+  }
   _updateUser(ev) {
     const { firstName, isCreate, lastName, referredBy, teamName } = this.state,
         { router } = this.context,
         userId = Meteor.userId(),
         DONE_REGISTERING = true;
     ev.preventDefault();
-    console.log('Update user');
-    if (isCreate) {
-      Bert.alert(`Thanks for registering, ${firstName}`, 'success');
-      router.push('/');
+    try {
+      User.update({ _id: userId }, { $set: { done_registering: DONE_REGISTERING, first_name: firstName, last_name: lastName, referred_by: referredBy, team_name: teamName }});
+      if (isCreate) {
+        Bert.alert(`Thanks for registering, ${firstName}`, 'success');
+        router.push('/');
+      } else {
+        Bert.alert({
+          message: 'Profile saved!',
+          type: 'success',
+          icon: 'fa-save'
+        });
+      }
+    } catch(err) {
+      Bert.alert(err.reason, 'danger');
     }
   }
 
   render() {
-    const { firstName, isCreate, isEdit, lastName, referredBy, showReferredBy, teamName } = this.state,
+    const { firstName, hasFacebook, hasGoogle, isCreate, isEdit, lastName, referredBy, showReferredBy, teamName } = this.state,
         user = Meteor.user();
     return (
       <div className="container-fluid">
@@ -75,22 +107,26 @@ export default class EditProfile extends Component {
               <input type="text" className="form-control" id="teamName" placeholder="Team Name (Optional)" value={teamName} onChange={this._handleChanges} />
             </div>
           </div>
-          <div className="row">
-            <div className="col-xs-12 form-group">
-              <div className="radio">
-                <label>
-                  <input type="radio" id="referred_byN" name="was_referred" onClick={this._handleReferredBy.bind(null, false)} />
-                  I have played previously
-                </label>
-              </div>
-              <div className="radio">
-                <label>
-                  <input type="radio" id="referred_byY" name="was_referred" onClick={this._handleReferredBy.bind(null, true)} />
-                  I am new and was referred by:
-                </label>
+          {isCreate ?
+            <div className="row">
+              <div className="col-xs-12 form-group">
+                <div className="radio">
+                  <label>
+                    <input type="radio" id="referred_byN" name="was_referred" onClick={this._handleReferredBy.bind(null, false)} />
+                    I have played previously
+                  </label>
+                </div>
+                <div className="radio">
+                  <label>
+                    <input type="radio" id="referred_byY" name="was_referred" onClick={this._handleReferredBy.bind(null, true)} />
+                    I am new and was referred by:
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
+            :
+            null
+          }
           {showReferredBy ?
             <div className="row">
               <div className={'col-xs-12 form-group floating-label-form-group' + (user.referred_by ? ' floating-label-form-group-with-value' : '')}>
@@ -103,9 +139,16 @@ export default class EditProfile extends Component {
           }
           <div className="row">
             <div className="col-xs-12 form-group">
+              {/* Add service check to show unlink option */}
+              <button type="button" className="btn btn-primary" disabled={hasFacebook} onClick={this._oauthLink.bind(null, 'loginWithFacebook')}>
+                <i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
+              </button>
+              <button type="button" className="btn btn-danger" disabled={hasGoogle} onClick={this._oauthLink.bind(null, 'loginWithGoogle')}>
+                <i className="fa fa-google"></i> {hasGoogle ? 'Google Linked!' : 'Link Google'}
+              </button>
               <button type="submit" className="btn btn-primary">
                 <i className="fa fa-fw fa-save"></i>
-                Save
+                {isCreate ? 'Finish Registration' : 'Save Changes'}
               </button>
             </div>
           </div>

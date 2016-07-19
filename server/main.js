@@ -1,5 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
+import { User } from '../imports/api/collections';
+
 const gmailUrl = Meteor.settings.private.gmail;
 
 Meteor.startup(() => {
@@ -10,7 +12,8 @@ Meteor.startup(() => {
     let first_name = EMPTY_VAL,
         last_name = EMPTY_VAL,
         email = EMPTY_VAL,
-        verified = true;
+        verified = true,
+        existingCount;
 //TODO handle sign up expiration here
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
@@ -24,6 +27,8 @@ Meteor.startup(() => {
       email = options.email;
       verified = false;
     }
+    existingCount = User.find({ email }).count();
+    if (existingCount) throw new Meteor.Error('You have already registered with a different account!', 'Please use the Facebook or Google buttons to sign in');
     user.profile = options.profile || {};
     user.first_name = first_name;
     user.last_name = last_name;
@@ -31,7 +36,7 @@ Meteor.startup(() => {
     user.team_name = EMPTY_VAL;
     user.referred_by = EMPTY_VAL;
     user.verified = verified;
-    user.doneRegistering = false;
+    user.done_registering = false;
     user.paid = false;
     user.chat_hidden = null;
     user.total_points = 0;
@@ -58,7 +63,7 @@ Meteor.startup(() => {
         throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
         return false;
       } else {
-        Meteor.users.update({ _id: user._id }, {$set: { verified: true }});
+        User.update({ _id: user._id }, {$set: { verified: true }});
       }
     }
     return true;

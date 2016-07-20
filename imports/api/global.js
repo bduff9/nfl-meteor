@@ -1,8 +1,8 @@
 'use strict';
 
-export const displayError = (title, message, type = 'danger', icon) => {
-  let opts = { title, type };
-  if (message) opts.message = message;
-  if (icon) opts.icon = icon;
+export const displayError = (err, opts = { title: err && err.reason, type: 'danger' }) => {
+  if (!err) return;
+console.log(err);
+  if (!opts.title) opts.title = 'Missing error title!';
   Bert.alert(opts);
 };

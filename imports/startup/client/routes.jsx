@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 
+import { displayError } from '../../api/global';
 import { App } from '../../ui/layouts/app.jsx';
 import { Dashboard } from '../../ui/pages/dashboard.jsx';
 import { Loading } from '../../ui/pages/loading.jsx';
@@ -70,7 +71,7 @@ function verifyEmail(nextState, replace) {
   } else {
     Accounts.verifyEmail(params.token, (err) => {
       if (err) {
-        Bert.alert(err.reason, 'danger');
+        displayError(err);
       } else {
         Bert.alert('Your email is now verified!', 'success');
         replace({

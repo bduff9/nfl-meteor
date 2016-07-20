@@ -5,6 +5,8 @@ import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Link } from 'react-router';
 
+import { displayError } from '../../api/global';
+
 export default class Login extends Component {
 
   constructor(props) {
@@ -20,10 +22,7 @@ export default class Login extends Component {
         };
     Meteor[service](options, (err) => {
       if (err) {
-        Bert.alert({
-          message: err.message,
-          type: 'danger'
-        });
+        displayError(err, { title: err.message, type: 'danger' });
       } else {
         Bert.alert({
           message: 'Welcome!',
@@ -47,9 +46,9 @@ export default class Login extends Component {
         if (err) {
           if (err.reason !== 'Login forbidden') {
             if (err.error && err.reason) {
-              Bert.alert({ title: err.error, message: err.reason, type: 'warning' });
+              displayError(err, { title: err.error, message: err.reason, type: 'warning' });
             } else {
-              Bert.alert(err.reason, 'danger');
+              displayError(err);
             }
           }
         } else {
@@ -62,7 +61,7 @@ export default class Login extends Component {
     } else {
       Meteor.loginWithPassword(email, password, (err) => {
         if (err) {
-          Bert.alert(err.reason, 'warning');
+          displayError(err, { title: err.reason, type: 'warning' });
         } else {
           Bert.alert({
             message: 'Welcome!',

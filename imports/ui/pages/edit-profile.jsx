@@ -17,8 +17,8 @@ export default class EditProfile extends Component {
     super();
     this.state = {
       firstName: user.first_name,
-      hasFacebook: !!user.services.facebook,
-      hasGoogle: !!user.services.google,
+      hasFacebook: !!user.services && !!user.services.facebook,
+      hasGoogle: !!user.services && !!user.services.google,
       isCreate,
       isEdit,
       lastName: user.last_name,
@@ -44,7 +44,7 @@ export default class EditProfile extends Component {
         };
     Meteor[service](options, (err) => {
       if (err && err.errorType !== 'Accounts.LoginCancelledError') {
-        displayError(err.message);
+        displayError(err, { title: err.message, type: 'danger' });
       } else {
         Bert.alert({
           message: 'Successfully linked!',
@@ -73,7 +73,7 @@ export default class EditProfile extends Component {
         });
       }
     } catch(err) {
-      displayError(err.reason);
+      displayError(err);
     }
   }
 

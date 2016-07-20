@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 
 import '../imports/api/collections/users';
-import { User } from '../imports/api/collections';
+import '../imports/api/collections/games';
+import { User } from '../imports/api/schema';
 
 const gmailUrl = Meteor.settings.private.gmail;
 

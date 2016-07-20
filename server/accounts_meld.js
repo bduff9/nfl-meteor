@@ -1,6 +1,6 @@
 'use strict';
 
-import { NFLLog } from '../imports/api/collections';
+import { NFLLog } from '../imports/api/schema';
 
 const meldDBCallback = (origUserId, newUserId) => {
   NFLLog.update({ user_id: origUserId }, { $set: { user_id: newUserId }}, { multi: true });

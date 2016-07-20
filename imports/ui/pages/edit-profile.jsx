@@ -1,9 +1,11 @@
 /*jshint esversion: 6 */
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import React, { Component, PropTypes } from 'react';
 
-import { User } from '../../api/collections';
+import { updateUser } from '../../api/collections/users';
+import { displayError } from '../../api/global';
 
 export default class EditProfile extends Component {
 
@@ -42,10 +44,7 @@ export default class EditProfile extends Component {
         };
     Meteor[service](options, (err) => {
       if (err && err.errorType !== 'Accounts.LoginCancelledError') {
-        Bert.alert({
-          message: err.message,
-          type: 'danger'
-        });
+        displayError(err.message);
       } else {
         Bert.alert({
           message: 'Successfully linked!',
@@ -60,8 +59,9 @@ export default class EditProfile extends Component {
         userId = Meteor.userId(),
         DONE_REGISTERING = true;
     ev.preventDefault();
+//TODO client validation
     try {
-      User.update({ _id: userId }, { $set: { done_registering: DONE_REGISTERING, first_name: firstName, last_name: lastName, referred_by: referredBy, team_name: teamName }});
+      updateUser.call({ done_registering: DONE_REGISTERING, first_name: firstName, last_name: lastName, referred_by: referredBy, team_name: teamName }, displayError);
       if (isCreate) {
         Bert.alert(`Thanks for registering, ${firstName}`, 'success');
         router.push('/');
@@ -73,7 +73,7 @@ export default class EditProfile extends Component {
         });
       }
     } catch(err) {
-      Bert.alert(err.reason, 'danger');
+      displayError(err.reason);
     }
   }
 

@@ -30,3 +30,5 @@ fortawesome:fontawesome
 react-meteor-data
 themeteorchef:bert
 splendido:accounts-meld
+aldeed:simple-schema
+mdg:validated-method

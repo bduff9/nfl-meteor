@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
+import '../imports/api/collections/users';
 import { User } from '../imports/api/collections';
 
 const gmailUrl = Meteor.settings.private.gmail;
@@ -42,9 +43,9 @@ Meteor.startup(() => {
     user.total_points = 0;
     user.total_games = 0;
     user.bonus_points = 0;
-    user.picks = [];
-    user.tiebreakers = [];
-    user.survivor = [];
+    user.picks = [];//TODO fill with one per game plus one extra per week (bonus)
+    user.tiebreakers = [];//TODO fill with one per week
+    user.survivor = [];//TODO fill with one per week
     return user;
   });
 
@@ -63,7 +64,7 @@ Meteor.startup(() => {
         throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
         return false;
       } else {
-        User.update({ _id: user._id }, {$set: { verified: true }});
+        User.update({ _id: user._id }, { $set: { verified: true }});
       }
     }
     return true;

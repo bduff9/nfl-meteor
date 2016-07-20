@@ -6,9 +6,9 @@ export const Team = Class.create({
   name: 'Team',
   collection: Teams,
   fields: {
-      city: {
-          type: String
-      }
+      city: String,
+      name: String,
+
   }
 });
 
@@ -18,8 +18,14 @@ export const Game = Class.create({
   collection: Games,
   fields: {
       week: {
-          type: Number
-      }
+          type: Number,
+          validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
+      },
+      game: {
+        type: Number,
+        validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 0 }, { type: 'lte', param: 16 }] }]
+      },
+
   }
 });
 
@@ -30,24 +36,21 @@ export const Pick = Class.create({
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
     },
-    game_id: {
-      type: Number,
-      validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 16 }] }]
+    game_id: String,
+    pick_id: String,
+    pick_short: {
+      type: String,
+      validators: [{ type: 'length', param: 3 }]
     },
-    pick_id: {
-      type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
-    },
-    pick_short: String,
     points: {
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }] }]
     },
-    winner_id: {
-      type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
-    },
-    winner_short: String
+    winner_id: String,
+    winner_short: {
+      type: String,
+      validators: [{ type: 'length', param: 3 }]
+    }
   }
 });
 
@@ -80,20 +83,17 @@ export const SurvivorPick = Class.create({
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
     },
-    game_id: {
-      type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }] }]
+    game_id: String,
+    pick_id: String,
+    pick_short: {
+      type: String,
+      validators: [{ type: 'length', param: 3 }]
     },
-    pick_id: {
-      type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
-    },
-    pick_short: String,
-    winner_id: {
-      type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
-    },
-    winner_short: String
+    winner_id: String,
+    winner_short: {
+      type: String,
+      validators: [{ type: 'length', param: 3 }]
+    }
   }
 });
 

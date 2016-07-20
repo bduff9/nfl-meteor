@@ -33,3 +33,4 @@ splendido:accounts-meld
 aldeed:simple-schema
 mdg:validated-method
 http
+peerlibrary:xml2js

@@ -43,14 +43,12 @@ export default class Login extends Component {
         email: email,
         password: password
       }, (err) => {
-        if (err) {
-          if (err.reason !== 'Login forbidden') {
+        if (err && err.reason !== 'Login forbidden') {
             if (err.error && err.reason) {
               displayError(err, { title: err.error, message: err.reason, type: 'warning' });
             } else {
               displayError(err);
             }
-          }
         } else {
           Bert.alert({
             message: 'Please check your email to verify your account',

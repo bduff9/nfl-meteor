@@ -29,8 +29,9 @@ Meteor.startup(() => {
       email = options.email;
       verified = false;
     }
-    existingCount = User.find({ email }).count();
-    if (existingCount) throw new Meteor.Error('You have already registered with a different account!', 'Please use the Facebook or Google buttons to sign in');
+//TODO remove the next two lines if there are no issues with account melding
+    //existingCount = User.find({ email }).count();
+    //if (existingCount) throw new Meteor.Error('You have already registered with a different account!', 'Please use the Facebook or Google buttons to sign in');
     user.profile = options.profile || {};
     user.first_name = first_name;
     user.last_name = last_name;
@@ -47,6 +48,7 @@ Meteor.startup(() => {
     user.picks = [];//TODO fill with one per game plus one extra per week (bonus)
     user.tiebreakers = [];//TODO fill with one per week
     user.survivor = [];//TODO fill with one per week
+//TODO log user creation
     return user;
   });
 
@@ -65,9 +67,10 @@ Meteor.startup(() => {
         throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
         return false;
       } else {
-        User.update({ _id: user._id }, { $set: { verified: true }});
+        Meteor.users.update({ _id: user._id }, { $set: { verified: true }});
       }
     }
+//TODO log sign in
     return true;
   });
 });

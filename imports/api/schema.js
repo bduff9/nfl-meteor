@@ -147,16 +147,7 @@ export const User = Class.create({
       type: [SurvivorPick]
     }
   },
-  indexes: {
-    email: {
-      fields: {
-        email: 1
-      },
-      options: {
-        unique: true
-      }
-    }
-  }
+  indexes: {}
 });
 
 export const NFLLogs = new Mongo.Collection('nfl-logs');

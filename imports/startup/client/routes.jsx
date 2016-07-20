@@ -85,7 +85,9 @@ function verifyEmail(nextState, replace) {
 function logOut(nextState, replace) {
   const { location } = nextState;
   if (Meteor.userId()) {
-    Meteor.logout();
+    Meteor.logout((err) => {
+//TODO log sign out
+    });
   } else if (!location.state.isLogout) {
     replace({
       pathname: '/login'

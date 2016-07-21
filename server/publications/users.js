@@ -6,6 +6,7 @@ Meteor.publish('userData', function() {
   if (!this.userId) return null;
   return User.find(this.userId, {
     fields: {
+      '_id': 1,
       'services.facebook.email': 1,
       'services.google.email': 1,
       'profile': 1,

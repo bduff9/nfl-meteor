@@ -1,6 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Class } from 'meteor/jagi:astronomy';
 
+import { ACTIONS } from './constants';
+
 export const History = Class.create({
   name: 'History',
   secured: true,
@@ -159,19 +161,28 @@ export const Pick = Class.create({
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
     },
     game_id: String,
-    pick_id: String,
+    pick_id: {
+      type: String,
+      optional: true
+    },
     pick_short: {
       type: String,
-      validators: [{ type: 'length', param: 3 }]
+      validators: [{ type: 'length', param: 3 }],
+      optional: true
     },
     points: {
       type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }] }]
+      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }] }],
+      optional: true
     },
-    winner_id: String,
+    winner_id: {
+      type: String,
+      optional: true
+    },
     winner_short: {
       type: String,
-      validators: [{ type: 'length', param: 3 }]
+      validators: [{ type: 'length', param: 3 }],
+      optional: true
     }
   },
   indexes: {}
@@ -187,15 +198,18 @@ export const Tiebreaker = Class.create({
     },
     last_score: {
       type: Number,
-      validators: [{ type: 'gt', param: 0 }]
+      validators: [{ type: 'gt', param: 0 }],
+      optional: true
     },
     last_score_act: {
       type: Number,
-      validators: [{ type: 'gte', param: 0 }]
+      validators: [{ type: 'gte', param: 0 }],
+      optional: true
     },
     final_place: {
       type: Number,
-      validators: [{ type: 'gt', param: 0 }]
+      validators: [{ type: 'gt', param: 0 }],
+      optional: true
     }
   },
   indexes: {}
@@ -209,16 +223,27 @@ export const SurvivorPick = Class.create({
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
     },
-    game_id: String,
-    pick_id: String,
+    game_id: {
+      type: String,
+      optional: true
+    },
+    pick_id: {
+      type: String,
+      optional: true
+    },
     pick_short: {
       type: String,
-      validators: [{ type: 'length', param: 3 }]
+      validators: [{ type: 'length', param: 3 }],
+      optional: true
     },
-    winner_id: String,
+    winner_id: {
+      type: String,
+      optional: true
+    },
     winner_short: {
       type: String,
-      validators: [{ type: 'length', param: 3 }]
+      validators: [{ type: 'length', param: 3 }],
+      optional: true
     }
   },
   indexes: {}
@@ -278,7 +303,7 @@ export const User = Class.create({
   indexes: {}
 });
 
-export const NFLLogs = new Mongo.Collection('nfl-logs');
+export const NFLLogs = new Mongo.Collection('nfllogs');
 export const NFLLog = Class.create({
   name: 'NFLLog',
   collection: NFLLogs,
@@ -286,7 +311,7 @@ export const NFLLog = Class.create({
   fields: {
     action: {
       type: String,
-      validators: [{ type: 'choice', param: ['LOGIN', 'LOGOUT', 'MESSAGE', 'SAVE_PICKS'] }]
+      validators: [{ type: 'choice', param: ACTIONS }]
     },
     when: Date,
     message: {

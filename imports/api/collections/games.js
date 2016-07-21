@@ -14,12 +14,28 @@ export const initSchedule = new ValidatedMethod({
           weeks = 17,
           data = { TYPE: 'nflSchedule', JSON: 1 },
           url = `http://www03.myfantasyleague.com/${currYear}/export`;
-      let response, games, game, kickoff, timeRemaining, hTeamData, vTeamData, hTeam, vTeam;
+      let response, games, game, bonus, hTeamData, vTeamData, hTeam, vTeam;
       for (let w = 1; w <= weeks; w++) {
         data.W = w;
         response = HTTP.get(url, { params: data });
         games = response.data.nflSchedule.matchup;
         console.log('Week ' + w + ': ' + games.length + ' games');
+        // Insert one bonus game per week
+        bonus = Team.findOne({ short_name: 'BON' });
+        game = new Game({
+          week: w,
+          game: 0,
+          home_id: bonus._id,
+          home_short: bonus.short_name,
+          home_score: 0,
+          visitor_id: bonus._id,
+          visitor_short: bonus.short_name,
+          visitor_score: 0,
+          status: 'P',
+          kickoff: convertEpoch(parseInt(games[0].kickoff, 10)),
+          time_left: 3600
+        });
+        game.save();
         games.forEach((gameObj, i) => {
           gameObj.team.forEach(team => {
             if (team.isHome === '1') hTeamData = team;

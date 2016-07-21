@@ -1,8 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 
-import '../imports/api/collections/users';
 import '../imports/api/collections/games';
-import { User } from '../imports/api/schema';
+import '../imports/api/collections/nfllogs';
+import '../imports/api/collections/teams';
+import '../imports/api/collections/users';
+import { Game, NFLLog, User } from '../imports/api/schema';
+import { writeLog } from '../imports/api/collections/nfllogs';
+import { logError } from '../imports/api/global';
 
 const gmailUrl = Meteor.settings.private.gmail;
 
@@ -15,7 +19,7 @@ Meteor.startup(() => {
         last_name = EMPTY_VAL,
         email = EMPTY_VAL,
         verified = true,
-        existingCount;
+        existingCount, firstName, lastName, logEntry;
 //TODO handle sign up expiration here
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
@@ -45,17 +49,32 @@ Meteor.startup(() => {
     user.total_points = 0;
     user.total_games = 0;
     user.bonus_points = 0;
-    user.picks = [];//TODO fill with one per game plus one extra per week (bonus)
-    user.tiebreakers = [];//TODO fill with one per week
-    user.survivor = [];//TODO fill with one per week
-//TODO log user creation
+    user.picks = Game.find().map(game => {
+      return {
+        "week": game.week,
+        "game_id": game._id
+      };
+    });
+    user.tiebreakers = Game.find({ game: 1 }).map(game => {
+      return {
+        "week": game.week
+      };
+    });
+    user.survivor = Game.find({ game: 1 }).map(game => {
+      return {
+        "week": game.week
+      };
+    });
+    firstName = first_name || 'An unknown';
+    lastName = last_name || 'user';
+    writeLog.call({ userId: user._id, action: 'REGISTER', message: `${firstName} ${lastName} registered with email ${email}` }, logError);
     return user;
   });
 
   Accounts.validateLoginAttempt((parms) => {
     const { allowed, methodName, user } = parms;
     let verified = false,
-        vEmails;
+        vEmails, logEntry;
     if (methodName === 'createUser' && parms.user) {
       Accounts.sendVerificationEmail(parms.user._id);
       return false;
@@ -70,7 +89,7 @@ Meteor.startup(() => {
         Meteor.users.update({ _id: user._id }, { $set: { verified: true }});
       }
     }
-//TODO log sign in
+    if (user) writeLog.call({ userId: user._id, action: 'LOGIN', message: `${user.first_name} ${user.last_name} successfully signed in` }, logError);
     return true;
   });
 });

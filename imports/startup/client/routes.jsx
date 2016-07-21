@@ -5,6 +5,8 @@ import React, { PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 
+import { NFLLog } from '../../api/schema';
+import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 import { App } from '../../ui/layouts/app.jsx';
 import { Dashboard } from '../../ui/pages/dashboard.jsx';
@@ -83,10 +85,12 @@ function verifyEmail(nextState, replace) {
 }
 
 function logOut(nextState, replace) {
-  const { location } = nextState;
+  const { location } = nextState,
+      user = Meteor.user();
+  let logEntry;
   if (Meteor.userId()) {
     Meteor.logout((err) => {
-//TODO log sign out
+      writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, displayError);
     });
   } else if (!location.state.isLogout) {
     replace({

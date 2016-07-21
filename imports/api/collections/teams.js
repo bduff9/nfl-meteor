@@ -6,7 +6,7 @@ import { Team } from '../schema';
 
 export const initTeams = new ValidatedMethod({
   name: 'Team.insert',
-  validate: new SimpleSchema({}).validator(),
+  validate: null,
   run() {
     if (Meteor.isServer) {
       const data = Assets.getText('teams.json'),

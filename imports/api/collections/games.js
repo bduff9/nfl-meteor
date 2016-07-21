@@ -2,12 +2,12 @@
 
 import { Meteor } from 'meteor/meteor';
 
-import { Game, Team } from '../schema';
+import { Game, Games, Team } from '../schema';
 import { convertEpoch } from '../global';
 
 export const initSchedule = new ValidatedMethod({
   name: 'Game.insert',
-  validate: new SimpleSchema({}).validator(),
+  validate: null,
   run() {
     if (Meteor.isServer) {
       const currYear = new Date().getFullYear(),
@@ -75,5 +75,29 @@ export const initSchedule = new ValidatedMethod({
         });
       }
     }
+  }
+});
+
+export const currentWeek = new ValidatedMethod({
+  name: 'Game.getCurrentWeek',
+  validate: null,
+  run() {
+    const MIN_WEEK = 1,
+        MAX_WEEK = 17;
+    let nextGame, currWeek;
+    if (!this.userId) throw new Meteor.Error('Game.getCurrentWeek.notLoggedIn', 'Must be logged in to view current week');
+//TODO this function doesn't work, most likely is this query here
+    nextGame = Game.find({ status: { $ne: 'C' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }, limit: 1 });
+    if (!nextGame) {
+      currWeek = MAX_WEEK;
+    } else if (nextGame.game === 1) {
+      //TODO Handle in between weeks
+      currWeek = 33;
+    } else {
+      currWeek = nextGame.week;
+    }
+    if (currWeek < MIN_WEEK) return MIN_WEEK;
+    if (currWeek > MAX_WEEK) return MAX_WEEK;
+    return currWeek;
   }
 });

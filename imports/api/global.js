@@ -11,6 +11,7 @@ export const logError = (err) => {
   console.error('Error from logError', err);
 };
 
+/* BD - Not currently using the below
 export const convertShortName = (shortName) => {
   switch (shortName) {
   case 'NEP': return 'NE';
@@ -22,4 +23,11 @@ export const convertShortName = (shortName) => {
   case 'SFO': return 'SF';
   default: return shortName;
   }
+};
+*/
+
+export const convertEpoch = (epoch) => {
+  let d = new Date(0);
+  d.setUTCSeconds(epoch);
+  return d;
 };

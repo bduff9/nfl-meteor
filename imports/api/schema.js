@@ -27,7 +27,8 @@ export const Team = Class.create({
     },
     rank: {
       type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 4 }] }]
+      validators: [{ type: 'and', param: [{ type: 'gte', param: 0 }, { type: 'lte', param: 4 }] }],
+      optional: true
     },
     logo: String,
     logo_small: String,

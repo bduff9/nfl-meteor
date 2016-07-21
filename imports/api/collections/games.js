@@ -2,7 +2,8 @@
 
 import { Meteor } from 'meteor/meteor';
 
-import { Game } from '../schema';
+import { Game, Team } from '../schema';
+import { convertEpoch } from '../global';
 
 export const initSchedule = new ValidatedMethod({
   name: 'Game.insert',
@@ -13,11 +14,26 @@ export const initSchedule = new ValidatedMethod({
           weeks = 17,
           data = { TYPE: 'nflSchedule', JSON: 1 },
           url = `http://www03.myfantasyleague.com/${currYear}/export`;
-      let response;
+      let response, games, game, kickoff, timeRemaining;
       for (let w = 1; w <= weeks; w++) {
         data.W = w;
         response = HTTP.get(url, { params: data });
-        console.log('Week ' + w + ': ' + response.data.nflSchedule.matchup.length + ' games');
+        games = response.data.nflSchedule.matchup;
+        console.log('Week ' + w + ': ' + games.length + ' games');
+        games.forEach((gameObj, i) => {
+          game = new Game({
+
+          });
+          kickoff = convertEpoch(parseInt(gameObj.kickoff, 10));
+          //game.save();
+        });
+        //TODO populate game
+        //TODO populate team
+        /*"UPDATE NFL.TEAMS SET RUSHOFFENSE=0" + team.getAttribute("rushOffenseRank") + ", RUSHDEFENSE=0" + team.getAttribute("rushDefenseRank")
+						+ ", PASSOFFENSE=0" + team.getAttribute("passOffenseRank") + ", PASSDEFENSE=0" + team.getAttribute("passDefenseRank")
+						+ ", HASPOSSESSION='" + (team.getAttribute("hasPossession") == "" ? 0 : team.getAttribute("hasPossession"))
+		        + "', INREDZONE='" + (team.getAttribute("inRedZone") == "" ? 0 : team.getAttribute("inRedZone")) + "' WHERE SHORT='" + team.getAttribute("id") + "'"
+        */
       }
     }
   }

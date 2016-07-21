@@ -36,7 +36,7 @@ export default class EditProfile extends Component {
     this.setState({ [el.id]: el.value });
   }
   _handleReferredBy(showReferredBy, ev) {
-    this.setState({ showReferredBy, referredBy: (!showReferredBy ? 'RETURNING' : this.state.referredBy) });
+    this.setState({ showReferredBy, referredBy: (!showReferredBy ? 'RETURNING' : '') });
   }
   _oauthLink(service, ev) {
     const options = {

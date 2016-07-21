@@ -17,11 +17,11 @@ export const Team = Class.create({
       type: String,
       validators: [{ type: 'and', param: [{ type: 'minLength', param: 2 }, { type: 'maxLength', param: 3 }] }]
     },
-    division_name: {
+    conference: {
       type: String,
       validators: [{ type: 'choice', param: ['AFC', 'NFC'] }]
     },
-    division_direction: {
+    division: {
       type: String,
       validators: [{ type: 'choice', param: ['East', 'North', 'South', 'West'] }]
     },
@@ -41,23 +41,28 @@ export const Team = Class.create({
     },
     rush_defense: {
       type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
+      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }],
+      optional: true
     },
     pass_defense: {
       type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
+      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }],
+      optional: true
     },
     rush_offense: {
       type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
+      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }],
+      optional: true
     },
     pass_offense: {
       type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }]
+      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 32 }] }],
+      optional: true
     },
     bye_week: {
       type: Number,
-      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
+      validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }],
+      optional: true
     }
   },
   indexes: {}

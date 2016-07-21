@@ -1,6 +1,19 @@
 import { Meteor } from 'meteor/meteor';
 import { Class } from 'meteor/jagi:astronomy';
 
+export const History = Class.create({
+  name: 'History',
+  secured: true,
+  fields: {
+    game_id: String,
+    opponent_id: String,
+    was_home: Boolean,
+    did_win: Boolean,
+    final_score: String
+  },
+  indexes: {}
+});
+
 export const Teams = new Mongo.Collection('teams');
 export const Team = Class.create({
   name: 'Team',
@@ -64,6 +77,10 @@ export const Team = Class.create({
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }],
       optional: true
+    },
+    history: {
+      type: [History],
+      default: () => []
     }
   },
   indexes: {}
@@ -92,7 +109,7 @@ export const Game = Class.create({
       type: Number,
       validators: [{ type: 'gte', param: 0 }]
     },
-    vistor_id: String,
+    visitor_id: String,
     visitor_short: {
       type: String,
       validators: [{ type: 'length', param: 3 }]
@@ -101,10 +118,14 @@ export const Game = Class.create({
       type: Number,
       validators: [{ type: 'gte', param: 0 }]
     },
-    winner_id: String,
+    winner_id: {
+      type: String,
+      optional: true
+    },
     winner_short: {
       type: String,
-      validators: [{ type: 'length', param: 3 }]
+      validators: [{ type: 'length', param: 3 }],
+      optional: true
     },
     status: {
       type: String,
@@ -117,11 +138,13 @@ export const Game = Class.create({
     },
     has_possession: {
       type: String,
-      validators: [{ type: 'choice', param: ['', 'H', 'V'] }]
+      validators: [{ type: 'choice', param: ['H', 'V'] }],
+      optional: true
     },
     in_redzone: {
       type: String,
-      validators: [{ type: 'choice', param: ['', 'H', 'V'] }]
+      validators: [{ type: 'choice', param: ['H', 'V'] }],
+      optional: true
     }
   },
   indexes: {}

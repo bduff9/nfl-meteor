@@ -4,7 +4,7 @@ import '../imports/api/collections/games';
 import '../imports/api/collections/nfllogs';
 import '../imports/api/collections/teams';
 import '../imports/api/collections/users';
-import { Game, NFLLog, User } from '../imports/api/schema';
+import { Game } from '../imports/api/schema';
 import { writeLog } from '../imports/api/collections/nfllogs';
 import { logError } from '../imports/api/global';
 

@@ -7,12 +7,15 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { User } from '../../api/schema';
 import AppData from './AppData.jsx';
+import { currentWeek } from '../../api/collections/games';
+import { displayError } from '../../api/global';
 
 export default createContainer(() => {
-  Deps.autorun(function() {
-    Meteor.subscribe('userData');
-  });
+  const userHandle = Meteor.subscribe('userData'),
+      gameHandle = Meteor.subscribe('allGames'),
+      gamesReady = gameHandle.ready();
   return {
-    user: Meteor.user()
+    user: Meteor.user(),
+    currentWeek: gamesReady ? currentWeek.call(displayError) : false
   };
 }, AppData);

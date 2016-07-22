@@ -4,6 +4,7 @@
 import React, { PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import { Session } from 'meteor/session';
 
 import { NFLLog } from '../../api/schema';
 import { writeLog } from '../../api/collections/nfllogs';
@@ -91,6 +92,8 @@ function logOut(nextState, replace) {
   if (Meteor.userId()) {
     Meteor.logout((err) => {
       writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, displayError);
+      Object.keys(Session.keys).forEach(key => Session.set(key, undefined));
+      Session.keys = {};
     });
   } else if (!location.state.isLogout) {
     replace({

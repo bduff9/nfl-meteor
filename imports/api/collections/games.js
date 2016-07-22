@@ -84,15 +84,14 @@ export const currentWeek = new ValidatedMethod({
   run() {
     const MIN_WEEK = 1,
         MAX_WEEK = 17;
-    let nextGame, currWeek;
-    if (!this.userId) throw new Meteor.Error('Game.getCurrentWeek.notLoggedIn', 'Must be logged in to view current week');
-//TODO this function doesn't work, most likely is this query here
-    nextGame = Game.find({ status: { $ne: 'C' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }, limit: 1 });
+    let currTime = Math.round(new Date().getTime() / 1000),
+        nextGame, currWeek, startOfNextWeek;
+    nextGame = Game.find({ status: { $ne: 'C' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
     if (!nextGame) {
       currWeek = MAX_WEEK;
     } else if (nextGame.game === 1) {
-      //TODO Handle in between weeks
-      currWeek = 33;
+      startOfNextWeek = Math.round(nextGame.kickoff.getTime() / 1000) - (24 * 3600);
+      currWeek = currTime >= startOfNextWeek ? nextGame.week : nextGame.week - 1;
     } else {
       currWeek = nextGame.week;
     }

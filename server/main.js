@@ -1,4 +1,7 @@
+'use strict';
+
 import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
 
 import '../imports/api/collections/games';
 import '../imports/api/collections/nfllogs';
@@ -89,7 +92,6 @@ Meteor.startup(() => {
         Meteor.users.update({ _id: user._id }, { $set: { verified: true }});
       }
     }
-    if (user) writeLog.call({ userId: user._id, action: 'LOGIN', message: `${user.first_name} ${user.last_name} successfully signed in` }, logError);
     return true;
   });
 });

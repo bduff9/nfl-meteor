@@ -82,6 +82,7 @@ export const currentWeek = new ValidatedMethod({
   name: 'Game.getCurrentWeek',
   validate: null,
   run() {
+console.log('curretn week call');
     const MIN_WEEK = 1,
         MAX_WEEK = 17;
     let currTime = Math.round(new Date().getTime() / 1000),

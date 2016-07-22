@@ -4,18 +4,20 @@
 import React, { PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
 
 import { User } from '../../api/schema';
 import AppData from './AppData.jsx';
-import { currentWeek } from '../../api/collections/games';
-import { displayError } from '../../api/global';
 
+//TODO combine this and AppData
+//TODO remove game sub from here and move to App
 export default createContainer(() => {
   const userHandle = Meteor.subscribe('userData'),
-      gameHandle = Meteor.subscribe('allGames'),
-      gamesReady = gameHandle.ready();
+      userReady = userHandle.ready();
+  Meteor.subscribe('allGames');
   return {
-    user: Meteor.user(),
-    currentWeek: gamesReady ? currentWeek.call(displayError) : false
+    userLoaded: userReady,
+    currentWeek: Session.get('currentWeek'),
+    selectedWeek: Session.get('selectedWeek')
   };
 }, AppData);

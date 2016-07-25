@@ -3,6 +3,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
+import { Session } from 'meteor/session';
 
 import '/imports/ui/pages/main.html';
 import '/imports/startup/client';

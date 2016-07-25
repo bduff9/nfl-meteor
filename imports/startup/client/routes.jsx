@@ -9,8 +9,8 @@ import { Session } from 'meteor/session';
 import { NFLLog } from '../../api/schema';
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
-import { App } from '../../ui/layouts/app.jsx';
-import { Dashboard } from '../../ui/pages/dashboard.jsx';
+import AuthedLayout from '../../ui/layouts/AuthedLayout.jsx';
+import Dashboard from '../../ui/pages/Dashboard.jsx';
 import { Loading } from '../../ui/pages/loading.jsx';
 import Login from '../../ui/pages/login.jsx';
 import { Logout } from '../../ui/pages/logout.jsx';
@@ -107,7 +107,7 @@ export const Routes = () => (
     <Route path="/verify-email/:token" component={Loading} onEnter={verifyEmail} />
     <Route path="/login" component={Login} onEnter={requireNoAuth} />
     <Route path="/logout" component={Logout} onEnter={logOut} />
-    <Route path="/" component={App} onEnter={requireAuth}>
+    <Route path="/" component={AuthedLayout} onEnter={requireAuth}>
       <IndexRoute component={Dashboard} onEnter={validateUser} />
       <Route path="/picks" onEnter={validateUser}>
         <Route path="set" component={MakePicks} />

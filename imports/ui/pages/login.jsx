@@ -1,6 +1,10 @@
 /*jshint esversion: 6 */
 'use strict';
 
+import $ from 'jquery';
+import 'jquery-validation';
+import { Accounts } from 'meteor/accounts-base';
+import { Bert } from 'meteor/themeteorchef:bert';
 import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Link } from 'react-router';
@@ -11,11 +15,18 @@ export default class Login extends Component {
 
   constructor(props) {
     super();
-    this.state = {};
+    this.state = {
+      type: 'login'
+    };
     this._oauthLogin = this._oauthLogin.bind(this);
-    this._emailLogin = this._emailLogin.bind(this);
+    this._validate = this._validate.bind(this);
+    this._submitEmail = this._submitEmail.bind(this);
+    this._toggleType = this._toggleType.bind(this);
   }
 
+  componentDidMount() {
+    this._validate();
+  }
   _oauthLogin(service, ev) {
     const options = {
           requestPermissions: ['email']
@@ -32,13 +43,37 @@ export default class Login extends Component {
       }
     });
   }
-  _emailLogin(type, ev) {
-    const email = jQuery('#email').val().trim(),
-        password = jQuery('#password').val().trim();
+  _emailLogin(ev) {
     ev.preventDefault();
-//TODO validation
-    jQuery('#sign-in-with-email-modal').modal('hide');
-    if (type === 'create') {
+  }
+  _validate() {
+    const that = this;
+    $(this.refs.emailForm).validate({
+      submitHandler() {
+        that._submitEmail();
+      },
+      rules: {
+        email: {
+          required: true,
+          email: true
+        },
+        password: {
+          required: true,
+          minlength: 6
+        }
+      },
+      messages: {
+        email: 'Please enter a valid email address',
+        password: 'Password must be at least six characters'
+      }
+    });
+  }
+  _submitEmail() {
+    const { type } = this.state,
+        email = this.refs.email.value.trim(),
+        password = this.refs.password.value.trim();
+    $('#sign-in-with-email-modal').modal('hide');
+    if (type === 'register') {
       Accounts.createUser({
         email: email,
         password: password
@@ -70,8 +105,14 @@ export default class Login extends Component {
       });
     }
   }
+  _toggleType(ev) {
+    let { type } = this.state;
+    type = (type === 'login' ? 'register' : 'login');
+    this.setState({ type });
+  }
 
   render() {
+    const { type } = this.state;
     return (
       <div>
         <ul className="btn-list">
@@ -99,22 +140,22 @@ export default class Login extends Component {
                   <span aria-hidden="true">&times;</span>
                   <span className="sr-only">Close</span>
                 </button>
-                <h4 className="modal-title" id="sign-in">Sign In With Email</h4>
+                <h4 className="modal-title" id="sign-in">{type === 'login' ? 'Sign In' : 'Register New Account'}</h4>
               </div>
-              <form id="sign-in-with-email">
+              <form ref="emailForm" id="sign-in-with-email" onSubmit={this._emailLogin}>
                 <div className="modal-body">
                   <div className="form-group">
                     <label htmlFor="emailAddress">Email Address</label>
-                    <input type="email" name="emailAddress" id="email" className="form-control" placeholder="What's your email, friend?" />
+                    <input ref="email" type="email" name="email" id="email" className="form-control" placeholder="What's your email, friend?" />
                   </div>
                   <div className="form-group">
                     <label htmlFor="password">Password</label>
-                    <input type="password" name="password" id="password" className="form-control" placeholder="How about a password, pal?" />
+                    <input ref="password" type="password" name="password" id="password" className="form-control" placeholder="How about a password, pal?" />
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button type="submit" className="btn btn-primary" onClick={this._emailLogin.bind(null, 'create')}>Create Account</button>
-                  <button type="submit" className="btn btn-default" onClick={this._emailLogin.bind(null, 'login')}>Sign In</button>
+                  <button type="button" className="btn btn-default" onClick={this._toggleType}>{type === 'login' ? 'Register Instead' : 'Login Instead'}</button>
+                  <button type="submit" className="btn btn-primary">{type === 'login' ? 'Sign In' : 'Register'}</button>
                 </div>
               </form>
             </div>

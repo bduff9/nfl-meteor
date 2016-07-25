@@ -8,6 +8,7 @@ import '../imports/api/collections/nfllogs';
 import '../imports/api/collections/teams';
 import '../imports/api/collections/users';
 import { Game } from '../imports/api/schema';
+import { currentWeek } from '../imports/api/collections/games';
 import { writeLog } from '../imports/api/collections/nfllogs';
 import { logError } from '../imports/api/global';
 
@@ -17,13 +18,17 @@ Meteor.startup(() => {
   process.env.MAIL_URL = gmailUrl;
 
   Accounts.onCreateUser((options, user) => {
-    const EMPTY_VAL = '';
+    const currentWeekSync = Meteor.wrapAsync(currentWeek.call, currentWeek),
+        currWeek = currentWeekSync(logError),
+        EMPTY_VAL = '';
     let first_name = EMPTY_VAL,
         last_name = EMPTY_VAL,
         email = EMPTY_VAL,
         verified = true,
         existingCount, firstName, lastName, logEntry;
-//TODO handle sign up expiration here
+//TODO currweek is undefined
+console.log('currweek', currWeek);
+    if (currWeek > 3) throw new Meteor.Error('Registration has ended', 'No new users are allowed after the third week.  Please try again next year');
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
       last_name = user.services.facebook.last_name;

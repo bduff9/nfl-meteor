@@ -2,6 +2,18 @@
 
 import { Game } from '../../imports/api/schema';
 
+Meteor.publish('nextGame', function() {
+  return Game.find({ status: { $ne: 'C' }, game: { $ne: 0 }}, {
+    fields: {
+      '_id': 1,
+      'week': 1,
+      'game': 1,
+      'status': 1,
+      'kickoff': 1
+    }
+  });
+});
+
 Meteor.publish('allGames', function() {
   if (!this.userId) return null;
   return Game.find({}, {

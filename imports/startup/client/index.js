@@ -2,10 +2,10 @@
 'use strict';
 
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
-import AppDataContainer from '../../ui/components/AppDataContainer.jsx';
+
+import NFLPool from '../../ui/components/NFLPool.jsx';
 
 Meteor.startup(() => {
-  render(<AppDataContainer />, document.getElementById('react-root'));
+  render(<NFLPool />, document.getElementById('react-root'));
 });

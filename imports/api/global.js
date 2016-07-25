@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 'use strict';
 
 export const displayError = (err, opts = { title: err && err.reason, type: 'danger' }) => {

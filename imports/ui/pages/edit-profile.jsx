@@ -1,6 +1,9 @@
 /*jshint esversion: 6 */
 'use strict';
 
+import $ from 'jquery';
+import 'jquery-validation';
+import { Bert } from 'meteor/themeteorchef:bert';
 import { Meteor } from 'meteor/meteor';
 import React, { Component, PropTypes } from 'react';
 
@@ -29,8 +32,12 @@ export default class EditProfile extends Component {
     this._handleChanges = this._handleChanges.bind(this);
     this._handleReferredBy = this._handleReferredBy.bind(this);
     this._updateUser = this._updateUser.bind(this);
+    this._validate = this._validate.bind(this);
   }
 
+  componentDidMount() {
+    this._validate();
+  }
   _handleChanges(ev) {
     const el = ev.currentTarget;
     this.setState({ [el.id]: el.value });
@@ -53,13 +60,14 @@ export default class EditProfile extends Component {
       }
     });
   }
-  _updateUser(ev) {
+  _submitForm(ev) {
+    ev.preventDefault();
+  }
+  _updateUser() {
     const { firstName, isCreate, lastName, referredBy, teamName } = this.state,
         { router } = this.context,
         userId = Meteor.userId(),
         DONE_REGISTERING = true;
-    ev.preventDefault();
-//TODO client validation
     try {
       updateUser.call({ done_registering: DONE_REGISTERING, first_name: firstName, last_name: lastName, referred_by: referredBy, team_name: teamName }, displayError);
       if (isCreate) {
@@ -76,6 +84,37 @@ export default class EditProfile extends Component {
       displayError(err);
     }
   }
+  _validate() {
+    const that = this;
+    $(this.refs.userForm).validate({
+      submitHandler() {
+        that._updateUser();
+      },
+      rules: {
+        email: {
+          required: true,
+          email: true
+        },
+        firstName: {
+          required: true
+        },
+        lastName: {
+          required: true
+        },
+        was_referred: {
+          required: true
+        },
+        referredBy: {
+          required: true
+        }
+      },
+//TODO finish messages and align messages for was_referred radios and referredBy
+      messages: {
+        email: 'Please enter a valid email address',
+        password: 'Password must be at least six characters'
+      }
+    });
+  }
 
   render() {
     const { firstName, hasFacebook, hasGoogle, isCreate, isEdit, lastName, referredBy, showReferredBy, teamName } = this.state,
@@ -84,7 +123,7 @@ export default class EditProfile extends Component {
       <div className="container-fluid">
         <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
         <br />
-        <form onSubmit={this._updateUser}>
+        <form ref="userForm" onSubmit={this._submitForm}>
           <div className="row">
             <div className="col-xs-12 form-group floating-label-form-group floating-label-form-group-with-value">
               <label>Email</label>
@@ -94,11 +133,11 @@ export default class EditProfile extends Component {
           <div className="row">
             <div className={'col-xs-6 form-group floating-label-form-group' + (user.first_name ? ' floating-label-form-group-with-value' : '')}>
               <label htmlFor="first_name">First Name</label>
-              <input type="text" className="form-control" id="firstName" placeholder="First Name" value={firstName} required={true} onChange={this._handleChanges} />
+              <input type="text" className="form-control" id="firstName" name="firstName" placeholder="First Name" value={firstName} required={true} onChange={this._handleChanges} />
             </div>
             <div className={'col-xs-6 form-group floating-label-form-group' + (user.last_name ? ' floating-label-form-group-with-value' : '')}>
               <label htmlFor="last_name">Last Name</label>
-              <input type="text" className="form-control" id="lastName" placeholder="Last Name" value={lastName} required={true} onChange={this._handleChanges} />
+              <input type="text" className="form-control" id="lastName" name="lastName" placeholder="Last Name" value={lastName} required={true} onChange={this._handleChanges} />
             </div>
           </div>
           <div className="row">
@@ -111,13 +150,14 @@ export default class EditProfile extends Component {
             <div className="row">
               <div className="col-xs-12 form-group">
                 <div className="radio">
-                  <label>
+                  <label htmlFor="was_referred" className="error" style={{ display: 'none' }}></label>
+                  <label htmlFor="referred_byN">
                     <input type="radio" id="referred_byN" name="was_referred" onClick={this._handleReferredBy.bind(null, false)} />
                     I have played previously
                   </label>
                 </div>
                 <div className="radio">
-                  <label>
+                  <label htmlFor="referred_byY">
                     <input type="radio" id="referred_byY" name="was_referred" onClick={this._handleReferredBy.bind(null, true)} />
                     I am new and was referred by:
                   </label>
@@ -131,7 +171,7 @@ export default class EditProfile extends Component {
             <div className="row">
               <div className={'col-xs-12 form-group floating-label-form-group' + (user.referred_by ? ' floating-label-form-group-with-value' : '')}>
                 <label htmlFor="referred_by">Name of Referrer</label>
-                <input type="text" className="form-control" id="referredBy" placeholder="Referred By" defaultValue={referredBy} onChange={this._handleChanges} />
+                <input type="text" className="form-control" id="referredBy" name="referredBy" placeholder="Referred By" defaultValue={referredBy} onChange={this._handleChanges} />
               </div>
             </div>
             :

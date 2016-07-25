@@ -34,3 +34,5 @@ aldeed:simple-schema
 mdg:validated-method
 http
 session
+percolate:synced-cron
+themeteorchef:jquery-validation

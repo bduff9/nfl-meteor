@@ -13,7 +13,10 @@ SyncedCron.add({
 SyncedCron.add({
   name: 'Send email notifications',
   schedule: parse => parse.recur().on(30).minute(),
-  job: () => console.log('TODO: Email task run')
+  job: () => {
+    console.log('TODO: Email task run');
+    return 'TODO: Email task run';
+  }
 });
 
 Meteor.startup(() => {

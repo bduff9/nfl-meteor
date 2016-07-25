@@ -6,7 +6,7 @@ import './navigation.scss';
 export const Navigation = (props) => {
   const { logoutOnly } = props;
   return (
-    <div>
+    <div className="navigation">
       {!logoutOnly ?
         <ul>
           <li><IndexLink to="/" activeClassName="active">Home</IndexLink></li>

@@ -1,0 +1,1 @@
+.navigation ul{list-style-type:none}.navigation li{display:inline}.navigation li>a{text-decoration:none;color:black;background-color:grey;border-radius:10px;margin:0 5px;padding:4px 6px}.navigation li>.active{background-color:red}

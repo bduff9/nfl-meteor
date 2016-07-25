@@ -114,53 +114,53 @@ export default class Login extends Component {
   render() {
     const { type } = this.state;
     return (
-      <div>
-        <ul className="btn-list">
-          <li>
-            <button type="button" className="btn btn-primary" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
-              <i className="fa fa-facebook"></i> Sign in with Facebook
-            </button>
-          </li>
-          <li>
-            <button type="button" className="btn btn-danger" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
-              <i className="fa fa-google"></i> Sign in with Google
-            </button>
-          </li>
-          <li>
-            <button type="button" className="btn btn-success" data-toggle="modal" data-target="#sign-in-with-email-modal">
-              <i className="fa fa-envelope"></i> Sign in with Email
-            </button>
-          </li>
-        </ul>
-        <div className="modal fade" id="sign-in-with-email-modal" tabIndex="-1" role="dialog" aria-labelledby="sign-in-with-email-modal" aria-hidden="true">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <button type="button" className="close" data-dismiss="modal">
-                  <span aria-hidden="true">&times;</span>
-                  <span className="sr-only">Close</span>
-                </button>
-                <h4 className="modal-title" id="sign-in">{type === 'login' ? 'Sign In' : 'Register New Account'}</h4>
+      <div className="text-xs-center">
+          <ul className="well well-lg btn-group btn-group-vertical btn-group-justified">
+            <li>
+              <button type="button" className="btn btn-primary btn-lg btn-block" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
+                <i className="fa fa-facebook"></i> Sign in with Facebook
+              </button>
+            </li>
+            <li>
+              <button type="button" className="btn btn-danger btn-lg btn-block" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
+                <i className="fa fa-google"></i> Sign in with Google
+              </button>
+            </li>
+            <li>
+              <button type="button" className="btn btn-success btn-lg btn-block" data-toggle="modal" data-target="#sign-in-with-email-modal">
+                <i className="fa fa-envelope"></i> Sign in with Email
+              </button>
+            </li>
+          </ul>
+          <div className="modal fade" id="sign-in-with-email-modal" tabIndex="-1" role="dialog" aria-labelledby="sign-in-with-email-modal" aria-hidden="true">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <button type="button" className="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span className="sr-only">Close</span>
+                  </button>
+                  <h4 className="modal-title" id="sign-in">{type === 'login' ? 'Sign In' : 'Register New Account'}</h4>
+                </div>
+                <form ref="emailForm" id="sign-in-with-email" onSubmit={this._emailLogin}>
+                  <div className="modal-body">
+                    <div className="form-group">
+                      <label htmlFor="emailAddress">Email Address</label>
+                      <input ref="email" type="email" name="email" id="email" className="form-control" placeholder="What's your email, friend?" />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="password">Password</label>
+                      <input ref="password" type="password" name="password" id="password" className="form-control" placeholder="How about a password, pal?" />
+                    </div>
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-default" onClick={this._toggleType}>{type === 'login' ? 'Register Instead' : 'Login Instead'}</button>
+                    <button type="submit" className="btn btn-primary">{type === 'login' ? 'Sign In' : 'Register'}</button>
+                  </div>
+                </form>
               </div>
-              <form ref="emailForm" id="sign-in-with-email" onSubmit={this._emailLogin}>
-                <div className="modal-body">
-                  <div className="form-group">
-                    <label htmlFor="emailAddress">Email Address</label>
-                    <input ref="email" type="email" name="email" id="email" className="form-control" placeholder="What's your email, friend?" />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="password">Password</label>
-                    <input ref="password" type="password" name="password" id="password" className="form-control" placeholder="How about a password, pal?" />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-default" onClick={this._toggleType}>{type === 'login' ? 'Register Instead' : 'Login Instead'}</button>
-                  <button type="submit" className="btn btn-primary">{type === 'login' ? 'Sign In' : 'Register'}</button>
-                </div>
-              </form>
             </div>
           </div>
-        </div>
       </div>
     );
   }

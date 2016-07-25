@@ -19,15 +19,13 @@ Meteor.startup(() => {
 
   Accounts.onCreateUser((options, user) => {
     const currentWeekSync = Meteor.wrapAsync(currentWeek.call, currentWeek),
-        currWeek = currentWeekSync(logError),
+        currWeek = currentWeekSync(),
         EMPTY_VAL = '';
     let first_name = EMPTY_VAL,
         last_name = EMPTY_VAL,
         email = EMPTY_VAL,
         verified = true,
         existingCount, firstName, lastName, logEntry;
-//TODO currweek is undefined
-console.log('currweek', currWeek);
     if (currWeek > 3) throw new Meteor.Error('Registration has ended', 'No new users are allowed after the third week.  Please try again next year');
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
@@ -57,6 +55,7 @@ console.log('currweek', currWeek);
     user.total_points = 0;
     user.total_games = 0;
     user.bonus_points = 0;
+//TODO sort before insert so they go in in order
     user.picks = Game.find().map(game => {
       return {
         "week": game.week,

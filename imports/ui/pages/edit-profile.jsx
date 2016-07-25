@@ -87,6 +87,8 @@ export default class EditProfile extends Component {
   _validate() {
     const that = this;
     $(this.refs.userForm).validate({
+      errorLabelContainer: '#error-messages',
+      wrapper: 'li',
       submitHandler() {
         that._updateUser();
       },
@@ -108,10 +110,12 @@ export default class EditProfile extends Component {
           required: true
         }
       },
-//TODO finish messages and align messages for was_referred radios and referredBy
       messages: {
         email: 'Please enter a valid email address',
-        password: 'Password must be at least six characters'
+        firstName: 'Please enter your first name',
+        lastName: 'Please enter your surname',
+        was_referred: 'Please select whether you are new or a returning player',
+        referredBy: 'Please indicate who you were referred by'
       }
     });
   }
@@ -122,7 +126,7 @@ export default class EditProfile extends Component {
     return (
       <div className="container-fluid">
         <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
-        <br />
+        <ul id="error-messages"></ul>
         <form ref="userForm" onSubmit={this._submitForm}>
           <div className="row">
             <div className="col-xs-12 form-group floating-label-form-group floating-label-form-group-with-value">
@@ -150,7 +154,6 @@ export default class EditProfile extends Component {
             <div className="row">
               <div className="col-xs-12 form-group">
                 <div className="radio">
-                  <label htmlFor="was_referred" className="error" style={{ display: 'none' }}></label>
                   <label htmlFor="referred_byN">
                     <input type="radio" id="referred_byN" name="was_referred" onClick={this._handleReferredBy.bind(null, false)} />
                     I have played previously

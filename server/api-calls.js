@@ -78,8 +78,88 @@ API = {
     const weeksToRefresh = _.uniq(Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}, {
       sort: { week: 1 }, fields: { _id: 0, week: 1 }
     }).fetch().map(game => game.week), true);
-console.log('Weeks', weeksToRefresh);
-//TODO loop through weeks and update games/users as needed
-console.log('refreshing...');
+    let response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
+    weeksToRefresh.forEach(w => {
+      games = this.getGamesForWeek(w);
+      gameCount = games.length;
+      completeCount = 0;
+      console.log(`Updating week ${w}, ${gameCount} games found`);
+      games.forEach((gameObj, i) => {
+        gameObj.team.forEach(team => {
+          if (team.isHome === '1') hTeamData = team;
+          if (team.isHome === '0') vTeamData = team;
+        });
+        game = Game.findOne({ week: w, home_short: hTeamData.id, visitor_short: vTeamData.id });
+        hTeam = Team.findOne({ short_name: hTeamData.id });
+        vTeam = Team.findOne({ short_name: vTeamData.id });
+        // Update and save this game
+        timeLeft = parseInt(gameObj.gameSecondsRemaining, 10);
+        if (timeLeft >= 3600) {
+          status = 'P';
+        } else if (timeLeft < 3600 && timeLeft > 2700) {
+          status = '1';
+        } else if (timeLeft <= 2700 && timeLeft > 1800) {
+          status = '2';
+        } else if (timeLeft === 1800) {
+          status = 'H';
+        } else if (timeLeft < 1800 && timeLeft > 900) {
+          status = '3';
+        } else if (timeLeft <= 900 && timeLeft > 0) {
+          status = '4';
+        } else if (timeLeft === 0) {
+          status = 'C';
+        } else { // timeLeft is less than 0
+          status = 'I';
+        }
+        game.home_score = parseInt(hTeamData.score || 0, 10);
+        game.visitor_score = parseInt(vTeamData.score || 0, 10);
+        game.status = status;
+        game.time_left = timeLeft;
+        game.has_possession = (hTeamData.hasPossession === '1' ? 'H' : (vTeamData.hasPossession === '1' ? 'V' : null));
+        game.in_redzone = (hTeamData.inRedZone === '1' ? 'H' : (vTeamData.inRedZone === '1' ? 'V' : null));
+        if (status === 'C') {
+          if (game.home_score > game.visitor_score) {
+            winner = hTeam;
+          } else if (game.home_score < game.visitor_score) {
+            winner = vTeam;
+          } else {
+            winner = Team.findOne({ short_name: 'TIE' });
+          }
+          game.winner_id = winner._id;
+          game.winner_short = winner.short_name;
+        }
+        game.save();
+        if (status === 'C') {
+          completeCount++;
+          //TODO if complete, update other collections like history, picks, and survivor
+          console.log(`Game ${game.game} complete, updating history...`);
+          console.log(`Game ${game.game} history updated!`);
+          console.log(`Game ${game.game} complete, updating picks...`);
+          console.log(`Game ${game.game} picks updated!`);
+          console.log(`Game ${game.game} complete, updating survivor...`);
+          console.log(`Game ${game.game} survivor updated!`);
+        }
+        // Update home team data
+        if (hTeamData.passDefenseRank) hTeam.pass_defense = hTeamData.passDefenseRank;
+        if (hTeamData.passOffenseRank) hTeam.pass_offense = hTeamData.passOffenseRank;
+        if (hTeamData.rushDefenseRank) hTeam.rush_defense = hTeamData.rushDefenseRank;
+        if (hTeamData.rushOffenseRank) hTeam.rush_offense = hTeamData.rushOffenseRank;
+        hTeam.save();
+        // Update visiting team data
+        if (vTeamData.passDefenseRank) vTeam.pass_defense = vTeamData.passDefenseRank;
+        if (vTeamData.passOffenseRank) vTeam.pass_offense = vTeamData.passOffenseRank;
+        if (vTeamData.rushDefenseRank) vTeam.rush_defense = vTeamData.rushDefenseRank;
+        if (vTeamData.rushOffenseRank) vTeam.rush_offense = vTeamData.rushOffenseRank;
+        vTeam.save();
+        console.log(`Week ${w} game ${game.game} successfully updated!`);
+      });
+      if (gameCount === completeCount) {
+        console.log(`Week ${w} complete, updating tiebreakers...`);
+        //TODO if all games in week are complete, update tiebreaker
+        //db.users.update({ 'tiebreakers.week': 3 }, { $set: { 'tiebreakers.$.test': '33' }})
+        console.log(`Week ${w} tiebreakers successfully updated!`);
+      }
+      console.log(`Week ${w} successfully updated!`);
+    });
   }
 }

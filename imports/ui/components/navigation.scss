@@ -1,20 +1,22 @@
-ul {
-  list-style-type: none;
-}
+.navigation {
+  ul {
+    list-style-type: none;
+  }
 
-li {
-  display: inline;
-}
+  li {
+    display: inline;
+  }
 
-li > a {
-  text-decoration: none;
-  color: black;
-  background-color: grey;
-  border-radius: 10px;
-  margin: 0 5px;
-  padding: 4px 6px;
-}
+  li > a {
+    text-decoration: none;
+    color: black;
+    background-color: grey;
+    border-radius: 10px;
+    margin: 0 5px;
+    padding: 4px 6px;
+  }
 
-li > .active {
-  background-color: red;
+  li > .active {
+    background-color: red;
+  }
 }

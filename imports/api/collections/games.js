@@ -30,7 +30,6 @@ export const currentWeek = new ValidatedMethod({
     } else {
       currWeek = nextGame.week;
     }
-console.log('current week', currWeek);
     if (currWeek < MIN_WEEK) return MIN_WEEK;
     if (currWeek > MAX_WEEK) return MAX_WEEK;
     return currWeek;
@@ -42,7 +41,7 @@ export const refreshGames = new ValidatedMethod({
   validate: null,
   run() {
     const gamesInProgress = Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}).count();
-    if (gamesInProgress === 0) {
+    if (gamesInProgress === -1) {
       if (Meteor.isServer) {
         return 'No games in progress';
       } else {

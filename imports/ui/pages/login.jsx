@@ -115,23 +115,17 @@ export default class Login extends Component {
     const { type } = this.state;
     return (
       <div className="text-xs-center">
-          <ul className="well well-lg btn-group btn-group-vertical btn-group-justified">
-            <li>
+          <div className="reg_btns well well-lg btn-group btn-group-vertical btn-group-justified">
               <button type="button" className="btn btn-primary btn-lg btn-block" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
                 <i className="fa fa-facebook"></i> Sign in with Facebook
               </button>
-            </li>
-            <li>
               <button type="button" className="btn btn-danger btn-lg btn-block" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
                 <i className="fa fa-google"></i> Sign in with Google
               </button>
-            </li>
-            <li>
               <button type="button" className="btn btn-success btn-lg btn-block" data-toggle="modal" data-target="#sign-in-with-email-modal">
                 <i className="fa fa-envelope"></i> Sign in with Email
               </button>
-            </li>
-          </ul>
+          </div>
           <div className="modal fade" id="sign-in-with-email-modal" tabIndex="-1" role="dialog" aria-labelledby="sign-in-with-email-modal" aria-hidden="true">
             <div className="modal-dialog">
               <div className="modal-content">

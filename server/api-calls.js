@@ -77,7 +77,7 @@ API = {
   },
   refreshGameData() {
     const weeksToRefresh = _.uniq(Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}, {
-      sort: { week: 1 }, fields: { _id: 0, week: 1 }
+      sort: { week: 1 }, fields: { week: 1 }
     }).fetch().map(game => game.week), true);
     let response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
     weeksToRefresh.forEach(w => {

@@ -41,7 +41,7 @@ export const refreshGames = new ValidatedMethod({
   validate: null,
   run() {
     const gamesInProgress = Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}).count();
-    if (gamesInProgress === -1) {
+    if (gamesInProgress === 0) {
       if (Meteor.isServer) {
         return 'No games in progress';
       } else {
@@ -49,7 +49,7 @@ export const refreshGames = new ValidatedMethod({
       }
     }
     if (Meteor.isServer) {
-      API.refreshGameData();
+      return API.refreshGameData();
     }
   }
 })

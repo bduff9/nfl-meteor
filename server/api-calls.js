@@ -10,7 +10,7 @@ API = {
         currMonth = currDate.getMonth(),
         currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0),
         data = {},//{ TYPE: 'nflSchedule', JSON: 1, W: week },
-        url = `http://localhost:3004/W/${week}`;//`http://www03.myfantasyleague.com/${currYear}/export`;
+        url = `http://localhost:3001/W/${week}`;//`http://www03.myfantasyleague.com/${currYear}/export`;
     let response = HTTP.get(url, { params: data });
     return response.data.nflSchedule.matchup;
   },
@@ -162,5 +162,6 @@ API = {
       }
       console.log(`Week ${w} successfully updated!`);
     });
+    return `Successfully updated all weeks in list: ${weeksToRefresh}`;
   }
 }

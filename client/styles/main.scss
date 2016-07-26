@@ -1,5 +1,16 @@
 @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
 
-label.error {
-  color: #d9534f;
+body {
+  background-image: url('/bkgd-pitch.png');
+  background-repeat: no-repeat;
+  background-color: black;
+  background-size: cover;
+}
+
+.reg_btns {
+  border: black;
+  border-radius: 5px;
+  vertical-align: sub;
+  background-color: grey;
+  padding: 100px 30px 30px 30px;
 }

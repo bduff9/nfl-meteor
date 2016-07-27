@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import { Provider } from 'react-redux';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
+import Helmet from 'react-helmet';
 
 import { User } from '../../api/schema';
 import getStore from '../../api/store';
@@ -15,9 +16,16 @@ const NFLPool = (props) => {
   const { userLoaded } = props,
       appLoaded = userLoaded || (!Meteor.userId() && !Meteor.loggingIn());
   return (
-    <Provider store={getStore()}>
-      {appLoaded ? <Routes key={Date.now()} /> : <Loading />}
-    </Provider>
+    <div>
+      <Helmet
+        htmlAttributes={{"lang": "en", "amp": undefined}}
+        title="Welcome"
+        titleTemplate="%s | NFL Confidence Pool"
+        link={[{ rel: 'icon', sizes: '16x16 32x32', href: '/football-icon.png?v=1' }]} />
+      <Provider store={getStore()}>
+        {appLoaded ? <Routes key={Date.now()} /> : <Loading />}
+      </Provider>
+    </div>
   );
 };
 

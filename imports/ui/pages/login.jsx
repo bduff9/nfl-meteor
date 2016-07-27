@@ -116,7 +116,7 @@ export default class Login extends Component {
     const { type } = this.state;
     return (
       <div className="flex-container">
-        <Helmet title="Login" titleTemplate="%s | NFL Confidence Pool" />
+        <Helmet title="Login" />
         <div className="signin-form">
           <div className="ball-logo">
             <svg viewBox="0 0 1500 1500">

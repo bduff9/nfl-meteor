@@ -1,10 +1,16 @@
 {
   "name": "nfl",
   "version": "0.0.1",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bduff9/nfl-meteor.git"
+  },
   "scripts": {
     "start": "meteor --settings settings.json",
     "debug": "meteor debug --settings settings.json"
+  },
+  "engines": {
+    "node": "4.4.6"
   },
   "dependencies": {
     "autoprefixer": "^6.3.7",

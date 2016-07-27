@@ -9,8 +9,10 @@ export const History = Class.create({
   fields: {
     game_id: String,
     opponent_id: String,
+    opponent_short: String,
     was_home: Boolean,
     did_win: Boolean,
+    did_tie: Boolean,
     final_score: String
   },
   indexes: {}

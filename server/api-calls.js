@@ -5,12 +5,11 @@ import { convertEpoch } from '../imports/api/global';
 
 API = {
   getGamesForWeek(week) {
-//TODO point back to live data when ready
     const currDate = new Date(),
         currMonth = currDate.getMonth(),
         currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0),
-        data = {},//{ TYPE: 'nflSchedule', JSON: 1, W: week },
-        url = `http://localhost:3003/W/${week}`;//`http://www03.myfantasyleague.com/${currYear}/export`;
+        data = { TYPE: 'nflSchedule', JSON: 1, W: week },
+        url = `http://www03.myfantasyleague.com/${currYear}/export`;
     let response = HTTP.get(url, { params: data });
     return response.data.nflSchedule.matchup;
   },

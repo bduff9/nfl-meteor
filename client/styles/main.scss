@@ -41,5 +41,15 @@ body {
 
 .bottom-wrapper {
   border-top: solid 1px #ccc;
-  padding-top: 20px;
+  padding-top: 10px;
+}
+
+.ball-logo {
+  position: relative;
+  z-index: 10;
+}
+
+.bottom-text {
+  padding-bottom: 11px;
+  font-size: small;
 }

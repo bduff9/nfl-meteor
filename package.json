@@ -5,6 +5,7 @@
     "type": "git",
     "url": "https://github.com/bduff9/nfl-meteor.git"
   },
+  "license": "UNLICENSED",
   "scripts": {
     "start": "meteor --settings settings.json",
     "debug": "meteor debug --settings settings.json"

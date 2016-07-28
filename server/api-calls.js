@@ -134,6 +134,8 @@ API = {
           completeCount++;
           //TODO if complete, update other collections like history, picks, and survivor
           console.log(`Game ${game.game} complete, updating history...`);
+          hTeam.history.push({ game_id: game._id, opponent_id: vTeam._id, opponent_short: vTeam.short_name, was_home: true, did_win: game.winner_short === hTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
+          vTeam.history.push({ game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
           console.log(`Game ${game.game} history updated!`);
           console.log(`Game ${game.game} complete, updating picks...`);
           console.log(`Game ${game.game} picks updated!`);

@@ -5,6 +5,7 @@ import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
+import Helmet from 'react-helmet';
 
 import { Navigation } from '../components/navigation.jsx';
 import { currentWeek } from '../../api/collections/games';
@@ -21,6 +22,7 @@ class AuthedLayout extends Component {
         logoutOnly = location.pathname.indexOf('create') > -1;
     return (
       <div>
+        <Helmet title="Welcome" />
         <Navigation logoutOnly={logoutOnly} />
         {children}
       </div>

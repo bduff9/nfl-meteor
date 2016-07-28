@@ -21,22 +21,46 @@ body {
 }
 
 .signin-form {
+  position: relative;
   border: black;
   border-radius: 5px;
   background-color: #F5F5F7;
   padding: 60px 30px 30px 30px;
   margin-top: 10%;
   margin-bottom: 10%;
-  width: 345px;
+  width: 450px;
 }
 
 .title-text {
-  text-align: center;
+  margin-top:40px;
   margin-bottom: 20px;
 }
 
 .reg-btns {
   margin-bottom:10px;
+}
+
+.login-form {
+  margin-top: 20px;
+}
+
+.btn-social {
+  position: relative;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-facebook {
+  color: #fff;
+  background-color: #3b5998;
+  border-color: rgba(0,0,0,0.2);
+}
+.btn-google {
+  color: #fff;
+  background-color: #c23321;
+  border-color: rgba(0,0,0,0.2);
 }
 
 .bottom-wrapper {
@@ -45,8 +69,9 @@ body {
 }
 
 .ball-logo {
-  position: relative;
-  z-index: 10;
+  position: absolute;
+  top:-221px;
+  left: 133px;
 }
 
 .bottom-text {

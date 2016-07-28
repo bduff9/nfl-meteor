@@ -39,7 +39,7 @@ Meteor.startup(() => {
       email = options.email;
       verified = false;
     }
-//TODO remove the next two lines if there are no issues with account melding
+//TODO remove the next two lines if there are no issues with account-meld
     //existingCount = User.find({ email }).count();
     //if (existingCount) throw new Meteor.Error('You have already registered with a different account!', 'Please use the Facebook or Google buttons to sign in');
     user.profile = options.profile || {};
@@ -55,19 +55,18 @@ Meteor.startup(() => {
     user.total_points = 0;
     user.total_games = 0;
     user.bonus_points = 0;
-//TODO sort before insert so they go in in order
-    user.picks = Game.find().map(game => {
+    user.picks = Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
       return {
         "week": game.week,
         "game_id": game._id
       };
     });
-    user.tiebreakers = Game.find({ game: 1 }).map(game => {
+    user.tiebreakers = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
       return {
         "week": game.week
       };
     });
-    user.survivor = Game.find({ game: 1 }).map(game => {
+    user.survivor = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
       return {
         "week": game.week
       };

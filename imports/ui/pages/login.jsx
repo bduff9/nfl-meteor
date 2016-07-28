@@ -119,7 +119,7 @@ export default class Login extends Component {
         <Helmet title="Login" />
         <div className="signin-form">
           <div className="ball-logo">
-            <svg viewBox="0 0 1500 1500">
+                      <svg viewBox="0 0 1500 500" width="300px" height="300px">
               <defs>
                 <linearGradient gradientTransform="matrix(.93679,-.85929,.85927,.93681,-400.209,462.78557)" gradientUnits="userSpaceOnUse" id="linearGradient10949" x1="509.97107" x2="509.89749" y1="544.7467" y2="278.81351">
                   <stop offset="0" stopColor="#3c1a0f"/>
@@ -150,7 +150,10 @@ export default class Login extends Component {
               <path d="m218.4616,322.93114c3.39663-3.11561 2.9114-2.67053 8.25234,3.15239s7.0811,8.69421 14.64744,16.94336 10.39742,7.43927 15.73836,13.26217 9.91218,7.88437 12.50236,12.65649 3.03523,5.25737.93368,10.75904-12.3751,5.99033-23.13728-3.79485-31.76118-30.73093-35.28167-35.54321-1.90417-9.86888.48185-11.16399 5.86292-6.2714 5.86292-6.2714z" fill="#fff" stroke="#b8b8b8"/>
             </svg>
           </div>
-          <h2 className="title-text">2016 NFL Confidence Pool {type === 'login' ? 'Login' : 'Registration'}</h2>
+              <div className="title-text text-xs-center">
+                <h2>2016 NFL Confidence Pool</h2>
+                <h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
+              </div>
           <div className="login-form">
             <form ref="emailForm" id="sign-in-with-email" onSubmit={this._emailLogin}>
               <div className="form-inputs">
@@ -160,7 +163,7 @@ export default class Login extends Component {
               <br/>
               <div className="row">
                 <div className="col-xs-12">
-                  <button type="submit" className="btn btn-block btn-success"><strong>{type === 'login' ? 'SIGN IN WITH EMAIL' : 'REGISTER WITH EMAIL'}</strong></button>
+                              <button type="submit" className="btn btn-block btn-success"><strong>{type === 'login' ? 'Sign In With Email' : 'Register With Email'}</strong></button>
                 </div>
               </div>
             </form>
@@ -169,13 +172,15 @@ export default class Login extends Component {
             <br/>
             <div className="row">
               <div className="bottom-text text-xs-center">Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
+                  </div>
+                  <div className="row">
               <div className="col-xs-6">
-                <button type="button" className="btn btn-block btn-primary" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
+                          <button type="button" className="btn text-xs-center btn-block btn-social btn-facebook" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
                   <i className="fa fa-facebook"></i>
                 </button>
               </div>
               <div className="col-xs-6">
-                <button type="button" className="btn btn-block btn-danger" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
+                          <button type="button" className="btn text-xs-center btn-block btn-social btn-google" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
                   <i className="fa fa-google"></i>
                 </button>
               </div>
@@ -184,6 +189,8 @@ export default class Login extends Component {
           <div className="bottom-wrapper">
             <div className="row">
               <div className="text-xs-center bottom-text">{type === 'login' ? "Haven't Registered Yet?" : 'Already Registered?'}</div>
+                  </div>
+                  <div className="row">
               <div className="col-xs-12">
                 <button type="button" className="btn btn-block btn-default" onClick={this._toggleType}>{type === 'login' ? 'Register Here' : 'Back To Login'}</button>
               </div>

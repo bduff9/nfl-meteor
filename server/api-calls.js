@@ -1,6 +1,6 @@
 'use strict';
 
-import { Game, Team } from '../imports/api/schema';
+import { Game, Team, User } from '../imports/api/schema';
 import { convertEpoch } from '../imports/api/global';
 
 API = {
@@ -85,12 +85,20 @@ API = {
       gameCount = games.length;
       completeCount = 0;
       console.log(`Updating week ${w}, ${gameCount} games found`);
-      games.forEach((gameObj, i) => {
+      games.every((gameObj, i) => {
         gameObj.team.forEach(team => {
           if (team.isHome === '1') hTeamData = team;
           if (team.isHome === '0') vTeamData = team;
         });
         game = Game.findOne({ week: w, home_short: hTeamData.id, visitor_short: vTeamData.id });
+        // If game is already over, skip it
+        if (game.status === 'C') {
+          console.log(`Week ${w} game ${game.game} already complete, skipping...`);
+          return true;
+        } else if (game.kickoff > new Date()) {
+          // Game hasn't started yet, skip update
+          return true;
+        }
         hTeam = Team.findOne({ short_name: hTeamData.id });
         vTeam = Team.findOne({ short_name: vTeamData.id });
         // Update and save this game
@@ -132,14 +140,23 @@ API = {
         game.save();
         if (status === 'C') {
           completeCount++;
-          //TODO if complete, update other collections like history, picks, and survivor
+          // Update the team's history array
           console.log(`Game ${game.game} complete, updating history...`);
           hTeam.history.push({ game_id: game._id, opponent_id: vTeam._id, opponent_short: vTeam.short_name, was_home: true, did_win: game.winner_short === hTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
           vTeam.history.push({ game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
           console.log(`Game ${game.game} history updated!`);
+          // Update the picks for each user
           console.log(`Game ${game.game} complete, updating picks...`);
+          User.update({ 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
+/*TODO
+ * 1. Update score and game count in tiebreakers
+ * 2. Update score and game count in user
+ */
           console.log(`Game ${game.game} picks updated!`);
+          // Update the survivor pool
           console.log(`Game ${game.game} complete, updating survivor...`);
+          User.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
+          //TODO delete weeks after a wrong pick
           console.log(`Game ${game.game} survivor updated!`);
         }
         // Update home team data
@@ -155,11 +172,12 @@ API = {
         if (vTeamData.rushOffenseRank) vTeam.rush_offense = vTeamData.rushOffenseRank;
         vTeam.save();
         console.log(`Week ${w} game ${game.game} successfully updated!`);
+        return true;
       });
       if (gameCount === completeCount) {
         console.log(`Week ${w} complete, updating tiebreakers...`);
-        //TODO if all games in week are complete, update tiebreaker
-        //db.users.update({ 'tiebreakers.week': 3 }, { $set: { 'tiebreakers.$.test': '33' }})
+        //TODO update last_score_act and save
+        //TODO call func to update places
         console.log(`Week ${w} tiebreakers successfully updated!`);
       }
       console.log(`Week ${w} successfully updated!`);

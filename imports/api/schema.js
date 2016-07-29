@@ -87,7 +87,16 @@ export const Team = Class.create({
       default: () => []
     }
   },
-  indexes: {}
+  indexes: {
+    shortName: {
+      fields: {
+        short_name: 1
+      },
+      options: {
+        unique: true
+      }
+    }
+  }
 });
 
 export const Games = new Mongo.Collection('games');
@@ -151,7 +160,40 @@ export const Game = Class.create({
       optional: true
     }
   },
-  indexes: {}
+  indexes: {
+    gameOrder: {
+      fields: {
+        week: 1,
+        game: 1
+      },
+      options: {
+        unique: true
+      }
+    },
+    games: {
+      fields: {
+        game: 1
+      },
+      options: {}
+    },
+    incompleteGames: {
+      fields: {
+        game: 1,
+        status: 1
+      },
+      options: {}
+    },
+    gameFindAPI: {
+      fields: {
+        week: 1,
+        home_short: 1,
+        visitor_short: 1
+      },
+      options: {
+        unique: true
+      }
+    }
+  }
 });
 
 export const Pick = Class.create({
@@ -208,6 +250,14 @@ export const Tiebreaker = Class.create({
       validators: [{ type: 'gte', param: 0 }],
       optional: true
     },
+    points_earned: {
+      type: Number,
+      default: 0
+    },
+    games_correct: {
+      type: Number,
+      default: 0
+    },
     final_place: {
       type: Number,
       validators: [{ type: 'gt', param: 0 }],
@@ -256,6 +306,14 @@ export const User = Class.create({
   collection: Meteor.users,
   secured: true,
   fields: {
+    services: {
+      type: Object,
+      optional: true
+    },
+    profile: {
+      type: Object,
+      optional: true
+    },
     email: {
       type: String,
       validators: [{ type: 'email' }]

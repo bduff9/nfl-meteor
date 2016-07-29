@@ -18,6 +18,7 @@ export default class Login extends Component {
   constructor(props) {
     super();
     this.state = {
+      loading: null,
       type: 'login'
     };
     this._oauthLogin = this._oauthLogin.bind(this);
@@ -33,8 +34,10 @@ export default class Login extends Component {
     const options = {
           requestPermissions: ['email']
         };
+    this.setState({ loading: service });
     Meteor[service](options, (err) => {
       if (err) {
+        this.setState({ loading: null });
         displayError(err, { title: err.message, type: 'danger' });
       } else {
         Bert.alert({
@@ -52,6 +55,7 @@ export default class Login extends Component {
     const that = this;
     $(this.refs.emailForm).validate({
       submitHandler() {
+        that.setState({ loading: 'email' });
         that._submitEmail();
       },
       rules: {
@@ -74,18 +78,18 @@ export default class Login extends Component {
     const { type } = this.state,
         email = this.refs.email.value.trim(),
         password = this.refs.password.value.trim();
-    $('#sign-in-with-email-modal').modal('hide');
     if (type === 'register') {
       Accounts.createUser({
         email: email,
         password: password
       }, (err) => {
         if (err && err.reason !== 'Login forbidden') {
-            if (err.error && err.reason) {
-              displayError(err, { title: err.error, message: err.reason, type: 'warning' });
-            } else {
-              displayError(err);
-            }
+          this.setState({ loading: null });
+          if (err.error && err.reason) {
+            displayError(err, { title: err.error, message: err.reason, type: 'warning' });
+          } else {
+            displayError(err);
+          }
         } else {
           Bert.alert({
             message: 'Please check your email to verify your account',
@@ -96,6 +100,7 @@ export default class Login extends Component {
     } else {
       Meteor.loginWithPassword(email, password, (err) => {
         if (err) {
+          this.setState({ loading: null });
           displayError(err, { title: err.reason, type: 'warning' });
         } else {
           Bert.alert({
@@ -114,7 +119,7 @@ export default class Login extends Component {
   }
 
   render() {
-    const { type } = this.state;
+    const { loading, type } = this.state;
     return (
       <div className="flex-container">
         <Helmet title="Login" />
@@ -135,7 +140,10 @@ export default class Login extends Component {
               <br/>
               <div className="row">
                 <div className="col-xs-12">
-                  <button type="submit" className="btn btn-block btn-success"><strong>{type === 'login' ? 'Sign In With Email' : 'Register With Email'}</strong></button>
+                  <button type="submit" className="btn btn-block btn-success" disabled={loading}>
+                    <strong>{type === 'login' ? 'Sign In With Email' : 'Register With Email'}</strong>
+                    {loading === 'email' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
+                  </button>
                 </div>
               </div>
             </form>
@@ -143,26 +151,28 @@ export default class Login extends Component {
           <div className="reg-btns">
             <br />
             <div className="row">
-              <div className="bottom-text text-xs-center">Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
-                  </div>
-                  <div className="row">
+              <div className="col-xs-12 bottom-text text-xs-center">Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
+            </div>
+            <div className="row">
               <div className="col-xs-6">
-                          <button type="button" className="btn text-xs-center btn-block btn-social btn-facebook" onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
+                <button type="button" className="btn text-xs-center btn-block btn-social btn-facebook" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
                   <i className="fa fa-facebook"></i>
+                  {loading === 'facebook' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
                 </button>
               </div>
               <div className="col-xs-6">
-                          <button type="button" className="btn text-xs-center btn-block btn-social btn-google" onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
+                <button type="button" className="btn text-xs-center btn-block btn-social btn-google" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
                   <i className="fa fa-google"></i>
+                  {loading === 'google' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
                 </button>
               </div>
             </div>
           </div>
           <div className="bottom-wrapper">
             <div className="row">
-              <div className="text-xs-center bottom-text">{type === 'login' ? "Haven't Registered Yet?" : 'Already Registered?'}</div>
-                  </div>
-                  <div className="row">
+              <div className="col-xs-12 bottom-text text-xs-center">{type === 'login' ? "Haven't Registered Yet?" : 'Already Registered?'}</div>
+            </div>
+            <div className="row">
               <div className="col-xs-12">
                 <button type="button" className="btn btn-block btn-default" onClick={this._toggleType}>{type === 'login' ? 'Register Here' : 'Back To Login'}</button>
               </div>

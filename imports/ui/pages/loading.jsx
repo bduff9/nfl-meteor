@@ -3,9 +3,15 @@ import Helmet from 'react-helmet';
 
 export const Loading = (props) => {
   return (
-    <div>
+    <div className="flex-container">
       <Helmet title="Loading..." />
-      <i className="fa fa-spinner fa-pulse" />
+      <div className="signin-form">
+        <div className="row">
+          <div className="text-xs-center col-xs-12">
+            <i className="fa fa-spinner fa-pulse" /> Loading...
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

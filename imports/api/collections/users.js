@@ -79,12 +79,59 @@ export const updateSurvivor = new ValidatedMethod({
   }
 });
 
+const placer = (week, user1, user2) => {
+  const tie1 = user1.tiebreakers[week - 1],
+      tie2 = user2.tiebreakers[week - 1],
+      lastScoreDiff1 = tie1.last_score - tie1.last_score_act,
+      lastScoreDiff2 = tie2.last_score - tie2.last_score_act;
+  // First, sort by points
+  if (tie1.points_earned > tie2.points_earned) {
+    return 1;
+  } else if (tie1.points_earned < tie2.points_earned) {
+    return -1;
+  // Then, sort by games correct
+  } else if (tie1.games_correct > tie2.games_correct) {
+    return 1;
+  } else if (tie1.games_correct > tie2.games_correct) {
+    return -1;
+  // Then, sort by whomever didn't go over the last game's score
+  } else if (lastScoreDiff1 > 0 && lastScoreDiff2 < 0) {
+    return 1;
+  } else if (lastScoreDiff1 < 0 && lastScoreDiff2 > 0) {
+    return -1;
+  // Next, sort by the closer to the last games score
+  } else if (Math.abs(lastScoreDiff1) < Math.abs(lastScoreDiff2)) {
+    return 1;
+  } else if (Math.abs(lastScoreDiff1) > Math.abs(lastScoreDiff2)) {
+    return -1;
+  // Finally, if we get here, then they are identical
+  } else {
+    return 0;
+  }
+};
+
 export const updatePlaces = new ValidatedMethod({
   name: 'User.tiebreakers.updatePlaces',
   validate: new SimpleSchema({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-//TODO look at one weeks games and points to figure out order, loop through users
+    const ordUsers = User.find().fetch().sort(placer.bind(null, week));
+    let nextUser, result;
+    ordUsers.forEach((user, i, allUsers) => {
+      if (!user.final_place) {
+        user.final_place = (i + 1);
+        user.save();
+      }
+      nextUser = allUsers[i + 1];
+      if (nextUser) {
+        result = placer(week, user, nextUser);
+        if (result === 0) {
+          nextUser.final_place = (i + 1);
+          nextUser.tied_flag = true;
+          nextUser.save();
+        }
+      }
+    });
   }
 });

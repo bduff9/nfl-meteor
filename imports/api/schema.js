@@ -258,10 +258,14 @@ export const Tiebreaker = Class.create({
       type: Number,
       default: 0
     },
-    final_place: {
+    place_in_week: {
       type: Number,
       validators: [{ type: 'gt', param: 0 }],
       optional: true
+    },
+    tied_flag: {
+      type: Boolean,
+      default: false
     }
   },
   indexes: {}

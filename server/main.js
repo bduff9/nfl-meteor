@@ -39,9 +39,6 @@ Meteor.startup(() => {
       email = options.email;
       verified = false;
     }
-//TODO remove the next two lines if there are no issues with account-meld
-    //existingCount = User.find({ email }).count();
-    //if (existingCount) throw new Meteor.Error('You have already registered with a different account!', 'Please use the Facebook or Google buttons to sign in');
     user.profile = options.profile || {};
     user.first_name = first_name;
     user.last_name = last_name;

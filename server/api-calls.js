@@ -1,6 +1,7 @@
 'use strict';
 
 import { Game, Team, User } from '../imports/api/schema';
+import { updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 import { convertEpoch } from '../imports/api/global';
 
 API = {
@@ -78,7 +79,7 @@ API = {
   refreshGameData() {
     const weeksToRefresh = _.uniq(Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}, {
       sort: { week: 1 }, fields: { week: 1 }
-    }).fetch().map(game => game.week), true);
+    }).map(game => game.week), true);
     let response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
     weeksToRefresh.forEach(w => {
       games = this.getGamesForWeek(w);
@@ -148,15 +149,16 @@ API = {
           // Update the picks for each user
           console.log(`Game ${game.game} complete, updating picks...`);
           User.update({ 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
-/*TODO
- * 1. Update score and game count in tiebreakers
- * 2. Update score and game count in user
- */
+          updatePoints.call(err => {
+            if (err) console.error('updatePoints', err);
+          });
           console.log(`Game ${game.game} picks updated!`);
           // Update the survivor pool
           console.log(`Game ${game.game} complete, updating survivor...`);
           User.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
-          //TODO delete weeks after a wrong pick
+          updateSurvivor.call({ week: w }, err => {
+            if (err) console.error('updateSurvivor', err);
+          });
           console.log(`Game ${game.game} survivor updated!`);
         }
         // Update home team data
@@ -176,8 +178,11 @@ API = {
       });
       if (gameCount === completeCount) {
         console.log(`Week ${w} complete, updating tiebreakers...`);
-        //TODO update last_score_act and save
-        //TODO call func to update places
+        const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
+        User.update({ 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
+        updatePlaces.call({ week: w }, err => {
+          if (err) console.error('updatePlaces', err);
+        });
         console.log(`Week ${w} tiebreakers successfully updated!`);
       }
       console.log(`Week ${w} successfully updated!`);

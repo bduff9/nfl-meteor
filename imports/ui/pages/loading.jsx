@@ -8,7 +8,7 @@ export const Loading = (props) => {
       <div className="signin-form">
         <div className="row">
           <div className="text-xs-center col-xs-12">
-            <i className="fa fa-spinner fa-pulse" /> Loading...
+            <h3>Loading...  <i className="fa fa-spinner fa-pulse" /></h3>
           </div>
         </div>
       </div>

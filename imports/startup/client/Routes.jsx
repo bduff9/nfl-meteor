@@ -6,21 +6,20 @@ import { Meteor } from 'meteor/meteor';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { Session } from 'meteor/session';
 
-import { NFLLog } from '../../api/schema';
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 import AuthedLayout from '../../ui/layouts/AuthedLayout.jsx';
 import Dashboard from '../../ui/pages/Dashboard.jsx';
-import { Loading } from '../../ui/pages/loading.jsx';
-import Login from '../../ui/pages/login.jsx';
-import { Logout } from '../../ui/pages/logout.jsx';
-import { MakePicks } from '../../ui/pages/make-picks.jsx';
-import { ViewPicks } from '../../ui/pages/view-picks.jsx';
-import { ViewAllPicks } from '../../ui/pages/view-all-picks.jsx';
-import { SetSurvivor } from '../../ui/pages/set-survivor.jsx';
-import { ViewSurvivor } from '../../ui/pages/view-survivor.jsx';
-import EditProfile from '../../ui/pages/edit-profile.jsx';
-import { NotFound } from '../../ui/pages/not-found.jsx';
+import { Loading } from '../../ui/pages/Loading.jsx';
+import Login from '../../ui/pages/Login.jsx';
+import { Logout } from '../../ui/pages/Logout.jsx';
+import MakePicks from '../../ui/pages/MakePicks.jsx';
+import { ViewPicks } from '../../ui/pages/ViewPicks.jsx';
+import { ViewAllPicks } from '../../ui/pages/ViewAllPicks.jsx';
+import { SetSurvivor } from '../../ui/pages/SetSurvivor.jsx';
+import { ViewSurvivor } from '../../ui/pages/ViewSurvivor.jsx';
+import EditProfile from '../../ui/pages/EditProfile.jsx';
+import { NotFound } from '../../ui/pages/NotFound.jsx';
 
 function requireAuth(nextState, replace) {
   if (!Meteor.userId()) {

@@ -14,6 +14,22 @@ Meteor.publish('nextGame', function() {
   });
 });
 
+Meteor.publish('gamesForWeek', function(week) {
+  if (!this.userId) return null;
+  return Game.find({ week, game: { $ne: 0 }}, {
+    fields: {
+      '_id': 1,
+      'game': 1,
+      'home_id': 1,
+      'home_short': 1,
+      'visitor_id': 1,
+      'visitor_short': 1,
+      'status': 1,
+      'kickoff': 1
+    }
+  });
+});
+
 Meteor.publish('allGames', function() {
   if (!this.userId) return null;
   return Game.find({}, {

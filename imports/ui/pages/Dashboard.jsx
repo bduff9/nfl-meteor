@@ -4,6 +4,7 @@
 import React, { Component, PropTypes } from 'react';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
+import Helmet from 'react-helmet';
 
 import { User } from '../../api/schema';
 import { refreshGames } from '../../api/collections/games';
@@ -29,6 +30,7 @@ class Dashboard extends Component {
     const { currentWeek, selectedWeek, weeks } = this.props;
     return (
       <div>
+        <Helmet title="NFL Dashboard" />
         <h3>Dashboard</h3>
         Current Week: {currentWeek}
         <br />

@@ -9,8 +9,8 @@ import Helmet from 'react-helmet';
 
 import { User } from '../../api/schema';
 import getStore from '../../api/store';
-import { Routes } from '../../startup/client/routes.jsx';
-import { Loading } from '../pages/loading.jsx';
+import { Routes } from '../../startup/client/Routes.jsx';
+import { Loading } from '../pages/Loading.jsx';
 
 const NFLPool = (props) => {
   const { userLoaded } = props,

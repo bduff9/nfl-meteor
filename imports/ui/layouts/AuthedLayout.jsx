@@ -7,6 +7,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
+import { User } from '../../api/schema';
 import { Navigation } from '../components/Navigation.jsx';
 import { currentWeek } from '../../api/collections/games';
 import { displayError } from '../../api/global';
@@ -36,12 +37,15 @@ AuthedLayout.propTypes = {
 };
 
 export default createContainer(() => {
-  const nextGameHandle = Meteor.subscribe('nextGame'),
+  const currentUser = User.findOne(Meteor.userId()),
+      nextGameHandle = Meteor.subscribe('nextGame'),
       nextGameReady = nextGameHandle.ready();
-  let week = currentWeek.call(displayError);
+  let week, selectedWeek;
   if (nextGameReady) {
+    week = currentWeek.call(displayError);
+    selectedWeek = currentUser.getSelectedWeek() || week;
     Session.set('currentWeek', week);
-    Session.setDefault('selectedWeek', week);
+    Session.setDefault('selectedWeek', selectedWeek);
   }
   return {};
 }, AuthedLayout);

@@ -17,13 +17,14 @@ Meteor.startup(() => {
 
   Accounts.onLogin(() => {
     const user = Meteor.user();
-    writeLog.call({ userId: user._id, action: 'LOGIN', message: `${user.first_name} ${user.last_name} successfully signed in` }, displayError);
+    if (user.first_name && user.last_name) {
+      writeLog.call({ userId: user._id, action: 'LOGIN', message: `${user.first_name} ${user.last_name} successfully signed in` }, displayError);
+    }
     currentWeek.call((err, week) => {
       if (err) {
         displayError(err);
       } else {
         Session.set('currentWeek', week);
-        Session.set('selectedWeek', week);
       }
     });
   });

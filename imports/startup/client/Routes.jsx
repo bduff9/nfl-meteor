@@ -6,6 +6,7 @@ import { Meteor } from 'meteor/meteor';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { Session } from 'meteor/session';
 
+import { removeSelectedWeek } from '../../api/collections/users';
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 import AuthedLayout from '../../ui/layouts/AuthedLayout.jsx';
@@ -89,6 +90,7 @@ function logOut(nextState, replace) {
       user = Meteor.user();
   let logEntry;
   if (Meteor.userId()) {
+    removeSelectedWeek.call(displayError);
     Meteor.logout((err) => {
       writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, displayError);
       Object.keys(Session.keys).forEach(key => Session.set(key, undefined));

@@ -48,6 +48,7 @@ Meteor.startup(() => {
     user.verified = verified;
     user.done_registering = false;
     user.paid = false;
+    user.selected_week = {};
     user.chat_hidden = null;
     user.total_points = 0;
     user.total_games = 0;
@@ -55,7 +56,8 @@ Meteor.startup(() => {
     user.picks = Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
       return {
         "week": game.week,
-        "game_id": game._id
+        "game_id": game._id,
+        "game": game.game
       };
     });
     user.tiebreakers = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {

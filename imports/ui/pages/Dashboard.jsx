@@ -4,9 +4,9 @@
 import React, { Component, PropTypes } from 'react';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
-import Helmet from 'react-helmet';
 
 import { User } from '../../api/schema';
+import { updateSelectedWeek } from '../../api/collections/users';
 import { refreshGames } from '../../api/collections/games';
 import { displayError } from '../../api/global';
 
@@ -22,21 +22,19 @@ class Dashboard extends Component {
   _selectWeek(ev) {
     const newWeek = parseInt(ev.currentTarget.value, 10);
     ev.preventDefault();
-    Session.set('selectedWeek', newWeek);
-//TODO session is not persistent, amplify? http://stackoverflow.com/questions/13371324/meteor-session-and-browser-refreshes
+    updateSelectedWeek.call({ week: newWeek }, displayError);
   }
 
   render() {
-    const { currentWeek, selectedWeek, weeks } = this.props;
+    const { currentUser, currentWeek, selectedWeek } = this.props;
     return (
       <div>
-        <Helmet title="NFL Dashboard" />
         <h3>Dashboard</h3>
         Current Week: {currentWeek}
         <br />
         Selected Week:
         <select value={selectedWeek} onChange={this._selectWeek}>
-          {weeks.map((week, i) => <option value={week.week} key={'week' + i}>{`Week ${week.week}`}</option>)}
+          {currentUser.tiebreakers.map((week, i) => <option value={week.week} key={'week' + i}>{`Week ${week.week}`}</option>)}
         </select>
         <br />
         <button type="button" className="btn btn-primary" onClick={this._refreshGames}>
@@ -49,6 +47,7 @@ class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
+  currentUser: PropTypes.object,
   currentWeek: PropTypes.number,
   selectedWeek: PropTypes.number
 };
@@ -56,10 +55,10 @@ Dashboard.propTypes = {
 export default createContainer(() => {
   const currentWeek = Session.get('currentWeek'),
       selectedWeek = Session.get('selectedWeek'),
-      weeks = User.findOne(Meteor.userId()).tiebreakers;
+      currentUser = User.findOne(Meteor.userId());
   return {
     currentWeek,
     selectedWeek,
-    weeks
+    currentUser
   };
 }, Dashboard);

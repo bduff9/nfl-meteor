@@ -196,6 +196,22 @@ export const Game = Class.create({
   }
 });
 
+export const SelectedWeek = Class.create({
+  name: 'SelectedWeek',
+  secured: true,
+  fields: {
+    week: {
+      type: Number,
+      validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }],
+      optional: true
+    },
+    selected_on: {
+      type: Date,
+      optional: true
+    }
+  }
+});
+
 export const Pick = Class.create({
   name: 'Pick',
   secured: true,
@@ -205,6 +221,10 @@ export const Pick = Class.create({
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
     },
     game_id: String,
+    game: {
+      type: Number,
+      validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 0 }, { type: 'lte', param: 16 }] }]
+    },
     pick_id: {
       type: String,
       optional: true
@@ -244,6 +264,10 @@ export const Tiebreaker = Class.create({
       type: Number,
       validators: [{ type: 'gt', param: 0 }],
       optional: true
+    },
+    submitted: {
+      type: Boolean,
+      default: false
     },
     last_score_act: {
       type: Number,
@@ -330,6 +354,10 @@ export const User = Class.create({
     verified: Boolean,
     done_registering: Boolean,
     paid: Boolean,
+    selected_week: {
+      type: SelectedWeek,
+      default: () => {}
+    },
     chat_hidden: {
       type: Date,
       optional: true
@@ -354,6 +382,25 @@ export const User = Class.create({
     },
     survivor: {
       type: [SurvivorPick]
+    }
+  },
+  methods: {
+    getSelectedWeek() {
+      const NO_WEEK_SELECTED = null,
+          setObj = this.selected_week,
+          week = setObj.week,
+          dt = setObj.selected_on,
+          dt2 = new Date(),
+          y2 = dt2.getFullYear(),
+          m2 = dt2.getMonth(),
+          d2 = dt2.getDay();
+      let y, m, d;
+      if (!dt) return NO_WEEK_SELECTED;
+      y = dt.getFullYear();
+      m = dt.getMonth();
+      d = dt.getDay();
+      if (y === y2 && m === m2 && d === d2) return week;
+      return NO_WEEK_SELECTED;
     }
   },
   indexes: {}

@@ -1,6 +1,7 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
 
 import { Pick, SurvivorPick, Tiebreaker, User } from '../schema';
 
@@ -16,6 +17,32 @@ export const updateUser = new ValidatedMethod({
   run(userObj) {
     if (!this.userId) throw new Meteor.Error('User.update.notLoggedIn', 'Must be logged in to change profile');
     User.update(this.userId, { $set: userObj });
+  }
+});
+
+export const updateSelectedWeek = new ValidatedMethod({
+  name: 'User.selected_week.update',
+  validate: new SimpleSchema({
+    week: { type: Number, label: 'Week' }
+  }).validator(),
+  run({ week }) {
+    if (!this.userId) throw new Meteor.Error('User.selected_week.update.notLoggedIn', 'Must be logged in to choose week');
+    if (Meteor.isServer) {
+      User.update(this.userId, { $set: { selected_week: { week, selected_on: new Date() }}});
+    } else if (Meteor.isClient) {
+      Session.set('selectedWeek', week);
+    }
+  }
+});
+
+export const removeSelectedWeek = new ValidatedMethod({
+  name: 'User.selected_week.delete',
+  validate: null,
+  run() {
+    if (!this.userId) throw new Meteor.Error('User.selected_week.delete.notLoggedIn', 'Must be logged in to change week');
+    if (Meteor.isServer) {
+      User.update(this.userId, { $set: { selected_week: {}}});
+    }
   }
 });
 
@@ -59,7 +86,6 @@ export const updateSurvivor = new ValidatedMethod({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-//TODO maybe update week to look to see if any games have started instead of any games being complete
     const allUsers = User.find().fetch();
     let survivorPicks, alive;
     allUsers.every(user => {

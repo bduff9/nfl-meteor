@@ -18,6 +18,7 @@ Meteor.publish('userData', function() {
       'verified': 1,
       'done_registering': 1,
       'paid': 1,
+      'selected_week': 1,
       'chat_hidden': 1,
       'total_points': 1,
       'total_games': 1,

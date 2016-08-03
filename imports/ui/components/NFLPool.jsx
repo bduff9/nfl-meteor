@@ -21,7 +21,8 @@ const NFLPool = (props) => {
         htmlAttributes={{"lang": "en", "amp": undefined}}
         title="Welcome"
         titleTemplate="%s | NFL Confidence Pool"
-        link={[{ rel: 'icon', sizes: '16x16 32x32', href: '/football-icon.png?v=1' }]} />
+        link={[{ rel: 'icon', sizes: '16x16 32x32', href: '/football-icon.png?v=1' }]}
+        meta={[{ 'charset': 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', 'content': 'IE=edge' }, { 'name': 'viewport', 'content': 'width=device-width, initial-scale=1' }]} />
       <Provider store={getStore()}>
         {appLoaded ? <Routes key={Date.now()} /> : <Loading />}
       </Provider>

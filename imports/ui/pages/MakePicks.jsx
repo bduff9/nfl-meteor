@@ -13,28 +13,51 @@ import { displayError } from '../../api/global';
 class MakePicks extends Component {
   constructor(props) {
     super();
-    this.state = {};
-    this._renderPoints = this._renderPoints.bind(this);
+    this.state = {
+      available: [],
+      unavailable: [],
+      used: []
+    };
   }
 
-  _renderPoints() {
-//TODO should this be separate component?
-    const { games, picks } = this.props,
-        usedPoints = picks.map(pick => pick.points).filter(points => points),
-        missedGames = picks.filter((pick, i) => !pick.points && games[i].kickoff <= new Date());
-    let pointDivs = [];
-    for (let i = 1; i <= games.length; i++) {
-      if (usedPoints.indexOf(i) === -1) pointDivs.push(<div key={'point' + i}>{i}</div>);
+  componentWillReceiveProps(nextProps) {
+    const { games, gamesReady, picks } = nextProps;
+    let pointObj;
+    if (gamesReady) {
+      pointObj = this._populatePoints(games, picks);
+      this.setState(pointObj);
     }
-    if (missedGames.length) pointDivs.length = pointDivs.length - missedGames.length;
-    return pointDivs;
+  }
+
+  _populatePoints(games, picks) {
+    const used = picks.map(pick => pick.points).filter(points => points),
+        missedGames = picks.filter((pick, i) => !pick.points && games[i].kickoff <= new Date());
+    let available = [],
+        unavailable = [];
+    for (let i = 1; i <= games.length; i++) {
+      if (used.indexOf(i) === -1) available.push(i);
+    }
+    if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
+    return { available, unavailable, used };
+  }
+  _getColor(point, max) {
+    const BLUE = 0;
+    let style = {},
+        perc = point / max,
+        red = parseInt((1 - perc) * 510, 10),
+        green = parseInt(510 * perc, 10);
+    green = (green > 255 ? 255 : green);
+    red = (red > 255 ? 255 : red);
+    style.backgroundColor = `rgb(${red}, ${green}, ${BLUE})`;
+    return style;
   }
   _renderGames() {
     //TODO will prob be separate component
   }
 
   render() {
-    const { currentWeek, games, gamesReady, selectedWeek } = this.props,
+    const { available, unavailable, used } = this.state,
+        { currentWeek, games, gamesReady, selectedWeek } = this.props,
         notAllowed = selectedWeek < currentWeek;
     return (
       <div>
@@ -42,7 +65,7 @@ class MakePicks extends Component {
         {gamesReady ? (
           <div>
             <h3>Make Picks</h3>
-            {this._renderPoints()}
+            {available.map(point => <div className="points" style={this._getColor(point, games.length)} key={'point' + point}>{point}</div>)}
             <ul>
               {games.map((game, i) => (
                 <li key={'game' + i}>{`${game.visitor_short} @ ${game.home_short}`}</li>

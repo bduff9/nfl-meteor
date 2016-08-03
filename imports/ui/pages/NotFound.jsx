@@ -6,7 +6,7 @@ import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 
 export const NotFound = ({ location }) => {
-  const imgs = ['rivers.jpg'];
+  const imgs = ['rivers.jpg', 'bigben.png', 'cutler.jpg', 'goodell.jpg', 'manziel.jpg', 'peterson.jpg', 'ref.jpg', 'rodgers.jpg', 'sherman.jpg'];
 
   writeLog.call({ userId: Meteor.userId(), action: '404', message: location.pathname }, displayError);
 
@@ -26,7 +26,7 @@ export const NotFound = ({ location }) => {
         </div>
         <div className="row">
           <div className="text-xs-center col-xs-12" style={{ marginBottom: '25px' }}>
-            <img src={`/404/${_get404Image()}`} alt="404 - Page Not Found" width="500px" />
+            <img src={`/404/${_get404Image()}`} alt="Okay, this part was us." width="500px" />
           </div>
         </div>
         <div className="row">

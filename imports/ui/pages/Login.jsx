@@ -119,7 +119,10 @@ export default class Login extends Component {
   }
 
   render() {
-    const { loading, type } = this.state;
+    const { loading, type } = this.state,
+        currDate = new Date(),
+        currMonth = currDate.getMonth(),
+        currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
     return (
       <div className="flex-container">
         <Helmet title="Login" />
@@ -128,7 +131,7 @@ export default class Login extends Component {
             <Isvg src="/svg/football.svg" />
           </div>
           <div className="title-text text-xs-center">
-            <h2>2016 NFL Confidence Pool</h2>
+            <h2>{`${currYear} NFL Confidence Pool`}</h2>
             <h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
           </div>
           <div className="login-form">

@@ -6,7 +6,7 @@ export const Logout = (props) => {
   return (
     <div className="flex-container">
       <Helmet title="Logout" />
-      <div className="signin-form">
+      <div className="white-box">
         <div className="row">
           <div className="text-xs-center col-xs-12">
             <h3>You have been successfully logged out</h3>

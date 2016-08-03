@@ -2,8 +2,13 @@ import React from 'react';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 
-export const NotFound = ({}) => {
+import { writeLog } from '../../api/collections/nfllogs';
+import { displayError } from '../../api/global';
+
+export const NotFound = ({ location }) => {
   const imgs = ['rivers.jpg'];
+
+  writeLog.call({ userId: Meteor.userId(), action: '404', message: location.pathname }, displayError);
 
   const _get404Image = () => {
     const img = imgs[Math.floor(Math.random() * imgs.length)];

@@ -421,7 +421,10 @@ export const NFLLog = Class.create({
       type: String,
       optional: true
     },
-    user_id: String
+    user_id: {
+      type: String,
+      optional: true
+    }
   },
   indexes: {}
 });

@@ -66,6 +66,10 @@ class MakePicks extends Component {
           <div>
             <h3>Make Picks</h3>
             {available.map(point => <div className="points" style={this._getColor(point, games.length)} key={'point' + point}>{point}</div>)}
+            <br />
+            {unavailable.map(point => <div className="points" style={this._getColor(point, games.length)} key={'point' + point}>{point}</div>)}
+            <br />
+            {used.map(point => <div className="points" style={this._getColor(point, games.length)} key={'point' + point}>{point}</div>)}
             <ul>
               {games.map((game, i) => (
                 <li key={'game' + i}>{`${game.visitor_short} @ ${game.home_short}`}</li>

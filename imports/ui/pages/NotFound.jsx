@@ -13,7 +13,7 @@ export const NotFound = ({}) => {
   return (
     <div className="flex-container">
       <Helmet title="Not Found" />
-      <div className="signin-form" style={{width:"600px"}}>
+      <div className="white-box" style={{width:"600px"}}>
         <div className="row">
           <div className="text-xs-center col-xs-12">
             <h1>What have you done?!</h1>

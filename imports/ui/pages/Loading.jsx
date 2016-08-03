@@ -5,7 +5,7 @@ export const Loading = (props) => {
   return (
     <div className="flex-container">
       <Helmet title="Loading..." />
-      <div className="signin-form">
+      <div className="white-box">
         <div className="row">
           <div className="text-xs-center col-xs-12">
             <h3>Loading...  <i className="fa fa-spinner fa-pulse" /></h3>

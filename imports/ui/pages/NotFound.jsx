@@ -16,7 +16,7 @@ export const NotFound = ({ location }) => {
   };
 
   return (
-    <div className="flex-container">
+    <div>
       <Helmet title="Not Found" />
       <div className="white-box" style={{width:"600px"}}>
         <div className="row">

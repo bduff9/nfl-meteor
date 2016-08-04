@@ -15,7 +15,7 @@ import { Loading } from '../../ui/pages/Loading.jsx';
 import Login from '../../ui/pages/Login.jsx';
 import { Logout } from '../../ui/pages/Logout.jsx';
 import MakePicks from '../../ui/pages/MakePicks.jsx';
-import { ViewPicks } from '../../ui/pages/ViewPicks.jsx';
+import ViewPicks from '../../ui/pages/ViewPicks.jsx';
 import { ViewAllPicks } from '../../ui/pages/ViewAllPicks.jsx';
 import { SetSurvivor } from '../../ui/pages/SetSurvivor.jsx';
 import { ViewSurvivor } from '../../ui/pages/ViewSurvivor.jsx';
@@ -96,7 +96,7 @@ function logOut(nextState, replace) {
       Object.keys(Session.keys).forEach(key => Session.set(key, undefined));
       Session.keys = {};
     });
-  } else if (!location.state.isLogout) {
+  } else if (!location.state || !location.state.isLogout) {
     replace({
       pathname: '/login'
     });

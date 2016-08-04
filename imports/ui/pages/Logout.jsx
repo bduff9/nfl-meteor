@@ -4,7 +4,7 @@ import Helmet from 'react-helmet';
 
 export const Logout = (props) => {
   return (
-    <div className="flex-container">
+    <div>
       <Helmet title="Logout" />
       <div className="white-box">
         <div className="row">

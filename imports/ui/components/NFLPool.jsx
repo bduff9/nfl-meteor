@@ -16,7 +16,7 @@ const NFLPool = (props) => {
   const { userLoaded } = props,
       appLoaded = userLoaded || (!Meteor.userId() && !Meteor.loggingIn());
   return (
-    <div>
+    <div className="col-xs">
       <Helmet
         htmlAttributes={{"lang": "en", "amp": undefined}}
         title="Welcome"

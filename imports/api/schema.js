@@ -160,6 +160,20 @@ export const Game = Class.create({
       optional: true
     }
   },
+  methods: {
+    getTeam(which) {
+      let team;
+      if (which === 'home') {
+        team = Teams.findOne({ _id: this.home_id });
+      } else if (which === 'visitor') {
+        team = Teams.findOne({ _id: this.visitor_id });
+      } else {
+        console.error('Incorrect type passed', type);
+        return null;
+      }
+      return team;
+    }
+  },
   indexes: {
     gameOrder: {
       fields: {

@@ -1,0 +1,29 @@
+$pointBankWidth: 75px;
+
+.pointBank {
+  width: $pointBankWidth;
+  padding-left: 0;
+  position: fixed;
+}
+
+.points {
+  background-color: #FFF;
+  border: 1px solid #000;
+  list-style-type: none;
+  padding: 4px 0;
+}
+
+.makePickTable {
+  width: 72%;
+  margin-left: $pointBankWidth + 20px;
+  background-color: rgba(255, 255, 255, .85);
+
+  .homePoints ul,
+  .visitorPoints ul {
+    background-color: #CCC;
+    width: $pointBankWidth;
+    height: 34px;
+    border: 1px solid #AAA;
+    padding-left: 0;
+  }
+}

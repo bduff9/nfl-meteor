@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { IndexLink, Link } from 'react-router';
 
-import './navigation.scss';
+import './Navigation.scss';
 import { updateSelectedWeek } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 

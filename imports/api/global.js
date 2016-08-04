@@ -3,6 +3,8 @@
 
 export const displayError = (err, opts = { title: err && err.reason, type: 'danger' }) => {
   if (!err) return;
+console.log('displayError', err);
+console.log('displayError', opts);
   if (!opts.title) opts.title = 'Missing error title!';
   Bert.alert(opts);
 };

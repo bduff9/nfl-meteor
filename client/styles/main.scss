@@ -1,12 +1,6 @@
 @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
 
 /* Global */
-.main {
-
-}
-
-
-
 label.error {
   color: #C9302C;
 }
@@ -18,9 +12,10 @@ body {
   background-size: cover;
 }
 
-.signin-form, .white-box {
+.signin-form,
+.white-box {
   position: relative;
-  border: black;
+  border: 1px solid black;
   border-radius: 5px;
   background-color: #F5F5F7;
   padding: 60px 30px 30px 30px;
@@ -92,34 +87,4 @@ body {
 .bottom-text {
   padding-bottom: 11px;
   font-size: small;
-}
-
-/* Make Picks */
-$pointBankWidth: 75px;
-.pointBank {
-  width: $pointBankWidth;
-  padding-left: 0;
-  position: fixed;
-}
-
-.points {
-  background-color: #FFF;
-  border: 1px solid #000;
-  list-style-type: none;
-  padding: 5px 0;
-}
-
-.makePickTable {
-  width: 72%;
-  margin-left: $pointBankWidth + 20px;
-  background-color: rgba(255, 255, 255, .85);
-
-  .homePoints ul,
-  .visitorPoints ul {
-    background-color: #CCC;
-    width: $pointBankWidth;
-    height: 26px;
-    border: 1px solid #AAA;
-    padding-left: 0;
-  }
 }

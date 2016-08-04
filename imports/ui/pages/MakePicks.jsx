@@ -5,7 +5,9 @@ import React, { Component, PropTypes } from 'react';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
+import Sortable from 'sortablejs';
 
+import './MakePicks.scss';
 import { Loading } from './Loading.jsx';
 import { Game, User } from '../../api/schema';
 import { displayError } from '../../api/global';
@@ -22,6 +24,28 @@ class MakePicks extends Component {
     if (gamesReady) {
       pointObj = this._populatePoints(games, picks, true);
       this.setState(pointObj);
+    }
+  }
+  componentDidUpdate(prevProps, prevState) {
+    const { sortable } = this.state,
+        { games } = this.props,
+        opts = {
+          group: 'picks',
+          sort: false
+        };
+    let newSortable = sortable || {},
+        team;
+    if (!sortable && this.refs.pointBank) {
+      newSortable.bank = Sortable.create(this.refs.pointBank, opts);
+//TODO disable games that have started
+      opts.onSort = (ev) => { console.log(ev); };
+      games.forEach(game => {
+        team = game.home_short;
+        newSortable[team] = Sortable.create(this.refs[team], opts);
+        team = game.visitor_short;
+        newSortable[team] = Sortable.create(this.refs[team], opts);
+      });
+      this.setState({ sortable: newSortable });
     }
   }
 
@@ -48,8 +72,11 @@ class MakePicks extends Component {
     style.backgroundColor = `rgb(${red}, ${green}, ${BLUE})`;
     return style;
   }
-  _renderGames() {
-    //TODO will prob be separate component
+  _handlePointDrop(ev) {
+//TODO only allow one per ul
+//TODO only allow one per game
+//TODO on add write to pick
+//TODO on remove, remove from pick
   }
 
   render() {
@@ -63,7 +90,7 @@ class MakePicks extends Component {
         {pageReady ? (
           <div>
             <h3>{`Set Week ${selectedWeek} Picks`}</h3>
-            <ul className="pointBank">
+            <ul className="pointBank" ref="pointBank">
               {available.map(point => <li className="points text-xs-center" style={this._getColor(point, games.length)} key={'point' + point}>{point}</li>)}
             </ul>
             <table className="table table-hover makePickTable">
@@ -87,7 +114,7 @@ class MakePicks extends Component {
                       <td>
                         <div className="row">
                           <div className="col-xs-2 homePoints">
-                            <ul>
+                            <ul ref={homeTeam.short_name}>
                               {thisPick.pick_id === homeTeam._id ? <li className="points text-xs-center" style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
                             </ul>
                           </div>
@@ -96,7 +123,7 @@ class MakePicks extends Component {
                           <div className="col-xs-2 visitorName">{`${visitTeam.city} ${visitTeam.name}`}</div>
                           <div className="col-xs-2 visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
                           <div className="col-xs-2 visitorPoints">
-                            <ul>
+                            <ul ref={visitTeam.short_name}>
                               {thisPick.pick_id === visitTeam._id ? <li className="points text-xs-center" style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
                             </ul>
                           </div>

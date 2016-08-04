@@ -2,10 +2,8 @@
 
 /* Global */
 .main {
-  padding-left: 40px;
+
 }
-
-
 
 
 
@@ -20,26 +18,27 @@ body {
   background-size: cover;
 }
 
-.signin-form {
+.signin-form, .white-box {
   position: relative;
   border: black;
   border-radius: 5px;
   background-color: #F5F5F7;
   padding: 60px 30px 30px 30px;
-  margin-top: 10%;
-  margin-bottom: 10%;
+  margin: 10% auto;
   width: 450px;
 }
 
 .white-box {
-  position: relative;
-  border: black;
-  border-radius: 5px;
-  background-color: #F5F5F7;
   padding: 60px;
-  margin-top: 10%;
-  margin-bottom: 10%;
-  width: 450px;
+  width: 600px;
+}
+
+.logout-box {
+  width: 620px;
+
+  .row {
+    margin-bottom: 20px;
+  }
 }
 
 .load-screen {

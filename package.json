@@ -12,8 +12,7 @@
   },
   "dependencies": {
     "autoprefixer": "^6.3.7",
-    "bootstrap": "^4.0.0-alpha.2",
-    "bootstrap-sass": "^3.3.6",
+    "bootstrap": "^4.0.0-alpha.3",
     "jquery": "^3.1.0",
     "jquery-validation": "^1.15.1",
     "meteor-node-stubs": "^0.2.3",

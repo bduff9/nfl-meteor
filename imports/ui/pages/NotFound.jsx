@@ -16,9 +16,9 @@ export const NotFound = ({ location }) => {
   };
 
   return (
-    <div>
+    <div className="col-xs">
       <Helmet title="Not Found" />
-      <div className="white-box" style={{width:"600px"}}>
+      <div className="white-box">
         <div className="row">
           <div className="text-xs-center col-xs-12">
             <h1>What have you done?!</h1>
@@ -37,7 +37,7 @@ export const NotFound = ({ location }) => {
         </div>
         <div className="row">
           <div className="text-xs-center col-xs-12">
-            <Link to="/" activeClassName="active">Please click here to get us both out of this situation</Link>
+            <Link to="/">Please click here to get us both out of this situation</Link>
           </div>
         </div>
       </div>

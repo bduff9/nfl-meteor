@@ -124,7 +124,7 @@ export default class Login extends Component {
         currMonth = currDate.getMonth(),
         currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
     return (
-      <div>
+      <div className="col-xs">
         <Helmet title="Login" />
         <div className="signin-form">
           <div className="ball-logo">

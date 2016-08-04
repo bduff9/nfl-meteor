@@ -22,11 +22,12 @@ class AuthedLayout extends Component {
     const { children, location, ...rest } = this.props,
         logoutOnly = location.pathname.indexOf('create') > -1;
     return (
+      <div className="col-xs">
       <div className="row">
         <Helmet title="Welcome" />
         <Navigation {...rest} logoutOnly={logoutOnly} />
-        <div className="col-xs-offset-2 col-xs-10 main">{children}</div>
-      </div>
+        <div className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">{children}</div>
+      </div></div>
     );
   }
 }

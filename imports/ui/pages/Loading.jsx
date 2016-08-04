@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 
 export const Loading = (props) => {
   return (
-    <div>
+    <div className="col-xs">
       <Helmet title="Loading..." />
       <div className="white-box">
         <div className="row">

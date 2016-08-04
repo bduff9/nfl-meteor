@@ -1,23 +1,43 @@
 @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
 
-label.error {color: #C9302C;}
+/* Global */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  display: block;
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+  border-right: 1px solid #eee;
+}
+
+.main {
+  padding: 20px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.nav-sidebar {
+  margin-right: -21px;
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+
+
+
+label.error {
+  color: #C9302C;
+}
 
 body {
   background-image: url('/bkgd-pitch.png');
   background-repeat: no-repeat;
   background-color: black;
   background-size: cover;
-}
-
-.flex-container {
-  display: flex;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  -webkit-flex-flow: row wrap;
-  justify-content: space-around;
-  margin: 0;
 }
 
 .signin-form {
@@ -95,10 +115,32 @@ body {
   font-size: small;
 }
 
+/* Make Picks */
+$pointBankWidth: 75px;
+.pointBank {
+  width: $pointBankWidth;
+  padding-left: 0;
+  position: fixed;
+}
+
 .points {
   background-color: #FFF;
   border: 1px solid #000;
-  display: inline;
-  margin: 0 2px;
-  padding: 0 15px;
+  list-style-type: none;
+  padding: 5px 0;
+}
+
+.makePickTable {
+  width: 72%;
+  margin-left: $pointBankWidth + 20px;
+  background-color: rgba(255, 255, 255, .85);
+
+  .homePoints ul,
+  .visitorPoints ul {
+    background-color: #CCC;
+    width: $pointBankWidth;
+    height: 26px;
+    border: 1px solid #AAA;
+    padding-left: 0;
+  }
 }

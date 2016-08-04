@@ -13,23 +13,20 @@ import { displayError } from '../../api/global';
 class MakePicks extends Component {
   constructor(props) {
     super();
-    this.state = {
-      available: [],
-      unavailable: [],
-      used: []
-    };
+    this.state = this._populatePoints(props.games, props.picks, props.gamesReady);
   }
 
   componentWillReceiveProps(nextProps) {
     const { games, gamesReady, picks } = nextProps;
     let pointObj;
     if (gamesReady) {
-      pointObj = this._populatePoints(games, picks);
+      pointObj = this._populatePoints(games, picks, true);
       this.setState(pointObj);
     }
   }
 
-  _populatePoints(games, picks) {
+  _populatePoints(games, picks, gamesReady) {
+    if (!gamesReady) return { available: [], unavailable: [], used: [] };
     const used = picks.map(pick => pick.points).filter(points => points),
         missedGames = picks.filter((pick, i) => !pick.points && games[i].kickoff <= new Date());
     let available = [],
@@ -57,24 +54,59 @@ class MakePicks extends Component {
 
   render() {
     const { available, unavailable, used } = this.state,
-        { currentWeek, games, gamesReady, selectedWeek } = this.props,
+        { currentWeek, games, gamesReady, picks, selectedWeek, teamsReady } = this.props,
+        pageReady = gamesReady && teamsReady,
         notAllowed = selectedWeek < currentWeek;
     return (
       <div>
-        <Helmet title={`Set week ${selectedWeek} picks`} />
-        {gamesReady ? (
+        <Helmet title={`Set Week ${selectedWeek} Picks`} />
+        {pageReady ? (
           <div>
-            <h3>Make Picks</h3>
-            {available.map(point => <div className="points" style={this._getColor(point, games.length)} key={'point' + point}>{point}</div>)}
-            <br />
-            {unavailable.map(point => <div className="points" style={this._getColor(point, games.length)} key={'point' + point}>{point}</div>)}
-            <br />
-            {used.map(point => <div className="points" style={this._getColor(point, games.length)} key={'point' + point}>{point}</div>)}
-            <ul>
-              {games.map((game, i) => (
-                <li key={'game' + i}>{`${game.visitor_short} @ ${game.home_short}`}</li>
-              ))}
+            <h3>{`Set Week ${selectedWeek} Picks`}</h3>
+            <ul className="pointBank">
+              {available.map(point => <li className="points text-xs-center" style={this._getColor(point, games.length)} key={'point' + point}>{point}</li>)}
             </ul>
+            <table className="table table-hover makePickTable">
+              <thead className="thead-default">
+                <tr>
+                  <th>
+                    <div className="row">
+                      <div className="col-xs-6 text-xs-center">Home</div>
+                      <div className="col-xs-6 text-xs-center">Away</div>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {games.map((game, i) => {
+                  const homeTeam = game.getTeam('home'),
+                      visitTeam = game.getTeam('visitor'),
+                      thisPick = picks[i];
+                  return (
+                    <tr key={'game' + i}>
+                      <td>
+                        <div className="row">
+                          <div className="col-xs-2 homePoints">
+                            <ul>
+                              {thisPick.pick_id === homeTeam._id ? <li className="points text-xs-center" style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
+                            </ul>
+                          </div>
+                          <div className="col-xs-2 homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
+                          <div className="col-xs-2 homeName">{`${homeTeam.city} ${homeTeam.name}`}</div>
+                          <div className="col-xs-2 visitorName">{`${visitTeam.city} ${visitTeam.name}`}</div>
+                          <div className="col-xs-2 visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
+                          <div className="col-xs-2 visitorPoints">
+                            <ul>
+                              {thisPick.pick_id === visitTeam._id ? <li className="points text-xs-center" style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
+                            </ul>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
           )
           :
@@ -91,6 +123,7 @@ MakePicks.propTypes = {
   gamesReady: PropTypes.bool.isRequired,
   picks: PropTypes.arrayOf(PropTypes.object).isRequired,
   selectedWeek: PropTypes.number,
+  teamsReady: PropTypes.bool.isRequired,
   tiebreaker: PropTypes.object
 };
 
@@ -101,17 +134,20 @@ export default createContainer(() => {
       picks = user.picks.filter(pick => pick.week === selectedWeek && pick.game !== 0),
       tiebreaker = user.tiebreakers[selectedWeek - 1],
       gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
-      gamesReady = gamesHandle.ready();
+      gamesReady = gamesHandle.ready(),
+      teamsHandle = Meteor.subscribe('allTeams'),
+      teamsReady = teamsHandle.ready();
   let games = [];
   if (gamesReady) {
     games = Game.find({ week: selectedWeek, game: { $ne: 0 }}, { sort: { game: 1 }}).fetch();
   }
   return {
     currentWeek,
-    selectedWeek,
-    picks,
-    tiebreaker,
+    games,
     gamesReady,
-    games
+    picks,
+    selectedWeek,
+    teamsReady,
+    tiebreaker
   };
 }, MakePicks);

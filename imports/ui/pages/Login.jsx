@@ -121,7 +121,7 @@ export default class Login extends Component {
   render() {
     const { loading, type } = this.state;
     return (
-      <div className="flex-container">
+      <div>
         <Helmet title="Login" />
         <div className="signin-form">
           <div className="ball-logo">

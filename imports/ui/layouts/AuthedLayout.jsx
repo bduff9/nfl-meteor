@@ -19,12 +19,12 @@ class AuthedLayout extends Component {
   }
 
   render() {
-    const { children, currentUser, location, selectedWeek } = this.props,
+    const { children, location, ...rest } = this.props,
         logoutOnly = location.pathname.indexOf('create') > -1;
     return (
       <div className="row">
         <Helmet title="Welcome" />
-        <Navigation currentUser={currentUser} logoutOnly={logoutOnly} selectedWeek={selectedWeek} />
+        <Navigation {...rest} logoutOnly={logoutOnly} />
         <div className="col-xs-offset-2 col-xs-10 main">{children}</div>
       </div>
     );
@@ -34,6 +34,7 @@ class AuthedLayout extends Component {
 AuthedLayout.propTypes = {
   children: PropTypes.element.isRequired,
   currentUser: PropTypes.object.isRequired,
+  currentWeek: PropTypes.number,
   location: PropTypes.object.isRequired,
   selectedWeek: PropTypes.number
 };
@@ -51,6 +52,7 @@ export default createContainer(() => {
   }
   return {
     currentUser,
+    currentWeek: week,
     selectedWeek
   };
 }, AuthedLayout);

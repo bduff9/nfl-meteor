@@ -10,14 +10,27 @@ import Sortable from 'sortablejs';
 import './MakePicks.scss';
 import { Loading } from './Loading.jsx';
 import { Game, User } from '../../api/schema';
+import { removePick, setPick } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
 class MakePicks extends Component {
   constructor(props) {
+    const { games, gamesReady, picks } = props;
+    let state;
     super();
-    this.state = this._populatePoints(props.games, props.picks, props.gamesReady);
+    state = this._populatePoints(games, picks, gamesReady);
+    //state.sortable = this._bindSortable(null, games);
+    this.state = state;
+    this._bindSortable = this._bindSortable.bind(this);
+    this._handlePointAdd = this._handlePointAdd.bind(this);
+    this._handlePointRemove = this._handlePointRemove.bind(this);
   }
 
+  componentDidMount() {
+    const { sortable } = this.state,
+        { games } = this.props;
+    this.setState({ sortable: this._bindSortable(sortable, games) });
+  }
   componentWillReceiveProps(nextProps) {
     const { games, gamesReady, picks } = nextProps;
     let pointObj;
@@ -27,30 +40,40 @@ class MakePicks extends Component {
     }
   }
   componentDidUpdate(prevProps, prevState) {
-    const { sortable } = this.state,
-        { games } = this.props,
-        opts = {
-          group: 'picks',
-          sort: false,
-          filter: '.disabled'
-        };
-    let newSortable = sortable || {},
-        team;
-    if (!sortable && this.refs.pointBank) {
-      newSortable.bank = Sortable.create(this.refs.pointBank, opts);
-//TODO disable games that have started
-      opts.onMove = this._handlePointDrop;
-      opts.onSort = this._handlePointDrop;
-      games.forEach(game => {
-        team = game.home_short;
-        newSortable[team] = Sortable.create(this.refs[team], opts);
-        team = game.visitor_short;
-        newSortable[team] = Sortable.create(this.refs[team], opts);
-      });
-      this.setState({ sortable: newSortable });
-    }
+    const { available, sortable, used } = this.state,
+        { games } = this.props;
+    if (this.refs.pointBank && (!sortable || sortable.length !== ((available.length + used.length) * 2 + 1))) this.setState({ sortable: this._bindSortable(sortable, games) });
   }
 
+  _bindSortable(sortable, games) {
+    const opts = {
+          group: 'picks',
+          sort: false,
+          filter: '.disabled',
+          onMove: this._validatePointDrop
+        };
+    let newSortable = (sortable ? sortable.map(sort => sort) : []),
+        team, ul;
+    if (!this.refs.pointBank) return null;
+    newSortable.forEach(sort => sort.destroy());
+    newSortable.length = 0;
+    newSortable.push(Sortable.create(this.refs.pointBank, opts));
+    opts.onAdd = this._handlePointAdd;
+    opts.onRemove = this._handlePointRemove;
+    games.forEach(game => {
+      team = game.home_short;
+      ul = this.refs[team];
+      if (ul && !Sortable.utils.is(ul, '.disabled')) {
+        newSortable.push(Sortable.create(this.refs[team], opts));
+      }
+      team = game.visitor_short;
+      ul = this.refs[team];
+      if (ul && !Sortable.utils.is(ul, '.disabled')) {
+        newSortable.push(Sortable.create(this.refs[team], opts));
+      }
+    });
+    return newSortable;
+  }
   _populatePoints(games, picks, gamesReady) {
     if (!gamesReady) return { available: [], unavailable: [], used: [] };
     const used = picks.map(pick => pick.points).filter(points => points),
@@ -74,15 +97,33 @@ class MakePicks extends Component {
     style.backgroundColor = `rgb(${red}, ${green}, ${BLUE})`;
     return style;
   }
-  _handlePointDrop(ev) {
-console.log(ev);
-//TODO only allow one per ul
-//TODO only allow one per game
-//TODO on add write to pick
-//TODO on remove, remove from pick
-    ev.preventDefault();
-    ev.stopPropagation();
-    return false;
+  _validatePointDrop(ev) {
+    const { dragged, to } = ev;
+    let usedPoints;
+    if (Sortable.utils.is(to, '.pointBank')) return true;
+    if (Sortable.utils.is(to, '.disabled')) return false;
+    if (to.children.length > 0) return false;
+    usedPoints = Sortable.utils.find(Sortable.utils.closest(to, '.row'), 'li');
+    usedPoints = Array.from(usedPoints).filter(point => Sortable.utils.is(point, '.points') && point !== dragged);
+    return usedPoints.length === 0;
+  }
+  _handlePointAdd(ev) {
+    const { item, to } = ev,
+        { selectedWeek } = this.props,
+        gameId = to.dataset.gameId,
+        teamId = to.dataset.teamId,
+        teamShort = to.dataset.teamShort,
+        pointVal = parseInt(item.innerText, 10);
+    setPick.call({ selectedWeek, gameId, teamId, teamShort, pointVal }, displayError);
+  }
+  _handlePointRemove(ev) {
+    const { from, item } = ev,
+        { selectedWeek } = this.props,
+        gameId = from.dataset.gameId,
+        teamId = from.dataset.teamId,
+        teamShort = from.dataset.teamShort,
+        pointVal = parseInt(item.innerText, 10);
+    removePick.call({ selectedWeek, gameId, teamId, teamShort, pointVal }, displayError);
   }
 
   render() {
@@ -91,13 +132,14 @@ console.log(ev);
         pageReady = gamesReady && teamsReady,
         notAllowed = selectedWeek < currentWeek;
     return (
-      <div>
+      <div className="row">
         <Helmet title={`Set Week ${selectedWeek} Picks`} />
         {pageReady ? (
-          <div>
+          <div className="col-xs-12">
             <h3>{`Set Week ${selectedWeek} Picks`}</h3>
             <ul className="pointBank" ref="pointBank">
               {available.map(point => <li className="points text-xs-center" style={this._getColor(point, games.length)} key={'point' + point}>{point}</li>)}
+              {unavailable.map(point => <li className="points text-xs-center disabled" title="This is unavailable" style={this._getColor(point, games.length)} key={'point' + point}>{point}</li>)}
             </ul>
             <table className="table table-hover makePickTable">
               <thead className="thead-default">
@@ -115,25 +157,36 @@ console.log(ev);
                   const homeTeam = game.getTeam('home'),
                       visitTeam = game.getTeam('visitor'),
                       thisPick = picks[i],
-                      started = game.kickoff >= new Date();
-//TODO use started to disable points/uls
+                      homePicked = thisPick.pick_id === homeTeam._id,
+                      visitorPicked = thisPick.pick_id === visitTeam._id,
+                      started = game.kickoff <= new Date();
                   return (
-                    <tr key={'game' + i}>
+                    <tr className={(homePicked || visitorPicked ? 'done' : '') + (started ? ' disabled' : '')} title={(started ? 'This game has already begun, no changes allowed' : null)} key={'game' + i}>
                       <td>
                         <div className="row">
                           <div className="col-xs-2 homePoints">
-                            <ul ref={homeTeam.short_name}>
-                              {thisPick.pick_id === homeTeam._id ? <li className="points text-xs-center" style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
-                            </ul>
+                            {homePicked || !started ? (
+                              <ul data-game-id={game._id} data-team-id={homeTeam._id} data-team-short={homeTeam.short_name} ref={homeTeam.short_name}>
+                                {homePicked ? <li className={'points text-xs-center' + (started ? ' disabled' : '')} style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
+                              </ul>
+                              )
+                              :
+                              null
+                            }
                           </div>
                           <div className="col-xs-2 homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
                           <div className="col-xs-2 homeName">{`${homeTeam.city} ${homeTeam.name}`}</div>
                           <div className="col-xs-2 visitorName">{`${visitTeam.city} ${visitTeam.name}`}</div>
                           <div className="col-xs-2 visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
                           <div className="col-xs-2 visitorPoints">
-                            <ul ref={visitTeam.short_name}>
-                              {thisPick.pick_id === visitTeam._id ? <li className="points text-xs-center" style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
-                            </ul>
+                            {visitorPicked || !started ? (
+                              <ul data-game-id={game._id} data-team-id={visitTeam._id} data-team-short={visitTeam.short_name} ref={visitTeam.short_name}>
+                                {visitorPicked ? <li className={'points text-xs-center' + (started ? ' disabled' : '')} style={this._getColor(thisPick.points, games.length)}>{thisPick.points}</li> : null}
+                              </ul>
+                              )
+                              :
+                              null
+                            }
                           </div>
                         </div>
                       </td>

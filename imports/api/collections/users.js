@@ -46,6 +46,44 @@ export const removeSelectedWeek = new ValidatedMethod({
   }
 });
 
+export const setPick = new ValidatedMethod({
+  name: 'User.picks.add',
+  validate: new SimpleSchema({
+    selectedWeek: { type: Number, label: 'Week' },
+    gameId: { type: String, label: 'Game ID' },
+    teamId: { type: String, label: 'Team ID' },
+    teamShort: { type: String, label: 'Team Name' },
+    pointVal: { type: Number, label: 'Points' }
+  }).validator(),
+  run({ selectedWeek, gameId, teamId, teamShort, pointVal }) {
+    if (!this.userId) throw new Meteor.Error('User.picks.add.notLoggedIn', 'Must be logged in to update picks');
+//TODO validation to ensure that:
+//1) this game has not started
+//2) this point val has not been used
+    if (Meteor.isServer) {
+      User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId }, { $set: { "picks.$.pick_id": teamId, "picks.$.pick_short": teamShort, "picks.$.points": pointVal }});
+    }
+  }
+});
+
+export const removePick = new ValidatedMethod({
+  name: 'User.picks.remove',
+  validate: new SimpleSchema({
+    selectedWeek: { type: Number, label: 'Week' },
+    gameId: { type: String, label: 'Game ID' },
+    teamId: { type: String, label: 'Team ID' },
+    teamShort: { type: String, label: 'Team Name' },
+    pointVal: { type: Number, label: 'Points' }
+  }).validator(),
+  run({ selectedWeek, gameId, teamId, teamShort, pointVal }) {
+    if (!this.userId) throw new Meteor.Error('User.picks.remove.notLoggedIn', 'Must be logged in to update picks');
+//TODO validation to ensure that this game has not started
+    if (Meteor.isServer) {
+      User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId, "picks.pick_id": teamId }, { $unset: { "picks.$.pick_id": 1, "picks.$.pick_short": 1, "picks.$.points": 1 }});
+    }
+  }
+});
+
 export const updatePoints = new ValidatedMethod({
   name: 'User.updatePoints',
   validate: null,

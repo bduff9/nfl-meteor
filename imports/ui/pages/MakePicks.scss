@@ -11,6 +11,10 @@ $pointBankWidth: 75px;
   border: 1px solid #000;
   list-style-type: none;
   padding: 4px 0;
+
+  &.disabled {
+    opacity: 0.5;
+  }
 }
 
 .makePickTable {
@@ -25,5 +29,18 @@ $pointBankWidth: 75px;
     height: 34px;
     border: 1px solid #AAA;
     padding-left: 0;
+  }
+
+  tr {
+    &.disabled {
+      //TODO style games that have already started?
+      background-color: red;
+      opacity: 0.5;
+    }
+
+    &.done {
+      //TODO style games that have been picked?
+      background-color: green;
+    }
   }
 }

@@ -7,7 +7,7 @@ import '../imports/api/collections/games';
 import '../imports/api/collections/nfllogs';
 import '../imports/api/collections/teams';
 import '../imports/api/collections/users';
-import { Game } from '../imports/api/schema';
+import { Game, Team } from '../imports/api/schema';
 import { currentWeek } from '../imports/api/collections/games';
 import { writeLog } from '../imports/api/collections/nfllogs';
 import { logError } from '../imports/api/global';
@@ -25,7 +25,7 @@ Meteor.startup(() => {
         last_name = EMPTY_VAL,
         email = EMPTY_VAL,
         verified = true,
-        existingCount, firstName, lastName, logEntry;
+        existingCount, firstName, lastName, logEntry, bonusTeam;
     if (currWeek > 3) throw new Meteor.Error('Registration has ended', 'No new users are allowed after the third week.  Please try again next year');
     if (user.services.facebook) {
       first_name = user.services.facebook.first_name;
@@ -54,10 +54,13 @@ Meteor.startup(() => {
     user.total_games = 0;
     user.bonus_points = 0;
     user.picks = Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
+      let bonusTeam = Team.findOne({ short_name: 'BON' });
       return {
         "week": game.week,
         "game_id": game._id,
-        "game": game.game
+        "game": game.game,
+        "pick_id": (game.game === 0 ? bonusTeam._id : undefined),
+        "pick_short": (game.game === 0 ? bonusTeam.short_name : undefined)
       };
     });
     user.tiebreakers = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {

@@ -31,14 +31,16 @@ class MakePicks extends Component {
         { games } = this.props,
         opts = {
           group: 'picks',
-          sort: false
+          sort: false,
+          filter: '.disabled'
         };
     let newSortable = sortable || {},
         team;
     if (!sortable && this.refs.pointBank) {
       newSortable.bank = Sortable.create(this.refs.pointBank, opts);
 //TODO disable games that have started
-      opts.onSort = (ev) => { console.log(ev); };
+      opts.onMove = this._handlePointDrop;
+      opts.onSort = this._handlePointDrop;
       games.forEach(game => {
         team = game.home_short;
         newSortable[team] = Sortable.create(this.refs[team], opts);
@@ -73,10 +75,14 @@ class MakePicks extends Component {
     return style;
   }
   _handlePointDrop(ev) {
+console.log(ev);
 //TODO only allow one per ul
 //TODO only allow one per game
 //TODO on add write to pick
 //TODO on remove, remove from pick
+    ev.preventDefault();
+    ev.stopPropagation();
+    return false;
   }
 
   render() {
@@ -108,7 +114,9 @@ class MakePicks extends Component {
                 {games.map((game, i) => {
                   const homeTeam = game.getTeam('home'),
                       visitTeam = game.getTeam('visitor'),
-                      thisPick = picks[i];
+                      thisPick = picks[i],
+                      started = game.kickoff >= new Date();
+//TODO use started to disable points/uls
                   return (
                     <tr key={'game' + i}>
                       <td>

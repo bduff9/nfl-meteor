@@ -34,3 +34,15 @@ export const convertEpoch = (epoch) => {
   d.setUTCSeconds(epoch);
   return d;
 };
+
+export const getColor = (point, max) => {
+  const BLUE = 0;
+  let style = {},
+      perc = point / max,
+      red = parseInt((1 - perc) * 510, 10),
+      green = parseInt(510 * perc, 10);
+  green = (green > 255 ? 255 : green);
+  red = (red > 255 ? 255 : red);
+  style.backgroundColor = `rgb(${red}, ${green}, ${BLUE})`;
+  return style;
+};

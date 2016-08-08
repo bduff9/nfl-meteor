@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 
-import { Pick, SurvivorPick, Tiebreaker, User } from '../schema';
+import { Game, Pick, SurvivorPick, Tiebreaker, User } from '../schema';
 
 export const updateUser = new ValidatedMethod({
   name: 'User.update',
@@ -50,36 +50,36 @@ export const setPick = new ValidatedMethod({
   name: 'User.picks.add',
   validate: new SimpleSchema({
     selectedWeek: { type: Number, label: 'Week' },
-    gameId: { type: String, label: 'Game ID' },
-    teamId: { type: String, label: 'Team ID' },
-    teamShort: { type: String, label: 'Team Name' },
-    pointVal: { type: Number, label: 'Points' }
+    fromData: { type: Object, label: 'From List' },
+    toData: { type: Object, label: 'To List' },
+    pointVal: { type: Number, label: 'Points' },
+    addOnly: { type: Boolean, label: 'Add Only' },
+    removeOnly: { type: Boolean, label: 'Remove Only' }
   }).validator(),
-  run({ selectedWeek, gameId, teamId, teamShort, pointVal }) {
-    if (!this.userId) throw new Meteor.Error('User.picks.add.notLoggedIn', 'Must be logged in to update picks');
-//TODO validation to ensure that:
-//1) this game has not started
-//2) this point val has not been used
-    if (Meteor.isServer) {
-      User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId }, { $set: { "picks.$.pick_id": teamId, "picks.$.pick_short": teamShort, "picks.$.points": pointVal }});
+  run({ selectedWeek, fromData, toData, pointVal, addOnly, removeOnly }) {
+    const now = new Date.now();
+    let game, user, picks;
+    if (!this.userId) throw new Meteor.Error('User.picks.set.notLoggedIn', 'Must be logged in to update picks');
+    if (fromData.gameId) {
+      game = Game.findOne(fromData.gameId);
+      if (game.kickoff < now) throw new Meteor.Error('User.picks.set.gameAlreadyStarted', 'This game has already begun');
     }
-  }
-});
-
-export const removePick = new ValidatedMethod({
-  name: 'User.picks.remove',
-  validate: new SimpleSchema({
-    selectedWeek: { type: Number, label: 'Week' },
-    gameId: { type: String, label: 'Game ID' },
-    teamId: { type: String, label: 'Team ID' },
-    teamShort: { type: String, label: 'Team Name' },
-    pointVal: { type: Number, label: 'Points' }
-  }).validator(),
-  run({ selectedWeek, gameId, teamId, teamShort, pointVal }) {
-    if (!this.userId) throw new Meteor.Error('User.picks.remove.notLoggedIn', 'Must be logged in to update picks');
-//TODO validation to ensure that this game has not started
+    if (toData.gameId) {
+      game = Game.findOne(toData.gameId);
+      if (game.kickoff < now) throw new Meteor.Error('User.picks.set.gameAlreadyStarted', 'This game has already begun');
+    }
     if (Meteor.isServer) {
-      User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId, "picks.pick_id": teamId }, { $unset: { "picks.$.pick_id": 1, "picks.$.pick_short": 1, "picks.$.points": 1 }});
+      user = User.findOne(this.userId);
+      picks = user.picks;
+      if (!addOnly) {
+        //TODO remove current pick if not add only
+      }
+      if (!removeOnly) {
+        //TODO add new pick if not remove only
+      }
+      user.save();
+      //User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId }, { $set: { "picks.$.pick_id": teamId, "picks.$.pick_short": teamShort, "picks.$.points": pointVal }});
+      //User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId, "picks.pick_id": teamId }, { $unset: { "picks.$.pick_id": 1, "picks.$.pick_short": 1, "picks.$.points": 1 }});
     }
   }
 });

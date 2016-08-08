@@ -5,23 +5,17 @@ import React, { Component, PropTypes } from 'react';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
-import Sortable from 'sortablejs';
 
 import './MakePicks.scss';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
 import { Game, User } from '../../api/schema';
-import { removePick, setPick } from '../../api/collections/users';
-import { displayError } from '../../api/global';
 
 class MakePicks extends Component {
   constructor(props) {
     const { games, gamesReady, picks } = props;
     super();
     this.state = this._populatePoints(games, picks, gamesReady);
-    this._bindSortable = this._bindSortable.bind(this);
-    this._handlePointAdd = this._handlePointAdd.bind(this);
-    this._handlePointRemove = this._handlePointRemove.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -33,35 +27,6 @@ class MakePicks extends Component {
     }
   }
 
-  _bindSortable(sortable, games) {
-    const opts = {
-          group: 'picks',
-          sort: false,
-          filter: '.disabled',
-          onMove: this._validatePointDrop
-        };
-    let newSortable = (sortable ? sortable.map(sort => sort) : []),
-        team, ul;
-    if (!this.refs.pointBank) return null;
-    newSortable.forEach(sort => sort.destroy());
-    newSortable.length = 0;
-    newSortable.push(Sortable.create(this.refs.pointBank, opts));
-    opts.onAdd = this._handlePointAdd;
-    opts.onRemove = this._handlePointRemove;
-    games.forEach(game => {
-      team = game.home_short;
-      ul = this.refs[team];
-      if (ul && !Sortable.utils.is(ul, '.disabled')) {
-        newSortable.push(Sortable.create(this.refs[team], opts));
-      }
-      team = game.visitor_short;
-      ul = this.refs[team];
-      if (ul && !Sortable.utils.is(ul, '.disabled')) {
-        newSortable.push(Sortable.create(this.refs[team], opts));
-      }
-    });
-    return newSortable;
-  }
   _populatePoints(games, picks, gamesReady) {
     if (!gamesReady) return { available: [], unavailable: [], used: [] };
     const used = picks.map(pick => pick.points).filter(points => points),
@@ -73,34 +38,6 @@ class MakePicks extends Component {
     }
     if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
     return { available, unavailable, used };
-  }
-  _validatePointDrop(ev) {
-    const { dragged, to } = ev;
-    let usedPoints;
-    if (Sortable.utils.is(to, '.pointBank')) return true;
-    if (Sortable.utils.is(to, '.disabled')) return false;
-    if (to.children.length > 0) return false;
-    usedPoints = Sortable.utils.find(Sortable.utils.closest(to, '.row'), 'li');
-    usedPoints = Array.from(usedPoints).filter(point => Sortable.utils.is(point, '.points') && point !== dragged);
-    return (usedPoints.length === 0);
-  }
-  _handlePointAdd(ev) {
-    const { item, to } = ev,
-        { selectedWeek } = this.props,
-        gameId = to.dataset.gameId,
-        teamId = to.dataset.teamId,
-        teamShort = to.dataset.teamShort,
-        pointVal = parseInt(item.innerText, 10);
-    setPick.call({ selectedWeek, gameId, teamId, teamShort, pointVal }, displayError);
-  }
-  _handlePointRemove(ev) {
-    const { from, item } = ev,
-        { selectedWeek } = this.props,
-        gameId = from.dataset.gameId,
-        teamId = from.dataset.teamId,
-        teamShort = from.dataset.teamShort,
-        pointVal = parseInt(item.innerText, 10);
-    removePick.call({ selectedWeek, gameId, teamId, teamShort, pointVal }, displayError);
   }
 
   render() {
@@ -126,7 +63,7 @@ class MakePicks extends Component {
               disabledPoints={unavailable}
               numGames={games.length}
               points={available}
-              sortableOptions={Object.assign({}, sortOpts, { ref: 'pointBank' })}
+              selectedWeek={selectedWeek}
               thisRef="pointBank" />
             <table className="table table-hover makePickTable">
               <thead className="thead-default">
@@ -158,7 +95,7 @@ class MakePicks extends Component {
                                 gameId={game._id}
                                 numGames={games.length}
                                 points={homePicked && !started ? [thisPick.points] : []}
-                                sortableOptions={Object.assign({}, sortOpts, { onAdd: this._handlePointAdd, onRemove: this._handlePointRemove, ref: homeTeam.short_name })}
+                                selectedWeek={selectedWeek}
                                 teamId={homeTeam._id}
                                 teamShort={homeTeam.short_name}
                                 thisRef={homeTeam.short_name} />
@@ -178,7 +115,7 @@ class MakePicks extends Component {
                                 gameId={game._id}
                                 numGames={games.length}
                                 points={visitorPicked && !started ? [thisPick.points] : []}
-                                sortableOptions={Object.assign({}, sortOpts, { onAdd: this._handlePointAdd, onRemove: this._handlePointRemove, ref: visitTeam.short_name })}
+                                selectedWeek={selectedWeek}
                                 teamId={visitTeam._id}
                                 teamShort={visitTeam.short_name}
                                 thisRef={visitTeam.short_name} />

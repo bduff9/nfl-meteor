@@ -57,6 +57,7 @@ export const setPick = new ValidatedMethod({
     removeOnly: { type: Boolean, label: 'Remove Only' }
   }).validator(),
   run({ selectedWeek, fromData, toData, pointVal, addOnly, removeOnly }) {
+//TODO fix simpleschema to allow keys we need
     const now = new Date.now();
     let game, user, picks;
     if (!this.userId) throw new Meteor.Error('User.picks.set.notLoggedIn', 'Must be logged in to update picks');

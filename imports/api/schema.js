@@ -263,6 +263,13 @@ export const Pick = Class.create({
       optional: true
     }
   },
+  methods: {
+    hasStarted() {
+      const game = Game.findOne(this.game_id),
+          now = new Date();
+      return (game.kickoff <= now);
+    }
+  },
   indexes: {}
 });
 

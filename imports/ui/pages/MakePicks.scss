@@ -1,4 +1,6 @@
 $pointBankWidth: 75px;
+$footerHeight: 60px;
+$footerHeightLarge: 120px;
 
 .pointBank {
   width: $pointBankWidth;
@@ -17,7 +19,8 @@ $pointBankWidth: 75px;
   }
 }
 
-.makePickTable {
+.makePickTable,
+.tiebreakerTable {
   width: 72%;
   margin-left: $pointBankWidth + 20px;
   background-color: rgba(255, 255, 255, .85);
@@ -42,5 +45,26 @@ $pointBankWidth: 75px;
       //TODO style games that have been picked?
       background-color: green;
     }
+  }
+}
+
+.tiebreakerTable {
+  margin-bottom: $footerHeight + 10px;
+}
+
+.pick-buttons {
+  position: fixed;
+  bottom: 0;
+  background-color: #ddd;
+  display: flex;
+  justify-content: space-around;
+  height: $footerHeight;
+
+  &.large {
+    height: $footerHeightLarge;
+  }
+
+  .btn {
+    margin: 10px 0;
   }
 }

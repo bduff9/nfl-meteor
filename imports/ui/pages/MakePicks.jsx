@@ -10,12 +10,15 @@ import './MakePicks.scss';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
 import { Game, User } from '../../api/schema';
+import { setTiebreaker } from '../../api/collections/users';
+import { displayError } from '../../api/global';
 
 class MakePicks extends Component {
   constructor(props) {
     const { games, gamesReady, picks } = props;
     super();
     this.state = this._populatePoints(games, picks, gamesReady);
+    this._setTiebreakerWrapper = this._setTiebreakerWrapper.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -39,10 +42,16 @@ class MakePicks extends Component {
     if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
     return { available, unavailable, used };
   }
+  _setTiebreakerWrapper(ev) {
+    const { selectedWeek } = this.props,
+        lastScoreStr = ev.currentTarget.value,
+        lastScore = lastScoreStr && parseInt(lastScoreStr, 10);
+    if (lastScore) setTiebreaker.call({ selectedWeek, lastScore }, displayError);
+  }
 
   render() {
     const { available, unavailable, used } = this.state,
-        { currentWeek, games, gamesReady, picks, selectedWeek, teamsReady } = this.props,
+        { currentWeek, games, gamesReady, picks, selectedWeek, teamsReady, tiebreaker } = this.props,
         sortOpts = {
          model: 'points',
          group: 'picks',
@@ -52,6 +61,7 @@ class MakePicks extends Component {
         },
         pageReady = gamesReady && teamsReady,
         notAllowed = selectedWeek < currentWeek;
+    let lastHomeTeam, lastVisitingTeam;
     return (
       <div className="row">
         <Helmet title={`Set Week ${selectedWeek} Picks`} />
@@ -84,6 +94,8 @@ class MakePicks extends Component {
                       homePicked = thisPick.pick_id === homeTeam._id,
                       visitorPicked = thisPick.pick_id === visitTeam._id,
                       started = game.kickoff <= new Date();
+                  lastHomeTeam = homeTeam;
+                  lastVisitingTeam = visitTeam;
                   return (
                     <tr className={(homePicked || visitorPicked ? 'done' : '') + (started ? ' disabled' : '')} title={(started ? 'This game has already begun, no changes allowed' : null)} key={'game' + i}>
                       <td>
@@ -129,6 +141,23 @@ class MakePicks extends Component {
                     </tr>
                   )
                 })}
+              </tbody>
+            </table>
+            <table className="table table-hover makePickTable">
+              <thead className="thead-default">
+                <tr>
+                  <th>Tiebreaker</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{`Without going over, input the total number of points scored in the ${lastVisitingTeam.city} ${lastVisitingTeam.name} vs. ${lastHomeTeam.city} ${lastHomeTeam.name} game`}</td>
+                </tr>
+                <tr>
+                  <td>
+                    <input type="number" className="form-control" defaultValue={tiebreaker.last_score} onBlur={this._setTiebreakerWrapper} />
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>

@@ -38,7 +38,6 @@ class PointHolder extends Component {
     return (usedPoints.length === 0);
   }
   _handlePointAdd(ev) {
-    console.log('add');
     const { from, item, to } = ev,
         { selectedWeek } = this.props,
         pointVal = parseInt(item.innerText, 10),

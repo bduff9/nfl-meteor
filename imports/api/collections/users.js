@@ -49,16 +49,21 @@ export const removeSelectedWeek = new ValidatedMethod({
 export const setPick = new ValidatedMethod({
   name: 'User.picks.add',
   validate: new SimpleSchema({
-    selectedWeek: { type: Number, label: 'Week' },
+    selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
     fromData: { type: Object, label: 'From List' },
+    "fromData.gameId": { type: String, label: 'From Game ID' },
+    "fromData.teamId": { type: String, label: 'From Team ID' },
+    "fromData.teamShort": { type: String, label: 'From Team Name' },
     toData: { type: Object, label: 'To List' },
+    "toData.gameId": { type: String, label: 'To Game ID', optional: true },
+    "toData.teamId": { type: String, label: 'To Team ID', optional: true },
+    "toData.teamShort": { type: String, label: 'To Team Name', optional: true },
     pointVal: { type: Number, label: 'Points' },
     addOnly: { type: Boolean, label: 'Add Only' },
     removeOnly: { type: Boolean, label: 'Remove Only' }
   }).validator(),
   run({ selectedWeek, fromData, toData, pointVal, addOnly, removeOnly }) {
-//TODO fix simpleschema to allow keys we need
-    const now = new Date.now();
+    const now = new Date();
     let game, user, picks;
     if (!this.userId) throw new Meteor.Error('User.picks.set.notLoggedIn', 'Must be logged in to update picks');
     if (fromData.gameId) {
@@ -72,15 +77,39 @@ export const setPick = new ValidatedMethod({
     if (Meteor.isServer) {
       user = User.findOne(this.userId);
       picks = user.picks;
-      if (!addOnly) {
-        //TODO remove current pick if not add only
+      if (!addOnly && fromData.gameId !== toData.gameId) {
+        picks.forEach(pick => {
+          if (pick.week === selectedWeek && pick.game_id === fromData.gameId) {
+            pick.pick_id = undefined;
+            pick.pick_short = undefined;
+            pick.points = undefined;
+          }
+        });
       }
       if (!removeOnly) {
-        //TODO add new pick if not remove only
+        picks.forEach(pick => {
+          if (pick.week === selectedWeek && pick.game_id === toData.gameId) {
+            pick.pick_id = toData.teamId;
+            pick.pick_short = toData.teamShort;
+            pick.points = pointVal;
+          }
+        });
       }
       user.save();
-      //User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId }, { $set: { "picks.$.pick_id": teamId, "picks.$.pick_short": teamShort, "picks.$.points": pointVal }});
-      //User.update({ _id: this.userId, "picks.week": selectedWeek, "picks.game_id": gameId, "picks.pick_id": teamId }, { $unset: { "picks.$.pick_id": 1, "picks.$.pick_short": 1, "picks.$.points": 1 }});
+    }
+  }
+});
+
+export const setTiebreaker = new ValidatedMethod({
+  name: 'User.setTiebreaker',
+  validate: new SimpleSchema({
+    selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
+    lastScore: { type: Number, label: 'Last Score', min: 1 }
+  }).validator(),
+  run({ selectedWeek, lastScore }) {
+    if (!this.userId) throw new Meteor.Error('User.setTiebreaker.notLoggedIn', 'Must be logged in to update tiebreaker');
+    if (Meteor.isServer) {
+      User.update({ _id: this.userId, "tiebreakers.week": selectedWeek }, { $set: { "tiebreakers.$.last_score": lastScore }});
     }
   }
 });

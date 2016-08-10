@@ -67,7 +67,7 @@ class MakePicks extends Component {
         { selectedWeek } = this.props;
     ev.preventDefault();
     autoPick.call({ selectedWeek, type, available }, displayError);
-    Bert.alert({ type: 'info', message: 'Your picks are being auto picked...' });
+    Bert.alert({ type: 'success', message: `Your unset picks have been automatically set ${type === 'random' ? 'randomly' : `to the ${type} teams`}!` });
     return false;
   }
   _savePicks(ev) {

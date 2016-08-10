@@ -6,6 +6,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
+import './ViewPicks.scss';
 import { Loading } from './Loading.jsx';
 import { Game, User } from '../../api/schema';
 import { displayError } from '../../api/global';
@@ -17,14 +18,19 @@ class ViewPicks extends Component {
   }
 
   render() {
-    const { games, gamesReady, picks, selectedWeek, teamsReady } = this.props,
-        pageReady = gamesReady && teamsReady;
+    const { games, gamesReady, picks, selectedWeek, teamsReady, tiebreaker } = this.props,
+        pageReady = gamesReady && teamsReady,
+        maxPoints = (games.length * (games.length + 1)) / 2,
+        possiblePoints = picks.reduce((prevScore, pick) => {
+          if ((pick.winner_id && pick.pick_id === pick.winner_id) || pick.pick_id) return prevScore + pick.points;
+          return prevScore;
+        }, 0);
     return (
       <div>
         <Helmet title={`View My Picks for Week ${selectedWeek}`} />
         <h3>{`View My Picks for Week ${selectedWeek}`}</h3>
-        {pageReady ? (
-          <table className="table table-hover">
+        {pageReady ? [
+          <table className="table table-hover view-picks-table" key="view-picks-table">
             <thead>
               <tr>
                 <th>Games</th>
@@ -41,15 +47,47 @@ class ViewPicks extends Component {
                 return (
                   <tr key={'game' + i}>
                     <td>{`${visitTeam.city} ${visitTeam.name} @ ${homeTeam.city} ${homeTeam.name}`}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td className={game.winner_short ? (thisPick.pick_short === game.winner_short ? 'correct-pick' : 'incorrect-pick') : null}>{thisPick.pick_short}</td>
+                    <td className={game.winner_short ? (thisPick.pick_short === game.winner_short ? 'correct-pick' : 'incorrect-pick') : null}>{thisPick.points}</td>
+                    <td>
+                      {game.winner_short}
+                      {game.winner_short ? <i className={'fa fa-fw' + (thisPick.pick_short === game.winner_short ? ' fa-check text-success' : ' fa-times text-danger')} /> : null}
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
+          </table>,
+          <table className="table table-hover view-pick-results-table" key="view-pick-results-table">
+            <thead>
+              <tr>
+                <th colSpan="2">My Results</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{`Week ${selectedWeek} score`}</td>
+                <td>{tiebreaker.points_earned}/{maxPoints}</td>
+              </tr>
+              <tr>
+                <td>Games picked correctly</td>
+                <td>{tiebreaker.games_correct}/{games.length}</td>
+              </tr>
+              <tr>
+                <td>Maximum possible score</td>
+                <td>{possiblePoints}</td>
+              </tr>
+              <tr>
+                <td>My tiebreaker score</td>
+                <td>{tiebreaker.last_score}</td>
+              </tr>
+              <tr>
+                <td>Final game's total</td>
+                <td>{tiebreaker.last_score_act}</td>
+              </tr>
+            </tbody>
           </table>
-          )
+          ]
           :
           <Loading />
         }

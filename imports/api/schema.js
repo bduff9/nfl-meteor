@@ -166,6 +166,8 @@ export const Game = Class.create({
         team = Teams.findOne({ _id: this.home_id });
       } else if (which === 'visitor') {
         team = Teams.findOne({ _id: this.visitor_id });
+      } else if (which === 'winner') {
+        team = Teams.findOne({ _id: this.winner_id });
       } else {
         console.error('Incorrect type passed', type);
         return null;
@@ -267,6 +269,11 @@ export const Pick = Class.create({
       const game = Game.findOne(this.game_id),
           now = new Date();
       return (game.kickoff <= now);
+    },
+    getTeam() {
+      let team;
+      team = Teams.findOne({ _id: this.pick_id });
+      return team;
     }
   }
 });

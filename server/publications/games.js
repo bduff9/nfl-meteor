@@ -32,6 +32,8 @@ Meteor.publish('gamesForWeek', function(week) {
       'home_short': 1,
       'visitor_id': 1,
       'visitor_short': 1,
+      'winner_id': 1,
+      'winner_short': 1,
       'status': 1,
       'kickoff': 1
     }

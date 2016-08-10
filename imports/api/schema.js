@@ -14,8 +14,7 @@ export const History = Class.create({
     did_win: Boolean,
     did_tie: Boolean,
     final_score: String
-  },
-  indexes: {}
+  }
 });
 
 export const Teams = new Mongo.Collection('teams');
@@ -269,8 +268,7 @@ export const Pick = Class.create({
           now = new Date();
       return (game.kickoff <= now);
     }
-  },
-  indexes: {}
+  }
 });
 
 export const Tiebreaker = Class.create({
@@ -312,8 +310,7 @@ export const Tiebreaker = Class.create({
       type: Boolean,
       default: false
     }
-  },
-  indexes: {}
+  }
 });
 
 export const SurvivorPick = Class.create({
@@ -346,8 +343,7 @@ export const SurvivorPick = Class.create({
       validators: [{ type: 'length', param: 3 }],
       optional: true
     }
-  },
-  indexes: {}
+  }
 });
 
 export const User = Class.create({

@@ -131,8 +131,14 @@ export const resetPicks = new ValidatedMethod({
       const user = User.findOne(this.userId),
           picks = user.picks,
           tiebreaker = user.tiebreakers[selectedWeek - 1];
-      //TODO loop through picks and set this weeks back to empty if game has not started
-      //TODO set tiebreaker lastScore to empty
+      picks.forEach(pick => {
+        if (pick.week === selectedWeek && !pick.hasStarted() && pick.game !== 0) {
+          pick.pick_id = undefined;
+          pick.pick_short = undefined;
+          pick.points = undefined;
+        }
+      });
+      tiebreaker.last_score = undefined;
       user.save();
     }
   }
@@ -141,19 +147,35 @@ export const resetPicks = new ValidatedMethod({
 export const autoPick = new ValidatedMethod({
   name: 'User.autoPick',
   validate: new SimpleSchema({
+    available: { type: [Number], label: 'Available Points', minCount: 1, maxCount: 16 },
     selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
-    type: { type: String, label: 'Auto Pick Type', allowedValues: ['home', 'away', 'random'] },
-    available: { type: [Number], label: 'Available Points', minCount: 1, maxCount: 16 }
+    type: { type: String, label: 'Auto Pick Type', allowedValues: ['home', 'away', 'random'] }
   }).validator(),
-  run({ selectedWeek, type }) {
+  run({ available, selectedWeek, type }) {
     if (!this.userId) throw new Meteor.Error('User.autoPick.notLoggedIn', 'Must be logged in to update picks');
     if (Meteor.isServer) {
       const user = User.findOne(this.userId),
-          picks = user.picks;
-      //TODO loop through picks
-      //TODO check if game has started or if pick has been set
-      //TODO if not, pick team based on type
-      //TODO pick points from whats left, and then remove from array
+          picks = user.picks,
+          pointsLeft = Object.assign([], available);
+      let game, randomTeam, teamId, teamShort, pointIndex, point;
+      picks.forEach(pick => {
+        if (pick.week === selectedWeek && pick.game !== 0 && !pick.hasStarted() && !pick.pick_id) {
+          game = Game.findOne(pick.game_id);
+          randomTeam = Math.random();
+          if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
+            teamId = game.home_id;
+            teamShort = game.home_short;
+          } else if (type === 'away' || type === 'random') {
+            teamId = game.visitor_id;
+            teamShort = game.visitor_short;
+          }
+          pointIndex = Math.floor(Math.random() * pointsLeft.length);
+          point = pointsLeft.splice(pointIndex, 1);
+          pick.pick_id = teamId;
+          pick.pick_short = teamShort;
+          pick.points = point[0];
+        }
+      });
       user.save();
     }
   }
@@ -169,7 +191,7 @@ export const submitPicks = new ValidatedMethod({
     const user = User.findOne(this.userId),
         picks = user.picks,
         tiebreaker = user.tiebreakers[selectedWeek - 1];
-    let noPicks = picks.filter(pick => pick.week !== selectedWeek || pick.hasStarted() || (pick.pick_id && pick.pick_short && pick.points));
+    let noPicks = picks.filter(pick => pick.week === selectedWeek && pick.game !== 0 && !pick.hasStarted() && !pick.pick_id && !pick.pick_short && !pick.points);
     if (noPicks.length > 0) throw new Meteor.Error('User.submitPicks.missingPicks', 'You must complete all picks for the week before submitting');
     if (!tiebreaker.last_score) throw new Meteor.Error('User.submitPicks.noTiebreakerScore', 'You must submit a tiebreaker score for the last game of the week');
     if (Meteor.isServer) {

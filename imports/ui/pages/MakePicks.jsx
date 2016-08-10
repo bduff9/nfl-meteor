@@ -14,16 +14,20 @@ import { autoPick, resetPicks, setTiebreaker, submitPicks } from '../../api/coll
 import { displayError } from '../../api/global';
 
 class MakePicks extends Component {
-  constructor(props, context) {
-    const { currentWeek, games, gamesReady, picks, selectedWeek, tiebreaker } = props,
-        notAllowed = selectedWeek < currentWeek || tiebreaker.submitted;
+  constructor(props) {
+    const { games, gamesReady, picks } = props;
     super();
-    if (notAllowed) context.router.push('/picks/view');
     this.state = this._populatePoints(games, picks, gamesReady);
     this._setTiebreakerWrapper = this._setTiebreakerWrapper.bind(this);
     this._resetPicks = this._resetPicks.bind(this);
     this._autopick = this._autopick.bind(this);
     this._submitPicks = this._submitPicks.bind(this);
+  }
+
+  componentWillMount() {
+    const { currentWeek, selectedWeek, tiebreaker = {} } = this.props,
+        notAllowed = selectedWeek < currentWeek || tiebreaker.submitted;
+    if (notAllowed) this.context.router.push('/picks/view');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -56,7 +60,7 @@ class MakePicks extends Component {
   _resetPicks(ev) {
     const { selectedWeek } = this.props;
     resetPicks.call({ selectedWeek }, displayError);
-    Bert.alert({ type: 'info', message: 'Your picks are being reset...' });
+    Bert.alert({ type: 'success', message: 'Your picks have been reset!' });
   }
   _autopick(type, ev) {
     const { available } = this.state,
@@ -74,7 +78,7 @@ class MakePicks extends Component {
     const { selectedWeek } = this.props;
     ev.preventDefault();
     submitPicks.call({ selectedWeek }, displayError);
-    Bert.alert({ type: 'info', message: 'Your picks are being submitted...' });
+    Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
     return false;
   }
 

@@ -1,3 +1,6 @@
+/*jshint esversion: 6 */
+'use strict';
+
 import React, { PropTypes } from 'react';
 import { IndexLink, Link } from 'react-router';
 

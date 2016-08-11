@@ -5,7 +5,7 @@ import './Navigation.scss';
 import { updateSelectedWeek } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
-export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek }) => {
+export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek, _toggleRightSlider }) => {
   const tiebreaker = currentUser.tiebreakers[selectedWeek - 1],
       msgCt = 3;
 
@@ -53,10 +53,10 @@ export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek 
             <li><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li>
           </ul>
           <ul className="nav nav-sidebar">
-            <li>{(msgCt > 0) ? <strong>{`${msgCt} Messages`}</strong> : 'No new messages'}</li>
-            <li>Rules</li>
-            <li>NFL Scoreboard</li>
-            <li>Chat</li>
+            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'messages')}>{(msgCt > 0) ? <strong>{`${msgCt} Messages`}</strong> : 'No new messages'}</a></li>
+            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'rules')}>Rules</a></li>
+            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'scoreboard')}>NFL Scoreboard</a></li>
+            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>Chat</a></li>
           </ul>
         </div>
       )
@@ -76,5 +76,6 @@ Navigation.propTypes = {
   currentUser: PropTypes.object.isRequired,
   currentWeek: PropTypes.number,
   logoutOnly: PropTypes.bool.isRequired,
-  selectedWeek: PropTypes.number
+  selectedWeek: PropTypes.number,
+  _toggleRightSlider: PropTypes.func.isRequired
 };

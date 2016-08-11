@@ -9,25 +9,40 @@ import Helmet from 'react-helmet';
 
 import { User } from '../../api/schema';
 import { Navigation } from '../components/Navigation.jsx';
+import { RightSlider } from '../components/RightSlider.jsx';
 import { currentWeek } from '../../api/collections/games';
 import { displayError } from '../../api/global';
 
 class AuthedLayout extends Component {
   constructor(props) {
     super();
-    this.state = {};
+    this.state = {
+      rightSlider: ''
+    };
+    this._toggleRightSlider = this._toggleRightSlider.bind(this);
+  }
+
+  _toggleRightSlider(type, ev) {
+    const { rightSlider } = this.state;
+    let newType = (type === rightSlider ? '' : type);
+    ev.preventDefault();
+    this.setState({ rightSlider: newType });
+    return false;
   }
 
   render() {
-    const { children, location, ...rest } = this.props,
+    const { rightSlider } = this.state,
+        { children, location, ...rest } = this.props,
         logoutOnly = location.pathname.indexOf('create') > -1;
     return (
       <div className="col-xs">
-      <div className="row">
-        <Helmet title="Welcome" />
-        <Navigation {...rest} logoutOnly={logoutOnly} />
-        <div className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">{children}</div>
-      </div></div>
+        <div className="row">
+          <Helmet title="Welcome" />
+          <Navigation {...rest} logoutOnly={logoutOnly} _toggleRightSlider={this._toggleRightSlider} />
+          <div className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">{children}</div>
+        </div>
+        {rightSlider !== '' ? <RightSlider type={rightSlider} /> : null}
+      </div>
     );
   }
 }

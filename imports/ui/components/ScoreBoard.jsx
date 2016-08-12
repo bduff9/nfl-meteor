@@ -21,15 +21,19 @@ class ScoreBoard extends Component {
   }
 }
 
-ScoreBoard.propTypes = {};
+ScoreBoard.propTypes = {
+  week: PropTypes.number.isRequired,
+  weekGamesReady: PropTypes.bool.isRequired,
+  _changeScoreboardWeek: PropTypes.func.isRequired
+};
 
-export default createContainer(() => {
+export default createContainer(({ week, _changeScoreboardWeek }) => {
   //TODO figure out how to change weeks
-  const currentWeek = Session.get('currentWeek'),
-      weekGameHandle = Meteor.subscribe('gamesForWeek', currentWeek),
-      weekGameReady = weekGameHandle.ready();
+  const weekGameHandle = Meteor.subscribe('gamesForWeek', week),
+      weekGamesReady = weekGameHandle.ready();
   return {
-    currentWeek,
-    weekGameReady
+    week,
+    weekGamesReady,
+    _changeScoreboardWeek
   };
 }, ScoreBoard);

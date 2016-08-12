@@ -9,7 +9,7 @@ import { Rules } from './Rules.jsx';
 import ScoreBoard from './ScoreBoard.jsx';
 import Chat from './Chat.jsx';
 
-export const RightSlider = ({ type }) => {
+export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSlider }) => {
 
   const _getSliderContent = () => {
     switch(type) {
@@ -18,7 +18,7 @@ export const RightSlider = ({ type }) => {
     case 'rules':
       return <Rules />;
     case 'scoreboard':
-      return <ScoreBoard />;
+      return <ScoreBoard week={week} _changeScoreboardWeek={_changeScoreboardWeek} />;
     case 'chat':
       return <Chat />;
     default:
@@ -28,12 +28,16 @@ export const RightSlider = ({ type }) => {
   };
 
   return (
-    <div className="col-sm-3 col-md-2 right-slider">
+    <div className="col-sm-5 col-md-4 right-slider">
+      <i className="fa fa-fw fa-times close-slider" onClick={_toggleRightSlider.bind(null, '')} />
       {_getSliderContent()}
     </div>
   );
 };
 
 RightSlider.propTypes = {
-  type: PropTypes.string.isRequired
+  type: PropTypes.string.isRequired,
+  week: PropTypes.number.isRequired,
+  _changeScoreboardWeek: PropTypes.func.isRequired,
+  _toggleRightSlider: PropTypes.func.isRequired
 };

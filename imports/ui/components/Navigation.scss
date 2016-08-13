@@ -8,8 +8,12 @@
   padding: 5px 15px;
   overflow-x: hidden;
   overflow-y: auto;
-  background-color: #f5f5f5;
-  border-right: 1px solid #eee;
+  background-color: #4B4A48;
+  border-right: 0px solid #100C08;
+  color: #fff;
+  -moz-box-shadow: inset -5px 0px 15px #100C08;
+  -webkit-box-shadow: inset -5px 0px 15px #100C08;
+  box-shadow: inset -5px 0px 15px #100C08;
 
   .nav-sidebar {
     margin-bottom: 15px;
@@ -20,11 +24,14 @@
         white-space: nowrap;
         margin-left: -15px;
         padding: 4px 4px 4px 15px;
+        color: #fff;
 
         &.active {
-          background-color: rgba(0, 0, 255, 1);
-          color: rgba(255, 255, 255, 1);
+          background-color: #C6C3BA;
+          color: black;
           pointer-events: none;
+          padding-right: 100%;
+          font-weight: bolder;
         }
       }
 

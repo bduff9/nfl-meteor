@@ -23,7 +23,7 @@ export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek,
       {!logoutOnly ? (
         <div className="sidebar-inner">
           <ul className="nav nav-sidebar">
-            <li>{`Welcome, ${currentUser.first_name}`} {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null}</li>
+            <li><h5>{`Welcome, ${currentUser.first_name}`} {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null}</h5></li>
             <li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
             <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
           </ul>

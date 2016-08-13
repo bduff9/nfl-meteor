@@ -1,0 +1,36 @@
+.scoreboard {
+  background: linear-gradient(red,#000);
+  border-radius: 8px;
+  padding: 0 6px 28px;
+  width: 300px;
+  height: 99%;
+  margin: 3px auto;
+
+  h3 {
+    color: #fff;
+    margin: 0;
+    padding: 10px 0;
+  }
+
+  .inner-scoreboard {
+    background-color: #ccc;
+    border-radius: 4px;
+    padding: 0 6px 18px;
+    height: 90%;
+
+    .week-disp {
+      padding: 10px 0;
+
+      i {
+        cursor: pointer;
+      }
+    }
+
+    .scores {
+      background-color: #fff;
+      height: 93%;
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+  }
+}

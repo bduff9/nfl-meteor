@@ -7,6 +7,7 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import { Meteor } from 'meteor/meteor';
 import React, { Component, PropTypes } from 'react';
 
+import './EditProfile.scss';
 import { updateUser } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
@@ -124,8 +125,10 @@ export default class EditProfile extends Component {
     const { firstName, hasFacebook, hasGoogle, isCreate, isEdit, lastName, referredBy, showReferredBy, teamName } = this.state,
         user = Meteor.user();
     return (
-      <div className="container-fluid">
-        <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
+      <div className="container-fluid edit-profile">
+        <div className="col-xs-12 title-text">
+          <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
+        </div>
         <ul id="error-messages"></ul>
         <form ref="userForm" onSubmit={this._submitForm}>
           <div className="row">
@@ -151,18 +154,18 @@ export default class EditProfile extends Component {
             </div>
           </div>
           {isCreate ?
-            <div className="row">
+            <div className="row prev-play">
               <div className="col-xs-12 form-group">
                 <div className="radio">
                   <label htmlFor="referred_byN">
                     <input type="radio" id="referred_byN" name="was_referred" onClick={this._handleReferredBy.bind(null, false)} />
-                    I have played previously
+                      &nbsp;&nbsp;I have played previously
                   </label>
                 </div>
                 <div className="radio">
                   <label htmlFor="referred_byY">
                     <input type="radio" id="referred_byY" name="was_referred" onClick={this._handleReferredBy.bind(null, true)} />
-                    I am new and was referred by:
+                      &nbsp;&nbsp;I am new and was referred by:
                   </label>
                 </div>
               </div>
@@ -181,18 +184,26 @@ export default class EditProfile extends Component {
             null
           }
           <div className="row">
-            <div className="col-xs-12 form-group">
+            <div className="col-xs-12 form-group text-xs-center save-wrapper">
               {/* Add service check to show unlink option */}
-              <button type="button" className="btn btn-primary" disabled={hasFacebook} onClick={this._oauthLink.bind(null, 'loginWithFacebook')}>
-                <i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
-              </button>
-              <button type="button" className="btn btn-danger" disabled={hasGoogle} onClick={this._oauthLink.bind(null, 'loginWithGoogle')}>
-                <i className="fa fa-google"></i> {hasGoogle ? 'Google Linked!' : 'Link Google'}
-              </button>
-              <button type="submit" className="btn btn-primary">
-                <i className="fa fa-fw fa-save"></i>
-                {isCreate ? 'Finish Registration' : 'Save Changes'}
-              </button>
+              <div className="row">
+                <div className="col-xs-6 text-xs-right social-btns">
+                  <button type="button" className="btn btn-primary btn-facebook" disabled={hasFacebook} onClick={this._oauthLink.bind(null, 'loginWithFacebook')}>
+                    <i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
+                  </button>
+                </div>
+                <div className="col-xs-6 text-xs-left social-btns">
+                  <button type="button" className="btn btn-danger btn-google" disabled={hasGoogle} onClick={this._oauthLink.bind(null, 'loginWithGoogle')}>
+                    <i className="fa fa-google"></i> {hasGoogle ? 'Google Linked!' : 'Link Google'}
+                  </button>
+                </div>
+              </div>
+              <div className="col-xs-12 save-btn">
+                <button type="submit" className="btn btn-primary">
+                  <i className="fa fa-fw fa-save"></i>
+                  {isCreate ? 'Finish Registration' : 'Save Changes'}
+                </button>
+              </div>
             </div>
           </div>
         </form>

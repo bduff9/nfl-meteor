@@ -202,6 +202,29 @@ export const submitPicks = new ValidatedMethod({
   }
 });
 
+export const setSurvivorPick = new ValidatedMethod({
+  name: 'User.survivor.setPick',
+  validate: new SimpleSchema({
+    gameId: { type: String, label: 'Game ID' },
+    teamId: { type: String, label: 'Team ID' },
+    teamShort: { type: String, label: 'Team Name' },
+    week: { type: Number, label: 'Week', min: 1, max: 17 }
+  }).validator(),
+  run({ gameId, teamId, teamShort, week }) {
+    if (!this.userId) throw new Meteor.Error('User.survivor.setPick.notLoggedIn', 'Must be logged in to update survivor pool');
+    const user = User.findOne(this.userId),
+        survivorPicks = user.survivor,
+        pick = survivorPicks[week - 1],
+        usedIndex = survivorPicks.findIndex(pick => pick.pick_id === teamId);
+    if (pick.hasStarted()) throw new Meteor.Error('User.survivor.setPick.gameAlreadyStarted', 'Cannot set survivor pick of a game that has already begun');
+    if (usedIndex > -1) throw new Meteor.Error('User.survivor.setPick.alreadyUsedTeam', 'Cannot use a single team more than once in a survivor pool');
+    if (Meteor.isServer) {
+      User.update({ _id: this.userId, "survivor.week": week }, { $set: { "survivor.$.game_id": gameId, "survivor.$.pick_id": teamId, "survivor.$.pick_short": teamShort }});
+    }
+    writeLog.call({ action: 'SURVIVOR_PICK', message: `${user.first_name} ${user.last_name} just picked ${teamShort} for week ${week}`, userId: this.userId }, logError);
+  }
+});
+
 export const updatePoints = new ValidatedMethod({
   name: 'User.updatePoints',
   validate: null,

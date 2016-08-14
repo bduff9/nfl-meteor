@@ -10,6 +10,7 @@ import { displayError } from '../../api/global';
 
 export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek, _toggleRightSlider }) => {
   const tiebreaker = currentUser.tiebreakers[selectedWeek - 1],
+      survivorPicks = currentUser.survivor,
       msgCt = 3;
 
   const _selectWeek = (newWeek, ev) => {
@@ -52,7 +53,7 @@ export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek,
             <li><Link to="/picks/view" activeClassName="active">View My Picks</Link></li>
             {selectedWeek >= currentWeek && tiebreaker && !tiebreaker.submitted ? <li><Link to="/picks/set" activeClassName="active">Make Picks</Link></li> : null}
             {tiebreaker && (selectedWeek < currentWeek || tiebreaker.submitted) ? <li><Link to="/picks/viewall" activeClassName="active">View All Picks</Link></li> : null}
-            <li><Link to="/survivor/set" activeClassName="active">?Make Survivor Picks?</Link></li>
+            {survivorPicks.length === 17 ? <li><Link to="/survivor/set" activeClassName="active">Make Survivor Picks</Link></li> : null}
             <li><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li>
           </ul>
           <ul className="nav nav-sidebar">

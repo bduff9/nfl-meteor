@@ -350,6 +350,18 @@ export const SurvivorPick = Class.create({
       validators: [{ type: 'length', param: 3 }],
       optional: true
     }
+  },
+  methods: {
+    getTeam() {
+      let team;
+      team = Teams.findOne({ _id: this.pick_id });
+      return team;
+    },
+    hasStarted() {
+      const game = Game.findOne(this.game_id),
+          now = new Date();
+      return (game.kickoff <= now);
+    }
   }
 });
 

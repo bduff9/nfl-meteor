@@ -20,6 +20,24 @@ Meteor.publish('nextGame', function() {
   return this.ready();
 });
 
+Meteor.publish('nextGameToStart', function() {
+  const nextGame = Game.find({ status: 'P', game: { $ne: 0 }}, {
+    fields: {
+      '_id': 1,
+      'week': 1,
+      'game': 1,
+      'status': 1,
+      'kickoff': 1
+    },
+    sort: {
+      kickoff: 1
+    },
+    limit: 1
+  });
+  if (nextGame) return nextGame;
+  return this.ready();
+});
+
 Meteor.publish('gamesForWeek', function(week) {
   let gamesForWeek;
   if (!this.userId) return null;
@@ -39,6 +57,28 @@ Meteor.publish('gamesForWeek', function(week) {
     }
   });
   if (gamesForWeek) return gamesForWeek;
+  return this.ready();
+});
+
+Meteor.publish('getGame', function(gameId) {
+  let game;
+  if (!this.userId) return null;
+  game = Game.find(gameId, {
+    fields: {
+      '_id': 1,
+      'week': 1,
+      'game': 1,
+      'home_id': 1,
+      'home_short': 1,
+      'visitor_id': 1,
+      'visitor_short': 1,
+      'winner_id': 1,
+      'winner_short': 1,
+      'status': 1,
+      'kickoff': 1
+    }
+  });
+  if (game) return game;
   return this.ready();
 });
 

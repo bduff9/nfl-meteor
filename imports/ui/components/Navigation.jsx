@@ -98,21 +98,20 @@ Navigation.propTypes = {
   _toggleRightSlider: PropTypes.func.isRequired
 };
 
-export default createContainer((props) => {
-  const userChatHandle = Meteor.subscribe('userChatHidden'),
-      userChatReady = userChatHandle.ready(),
-      user = User.findOne(Meteor.userId()),
-      unreadChatHandle = Meteor.subscribe('unreadChats', user.chat_hidden),
+export default createContainer(({ currentUser, rightSlider, ...rest }) => {
+  const unreadChatHandle = Meteor.subscribe('unreadChats', currentUser.chat_hidden),
       unreadChatReady = unreadChatHandle.ready();
   let unreadChatCt = 0,
       pageReady = false;
-  if (userChatReady && unreadChatReady) {
-    unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: user.chat_hidden }}).count();
+  if (unreadChatReady) {
+    if (rightSlider !== 'chat') {
+      unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: currentUser.chat_hidden }}).count();
+    }
     pageReady = true;
   }
   return {
-    ...props,
-    currentUser: user,
+    ...rest,
+    currentUser,
     pageReady,
     unreadChatCt
   };

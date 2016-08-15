@@ -8,6 +8,7 @@ import { moment } from 'meteor/momentjs:moment';
 
 import './Chat.scss';
 import { NFLLog, User } from '../../api/schema';
+import { updateChatHidden } from '../../api/collections/users';
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 
@@ -19,6 +20,10 @@ class Chat extends Component {
     };
     this._addChat = this._addChat.bind(this);
     this._updateMessage = this._updateMessage.bind(this);
+  }
+
+  componentWillUnmount() {
+    updateChatHidden.call({ hidden: true }, displayError);
   }
 
   _addChat(ev) {
@@ -41,7 +46,7 @@ class Chat extends Component {
         <div className="inner-chat">
           <div className="text-xs-right add-chat">
             <textarea className="form-control new-chat" value={newMessage} onChange={this._updateMessage} />
-            {newMessage.length} | <button type="button" className="btn btn-primary" onClick={this._addChat}>Submit</button>
+            {newMessage.length} | <button type="button" className="btn btn-primary" disabled={newMessage.length === 0} onClick={this._addChat}>Submit</button>
           </div>
           <div className="chat-list">
             {pageReady ? chats.map(chat => {

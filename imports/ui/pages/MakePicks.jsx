@@ -19,9 +19,10 @@ class MakePicks extends Component {
     const { games, gamesReady, picks } = props;
     super();
     this.state = this._populatePoints(games, picks, gamesReady);
-    this._setTiebreakerWrapper = this._setTiebreakerWrapper.bind(this);
-    this._resetPicks = this._resetPicks.bind(this);
     this._autopick = this._autopick.bind(this);
+    this._resetPicks = this._resetPicks.bind(this);
+    this._setHover = this._setHover.bind(this);
+    this._setTiebreakerWrapper = this._setTiebreakerWrapper.bind(this);
     this._submitPicks = this._submitPicks.bind(this);
   }
 
@@ -51,6 +52,9 @@ class MakePicks extends Component {
     }
     if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
     return { available, unavailable, used };
+  }
+  _setHover(hoverTeam, ev) {
+    this.setState({ hoverTeam });
   }
   _setTiebreakerWrapper(ev) {
     const { selectedWeek } = this.props,
@@ -84,7 +88,7 @@ class MakePicks extends Component {
   }
 
   render() {
-    const { available, unavailable, used } = this.state,
+    const { available, hoverTeam, unavailable, used } = this.state,
         { currentWeek, games, gamesReady, picks, selectedWeek, teamsReady, tiebreaker } = this.props,
         sortOpts = {
          model: 'points',
@@ -150,8 +154,14 @@ class MakePicks extends Component {
                               }
                             </div>
                             <div className="col-xs-2 homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
-                            <div className="col-xs-2 homeName">{`${homeTeam.city} ${homeTeam.name}`}</div>
-                            <div className="col-xs-2 visitorName">{`${visitTeam.city} ${visitTeam.name}`}</div>
+                            <div className="col-xs-2 homeName">
+                              {`${homeTeam.city} ${homeTeam.name} `}
+                              <i className="text-primary hidden-xs-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
+                            </div>
+                            <div className="col-xs-2 visitorName">
+                              <i className="text-primary hidden-xs-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
+                              {` ${visitTeam.city} ${visitTeam.name}`}
+                            </div>
                             <div className="col-xs-2 visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
                             <div className="col-xs-2 visitorPoints">
                               {visitorPicked || !started ? (
@@ -220,6 +230,7 @@ class MakePicks extends Component {
           :
           <Loading />
         }
+        {hoverTeam ? 'Show Hover' : null}
       </div>
     );
   }

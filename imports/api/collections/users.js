@@ -28,8 +28,15 @@ export const updateChatHidden = new ValidatedMethod({
     hidden: { type: Boolean, label: 'Hidden' }
   }).validator(),
   run({ hidden }) {
-    if (!this.userId) throw new Meteor.Error('User.updateChatHidden.notLoggedIn', 'Must be logged in to view chats');
-    User.update(this.userId, { $set: { chat_hidden: (hidden ? new Date() : null) }});
+    const now = new Date();
+    let user;
+    if (!this.userId) return;
+    if (Meteor.isServer) {
+      User.update(this.userId, { $set: { chat_hidden: null }});
+      if (hidden) {
+        User.update(this.userId, { $set: { chat_hidden: now }});
+      }
+    }
   }
 });
 
@@ -50,11 +57,13 @@ export const updateSelectedWeek = new ValidatedMethod({
 
 export const removeSelectedWeek = new ValidatedMethod({
   name: 'User.selected_week.delete',
-  validate: null,
-  run() {
-    if (!this.userId) throw new Meteor.Error('User.selected_week.delete.notLoggedIn', 'Must be logged in to change week');
+  validate: new SimpleSchema({
+    userId: { type: String, label: 'User ID' }
+  }).validator(),
+  run({ userId }) {
+    if (!userId) throw new Meteor.Error('User.selected_week.delete.notLoggedIn', 'Must be logged in to change week');
     if (Meteor.isServer) {
-      User.update(this.userId, { $set: { selected_week: {}}});
+      User.update(userId, { $set: { selected_week: {}}});
     }
   }
 });

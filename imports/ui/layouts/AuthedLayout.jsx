@@ -13,7 +13,6 @@ import { User } from '../../api/schema';
 import Navigation from '../components/Navigation.jsx';
 import { RightSlider } from '../components/RightSlider.jsx';
 import { currentWeek } from '../../api/collections/games';
-import { updateChatHidden } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
 class AuthedLayout extends Component {
@@ -22,7 +21,7 @@ class AuthedLayout extends Component {
     super();
     this.state = {
       openMenu: false,
-      rightSlider: (currentUser.chat_hidden == null ? 'chat' : ''),
+      rightSlider: Session.get('rightSlider'),
       scoreboardWeek: props.currentWeek
     };
     this._changeScoreboardWeek = this._changeScoreboardWeek.bind(this);
@@ -45,14 +44,14 @@ class AuthedLayout extends Component {
     const { openMenu, rightSlider } = this.state;
     let newType = (type === rightSlider ? '' : type);
     ev.preventDefault();
+    Session.set('rightSlider', newType);
     this.setState({ openMenu: (newType ? false : openMenu), rightSlider: newType });
-    //TODO if (type === 'chat' || rightSlider === 'chat') updateChatHidden.call({ hidden: newType !== 'chat' }, displayError);
     return false;
   }
 
   render() {
     const { openMenu, rightSlider, scoreboardWeek } = this.state,
-        { children, currentUser, currentWeek, location, ...rest } = this.props,
+        { children, currentWeek, location, ...rest } = this.props,
         logoutOnly = location.pathname.indexOf('create') > -1;
     return (
       <div className="col-xs-12">
@@ -63,17 +62,18 @@ class AuthedLayout extends Component {
             currentWeek={currentWeek}
             logoutOnly={logoutOnly}
             openMenu={openMenu}
+            rightSlider={rightSlider}
             _toggleMenu={this._toggleMenu}
             _toggleRightSlider={this._toggleRightSlider} />
           <div className="col-xs-12 col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">{children}</div>
         </div>
         <ReactCSSTransitionGroup transitionName="right-slider" transitionEnterTimeout={1000} transitionLeaveTimeout={1000}>
-          {rightSlider !== '' ? (
+          {rightSlider ? (
             <RightSlider
               type={rightSlider}
               week={scoreboardWeek || currentWeek}
               _changeScoreboardWeek={this._changeScoreboardWeek}
-              _toggleRightSlider={this._toggleRightSlider} />
+              _toggleRightSlider={this._toggleRightSlider} key={'right-slider-' + rightSlider} />
             )
             :
             null

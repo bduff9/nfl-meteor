@@ -8,44 +8,64 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
+import './AuthedLayout.scss';
 import { User } from '../../api/schema';
-import { Navigation } from '../components/Navigation.jsx';
+import Navigation from '../components/Navigation.jsx';
 import { RightSlider } from '../components/RightSlider.jsx';
 import { currentWeek } from '../../api/collections/games';
+import { updateChatHidden } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
 class AuthedLayout extends Component {
   constructor(props) {
+    const { currentUser } = props;
     super();
     this.state = {
-      rightSlider: '',
+      openMenu: false,
+      rightSlider: (currentUser.chat_hidden == null ? 'chat' : ''),
       scoreboardWeek: props.currentWeek
     };
     this._changeScoreboardWeek = this._changeScoreboardWeek.bind(this);
+    this._toggleMenu = this._toggleMenu.bind(this);
     this._toggleRightSlider = this._toggleRightSlider.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({ openMenu: false });
   }
 
   _changeScoreboardWeek(newWeek, ev) {
     this.setState({ scoreboardWeek: newWeek });
   }
+  _toggleMenu(ev) {
+    const { openMenu } = this.state;
+    this.setState({ openMenu: !openMenu });
+  }
   _toggleRightSlider(type, ev) {
-    const { rightSlider } = this.state;
+    const { openMenu, rightSlider } = this.state;
     let newType = (type === rightSlider ? '' : type);
     ev.preventDefault();
-    this.setState({ rightSlider: newType });
+    this.setState({ openMenu: (newType ? false : openMenu), rightSlider: newType });
+    //TODO if (type === 'chat' || rightSlider === 'chat') updateChatHidden.call({ hidden: newType !== 'chat' }, displayError);
     return false;
   }
 
   render() {
-    const { rightSlider, scoreboardWeek } = this.state,
-        { children, currentWeek, location, ...rest } = this.props,
+    const { openMenu, rightSlider, scoreboardWeek } = this.state,
+        { children, currentUser, currentWeek, location, ...rest } = this.props,
         logoutOnly = location.pathname.indexOf('create') > -1;
     return (
-      <div className="col-xs">
+      <div className="col-xs-12">
         <div className="row">
           <Helmet title="Welcome" />
-          <Navigation {...rest} currentWeek={currentWeek} logoutOnly={logoutOnly} _toggleRightSlider={this._toggleRightSlider} />
-          <div className="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">{children}</div>
+          <i className="fa fa-large fa-bars hidden-sm-up mobile-menu" onClick={this._toggleMenu} />
+          <Navigation {...rest}
+            currentWeek={currentWeek}
+            logoutOnly={logoutOnly}
+            openMenu={openMenu}
+            _toggleMenu={this._toggleMenu}
+            _toggleRightSlider={this._toggleRightSlider} />
+          <div className="col-xs-12 col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">{children}</div>
         </div>
         <ReactCSSTransitionGroup transitionName="right-slider" transitionEnterTimeout={1000} transitionLeaveTimeout={1000}>
           {rightSlider !== '' ? (

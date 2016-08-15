@@ -406,6 +406,15 @@ export const User = Class.create({
       type: Number,
       validators: [{ type: 'gte', param: 0 }]
     },
+    overall_place: {
+      type: Number,
+      validators: [{ type: 'gt', param: 0 }],
+      optional: true
+    },
+    overall_tied_flag: {
+      type: Boolean,
+      default: false
+    },
     bonus_points: {
       type: Number,
       validators: [{ type: 'gte', param: 0 }]
@@ -460,6 +469,12 @@ export const NFLLog = Class.create({
     user_id: {
       type: String,
       optional: true
+    }
+  },
+  methods: {
+    getUser() {
+      const user = User.findOne(this.user_id);
+      return user;
     }
   },
   indexes: {}

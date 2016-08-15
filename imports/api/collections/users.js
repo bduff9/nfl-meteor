@@ -22,6 +22,17 @@ export const updateUser = new ValidatedMethod({
   }
 });
 
+export const updateChatHidden = new ValidatedMethod({
+  name: 'User.updateChatHidden',
+  validate: new SimpleSchema({
+    hidden: { type: Boolean, label: 'Hidden' }
+  }).validator(),
+  run({ hidden }) {
+    if (!this.userId) throw new Meteor.Error('User.updateChatHidden.notLoggedIn', 'Must be logged in to view chats');
+    User.update(this.userId, { $set: { chat_hidden: (hidden ? new Date() : null) }});
+  }
+});
+
 export const updateSelectedWeek = new ValidatedMethod({
   name: 'User.selected_week.update',
   validate: new SimpleSchema({
@@ -315,28 +326,68 @@ const placer = (week, user1, user2) => {
   }
 };
 
+const overallPlacer = (user1, user2) => {
+  // First, sort by points
+  if (user1.total_points > user2.total_points) {
+    return 1;
+  } else if (user1.total_points < user2.total_points) {
+    return -1;
+  // Then, sort by games correct
+  } else if (user1.total_games > user2.total_games) {
+    return 1;
+  } else if (user1.total_games > user2.total_games) {
+    return -1;
+  // Finally, if we get here, then they are identical
+  } else {
+    return 0;
+  }
+};
+
 export const updatePlaces = new ValidatedMethod({
   name: 'User.tiebreakers.updatePlaces',
   validate: new SimpleSchema({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-    const ordUsers = User.find().fetch().sort(placer.bind(null, week));
-    let nextUser, result;
+    let ordUsers = User.find().fetch().sort(placer.bind(null, week));
     ordUsers.forEach((user, i, allUsers) => {
-      if (!user.final_place) {
-        user.final_place = (i + 1);
-        user.save();
+      const tiebreaker = user.tiebreakers[week - 1];
+      let nextUser, result, nextTiebreaker;
+      if (!tiebreaker.place_in_week) {
+        tiebreaker.place_in_week = (i + 1);
       }
       nextUser = allUsers[i + 1];
       if (nextUser) {
         result = placer(week, user, nextUser);
+        nextTiebreaker = nextUser.tiebreakers[week - 1];
         if (result === 0) {
-          nextUser.final_place = (i + 1);
-          nextUser.tied_flag = true;
+          tiebreaker.tied_flag = true;
+          nextTiebreaker.place_in_week = (i + 1);
+          nextTiebreaker.tied_flag = true;
           nextUser.save();
         }
       }
+      user.save();
+    });
+    ordUsers = ordUsers.sort(overallPlacer);
+    ordUsers.forEach((user, i, allUsers) => {
+      let nextUser, result;
+      if (!user.overall_tied_flag || i === 0) {
+        user.overall_place = (i + 1);
+      }
+      nextUser = allUsers[i + 1];
+      if (nextUser) {
+        result = overallPlacer(user, nextUser);
+        if (result === 0) {
+          user.overall_tied_flag = true;
+          nextUser.overall_place = (i + 1);
+          nextUser.overall_tied_flag = true;
+        } else {
+          nextUser.overall_tied_flag = false;
+        }
+        nextUser.save();
+      }
+      user.save();
     });
   }
 });

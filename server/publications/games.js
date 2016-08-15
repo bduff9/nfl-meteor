@@ -40,7 +40,10 @@ Meteor.publish('nextGameToStart', function() {
 
 Meteor.publish('gamesForWeek', function(week) {
   let gamesForWeek;
-  if (!this.userId) return null;
+  if (!this.userId) return this.ready();
+  new SimpleSchema({
+    week: { type: Number, label: 'Week', min: 1, max: 17 }
+  }).validate({ week });
   gamesForWeek = Game.find({ week, game: { $ne: 0 }}, {
     fields: {
       '_id': 1,
@@ -62,7 +65,10 @@ Meteor.publish('gamesForWeek', function(week) {
 
 Meteor.publish('getGame', function(gameId) {
   let game;
-  if (!this.userId) return null;
+  if (!this.userId) return this.ready();
+  new SimpleSchema({
+    gameId: { type: String, label: 'Game ID' }
+  }).validate({ gameId });
   game = Game.find(gameId, {
     fields: {
       '_id': 1,

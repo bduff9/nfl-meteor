@@ -3,12 +3,15 @@
 
 import React, { PropTypes } from 'react';
 import { IndexLink, Link } from 'react-router';
+import { Meteor } from 'meteor/meteor';
+import { createContainer } from 'meteor/react-meteor-data';
 
 import './Navigation.scss';
+import { NFLLog, User } from '../../api/schema';
 import { updateSelectedWeek } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
-export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek, _toggleRightSlider }) => {
+const Navigation = ({ currentUser, currentWeek, logoutOnly, openMenu, pageReady, selectedWeek, unreadChatCt, _toggleMenu, _toggleRightSlider }) => {
   const tiebreaker = currentUser.tiebreakers[selectedWeek - 1],
       survivorPicks = currentUser.survivor,
       msgCt = 3;
@@ -20,11 +23,18 @@ export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek,
 
 //TODO handle messages (dismissable (i.e. non-submit alert) and non-dismissable (i.e. payment due)) from NFLLogs
   return (
-    <div className="col-sm-3 col-md-2 sidebar">
+    <div className={`col-xs-12 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-md-2 sidebar`}>
       {!logoutOnly ? (
         <div className="sidebar-inner">
+          <i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />
           <ul className="nav nav-sidebar">
-            <li><h5>{`Welcome, ${currentUser.first_name}`} {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null}</h5></li>
+            <li>
+              <h5>
+                {`Welcome, ${currentUser.first_name}`}
+                {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null}
+                {(unreadChatCt > 0) ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-primary">{unreadChatCt}</span> : null}
+              </h5>
+            </li>
             <li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
             <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
           </ul>
@@ -57,10 +67,10 @@ export const Navigation = ({ currentUser, currentWeek, logoutOnly, selectedWeek,
             <li><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li>
           </ul>
           <ul className="nav nav-sidebar">
-            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'messages')}>{(msgCt > 0) ? <strong>{`${msgCt} Messages`}</strong> : 'No new messages'}</a></li>
+            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'messages')}>{(msgCt > 0 ? <strong>{`${msgCt} Messages`}</strong> : 'No new messages')}</a></li>
             <li><a href="#" onClick={_toggleRightSlider.bind(null, 'rules')}>Rules</a></li>
             <li><a href="#" onClick={_toggleRightSlider.bind(null, 'scoreboard')}>NFL Scoreboard</a></li>
-            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>Chat</a></li>
+            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>{(unreadChatCt > 0 ? <strong>{`${unreadChatCt} New Chats`}</strong> : 'No new chats')}</a></li>
           </ul>
         </div>
       )
@@ -80,6 +90,30 @@ Navigation.propTypes = {
   currentUser: PropTypes.object.isRequired,
   currentWeek: PropTypes.number,
   logoutOnly: PropTypes.bool.isRequired,
+  openMenu: PropTypes.bool.isRequired,
+  pageReady: PropTypes.bool.isRequired,
   selectedWeek: PropTypes.number,
+  unreadChatCt: PropTypes.number.isRequired,
+  _toggleMenu: PropTypes.func.isRequired,
   _toggleRightSlider: PropTypes.func.isRequired
 };
+
+export default createContainer((props) => {
+  const userChatHandle = Meteor.subscribe('userChatHidden'),
+      userChatReady = userChatHandle.ready(),
+      user = User.findOne(Meteor.userId()),
+      unreadChatHandle = Meteor.subscribe('unreadChats', user.chat_hidden),
+      unreadChatReady = unreadChatHandle.ready();
+  let unreadChatCt = 0,
+      pageReady = false;
+  if (userChatReady && unreadChatReady) {
+    unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: user.chat_hidden }}).count();
+    pageReady = true;
+  }
+  return {
+    ...props,
+    currentUser: user,
+    pageReady,
+    unreadChatCt
+  };
+}, Navigation);

@@ -28,7 +28,7 @@ export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSli
   };
 
   return (
-    <div className="col-sm-5 col-md-4 right-slider">
+    <div className="col-xs-12 col-sm-5 col-md-4 right-slider">
       <i className="fa fa-fw fa-times close-slider" onClick={_toggleRightSlider.bind(null, '')} />
       {_getSliderContent()}
     </div>
@@ -37,7 +37,7 @@ export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSli
 
 RightSlider.propTypes = {
   type: PropTypes.string.isRequired,
-  week: PropTypes.number.isRequired,
+  week: PropTypes.number,
   _changeScoreboardWeek: PropTypes.func.isRequired,
   _toggleRightSlider: PropTypes.func.isRequired
 };

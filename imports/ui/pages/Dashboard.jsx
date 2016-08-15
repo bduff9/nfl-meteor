@@ -2,63 +2,128 @@
 'use strict';
 
 import React, { Component, PropTypes } from 'react';
+import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
+import Helmet from 'react-helmet';
 
+import './Dashboard.scss';
+import { Loading } from './Loading.jsx';
+import OverallDash from '../components/OverallDash.jsx';
+import WeekDash from '../components/WeekDash.jsx';
 import { User } from '../../api/schema';
 import { updateSelectedWeek } from '../../api/collections/users';
-import { refreshGames } from '../../api/collections/games';
 import { displayError } from '../../api/global';
 
 class Dashboard extends Component {
   constructor(props) {
     super();
-    this.state = {};
+    this.state = {
+      sortBy: null,
+      viewOverall: false
+    };
+    this._changeSortBy = this._changeSortBy.bind(this);
+    this._toggleOverall = this._toggleOverall.bind(this);
   }
 
-  _refreshGames(ev) {
-    refreshGames.call(displayError);
+  _changeSortBy(currSort, col, ev) {
+    const { viewOverall } = this.state,
+        newSort = Object.assign({}, currSort),
+        { total_games, total_points, 'tiebreakers.$.games_correct': week_games, 'tiebreakers.$.points_earned': week_points } = newSort;
+    if (col === 'games') {
+      if (viewOverall) {
+        newSort.total_games = this._nextOrd(total_games, total_points);
+      } else {
+        newSort['tiebreakers.$.games_correct'] = this._nextOrd(week_games, week_points);
+      }
+    } else if (col === 'points') {
+      if (viewOverall) {
+        newSort.total_points = this._nextOrd(total_points, total_games);
+      } else {
+        newSort['tiebreakers.$.points_earned'] = this._nextOrd(week_points, week_games);
+      }
+    }
+    this.setState({ sortBy: newSort });
+  }
+  _nextOrd(num, otherNum) {
+    if (num === 1) {
+      return -1;
+    } else if (num === -1 && otherNum) {
+      return undefined;
+    } else {
+      return 1;
+    }
   }
   _selectWeek(ev) {
     const newWeek = parseInt(ev.currentTarget.value, 10);
     ev.preventDefault();
     updateSelectedWeek.call({ week: newWeek }, displayError);
   }
+  _toggleOverall(ev) {
+    const { viewOverall } = this.state;
+    this.setState({ sortBy: null, viewOverall: !viewOverall });
+  }
 
   render() {
-    const { currentUser, currentWeek, selectedWeek } = this.props;
+    const { sortBy, viewOverall } = this.state,
+        { selectedWeek, user } = this.props,
+        pageReady = selectedWeek && user;
     return (
-      <div>
-        <h3>Dashboard</h3>
-        Current Week: {currentWeek}
-        <br />
-        Selected Week:
-        <select value={selectedWeek} onChange={this._selectWeek}>
-          {currentUser.tiebreakers.map((week, i) => <option value={week.week} key={'week' + i}>{`Week ${week.week}`}</option>)}
-        </select>
-        <br />
-        <button type="button" className="btn btn-primary" onClick={this._refreshGames}>
-          <i className="fa fa-fw fa-refresh"></i>
-          Refresh Game Data
-        </button>
+      <div className="row">
+        <Helmet title={`My Dashboard`} />
+        {pageReady ? (
+          <div className="col-xs-12 dashboard">
+            <h3>My Dashboard</h3>
+            <div className="col-xs-6 text-xs-right">
+              View:&nbsp;
+              <select value={viewOverall} onChange={this._toggleOverall}>
+                <option value={true}>Overall</option>
+                <option value={false}>Week</option>
+              </select>
+            </div>
+            {!viewOverall ? (
+              <div className="col-xs-6 text-xs-left">
+                Jump to:&nbsp;
+                <select value={selectedWeek} onChange={this._selectWeek}>
+                  {user.tiebreakers.map((week, i) => <option value={week.week} key={'week' + i}>{`Week ${week.week}`}</option>)}
+                </select>
+              </div>
+            )
+            :
+              null
+            }
+            {viewOverall ?
+              <OverallDash
+                sortBy={sortBy}
+                user={user}
+                _changeSortBy={this._changeSortBy} />
+            :
+              <WeekDash
+                sortBy={sortBy}
+                user={user}
+                week={selectedWeek}
+                _changeSortBy={this._changeSortBy} />
+            }
+          </div>
+        )
+        :
+          <Loading />
+        }
       </div>
     );
   }
 }
 
 Dashboard.propTypes = {
-  currentUser: PropTypes.object,
-  currentWeek: PropTypes.number,
-  selectedWeek: PropTypes.number
+  selectedWeek: PropTypes.number,
+  user: PropTypes.object.isRequired
 };
 
 export default createContainer(() => {
-  const currentWeek = Session.get('currentWeek'),
-      selectedWeek = Session.get('selectedWeek'),
-      currentUser = User.findOne(Meteor.userId());
+  const selectedWeek = Session.get('selectedWeek'),
+      user = User.findOne(Meteor.userId());
   return {
-    currentWeek,
     selectedWeek,
-    currentUser
+    user
   };
 }, Dashboard);

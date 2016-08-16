@@ -125,12 +125,11 @@ export default class EditProfile extends Component {
     const { firstName, hasFacebook, hasGoogle, isCreate, isEdit, lastName, referredBy, showReferredBy, teamName } = this.state,
         user = Meteor.user();
     return (
-      <div className="container-fluid edit-profile">
-        <div className="col-xs-12 title-text">
-          <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
-        </div>
-        <ul id="error-messages"></ul>
-        <form ref="userForm" onSubmit={this._submitForm}>
+      <div className="container-fluid">
+        <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
+        <div className="edit-profile">
+          <ul id="error-messages"></ul>
+          <form ref="userForm" onSubmit={this._submitForm}>
           <div className="row">
             <div className="col-xs-12 form-group floating-label-form-group floating-label-form-group-with-value">
               <label>Email</label>
@@ -206,7 +205,8 @@ export default class EditProfile extends Component {
               </div>
             </div>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     );
   }

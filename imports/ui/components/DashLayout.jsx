@@ -75,7 +75,7 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
           }
           <div className="col-xs-12">
             <table className="table table-hover dashboard-table">
-              <thead>
+              <thead className="thead-default">
                 <tr>
                   <th>Rank</th>
                   <th>Team</th>

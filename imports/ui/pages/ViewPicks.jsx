@@ -31,7 +31,7 @@ class ViewPicks extends Component {
         <h3>{`View My Picks for Week ${selectedWeek}`}</h3>
         {pageReady ? [
           <table className="table table-hover view-picks-table" key="view-picks-table">
-            <thead>
+            <thead className="thead-default">
               <tr>
                 <th>Games</th>
                 <th>My Pick</th>
@@ -59,7 +59,7 @@ class ViewPicks extends Component {
             </tbody>
           </table>,
           <table className="table table-hover view-pick-results-table" key="view-pick-results-table">
-            <thead>
+            <thead className="thead-default">
               <tr>
                 <th colSpan="2">My Results</th>
               </tr>

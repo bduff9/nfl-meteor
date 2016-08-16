@@ -29,11 +29,11 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, openMenu, pageReady,
           <i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />
           <ul className="nav nav-sidebar">
             <li>
-              <h5>
-                {`Welcome, ${currentUser.first_name}`}
+              <h6>
+                {`Welcome, ${currentUser.first_name}`}&nbsp;
                 {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null}
                 {(unreadChatCt > 0) ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-primary">{unreadChatCt}</span> : null}
-              </h5>
+              </h6>
             </li>
             <li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
             <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>

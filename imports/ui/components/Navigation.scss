@@ -1,3 +1,7 @@
+h6 {
+  font-weight: bold;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -39,6 +43,7 @@
           pointer-events: none;
           padding-right: 100%;
           font-weight: bolder;
+          box-shadow: inset -5px 0px 15px #100C08;
         }
       }
 

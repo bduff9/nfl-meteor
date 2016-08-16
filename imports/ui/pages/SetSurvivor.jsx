@@ -57,7 +57,7 @@ class SetSurvivor extends Component {
             </div>
             <div className="col-md-7 offset-md-5 col-xs-12">
               <table className="table table-hover set-survivor-table">
-                <thead>
+                <thead className="thead-default">
                   <tr>
                     <th>Week</th>
                     <th colSpan="2">Pick</th>

@@ -21,7 +21,7 @@ class AuthedLayout extends Component {
     super();
     this.state = {
       openMenu: false,
-      rightSlider: Session.get('rightSlider'),
+      rightSlider: '',
       scoreboardWeek: props.currentWeek
     };
     this._changeScoreboardWeek = this._changeScoreboardWeek.bind(this);
@@ -44,7 +44,6 @@ class AuthedLayout extends Component {
     const { openMenu, rightSlider } = this.state;
     let newType = (type === rightSlider ? '' : type);
     ev.preventDefault();
-    Session.set('rightSlider', newType);
     this.setState({ openMenu: (newType ? false : openMenu), rightSlider: newType });
     return false;
   }
@@ -96,7 +95,7 @@ export default createContainer(() => {
   const currentUser = User.findOne(Meteor.userId()),
       nextGameHandle = Meteor.subscribe('nextGame'),
       nextGameReady = nextGameHandle.ready();
-  let week, selectedWeek;
+  let week, selectedWeek = Session.get('selectedWeek');
   if (nextGameReady) {
     week = currentWeek.call(displayError);
     selectedWeek = currentUser.getSelectedWeek() || week;

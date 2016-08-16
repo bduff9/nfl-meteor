@@ -28,8 +28,8 @@ class MakePicks extends Component {
   }
 
   componentWillMount() {
-    const { currentWeek, selectedWeek, tiebreaker = {} } = this.props,
-        notAllowed = selectedWeek < currentWeek || tiebreaker.submitted;
+    const { currentWeek, selectedWeek, tiebreaker } = this.props,
+        notAllowed = selectedWeek < currentWeek || !tiebreaker || tiebreaker.submitted;
     if (notAllowed) this.context.router.push('/picks/view');
   }
 
@@ -44,8 +44,8 @@ class MakePicks extends Component {
 
   _populatePoints(games, picks, gamesReady) {
     if (!gamesReady) return { available: [], unavailable: [], used: [] };
-    const used = picks.map(pick => pick.points).filter(points => points),
-        missedGames = picks.filter((pick, i) => !pick.points && games[i].kickoff <= new Date());
+    const used = picks.filter(pick => pick.points && pick.pick_id).map(pick => pick.points),
+        missedGames = picks.filter((pick, i) => !pick.pick_id && games[i].kickoff <= new Date());
     let available = [],
         unavailable = [];
     for (let i = 1; i <= games.length; i++) {
@@ -55,7 +55,7 @@ class MakePicks extends Component {
     return { available, unavailable, used };
   }
   _setHover(hoverTeam, ev) {
-    this.setState({ hoverTeam });
+    this.setState({ hoverTeam, hoverOn: (hoverTeam ? ev.target : null) });
   }
   _setTiebreakerWrapper(ev) {
     const { selectedWeek } = this.props,
@@ -89,7 +89,7 @@ class MakePicks extends Component {
   }
 
   render() {
-    const { available, hoverTeam, unavailable, used } = this.state,
+    const { available, hoverOn, hoverTeam, unavailable, used } = this.state,
         { currentWeek, games, gamesReady, picks, selectedWeek, teamsReady, tiebreaker } = this.props,
         sortOpts = {
          model: 'points',
@@ -231,7 +231,7 @@ class MakePicks extends Component {
           :
           <Loading />
         }
-        {hoverTeam ? <TeamHover teamId={hoverTeam} /> : null}
+        {hoverTeam ? <TeamHover target={hoverOn} teamId={hoverTeam} /> : null}
       </div>
     );
   }

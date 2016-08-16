@@ -1,5 +1,19 @@
 .team-hover {
-  position: fixed;
-  top: 0;
   white-space: nowrap;
+  box-shadow: 2px 2px 5px #000;
+  border-radius: 8px;
+  border-collapse: separate;
+  border: 2px solid;
+}
+
+.did-win {
+  color: #0f0;
+}
+
+.did-tie {
+  color: #000;
+}
+
+.did-lose {
+  color: #f00;
 }

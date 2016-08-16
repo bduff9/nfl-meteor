@@ -139,6 +139,10 @@ API = {
           game.winner_short = winner.short_name;
         }
         game.save();
+        if (status !== 'P') {
+          // Game has started, assign highest available point total to missed picks
+          assignPointsToMissed.call({ week: w, gameId: game._id, gameCount }, logError);
+        }
         if (status === 'C') {
           completeCount++;
           // Update the team's history array

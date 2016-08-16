@@ -25,3 +25,31 @@ export const writeLog = new ValidatedMethod({
     }
   }
 });
+
+export const toggleRead = new ValidatedMethod({
+  name: 'NFLLog.update.toggleRead',
+  validate: new SimpleSchema({
+    msgId: { type: String, label: 'Message ID' },
+    markRead: { type: Boolean, label: 'Mark Read' }
+  }).validator(),
+  run({ msgId, markRead }) {
+    if (!this.userId) throw new Meteor.Error('NFLLog.update.toggleRead.not-signed-in', 'You must be logged in to write to the log');
+    if (Meteor.isServer) {
+      NFLLog.update({ _id: msgId, user_id: this.userId }, { $set: { is_read: markRead }});
+    }
+  }
+});
+
+export const toggleDeleted = new ValidatedMethod({
+  name: 'NFLLog.update.toggleDeleted',
+  validate: new SimpleSchema({
+    msgId: { type: String, label: 'Message ID' },
+    markDeleted: { type: Boolean, label: 'Mark Deleted' }
+  }).validator(),
+  run({ msgId, markDeleted }) {
+    if (!this.userId) throw new Meteor.Error('NFLLog.update.toggleDeleted.not-signed-in', 'You must be logged in to write to the log');
+    if (Meteor.isServer) {
+      NFLLog.update({ _id: msgId, user_id: this.userId }, { $set: { is_deleted: markDeleted }});
+    }
+  }
+});

@@ -22,24 +22,6 @@ export const updateUser = new ValidatedMethod({
   }
 });
 
-export const updateChatHidden = new ValidatedMethod({
-  name: 'User.updateChatHidden',
-  validate: new SimpleSchema({
-    hidden: { type: Boolean, label: 'Hidden' }
-  }).validator(),
-  run({ hidden }) {
-    const now = new Date();
-    let user;
-    if (!this.userId) return;
-    if (Meteor.isServer) {
-      User.update(this.userId, { $set: { chat_hidden: null }});
-      if (hidden) {
-        User.update(this.userId, { $set: { chat_hidden: now }});
-      }
-    }
-  }
-});
-
 export const updateSelectedWeek = new ValidatedMethod({
   name: 'User.selected_week.update',
   validate: new SimpleSchema({
@@ -219,6 +201,31 @@ export const submitPicks = new ValidatedMethod({
       user.save();
     }
     writeLog.call({ action: 'SUBMIT_PICKS', message: `${user.first_name} ${user.last_name} has just submitted their week ${selectedWeek} picks`, userId: this.userId }, logError);
+  }
+});
+
+export const assignPointsToMissed = new ValidatedMethod({
+  name: 'User.picks.assignPointsToMissed',
+  validate: new SimpleSchema({
+    gameCount: { type: Number, label: 'Number of Games', min: 13, max: 16 },
+    gameId: { type: String, label: 'Game ID' },
+    week: { type: Number, label: 'Week', min: 1, max: 17 }
+  }).validator(),
+  run({ gameCount, gameId, week }) {
+    if (Meteor.isServer) {
+      const users = User.find({ "picks.game_id": gameId, "picks.points": null }, { fields: {
+        picks: 1
+      }}).fetch();
+      let pointsUsed, maxPointVal;
+console.log(`${users.length} missed game ${gameId} in week ${week}`);
+      users.forEach(user => {
+        maxPointVal = gameCount;
+        pointsUsed = user.picks.map(pick => pick.points);
+        while (pointsUsed.indexOf(maxPointVal) > -1) maxPointVal--;
+        User.update({ _id: user._id, "picks.game_id": gameId }, { $set: { "picks.$.points": maxPointVal }});
+console.log(`Auto assign ${maxPointVal} points to user ${user._id}`);
+      });
+    }
   }
 });
 

@@ -10,6 +10,7 @@ import Helmet from 'react-helmet';
 import './MakePicks.scss';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
+import TeamHover from '../components/TeamHover.jsx';
 import { Game, User } from '../../api/schema';
 import { autoPick, resetPicks, setTiebreaker, submitPicks } from '../../api/collections/users';
 import { displayError } from '../../api/global';
@@ -159,7 +160,7 @@ class MakePicks extends Component {
                               <i className="text-primary hidden-xs-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
                             </div>
                             <div className="col-xs-2 visitorName">
-                              <i className="text-primary hidden-xs-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
+                              <i className="text-primary hidden-xs-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
                               {` ${visitTeam.city} ${visitTeam.name}`}
                             </div>
                             <div className="col-xs-2 visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
@@ -230,7 +231,7 @@ class MakePicks extends Component {
           :
           <Loading />
         }
-        {hoverTeam ? 'Show Hover' : null}
+        {hoverTeam ? <TeamHover teamId={hoverTeam} /> : null}
       </div>
     );
   }

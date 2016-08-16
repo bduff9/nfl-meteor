@@ -17,3 +17,14 @@ Meteor.publish('nflTeams', function() {
   if (teams) return teams;
   return this.ready();
 });
+
+Meteor.publish('getTeamInfo', function(teamId) {
+  let team;
+  if (!this.userId) return this.ready();
+  new SimpleSchema({
+    teamId: { type: String, label: 'Team ID' }
+  }).validate({ teamId });
+  team = Team.find(teamId);
+  if (team) return team;
+  return this.ready();
+});

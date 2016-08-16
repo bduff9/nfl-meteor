@@ -21,22 +21,35 @@ Meteor.publish('allChats', function() {
   return this.ready();
 });
 
-Meteor.publish('unreadChats', function(whenHidden) {
-  let unreadChats;
-  if (!this.userId || !whenHidden) return this.ready();
-  new SimpleSchema({
-    whenHidden: { type: Date, label: 'Chat Hidden' }
-  }).validate({ whenHidden });
-  unreadChats = NFLLog.find({ action: 'CHAT', when: { $gt: whenHidden }}, {
-    fields: {
-      '_id': 1,
-      'action': 1,
-      'when': 1
-    },
-    sort: {
-      when: -1
+Meteor.publishComposite('unreadChats', {
+  find: function() {
+    return NFLLog.find({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED']}, user_id: this.userId }, {
+      fields: {
+        '_id': 1,
+        'action': 1,
+        'when': 1,
+        'user_id': 1
+      },
+      sort: {
+        when: -1
+      },
+      limit: 1
+    });
+  },
+  children: [
+    {
+      find: function(lastAction) {
+        return NFLLog.find({ action: 'CHAT', when: { $gt: lastAction.when }}, {
+          fields: {
+            '_id': 1,
+            'action': 1,
+            'when': 1
+          },
+          sort: {
+            when: -1
+          }
+        });
+      }
     }
-  });
-  if (unreadChats) return unreadChats;
-  return this.ready();
+  ]
 });

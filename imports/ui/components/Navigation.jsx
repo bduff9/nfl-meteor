@@ -18,6 +18,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, openMenu, pageReady,
 
   const _selectWeek = (newWeek, ev) => {
     ev.preventDefault();
+console.log(newWeek);
     if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, displayError);
   };
 
@@ -99,13 +100,16 @@ Navigation.propTypes = {
 };
 
 export default createContainer(({ currentUser, rightSlider, ...rest }) => {
-  const unreadChatHandle = Meteor.subscribe('unreadChats', currentUser.chat_hidden),
+  const unreadChatHandle = Meteor.subscribe('unreadChats'),
       unreadChatReady = unreadChatHandle.ready();
   let unreadChatCt = 0,
-      pageReady = false;
+      pageReady = false,
+      lastAction, chatHidden;
   if (unreadChatReady) {
-    if (rightSlider !== 'chat') {
-      unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: currentUser.chat_hidden }}).count();
+    lastAction = NFLLog.findOne({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED'] }, user_id: currentUser._id }, { sort: { when: -1 }});
+    if (lastAction) {
+      chatHidden = (lastAction.action === 'CHAT_HIDDEN' ? lastAction.when : new Date());
+      unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: chatHidden }}).count();
     }
     pageReady = true;
   }

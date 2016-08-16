@@ -14,6 +14,12 @@ export const History = Class.create({
     did_win: Boolean,
     did_tie: Boolean,
     final_score: String
+  },
+  methods: {
+    getOpponent() {
+      const team = Team.findOne(this.opponent_id);
+      return team;
+    }
   }
 });
 
@@ -389,14 +395,14 @@ export const User = Class.create({
     },
     verified: Boolean,
     done_registering: Boolean,
+    is_admin: {
+      type: Boolean,
+      default: false
+    },
     paid: Boolean,
     selected_week: {
       type: SelectedWeek,
       default: () => {}
-    },
-    chat_hidden: {
-      type: Date,
-      optional: true
     },
     total_points: {
       type: Number,
@@ -469,11 +475,27 @@ export const NFLLog = Class.create({
     user_id: {
       type: String,
       optional: true
+    },
+    is_read: {
+      type: Boolean,
+      default: false
+    },
+    is_deleted: {
+      type: Boolean,
+      default: false
+    },
+    to_id: {
+      type: String,
+      optional: true
     }
   },
   methods: {
     getUser() {
       const user = User.findOne(this.user_id);
+      return user;
+    },
+    getUserTo() {
+      const user = User.findOne(this.to_id);
       return user;
     }
   },

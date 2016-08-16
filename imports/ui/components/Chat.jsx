@@ -22,8 +22,13 @@ class Chat extends Component {
     this._updateMessage = this._updateMessage.bind(this);
   }
 
+  componentWillMount() {
+    const user = Meteor.user();
+    writeLog.call({ action: 'CHAT_OPENED', message: `${user.first_name} ${user.last_name} opened the chat`, userId: user._id }, displayError);
+  }
   componentWillUnmount() {
-    updateChatHidden.call({ hidden: true }, displayError);
+    const user = Meteor.user();
+    writeLog.call({ action: 'CHAT_HIDDEN', message: `${user.first_name} ${user.last_name} closed the chat`, userId: user._id }, displayError);
   }
 
   _addChat(ev) {

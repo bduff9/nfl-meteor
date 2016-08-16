@@ -20,6 +20,7 @@ import { ViewAllPicks } from '../../ui/pages/ViewAllPicks.jsx';
 import SetSurvivor from '../../ui/pages/SetSurvivor.jsx';
 import { ViewSurvivor } from '../../ui/pages/ViewSurvivor.jsx';
 import EditProfile from '../../ui/pages/EditProfile.jsx';
+import AdminUsers from '../../ui/pages/AdminUsers.jsx';
 import { NotFound } from '../../ui/pages/NotFound.jsx';
 
 function requireAuth(nextState, replace) {
@@ -85,6 +86,15 @@ function verifyEmail(nextState, replace) {
   }
 }
 
+function verifyAdmin(nextState, replace) {
+  const user = Meteor.user();
+  if (!user.is_admin) {
+    replace({
+      pathname: '/'
+    });
+  }
+}
+
 function logOut(nextState, replace) {
   const { location } = nextState,
       user = Meteor.user();
@@ -122,6 +132,9 @@ export const Routes = () => (
       <Route path="/users">
         <Route path="create" component={EditProfile} onEnter={noValidateUser} />
         <Route path="edit" component={EditProfile} onEnter={validateUser} />
+      </Route>
+      <Route path="/admin" onEnter={verifyAdmin}>
+        <Route path="users" component={AdminUsers} />
       </Route>
     </Route>
     <Route path="*" component={NotFound} />

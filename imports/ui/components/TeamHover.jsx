@@ -14,6 +14,21 @@ class TeamHover extends Component {
     this.state = {};
   }
 
+  componentDidMount() {
+    const { target } = this.props,
+        element = this.refs.hoverWindow;
+    this._tether = new Tether({
+      element,
+      target,
+      attachment: 'middle right'
+    });
+  }
+  componentWillUnmount() {
+    const element = this.refs.hoverWindow;
+    this._tether.destroy();
+    document.body.removeChild(element);
+  }
+
   render() {
     const { pageReady, teamInfo } = this.props;
     let won, lost, tied;
@@ -33,41 +48,55 @@ class TeamHover extends Component {
     }
 
     return (
-      <table className="team-hover" style={{ color: teamInfo.secondary_color, backgroundColor: teamInfo.primary_color }}>
-        <thead>
-          <tr>
-            <th>{`${teamInfo.city} ${teamInfo.name}`}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{`${teamInfo.conference} ${teamInfo.division}`}</td>
-          </tr>
-          <tr>
-            <td>{`Rushing Offense: ${teamInfo.rush_offense} Passing Offense: ${teamInfo.pass_offense}`}</td>
-          </tr>
-          <tr>
-            <td>{`Rushing Defense: ${teamInfo.rush_defense} Passing Defense: ${teamInfo.pass_defense}`}</td>
-          </tr>
-          <tr>
-            <td>{`Conference Rank: ${teamInfo.rank}`}</td>
-          </tr>
-          <tr>
-            <td>{`Record: ${won}-${lost}-${tied}`}</td>
-          </tr>
-          {pageReady ? teamInfo.history.map(game => (
-            <tr><td>xxx</td></tr>
-          )) : null}
-        </tbody>
-      </table>
+      <div>
+        <table className="team-hover" style={{ color: teamInfo.secondary_color, backgroundColor: teamInfo.primary_color, borderColor: teamInfo.secondary_color }} ref="hoverWindow">
+          <thead>
+            <tr>
+              <th>{`${teamInfo.city} ${teamInfo.name}`}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{`${teamInfo.conference} ${teamInfo.division}`}</td>
+            </tr>
+            <tr>
+              <td>{`Rushing Offense: ${teamInfo.rush_offense} Passing Offense: ${teamInfo.pass_offense}`}</td>
+            </tr>
+            <tr>
+              <td>{`Rushing Defense: ${teamInfo.rush_defense} Passing Defense: ${teamInfo.pass_defense}`}</td>
+            </tr>
+            <tr>
+              <td>{`Conference Rank: ${teamInfo.rank}`}</td>
+            </tr>
+            <tr>
+              <td>{`Record: ${won}-${lost}-${tied}`}</td>
+            </tr>
+            {pageReady ? teamInfo.history.map(game => (
+              <tr key={'history' + game._id}>
+                <td>
+                  {(game.was_home ? 'vs. ' : '@ ')}
+                  {game.getOpponent().name}&nbsp;
+                  <span className={game.did_win ? 'did-win' : (game.did_tie ? 'did-tie' : 'did-lose')}>
+                    {game.did_win ? 'W' : (game.did_tie ? 'T' : 'L')}
+                  </span>
+                  {` (${game.final_score})`}
+                </td>
+              </tr>
+            )) : null}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }
 
 TeamHover.propTypes = {
   pageReady: PropTypes.bool.isRequired,
+  target: PropTypes.any.isRequired,
   teamInfo: PropTypes.object.isRequired
 };
+
+TeamHover._tether = null;
 
 export default createContainer(({ teamId }) => {
   const teamHandle = Meteor.subscribe('getTeamInfo', teamId),

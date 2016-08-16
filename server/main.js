@@ -49,7 +49,6 @@ Meteor.startup(() => {
     user.done_registering = false;
     user.paid = false;
     user.selected_week = {};
-    user.chat_hidden = new Date();
     user.total_points = 0;
     user.total_games = 0;
     user.bonus_points = 0;

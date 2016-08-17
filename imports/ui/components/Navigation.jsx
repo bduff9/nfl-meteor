@@ -18,7 +18,6 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, openMenu, pageReady,
 
   const _selectWeek = (newWeek, ev) => {
     ev.preventDefault();
-console.log(newWeek);
     if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, displayError);
   };
 
@@ -73,6 +72,14 @@ console.log(newWeek);
             <li><a href="#" onClick={_toggleRightSlider.bind(null, 'scoreboard')}>NFL Scoreboard</a></li>
             <li><a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>{(unreadChatCt > 0 ? <strong>{`${unreadChatCt} New Chats`}</strong> : 'No new chats')}</a></li>
           </ul>
+          {currentUser.is_admin ? (
+            <ul className="nav nav-sidebar">
+              <li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
+            </ul>
+          )
+          :
+            null
+          }
         </div>
       )
       :

@@ -60,13 +60,13 @@ class TeamHover extends Component {
               <td>{`${teamInfo.conference} ${teamInfo.division}`}</td>
             </tr>
             <tr>
-              <td>{`Rushing Offense: ${teamInfo.rush_offense} Passing Offense: ${teamInfo.pass_offense}`}</td>
+              <td>{`Rushing Offense: ${teamInfo.rush_offense || ''} Passing Offense: ${teamInfo.pass_offense || ''}`}</td>
             </tr>
             <tr>
-              <td>{`Rushing Defense: ${teamInfo.rush_defense} Passing Defense: ${teamInfo.pass_defense}`}</td>
+              <td>{`Rushing Defense: ${teamInfo.rush_defense || ''} Passing Defense: ${teamInfo.pass_defense || ''}`}</td>
             </tr>
             <tr>
-              <td>{`Conference Rank: ${teamInfo.rank}`}</td>
+              <td>{`Conference Rank: ${teamInfo.rank || ''}`}</td>
             </tr>
             <tr>
               <td>{`Record: ${won}-${lost}-${tied}`}</td>

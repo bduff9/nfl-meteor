@@ -95,7 +95,8 @@ export default createContainer(() => {
   const currentUser = User.findOne(Meteor.userId()),
       nextGameHandle = Meteor.subscribe('nextGame'),
       nextGameReady = nextGameHandle.ready();
-  let week, selectedWeek = Session.get('selectedWeek');
+  let selectedWeek = Session.get('selectedWeek'),
+      week;
   if (nextGameReady) {
     week = currentWeek.call(displayError);
     selectedWeek = currentUser.getSelectedWeek() || week;

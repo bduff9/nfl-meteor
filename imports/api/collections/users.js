@@ -22,6 +22,25 @@ export const updateUser = new ValidatedMethod({
   }
 });
 
+export const updateUserAdmin = new ValidatedMethod({
+  name: 'User.updateAdmin',
+  validate: new SimpleSchema({
+    bonusPoints: { type: Number, label: 'Bonus Points', min: 1, max: 5, optional: true },
+    isAdmin: { type: Boolean, label: 'Is Administrator', optional: true },
+    paid: { type: Boolean, label: 'Has Paid', optional: true },
+    userId: { type: String, label: 'User ID' }
+  }).validator(),
+  run({ bonusPoints, isAdmin, paid, userId }) {
+    const myUser = User.findOne(this.userId),
+        user = User.findOne(userId);
+    if (!this.userId || !myUser.is_admin) throw new Meteor.Error('User.update.notLoggedIn', 'Not authorized to admin functions');
+    if (isAdmin != null) user.is_admin = isAdmin;
+    if (bonusPoints != null) user.bonus_points += bonusPoints;
+    if (paid != null) user.paid = paid;
+    user.save();
+  }
+});
+
 export const updateSelectedWeek = new ValidatedMethod({
   name: 'User.selected_week.update',
   validate: new SimpleSchema({

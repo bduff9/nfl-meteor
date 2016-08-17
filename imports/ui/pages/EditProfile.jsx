@@ -1,11 +1,12 @@
 /*jshint esversion: 6 */
 'use strict';
 
+import React, { Component, PropTypes } from 'react';
+import { Meteor } from 'meteor/meteor';
+import { Bert } from 'meteor/themeteorchef:bert';
 import $ from 'jquery';
 import 'jquery-validation';
-import { Bert } from 'meteor/themeteorchef:bert';
-import { Meteor } from 'meteor/meteor';
-import React, { Component, PropTypes } from 'react';
+import Helmet from 'react-helmet';
 
 import './EditProfile.scss';
 import { updateUser } from '../../api/collections/users';
@@ -126,6 +127,7 @@ export default class EditProfile extends Component {
         user = Meteor.user();
     return (
       <div className="container-fluid">
+        <Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
         <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
         <div className="edit-profile">
           <ul id="error-messages"></ul>

@@ -23,7 +23,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, openMenu, pageReady,
 
 //TODO handle messages (dismissable (i.e. non-submit alert) and non-dismissable (i.e. payment due)) from NFLLogs
   return (
-    <div className={`col-xs-12 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-md-2 sidebar`}>
+    <div className={`col-xs-12 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-lg-2 sidebar`}>
       {!logoutOnly ? (
         <div className="sidebar-inner">
           <i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />

@@ -64,7 +64,7 @@ class AuthedLayout extends Component {
             rightSlider={rightSlider}
             _toggleMenu={this._toggleMenu}
             _toggleRightSlider={this._toggleRightSlider} />
-          <div className="col-xs-12 col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">{children}</div>
+          <div className="col-xs-12 col-sm-9 offset-sm-3 col-lg-10 offset-lg-2 main">{children}</div>
         </div>
         <ReactCSSTransitionGroup transitionName="right-slider" transitionEnterTimeout={1000} transitionLeaveTimeout={1000}>
           {rightSlider ? (

@@ -157,13 +157,13 @@ export default class Login extends Component {
               <div className="col-xs-12 bottom-text text-xs-center">Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
             </div>
             <div className="row">
-              <div className="col-xs-6">
+              <div className="col-xs-12 col-md-6">
                 <button type="button" className="btn text-xs-center btn-block btn-social btn-facebook" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
                   <i className="fa fa-facebook"></i>
                   {loading === 'facebook' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
                 </button>
               </div>
-              <div className="col-xs-6">
+              <div className="col-xs-12 col-md-6">
                 <button type="button" className="btn text-xs-center btn-block btn-social btn-google" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
                   <i className="fa fa-google"></i>
                   {loading === 'google' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}

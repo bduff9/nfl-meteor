@@ -139,11 +139,11 @@ export default class EditProfile extends Component {
             </div>
           </div>
           <div className="row">
-            <div className={'col-xs-6 form-group floating-label-form-group' + (user.first_name ? ' floating-label-form-group-with-value' : '')}>
+            <div className={'col-xs-12 col-md-6 form-group floating-label-form-group' + (user.first_name ? ' floating-label-form-group-with-value' : '')}>
               <label htmlFor="first_name">First Name</label>
               <input type="text" className="form-control" id="firstName" name="firstName" placeholder="First Name" value={firstName} required={true} onChange={this._handleChanges} />
             </div>
-            <div className={'col-xs-6 form-group floating-label-form-group' + (user.last_name ? ' floating-label-form-group-with-value' : '')}>
+            <div className={'col-xs-12 col-md-6 form-group floating-label-form-group' + (user.last_name ? ' floating-label-form-group-with-value' : '')}>
               <label htmlFor="last_name">Last Name</label>
               <input type="text" className="form-control" id="lastName" name="lastName" placeholder="Last Name" value={lastName} required={true} onChange={this._handleChanges} />
             </div>
@@ -188,12 +188,12 @@ export default class EditProfile extends Component {
             <div className="col-xs-12 form-group text-xs-center save-wrapper">
               {/* Add service check to show unlink option */}
               <div className="row">
-                <div className="col-xs-6 text-xs-right social-btns">
+                <div className="col-xs-12 col-md-6 text-xs-center text-md-right social-btns">
                   <button type="button" className="btn btn-primary btn-facebook" disabled={hasFacebook} onClick={this._oauthLink.bind(null, 'loginWithFacebook')}>
                     <i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
                   </button>
                 </div>
-                <div className="col-xs-6 text-xs-left social-btns">
+                <div className="col-xs-12 col-md-6 text-xs-center text-md-left social-btns">
                   <button type="button" className="btn btn-danger btn-google" disabled={hasGoogle} onClick={this._oauthLink.bind(null, 'loginWithGoogle')}>
                     <i className="fa fa-google"></i> {hasGoogle ? 'Google Linked!' : 'Link Google'}
                   </button>

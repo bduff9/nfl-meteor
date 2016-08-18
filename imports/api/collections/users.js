@@ -232,17 +232,21 @@ export const assignPointsToMissed = new ValidatedMethod({
   }).validator(),
   run({ gameCount, gameId, week }) {
     if (Meteor.isServer) {
-      const users = User.find({ "picks.game_id": gameId, "picks.points": null }, { fields: {
-        picks: 1
+      const allUsers = User.find({ "picks.game_id": gameId }, { fields: {
+        "picks.$": 1
       }}).fetch();
-      let pointsUsed, maxPointVal;
-console.log(`${users.length} missed game ${gameId} in week ${week}`);
+      let missedUsers = allUsers.filter(user => !user.picks[0].points).map(user => user._id),
+          users = User.find({ _id: { $in: missedUsers }}, { fields: {
+            picks: 1
+          }}).fetch(),
+          pointsUsed, maxPointVal;
+      if (users.length) console.log(`${users.length} users missed game ${gameId} in week ${week}`);
       users.forEach(user => {
         maxPointVal = gameCount;
-        pointsUsed = user.picks.map(pick => pick.points);
+        pointsUsed = user.picks.filter(pick => pick.week === week).map(pick => pick.points);
         while (pointsUsed.indexOf(maxPointVal) > -1) maxPointVal--;
         User.update({ _id: user._id, "picks.game_id": gameId }, { $set: { "picks.$.points": maxPointVal }});
-console.log(`Auto assign ${maxPointVal} points to user ${user._id}`);
+        console.log(`Auto assign ${maxPointVal} points to user ${user._id}`);
       });
     }
   }
@@ -282,10 +286,10 @@ export const updatePoints = new ValidatedMethod({
       tiebreakers = user.tiebreakers;
       games = 0;
       points = 0;
-      weekGames = [];
-      weekPoints = [];
+      weekGames = new Array(18).fill(0);
+      weekPoints = new Array(18).fill(0);
       picks.forEach(pick => {
-        if (pick.pick_id === pick.winner_id) {
+        if (pick.winner_id && pick.pick_id === pick.winner_id) {
           games++;
           points += pick.points;
           if (!weekGames[pick.week]) weekGames[pick.week] = 0;

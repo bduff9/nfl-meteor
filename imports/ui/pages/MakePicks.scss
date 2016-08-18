@@ -6,10 +6,10 @@ $footerHeightLarge: 120px;
   width: $pointBankWidth * 2;
   padding-left: 0;
   position: fixed;
+  z-index: 1;
 
   .points {
-    float: left;
-    width: 50%;
+
   }
 }
 
@@ -26,7 +26,7 @@ $footerHeightLarge: 120px;
 
 .makePickTable,
 .tiebreakerTable {
-  width: 72%;
+  width: 75%;
   margin-left: ($pointBankWidth * 2) + 20px;
   background-color: rgba(255, 255, 255, .85);
 
@@ -64,6 +64,7 @@ $footerHeightLarge: 120px;
   display: flex;
   justify-content: space-around;
   height: $footerHeight;
+  z-index: 2;
 
   &.large {
     height: $footerHeightLarge;
@@ -71,5 +72,48 @@ $footerHeightLarge: 120px;
 
   .btn {
     margin: 10px 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .pointBank {
+    width: $pointBankWidth;
+  }
+
+  .makePickTable,
+  .tiebreakerTable {
+    margin-left: $pointBankWidth + 20px;
+
+    td {
+
+      .row {
+        display: flex;
+        flex-flow: row wrap;
+
+        .homePoints {
+          order: 5;
+        }
+
+        .homeLogo {
+          order: 3;
+        }
+
+        .homeName {
+          order: 1;
+        }
+
+        .visitorName {
+          order: 2;
+        }
+
+        .visitorLogo {
+          order: 4;
+        }
+
+        .visitorPoints {
+          order: 6;
+        }
+      }
+    }
   }
 }

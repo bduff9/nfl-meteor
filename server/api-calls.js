@@ -1,8 +1,8 @@
 'use strict';
 
 import { Game, Team, User } from '../imports/api/schema';
-import { updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
-import { convertEpoch } from '../imports/api/global';
+import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
+import { convertEpoch, logError } from '../imports/api/global';
 
 API = {
   getGamesForWeek(week) {
@@ -80,7 +80,8 @@ API = {
     const weeksToRefresh = _.uniq(Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}, {
       sort: { week: 1 }, fields: { week: 1 }
     }).map(game => game.week), true);
-    let response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
+    let wasComplete = false,
+        response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
     weeksToRefresh.forEach(w => {
       games = this.getGamesForWeek(w);
       gameCount = games.length;
@@ -92,12 +93,11 @@ API = {
           if (team.isHome === '0') vTeamData = team;
         });
         game = Game.findOne({ week: w, home_short: hTeamData.id, visitor_short: vTeamData.id });
-        // If game is already over, skip it
         if (game.status === 'C') {
-          console.log(`Week ${w} game ${game.game} already complete, skipping...`);
-          return true;
+          wasComplete = true;
+          console.log(`Week ${w} game ${game.game} already complete, checking for updates...`);
         } else if (game.kickoff > new Date()) {
-          // Game hasn't started yet, skip update
+          console.log(`Week ${w} game ${game.game} hasn't begun, skipping...`);
           return true;
         }
         hTeam = Team.findOne({ short_name: hTeamData.id });
@@ -146,10 +146,12 @@ API = {
         if (status === 'C') {
           completeCount++;
           // Update the team's history array
-          console.log(`Game ${game.game} complete, updating history...`);
-          hTeam.history.push({ game_id: game._id, opponent_id: vTeam._id, opponent_short: vTeam.short_name, was_home: true, did_win: game.winner_short === hTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
-          vTeam.history.push({ game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
-          console.log(`Game ${game.game} history updated!`);
+          if (!wasComplete) {
+            console.log(`Game ${game.game} complete, updating history...`);
+            hTeam.history.push({ game_id: game._id, opponent_id: vTeam._id, opponent_short: vTeam.short_name, was_home: true, did_win: game.winner_short === hTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
+            vTeam.history.push({ game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
+            console.log(`Game ${game.game} history updated!`);
+          }
           // Update the picks for each user
           console.log(`Game ${game.game} complete, updating picks...`);
           User.update({ 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });

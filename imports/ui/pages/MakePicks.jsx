@@ -27,15 +27,11 @@ class MakePicks extends Component {
     this._submitPicks = this._submitPicks.bind(this);
   }
 
-  componentWillMount() {
-    const { currentWeek, selectedWeek, tiebreaker } = this.props,
-        notAllowed = selectedWeek < currentWeek || !tiebreaker || tiebreaker.submitted;
-    if (notAllowed) this.context.router.push('/picks/view');
-  }
-
   componentWillReceiveProps(nextProps) {
-    const { games, gamesReady, picks } = nextProps;
+    const { currentWeek, games, gamesReady, picks, selectedWeek, tiebreaker } = nextProps,
+        notAllowed = selectedWeek < currentWeek || !tiebreaker || tiebreaker.submitted;
     let pointObj;
+    if (notAllowed) this.context.router.push('/picks/view');
     if (gamesReady) {
       pointObj = this._populatePoints(games, picks, true);
       this.setState(pointObj);
@@ -105,7 +101,7 @@ class MakePicks extends Component {
         <Helmet title={`Set Week ${selectedWeek} Picks`} />
         {pageReady ? [
             <div className="col-xs-12" key="picks">
-              <h3>{`Set Week ${selectedWeek} Picks`}</h3>
+              <h3 className="text-xs-center text-md-left">{`Set Week ${selectedWeek} Picks`}</h3>
               <PointHolder
                 className="pointBank"
                 disabledPoints={unavailable}
@@ -138,9 +134,10 @@ class MakePicks extends Component {
                       <tr className={(homePicked || visitorPicked ? 'done' : '') + (started ? ' disabled' : '')} title={(started ? 'This game has already begun, no changes allowed' : null)} key={'game' + i}>
                         <td>
                           <div className="row">
-                            <div className="col-xs-2 homePoints">
+                            <div className="col-xs-6 col-md-2 homePoints">
                               {homePicked || !started ? (
                                 <PointHolder
+                                  className="pull-xs-left"
                                   disabledPoints={homePicked && started ? [thisPick.points] : []}
                                   gameId={game._id}
                                   numGames={games.length}
@@ -154,19 +151,20 @@ class MakePicks extends Component {
                                 null
                               }
                             </div>
-                            <div className="col-xs-2 homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
-                            <div className="col-xs-2 homeName">
+                            <div className="col-xs-6 col-md-2 text-xs-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
+                            <div className="col-xs-6 col-md-2 text-xs-center text-md-left homeName">
                               {`${homeTeam.city} ${homeTeam.name} `}
                               <i className="text-primary hidden-xs-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
                             </div>
-                            <div className="col-xs-2 visitorName">
+                            <div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorName">
                               <i className="text-primary hidden-xs-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
                               {` ${visitTeam.city} ${visitTeam.name}`}
                             </div>
-                            <div className="col-xs-2 visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
-                            <div className="col-xs-2 visitorPoints">
+                            <div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
+                            <div className="col-xs-6 col-md-2 visitorPoints">
                               {visitorPicked || !started ? (
                                 <PointHolder
+                                  className="pull-xs-right"
                                   disabledPoints={visitorPicked && started ? [thisPick.points] : []}
                                   gameId={game._id}
                                   numGames={games.length}
@@ -207,11 +205,11 @@ class MakePicks extends Component {
             </div>,
             <div className="col-xs-12 col-sm-9 col-md-10 text-xs-center pick-buttons" key="pick-buttons">
               <button type="button" className="btn btn-danger" disabled={used.length === 0} onClick={this._resetPicks}>
-                <i className="fa fa-fw fa-refresh" /> Reset
+                <i className="fa fa-fw fa-refresh hidden-sm-down" /> Reset
               </button>
               <div className="btn-group dropup">
                 <button type="button" className="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled={available.length === 0}>
-                  <i className="fa fa-fw fa-magic" /> Auto-Pick
+                  <i className="fa fa-fw fa-magic hidden-sm-down" /> Auto-Pick
                 </button>
                 <div className="dropdown-menu">
                   <a className="dropdown-item" href="#" onClick={this._autopick.bind(null, 'home')}>All Home Teams</a>
@@ -221,10 +219,10 @@ class MakePicks extends Component {
                 </div>
               </div>
               <button type="button" className="btn btn-primary" disabled={used.length === 0} onClick={this._savePicks}>
-                <i className="fa fa-fw fa-save" /> Save
+                <i className="fa fa-fw fa-save hidden-sm-down" /> Save
               </button>
               <button type="submit" className="btn btn-success" disabled={available.length !== 0 || !tiebreaker.last_score} onClick={this._submitPicks}>
-                <i className="fa fa-fw fa-arrow-circle-right" /> Submit
+                <i className="fa fa-fw fa-arrow-circle-right hidden-sm-down" /> Submit
               </button>
             </div>
           ]

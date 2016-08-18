@@ -71,22 +71,26 @@ class Dashboard extends Component {
     return (
       <div className="row">
         <Helmet title={`My Dashboard`} />
+        <h3>My Dashboard</h3>
         {pageReady ? (
           <div className="col-xs-12 dashboard">
-            <h3>My Dashboard</h3>
-            <div className="col-xs-6 text-xs-right">
-              View:&nbsp;
-              <select value={viewOverall} onChange={this._toggleOverall}>
-                <option value={true}>Overall</option>
-                <option value={false}>Week</option>
-              </select>
+            <div className="col-xs-6">
+              <div className="form-group">
+                <label htmlFor="view-overall">View:</label>
+                <select className="form-control" id="view-overall" value={viewOverall} onChange={this._toggleOverall}>
+                  <option value={true}>Overall</option>
+                  <option value={false}>Week</option>
+                </select>
+              </div>
             </div>
             {!viewOverall ? (
-              <div className="col-xs-6 text-xs-left">
-                Jump to:&nbsp;
-                <select value={selectedWeek} onChange={this._selectWeek}>
-                  {user.tiebreakers.map((week, i) => <option value={week.week} key={'week' + i}>{`Week ${week.week}`}</option>)}
-                </select>
+              <div className="col-xs-6">
+                <div className="form-group">
+                  <label htmlFor="select-week-for-dashboard">Jump to:</label>
+                  <select className="form-control" value={selectedWeek} onChange={this._selectWeek}>
+                    {user.tiebreakers.map((week, i) => <option value={week.week} key={'week' + i}>{`Week ${week.week}`}</option>)}
+                  </select>
+                </div>
               </div>
             )
             :

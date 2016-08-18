@@ -40,7 +40,7 @@ class SetSurvivor extends Component {
       <div className="row">
         <Helmet title={`Make Survivor Picks`} />
         {pageReady ? (
-          <div className="col-xs">
+          <div className="col-xs-12">
             <h3>Make Survivor Picks</h3>
             <div className="col-md-4 hidden-sm-down side-bar">
               {teams.map((team, i) => {

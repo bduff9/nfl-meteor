@@ -11,7 +11,7 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
   const gamesSort = sort.total_games || sort['tiebreakers.$.games_correct'],
       pointsSort = sort.total_points || sort['tiebreakers.$.points_earned'],
       picks = (isOverall ? user.picks : user.picks.filter(pick => pick.week === week)),
-      correctPicks = picks.filter(pick => pick.pick_id && pick.pick_id === pick.winner_id),
+      correctPicks = picks.filter(pick => pick.winner_id && pick.pick_id === pick.winner_id),
       incorrectPicks = picks.filter(pick => pick.winner_id && pick.pick_id !== pick.winner_id),
       correctPoints = correctPicks.reduce((prev, pick) => {
         return prev + pick.points;
@@ -51,7 +51,7 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
                   {key: 'Incorrect', value: incorrectPicks.length, color: '#f00'}
                 ]}
                 size={200} />
-              <h4>Points</h4>
+              <h4>Games</h4>
               <span className="text-muted">Games correct vs. incorrect</span>
             </div>
             :

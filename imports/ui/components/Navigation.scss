@@ -17,7 +17,7 @@ h6 {
   color: #fff;
   -moz-box-shadow: inset -5px 0px 15px #100C08;
   -webkit-box-shadow: inset -5px 0px 15px #100C08;
-  box-shadow: inset -5px 0px 15px #100C08;
+  box-shadow: 7px -10px 15px -5px #100C08;
 
   .close-menu {
     position: absolute;
@@ -30,30 +30,30 @@ h6 {
     margin-bottom: 15px;
 
     li {
+      
+        & > a {
+          white-space: nowrap;
+          margin-left: -15px;
+          padding: 4px 4px 4px 15px;
+          color: #fff;
 
-      & > a {
-        white-space: nowrap;
-        margin-left: -15px;
-        padding: 4px 4px 4px 15px;
-        color: #fff;
-
-        &.active {
-          background-color: #C6C3BA;
-          color: black;
-          pointer-events: none;
-          padding-right: 100%;
-          font-weight: bolder;
-          box-shadow: inset -5px 0px 15px #100C08;
+          &.active {
+            background-color: #C6C3BA;
+            color: black;
+            pointer-events: none;
+            padding-right: 100%;
+            font-weight: bolder;
+            box-shadow: inset -5px 0px 15px #100C08;
+          }
         }
-      }
 
-      & > i {
-        cursor: pointer;
+        & > i {
+          cursor: pointer;
 
-        &.disabled {
-          color: transparent;
-          cursor: default;
-        }
+          &.disabled {
+            color: transparent;
+            cursor: default;
+          }
       }
     }
   }

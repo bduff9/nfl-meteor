@@ -101,7 +101,7 @@ class MakePicks extends Component {
         <Helmet title={`Set Week ${selectedWeek} Picks`} />
         {pageReady ? [
             <div className="col-xs-12" key="picks">
-              <h3 className="text-xs-center text-md-left">{`Set Week ${selectedWeek} Picks`}</h3>
+              <h3 className="title-text text-xs-center text-md-left">{`Set Week ${selectedWeek} Picks`}</h3>
               <PointHolder
                 className="pointBank"
                 disabledPoints={unavailable}

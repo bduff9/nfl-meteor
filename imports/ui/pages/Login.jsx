@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 'use strict';
 
+import './Login.scss';
 import $ from 'jquery';
 import 'jquery-validation';
 import { Accounts } from 'meteor/accounts-base';
@@ -124,15 +125,19 @@ export default class Login extends Component {
         currMonth = currDate.getMonth(),
         currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
     return (
-      <div className="col-xs">
+      <div className="row">
         <Helmet title="Login" />
-        <div className="signin-form">
-          <div className="ball-logo">
-            <Isvg src="/svg/football.svg" />
+        <div className="signin-form col-xs-12 col-sm-10 col-md-6 col-xl-3">
+          <div className="row">
+            <div className="ball-logo hidden-sm-down">
+              <Isvg src="/svg/football.svg" />
+            </div>
           </div>
-          <div className="title-text text-xs-center">
-            <h2>{`${currYear} NFL Confidence Pool`}</h2>
-            <h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
+          <div className="row">
+            <div className="login-title text-xs-center">
+              <h2>{`${currYear} NFL Confidence Pool`}</h2>
+              <h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
+            </div>
           </div>
           <div className="login-form">
             <form ref="emailForm" id="sign-in-with-email" onSubmit={this._emailLogin}>

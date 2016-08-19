@@ -4,11 +4,11 @@ import Helmet from 'react-helmet';
 
 export const Logout = () => {
   return (
-    <div className="col-xs">
+    <div className="row">
       <Helmet title="Logged Out" />
-      <div className="white-box logout-box">
+      <div className="white-box col-xs-11 col-sm-10 col-md-6 col-xl-4 logout-box">
         <div className="row">
-          <div className="text-xs-center col-xs">
+          <div className="text-xs-center col-xs-12">
             <h3>You have been successfully logged out</h3>
           </div>
         </div>

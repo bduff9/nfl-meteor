@@ -127,87 +127,91 @@ export default class EditProfile extends Component {
         user = Meteor.user();
     return (
       <div className="container-fluid">
-        <Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
-        <h3>{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
-        <div className="edit-profile">
-          <ul id="error-messages"></ul>
-          <form ref="userForm" onSubmit={this._submitForm}>
-          <div className="row">
-            <div className="col-xs-12 form-group floating-label-form-group floating-label-form-group-with-value">
-              <label>Email</label>
-              <p className="form-control-static">{user.email}</p>
-            </div>
-          </div>
-          <div className="row">
-            <div className={'col-xs-12 col-md-6 form-group floating-label-form-group' + (user.first_name ? ' floating-label-form-group-with-value' : '')}>
-              <label htmlFor="first_name">First Name</label>
-              <input type="text" className="form-control" id="firstName" name="firstName" placeholder="First Name" value={firstName} required={true} onChange={this._handleChanges} />
-            </div>
-            <div className={'col-xs-12 col-md-6 form-group floating-label-form-group' + (user.last_name ? ' floating-label-form-group-with-value' : '')}>
-              <label htmlFor="last_name">Last Name</label>
-              <input type="text" className="form-control" id="lastName" name="lastName" placeholder="Last Name" value={lastName} required={true} onChange={this._handleChanges} />
-            </div>
-          </div>
-          <div className="row">
-            <div className={'col-xs-12 form-group floating-label-form-group' + (user.team_name ? ' floating-label-form-group-with-value' : '')}>
-              <label htmlFor="team_name">Team Name (Optional)</label>
-              <input type="text" className="form-control" id="teamName" placeholder="Team Name (Optional)" value={teamName} onChange={this._handleChanges} />
-            </div>
-          </div>
-          {isCreate ?
-            <div className="row prev-play">
-              <div className="col-xs-12 form-group">
-                <div className="radio">
-                  <label htmlFor="referred_byN">
-                    <input type="radio" id="referred_byN" name="was_referred" onClick={this._handleReferredBy.bind(null, false)} />
-                      &nbsp;&nbsp;I have played previously
-                  </label>
-                </div>
-                <div className="radio">
-                  <label htmlFor="referred_byY">
-                    <input type="radio" id="referred_byY" name="was_referred" onClick={this._handleReferredBy.bind(null, true)} />
-                      &nbsp;&nbsp;I am new and was referred by:
-                  </label>
-                </div>
-              </div>
-            </div>
-            :
-            null
-          }
-          {showReferredBy ?
-            <div className="row">
-              <div className={'col-xs-12 form-group floating-label-form-group' + (user.referred_by ? ' floating-label-form-group-with-value' : '')}>
-                <label htmlFor="referred_by">Name of Referrer</label>
-                <input type="text" className="form-control" id="referredBy" name="referredBy" placeholder="Referred By" defaultValue={referredBy} onChange={this._handleChanges} />
-              </div>
-            </div>
-            :
-            null
-          }
-          <div className="row">
-            <div className="col-xs-12 form-group text-xs-center save-wrapper">
-              {/* Add service check to show unlink option */}
+        <div className="row">
+          <div className="col-md-11">
+            <Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
+            <h3 className="title-text text-xs-center text-md-left">{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
+            <div className="edit-profile">
+              <ul id="error-messages"></ul>
+              <form ref="userForm" onSubmit={this._submitForm}>
               <div className="row">
-                <div className="col-xs-12 col-md-6 text-xs-center text-md-right social-btns">
-                  <button type="button" className="btn btn-primary btn-facebook" disabled={hasFacebook} onClick={this._oauthLink.bind(null, 'loginWithFacebook')}>
-                    <i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
-                  </button>
-                </div>
-                <div className="col-xs-12 col-md-6 text-xs-center text-md-left social-btns">
-                  <button type="button" className="btn btn-danger btn-google" disabled={hasGoogle} onClick={this._oauthLink.bind(null, 'loginWithGoogle')}>
-                    <i className="fa fa-google"></i> {hasGoogle ? 'Google Linked!' : 'Link Google'}
-                  </button>
+                <div className="col-xs-12 form-group floating-label-form-group floating-label-form-group-with-value">
+                  <label>Email</label>
+                  <p className="form-control-static">{user.email}</p>
                 </div>
               </div>
-              <div className="col-xs-12 save-btn">
-                <button type="submit" className="btn btn-primary">
-                  <i className="fa fa-fw fa-save"></i>
-                  {isCreate ? 'Finish Registration' : 'Save Changes'}
-                </button>
+              <div className="row">
+                <div className={'col-xs-12 col-md-6 form-group floating-label-form-group' + (user.first_name ? ' floating-label-form-group-with-value' : '')}>
+                  <label htmlFor="first_name">First Name</label>
+                  <input type="text" className="form-control" id="firstName" name="firstName" placeholder="First Name" value={firstName} required={true} onChange={this._handleChanges} />
+                </div>
+                <div className={'col-xs-12 col-md-6 form-group floating-label-form-group' + (user.last_name ? ' floating-label-form-group-with-value' : '')}>
+                  <label htmlFor="last_name">Last Name</label>
+                  <input type="text" className="form-control" id="lastName" name="lastName" placeholder="Last Name" value={lastName} required={true} onChange={this._handleChanges} />
+                </div>
               </div>
+              <div className="row">
+                <div className={'col-xs-12 form-group floating-label-form-group' + (user.team_name ? ' floating-label-form-group-with-value' : '')}>
+                  <label htmlFor="team_name">Team Name (Optional)</label>
+                  <input type="text" className="form-control" id="teamName" placeholder="Team Name (Optional)" value={teamName} onChange={this._handleChanges} />
+                </div>
+              </div>
+              {isCreate ?
+                <div className="row prev-play">
+                  <div className="col-xs-12 form-group">
+                    <div className="radio">
+                      <label htmlFor="referred_byN">
+                        <input type="radio" id="referred_byN" name="was_referred" onClick={this._handleReferredBy.bind(null, false)} />
+                          &nbsp;&nbsp;I have played previously
+                      </label>
+                    </div>
+                    <div className="radio">
+                      <label htmlFor="referred_byY">
+                        <input type="radio" id="referred_byY" name="was_referred" onClick={this._handleReferredBy.bind(null, true)} />
+                          &nbsp;&nbsp;I am new and was referred by:
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                :
+                null
+              }
+              {showReferredBy ?
+                <div className="row">
+                  <div className={'col-xs-12 form-group floating-label-form-group' + (user.referred_by ? ' floating-label-form-group-with-value' : '')}>
+                    <label htmlFor="referred_by">Name of Referrer</label>
+                    <input type="text" className="form-control" id="referredBy" name="referredBy" placeholder="Referred By" defaultValue={referredBy} onChange={this._handleChanges} />
+                  </div>
+                </div>
+                :
+                null
+              }
+              <div className="row">
+                <div className="col-xs-12 form-group text-xs-center save-wrapper">
+                  {/* Add service check to show unlink option */}
+                  <div className="row">
+                    <div className="col-xs-12 col-md-6 text-xs-center text-md-right social-btns">
+                      <button type="button" className="btn btn-primary btn-facebook" disabled={hasFacebook} onClick={this._oauthLink.bind(null, 'loginWithFacebook')}>
+                        <i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
+                      </button>
+                    </div>
+                    <div className="col-xs-12 col-md-6 text-xs-center text-md-left social-btns">
+                      <button type="button" className="btn btn-danger btn-google" disabled={hasGoogle} onClick={this._oauthLink.bind(null, 'loginWithGoogle')}>
+                        <i className="fa fa-google"></i> {hasGoogle ? 'Google Linked!' : 'Link Google'}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="col-xs-12 save-btn">
+                    <button type="submit" className="btn btn-primary">
+                      <i className="fa fa-fw fa-save"></i>
+                      {isCreate ? 'Finish Registration' : 'Save Changes'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              </form>
             </div>
           </div>
-          </form>
         </div>
       </div>
     );

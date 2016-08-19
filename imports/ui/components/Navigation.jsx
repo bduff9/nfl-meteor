@@ -23,17 +23,17 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 
 //TODO handle messages (dismissable (i.e. non-submit alert) and non-dismissable (i.e. payment due)) from NFLLogs
   return (
-    <div className={`col-xs-12 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-lg-2 sidebar`}>
+    <div className={`col-xs-10 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-lg-2 sidebar`}>
       {!logoutOnly ? (
         <div className="sidebar-inner">
           <i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />
           <ul className="nav nav-sidebar">
             <li>
-              <h6>
+              <h5>
                 {`Welcome, ${currentUser.first_name}`}&nbsp;
                 {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null}
                 {(unreadChatCt > 0) ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-primary">{unreadChatCt}</span> : null}
-              </h6>
+              </h5>
             </li>
             <li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
             <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>

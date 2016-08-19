@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 
+import './NotFound.scss'
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 
@@ -18,7 +19,7 @@ export const NotFound = ({ location }) => {
   return (
     <div className="col-xs">
       <Helmet title="Not Found" />
-      <div className="white-box">
+      <div className="white-box col-xs-12 col-sm-10 col-md-8 col-xl-6">
         <div className="row">
           <div className="text-xs-center col-xs-12">
             <h1>What have you done?!</h1>
@@ -26,7 +27,7 @@ export const NotFound = ({ location }) => {
         </div>
         <div className="row">
           <div className="text-xs-center col-xs-12" style={{ marginBottom: '25px' }}>
-            <img src={`/404/${_get404Image()}`} alt="Okay, this part was us." width="500px" />
+            <img src={`/404/${_get404Image()}`} alt="Okay, this part was us." className="not-found-img" />
           </div>
         </div>
         <div className="row">

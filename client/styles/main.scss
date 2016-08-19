@@ -5,32 +5,32 @@ label.error {
   color: #C9302C;
 }
 
-body {
-  background-image: url('/bkgd-pitch.png');
-  background-repeat: no-repeat;
-  background-color: black;
-  background-size: cover;
+@media (min-width: 768px) {
+  body {
+    background-image: url('/bkgd-pitch.png');
+    background-repeat: no-repeat;
+    background-color: black;
+    background-size: cover;
+  }
 }
 
-.signin-form,
+@media (max-width: 768px) {
+  body {
+    background-color: #000000;
+  }
+}
+
 .white-box {
   position: relative;
   border: 1px solid black;
   border-radius: 5px;
   background-color: #F5F5F7;
-  padding: 60px 30px 30px 30px;
   margin: 10% auto;
-  width: 450px;
-}
-
-.white-box {
+  float: none;
   padding: 60px;
-  width: 600px;
 }
 
 .logout-box {
-  width: 620px;
-
   .row {
     margin-bottom: 20px;
   }
@@ -41,16 +41,11 @@ body {
 }
 
 .title-text {
-  margin-top:40px;
-  margin-bottom: 20px;
+  color: #ECEEEF;
 }
 
 .reg-btns {
   margin-bottom:10px;
-}
-
-.login-form {
-  margin-top: 20px;
 }
 
 .btn-social {
@@ -76,13 +71,6 @@ body {
 .bottom-wrapper {
   border-top: solid 1px #ccc;
   padding-top: 10px;
-}
-
-.ball-logo {
-  width: 200px;
-  position: absolute;
-  top:-121px;
-  left: 133px;
 }
 
 .bottom-text {

@@ -36,7 +36,7 @@ class ViewSurvivor extends Component {
     return (
       <div className="row">
         <Helmet title={`View Survivor Picks`} />
-        <h3>View Survivor Picks</h3>
+        <h3 className="title-text text-xs-center text-md-left">View Survivor Picks</h3>
         {pageReady ? (
           <div className="col-xs-12 view-survivor-picks">
               View:

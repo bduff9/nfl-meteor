@@ -28,7 +28,7 @@ class ViewPicks extends Component {
     return (
       <div>
         <Helmet title={`View My Picks for Week ${selectedWeek}`} />
-        <h3>{`View My Picks for Week ${selectedWeek}`}</h3>
+        <h3 className="title-text text-xs-center text-md-left offset-xs-2">{`View My Picks for Week ${selectedWeek}`}</h3>
         {pageReady ? [
           <table className="table table-hover view-picks-table" key="view-picks-table">
             <thead className="thead-default">

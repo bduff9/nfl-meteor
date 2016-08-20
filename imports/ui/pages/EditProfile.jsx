@@ -129,8 +129,12 @@ export default class EditProfile extends Component {
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-11">
-            <Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
-            <h3 className="title-text text-xs-center text-md-left">{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
+                <Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
+            <div className="row">
+              <div className="hidden-md-up">
+                <h3 className="title-text text-xs-center text-md-left">{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
+              </div>
+            </div>
             <div className="edit-profile">
               <ul id="error-messages"></ul>
               <form ref="userForm" onSubmit={this._submitForm}>

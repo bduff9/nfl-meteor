@@ -2,6 +2,7 @@
 
 import { Game, Team, User } from '../imports/api/schema';
 import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
+import { endOfWeekMessage } from '../imports/api/collections/nfllogs';
 import { convertEpoch, logError } from '../imports/api/global';
 
 API = {
@@ -195,6 +196,7 @@ API = {
           if (err) console.error('updatePlaces', err);
         });
         console.log(`Week ${w} tiebreakers successfully updated!`);
+        endOfWeekMessage.call({ week: w }, logError);
       }
       console.log(`Week ${w} successfully updated!`);
     });

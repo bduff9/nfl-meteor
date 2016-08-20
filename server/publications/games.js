@@ -63,6 +63,24 @@ Meteor.publish('gamesForWeek', function(week) {
   return this.ready();
 });
 
+Meteor.publish('firstGameOfWeek', function(week) {
+  let firstGame;
+  if (!this.userId) return this.ready();
+  new SimpleSchema({
+    week: { type: Number, label: 'Week', min: 1, max: 17 }
+  }).validate({ week });
+  firstGame = Game.find({ week, game: 1 }, {
+    fields: {
+      '_id': 1,
+      'week': 1,
+      'game': 1,
+      'kickoff': 1
+    }
+  });
+  if (firstGame) return firstGame;
+  return this.ready();
+});
+
 Meteor.publish('getGame', function(gameId) {
   let game;
   if (!this.userId) return this.ready();

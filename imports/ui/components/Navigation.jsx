@@ -9,13 +9,18 @@ import { createContainer } from 'meteor/react-meteor-data';
 import './Navigation.scss';
 import { Game, NFLLog, User } from '../../api/schema';
 import { updateSelectedWeek } from '../../api/collections/users';
+import { testMessage } from '../../api/collections/nfllogs';
 import { refreshGames } from '../../api/collections/games';
 import { displayError } from '../../api/global';
 
-const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, unreadChatCt, _toggleMenu, _toggleRightSlider }) => {
+const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
   const tiebreaker = currentUser.tiebreakers[selectedWeek - 1],
-      survivorPicks = currentUser.survivor,
-      msgCt = 3;
+      survivorPicks = currentUser.survivor;
+  let msgCt = unreadMessages.length;
+
+  msgCt += (pageReady && currentUser.paid ? 0 : 1);
+  msgCt += (pageReady && currentUser.tiebreakers[currentWeek - 1].submitted ? 0 : 1);
+  msgCt += (pageReady && (!currentUser.survivor[currentWeek - 1] || currentUser.survivor[currentWeek - 1].pick_id) ? 0 : 1);
 
   const _selectWeek = (newWeek, ev) => {
     ev.preventDefault();
@@ -27,7 +32,6 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
     return false;
   };
 
-//TODO handle messages (dismissable (i.e. non-submit alert) and non-dismissable (i.e. payment due)) from NFLLogs
   return (
     <div className={`col-xs-10 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-lg-2 sidebar`}>
       {!logoutOnly ? (
@@ -82,6 +86,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
             <ul className="nav nav-sidebar">
               <li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
               <li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
+              <li><a href="#" onClick={(ev) => testMessage.call(displayError)}>Test Message</a></li>
             </ul>
           )
           :
@@ -110,6 +115,7 @@ Navigation.propTypes = {
   pageReady: PropTypes.bool.isRequired,
   selectedWeek: PropTypes.number,
   unreadChatCt: PropTypes.number.isRequired,
+  unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
   _toggleMenu: PropTypes.func.isRequired,
   _toggleRightSlider: PropTypes.func.isRequired
 };
@@ -118,9 +124,12 @@ export default createContainer(({ currentUser, rightSlider, ...rest }) => {
   const unreadChatHandle = Meteor.subscribe('unreadChats'),
       unreadChatReady = unreadChatHandle.ready(),
       nextGameHandle = Meteor.subscribe('nextGameToStart'),
-      nextGameReady = nextGameHandle.ready();
+      nextGameReady = nextGameHandle.ready(),
+      messagesHandle = Meteor.subscribe('unreadMessages'),
+      messagesReady = messagesHandle.ready();
   let unreadChatCt = 0,
       nextGame = {},
+      unreadMessages = [],
       lastAction, chatHidden;
   if (unreadChatReady) {
     lastAction = NFLLog.findOne({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED'] }, user_id: currentUser._id }, { sort: { when: -1 }});
@@ -132,11 +141,15 @@ export default createContainer(({ currentUser, rightSlider, ...rest }) => {
   if (nextGameReady) {
     nextGame = Game.find({ status: { $eq: 'P' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
   }
+  if (messagesReady) {
+    unreadMessages = NFLLog.find({ action: 'MESSAGE', is_read: false, is_deleted: false, to_id: Meteor.userId() }).fetch();
+  }
   return {
     ...rest,
     currentUser,
     nextGame,
-    pageReady: unreadChatReady && nextGameReady,
-    unreadChatCt
+    pageReady: unreadChatReady && nextGameReady && messagesReady,
+    unreadChatCt,
+    unreadMessages
   };
 }, Navigation);

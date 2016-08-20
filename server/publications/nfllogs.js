@@ -53,3 +53,41 @@ Meteor.publishComposite('unreadChats', {
     }
   ]
 });
+
+Meteor.publish('allMessages', function() {
+  let allMessages;
+  if (!this.userId) return this.ready();
+  allMessages = NFLLog.find({ action: 'MESSAGE', is_deleted: false, to_id: this.userId }, {
+    fields: {
+      '_id': 1,
+      'action': 1,
+      'when': 1,
+      'message': 1,
+      'user_id': 1,
+      'to_id': 1,
+      'is_read': 1,
+      'is_deleted': 1
+    },
+    sort: {
+      when: -1
+    }
+  });
+  if (allMessages) return allMessages;
+  return this.ready();
+});
+
+Meteor.publish('unreadMessages', function() {
+  let messages;
+  if (!this.userId) return this.ready();
+  messages = NFLLog.find({ action: 'MESSAGE', is_read: false, is_deleted: false, to_id: this.userId }, {
+    fields: {
+      '_id': 1,
+      'action': 1,
+      'to_id': 1,
+      'is_read': 1,
+      'is_deleted': 1
+    }
+  });
+  if (messages) return messages;
+  return this.ready();
+});

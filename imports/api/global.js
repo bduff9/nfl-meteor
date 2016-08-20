@@ -46,3 +46,9 @@ export const getColor = (point, max) => {
   style.backgroundColor = `rgb(${red}, ${green}, ${BLUE})`;
   return style;
 };
+
+export const formattedPlace = (place) => {
+  const s = ['th', 'st', 'nd', 'rd'],
+      v = place % 100;
+  return place + (s[(v - 20) % 10] || s[v] || s[0]);
+};

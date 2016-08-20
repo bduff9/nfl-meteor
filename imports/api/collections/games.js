@@ -52,4 +52,16 @@ export const refreshGames = new ValidatedMethod({
       return API.refreshGameData();
     }
   }
-})
+});
+
+export const getPaymentDue = new ValidatedMethod({
+  name: 'Game.getPaymentDue',
+  validate: null,
+  run() {
+    let week3Games;
+    if (Meteor.isServer) {
+      week3Games = Game.find({ week: 3 }, { sort: { game: -1 }, limit: 1 }).fetch();
+      return week3Games[0].kickoff;
+    }
+  }
+});

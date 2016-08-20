@@ -9,14 +9,14 @@ label.error {
   body {
     background-image: url('/bkgd-pitch.png');
     background-repeat: no-repeat;
-    background-color: black;
+    background-color: #000;
     background-size: cover;
   }
 }
 
 @media (max-width: 768px) {
   body {
-    background-color: #000000;
+    background-color: #000;
   }
 }
 

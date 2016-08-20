@@ -7,6 +7,8 @@ import Helmet from 'react-helmet';
 
 import './ViewSurvivor.scss';
 import { Loading } from './Loading.jsx';
+import OverallSurvivor from '../components/OverallSurvivor.jsx';
+import WeekSurvivor from '../components/WeekSurvivor.jsx';
 import { Game, Team, User } from '../../api/schema';
 
 class ViewSurvivor extends Component {
@@ -19,9 +21,10 @@ class ViewSurvivor extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { nextGame, pageReady } = nextProps,
+    const { nextGame, pageReady, selectedWeek } = nextProps,
         notAllowed = pageReady && nextGame.week === 1 && nextGame.game === 1;
     if (notAllowed) this.context.router.push('/');
+    if (nextGame.week > selectedWeek || (nextGame.week === selectedWeek && nextGame.game > 1)) this.setState({ viewOverall: true });
   }
 
   _toggleOverall(ev) {
@@ -40,11 +43,11 @@ class ViewSurvivor extends Component {
         {pageReady ? (
           <div className="col-xs-12 view-survivor-picks">
               View:
-              <select className="form-control" value={true} onChange={this._toggleOverall}>
+              <select className="form-control" value={viewOverall} onChange={this._toggleOverall}>
                 <option value={true}>Overall</option>
-                {nextGame.week > selectedWeek || nextGame.game > 1 ? <option value={false}>{`Week ${selectedWeek}`}</option> : null}
+                {nextGame.week > selectedWeek || (nextGame.week === selectedWeek && nextGame.game > 1) ? <option value={false}>{`Week ${selectedWeek}`}</option> : null}
               </select>
-              {viewOverall ? 'overall' : 'week'}
+              {viewOverall ? <OverallSurvivor weekForSec={weekForSec} /> : <WeekSurvivor week={selectedWeek} weekForSec={weekForSec} />}
           </div>
         )
         :

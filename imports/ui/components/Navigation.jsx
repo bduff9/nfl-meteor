@@ -9,6 +9,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import './Navigation.scss';
 import { Game, NFLLog, User } from '../../api/schema';
 import { updateSelectedWeek } from '../../api/collections/users';
+import { refreshGames } from '../../api/collections/games';
 import { displayError } from '../../api/global';
 
 const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, unreadChatCt, _toggleMenu, _toggleRightSlider }) => {
@@ -19,6 +20,11 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
   const _selectWeek = (newWeek, ev) => {
     ev.preventDefault();
     if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, displayError);
+  };
+  const _refreshGames = (ev) => {
+    ev.preventDefault();
+    refreshGames.call(displayError);
+    return false;
   };
 
 //TODO handle messages (dismissable (i.e. non-submit alert) and non-dismissable (i.e. payment due)) from NFLLogs
@@ -75,6 +81,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
           {currentUser.is_admin ? (
             <ul className="nav nav-sidebar">
               <li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
+              <li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
             </ul>
           )
           :
@@ -98,7 +105,7 @@ Navigation.propTypes = {
   currentUser: PropTypes.object.isRequired,
   currentWeek: PropTypes.number,
   logoutOnly: PropTypes.bool.isRequired,
-  nextGame: PropTypes.object.isRequired,
+  nextGame: PropTypes.object,
   openMenu: PropTypes.bool.isRequired,
   pageReady: PropTypes.bool.isRequired,
   selectedWeek: PropTypes.number,

@@ -6,13 +6,18 @@ import { convertEpoch, logError } from '../imports/api/global';
 
 API = {
   getGamesForWeek(week) {
-//TODO point back to live data when ready
     const currDate = new Date(),
         currMonth = currDate.getMonth(),
-        currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0),
-        data = {},//{ TYPE: 'nflSchedule', JSON: 1, W: week },
-        url = `http://localhost:3003/W/${week}`;//`http://www03.myfantasyleague.com/${currYear}/export`;
-    let response = HTTP.get(url, { params: data });
+        currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
+    let data, url, response;
+    if (Meteor.settings.mode === 'development') {
+      data = {};
+      url = `http://localhost:3003/W/${week}`;
+    } else {
+      data = { TYPE: 'nflSchedule', JSON: 1, W: week };
+      url = `http://www03.myfantasyleague.com/${currYear}/export`;
+    }
+    response = HTTP.get(url, { params: data });
     return response.data.nflSchedule.matchup;
   },
   populateGames() {
@@ -161,7 +166,7 @@ API = {
           console.log(`Game ${game.game} picks updated!`);
           // Update the survivor pool
           console.log(`Game ${game.game} complete, updating survivor...`);
-          User.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
+          Meteor.users.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
           updateSurvivor.call({ week: w }, err => {
             if (err) console.error('updateSurvivor', err);
           });

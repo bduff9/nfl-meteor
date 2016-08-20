@@ -26,7 +26,7 @@ SyncedCron.add({
       users.forEach(user => {
         Email.send({
           to: user.email,
-          from: 'bduff9@gmail.com',
+          from: 'Brian Duffey <bduff9@gmail.com>',
           subject: `Hurry up, ${user.first_name}!`,
           text: `Hello ${user.first_name},
 

@@ -5,7 +5,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { DashLayout } from './DashLayout.jsx';
+import { DashLayout } from '../layouts/DashLayout.jsx';
 import { User } from '../../api/schema';
 
 export default createContainer(({ sortBy, user, week, _changeSortBy }) => {

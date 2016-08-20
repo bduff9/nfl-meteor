@@ -37,7 +37,7 @@ class AdminUsers extends Component {
         <Helmet title="User Admin" />
         {pageReady ? (
           <div className="col-xs-12">
-            <h3 className="title-text text-xs-center text-md-left">User Admin</h3>
+            <h3 className="title-text text-xs-center text-md-left hidden-md-up">User Admin</h3>
             <table className="table table-hover table-bordered admin-users-table">
               <thead>
                 <tr>

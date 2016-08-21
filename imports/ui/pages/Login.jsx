@@ -125,9 +125,9 @@ export default class Login extends Component {
         currMonth = currDate.getMonth(),
         currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
     return (
-      <div className="row">
+      <div className="row login-stretch">
         <Helmet title="Login" />
-        <div className="signin-form col-xs-12 col-sm-10 col-md-6 col-xl-3">
+        <div className="signin-form col-xs-12 col-sm-10 col-md-6 col-xl-4">
           <div className="row">
             <div className="ball-logo hidden-sm-down">
               <Isvg src="/svg/football.svg" />

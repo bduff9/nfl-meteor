@@ -1,11 +1,15 @@
 @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
 
 /* Global */
+html, body {
+  height: 100%;
+}
+
 label.error {
   color: #C9302C;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   body {
     background-image: url('/bkgd-pitch.png');
     background-repeat: no-repeat;

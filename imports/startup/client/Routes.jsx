@@ -16,7 +16,7 @@ import Login from '../../ui/pages/Login.jsx';
 import { Logout } from '../../ui/pages/Logout.jsx';
 import MakePicks from '../../ui/pages/MakePicks.jsx';
 import ViewPicks from '../../ui/pages/ViewPicks.jsx';
-import { ViewAllPicks } from '../../ui/pages/ViewAllPicks.jsx';
+import ViewAllPicks from '../../ui/pages/ViewAllPicks.jsx';
 import SetSurvivor from '../../ui/pages/SetSurvivor.jsx';
 import ViewSurvivor from '../../ui/pages/ViewSurvivor.jsx';
 import EditProfile from '../../ui/pages/EditProfile.jsx';

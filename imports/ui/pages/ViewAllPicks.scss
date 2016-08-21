@@ -1,0 +1,37 @@
+.reset-picks {
+  margin-bottom: 5px;
+}
+
+.view-all-picks-table {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-collapse: collapse;
+
+  thead {
+
+    th {
+      vertical-align: middle;
+
+      &.home-team,
+      &.visiting-team {
+        transform: rotate(90deg);
+        cursor: pointer;
+      }
+    }
+  }
+
+  .home-team {
+    border-right: 1px solid #ccc;
+  }
+
+  .visiting-team {
+    border-left: 1px solid #ccc;
+  }
+
+  .name-cell {
+    white-space: nowrap;
+  }
+
+  .pick-points {
+    border: 1px solid #ccc;
+  }
+}

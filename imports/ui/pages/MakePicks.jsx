@@ -29,7 +29,7 @@ class MakePicks extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { currentWeek, games, gamesReady, picks, selectedWeek, tiebreaker = {} } = nextProps,
-        notAllowed = selectedWeek < currentWeek || tiebreaker.submitted;
+        notAllowed = gamesReady && (selectedWeek < currentWeek || tiebreaker.submitted);
     let pointObj;
     if (notAllowed) this.context.router.push('/picks/view');
     if (gamesReady) {

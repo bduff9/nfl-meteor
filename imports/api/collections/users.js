@@ -5,7 +5,7 @@ import { Session } from 'meteor/session';
 
 import { Game, Pick, SurvivorPick, Tiebreaker, User } from '../schema';
 import { writeLog } from './nfllogs';
-import { logError } from '../../api/global';
+import { logError, overallPlacer, weekPlacer } from '../../api/global';
 
 export const updateUser = new ValidatedMethod({
   name: 'User.update',
@@ -335,77 +335,32 @@ export const updateSurvivor = new ValidatedMethod({
   }
 });
 
-const placer = (week, user1, user2) => {
-  const tie1 = user1.tiebreakers[week - 1],
-      tie2 = user2.tiebreakers[week - 1],
-      lastScoreDiff1 = tie1.last_score - tie1.last_score_act,
-      lastScoreDiff2 = tie2.last_score - tie2.last_score_act;
-  // First, sort by points
-  if (tie1.points_earned > tie2.points_earned) {
-    return 1;
-  } else if (tie1.points_earned < tie2.points_earned) {
-    return -1;
-  // Then, sort by games correct
-  } else if (tie1.games_correct > tie2.games_correct) {
-    return 1;
-  } else if (tie1.games_correct > tie2.games_correct) {
-    return -1;
-  // Then, sort by whomever didn't go over the last game's score
-  } else if (lastScoreDiff1 > 0 && lastScoreDiff2 < 0) {
-    return 1;
-  } else if (lastScoreDiff1 < 0 && lastScoreDiff2 > 0) {
-    return -1;
-  // Next, sort by the closer to the last games score
-  } else if (Math.abs(lastScoreDiff1) < Math.abs(lastScoreDiff2)) {
-    return 1;
-  } else if (Math.abs(lastScoreDiff1) > Math.abs(lastScoreDiff2)) {
-    return -1;
-  // Finally, if we get here, then they are identical
-  } else {
-    return 0;
-  }
-};
-
-const overallPlacer = (user1, user2) => {
-  // First, sort by points
-  if (user1.total_points > user2.total_points) {
-    return 1;
-  } else if (user1.total_points < user2.total_points) {
-    return -1;
-  // Then, sort by games correct
-  } else if (user1.total_games > user2.total_games) {
-    return 1;
-  } else if (user1.total_games > user2.total_games) {
-    return -1;
-  // Finally, if we get here, then they are identical
-  } else {
-    return 0;
-  }
-};
-
 export const updatePlaces = new ValidatedMethod({
   name: 'User.tiebreakers.updatePlaces',
   validate: new SimpleSchema({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-    let ordUsers = User.find().fetch().sort(placer.bind(null, week));
+    let ordUsers = User.find().fetch().sort(weekPlacer.bind(null, week));
     ordUsers.forEach((user, i, allUsers) => {
       const tiebreaker = user.tiebreakers[week - 1];
       let nextUser, result, nextTiebreaker;
-      if (!tiebreaker.place_in_week) {
+      if (!tiebreaker.tied_flag || i === 0) {
         tiebreaker.place_in_week = (i + 1);
       }
       nextUser = allUsers[i + 1];
       if (nextUser) {
-        result = placer(week, user, nextUser);
+        result = weekPlacer(week, user, nextUser);
         nextTiebreaker = nextUser.tiebreakers[week - 1];
         if (result === 0) {
           tiebreaker.tied_flag = true;
           nextTiebreaker.place_in_week = (i + 1);
           nextTiebreaker.tied_flag = true;
-          nextUser.save();
+        } else {
+          tiebreaker.tied_flag = false;
+          nextTiebreaker.tied_flag = false;
         }
+        nextUser.save();
       }
       user.save();
     });
@@ -423,6 +378,7 @@ export const updatePlaces = new ValidatedMethod({
           nextUser.overall_place = (i + 1);
           nextUser.overall_tied_flag = true;
         } else {
+          user.overall_tied_flag = false;
           nextUser.overall_tied_flag = false;
         }
         nextUser.save();

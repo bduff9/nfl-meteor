@@ -2,7 +2,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import { PieChart } from 'react-easy-chart';
+import { Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 import './DashLayout.scss';
 import { Loading } from '../pages/Loading.jsx';
@@ -29,30 +29,21 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
     <div className="col-xs-12 dashboard-layout">
       {dataReady ? (
         <div className="row text-xs-center">
-          {correctPoints || incorrectPoints ?
+          {correctPoints || incorrectPoints || correctPicks.length || incorrectPicks.length ?
             <div className="col-xs-6 col-sm-4">
-              <PieChart
-                data={[
-                  {key: 'Correct', value: correctPoints, color: '#0f0'},
-                  {key: 'Incorrect', value: incorrectPoints, color: '#f00'}
-                ]}
-                size={200} />
-              <h4>Points</h4>
-              <span className="text-muted">Points correct vs. incorrect</span>
-            </div>
-            :
-            null
-          }
-          {correctPicks.length || incorrectPicks.length ?
-            <div className="col-xs-6 col-sm-4">
-              <PieChart
-                data={[
-                  {key: 'Correct', value: correctPicks.length, color: '#0f0'},
-                  {key: 'Incorrect', value: incorrectPicks.length, color: '#f00'}
-                ]}
-                size={200} />
-              <h4>Games</h4>
-              <span className="text-muted">Games correct vs. incorrect</span>
+              <ResponsiveContainer height={200}>
+                <PieChart margin={{ left: 10, right: 10 }}>
+                  <Pie data={[
+                      { name: 'Points Earned', value: correctPoints, fill: '#0f0' },
+                      { name: 'Points Missed', value: incorrectPoints, fill: '#f00' }
+                    ]} outerRadius="45%" />
+                  <Pie data={[
+                      { name: 'Games Correct', value: correctPoints, fill: '#0f0' },
+                      { name: 'Games Incorrect', value: incorrectPoints, fill: '#f00' }
+                    ]} innerRadius="50%" outerRadius="60%" label />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
             :
             null

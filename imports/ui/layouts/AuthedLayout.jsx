@@ -56,7 +56,7 @@ class AuthedLayout extends Component {
       <div className="col-xs-12">
         <div className="row">
           <Helmet title="Welcome" />
-          <i className="fa fa-2x fa-bars hidden-sm-up mobile-menu" onClick={this._toggleMenu} />
+          <i className="fa fa-lg fa-bars hidden-sm-up mobile-menu" onClick={this._toggleMenu} />
           <Navigation {...rest}
             currentWeek={currentWeek}
             logoutOnly={logoutOnly}

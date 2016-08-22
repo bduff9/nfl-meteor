@@ -78,11 +78,13 @@ $footerHeightLarge: 120px;
 @media (max-width: 767px) {
   .pointBank {
     width: $pointBankWidth;
+    margin-left: -9px;
   }
 
   .makePickTable,
   .tiebreakerTable {
-    margin-left: $pointBankWidth + 20px;
+    margin-left: 72px;
+    width: 81%;
 
     td {
 

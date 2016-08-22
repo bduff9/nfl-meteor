@@ -98,6 +98,10 @@ class ViewAllPicks extends Component {
               <i className="fa fa-fw fa-refresh" />
               Reset Page
             </button>
+            <button type="button" className="btn btn-primary hidden-sm-down print-page" onClick={window.print}>
+              <i className="fa fa-fw fa-print" />
+              Print this Page
+            </button>
             <table className="table table-hover view-all-picks-table">
               <thead>
                 <tr>
@@ -142,10 +146,10 @@ class ViewAllPicks extends Component {
                         );
                         return cells;
                       })}
-                      <td>{tiebreaker.points_earned}</td>
-                      <td>{tiebreaker.games_correct}</td>
-                      <td>{tiebreaker.last_score}</td>
-                      <td>{tiebreaker.last_score_act}</td>
+                      <td className="text-xs-center pick-points">{tiebreaker.points_earned}</td>
+                      <td className="text-xs-center pick-points">{tiebreaker.games_correct}</td>
+                      <td className="text-xs-center pick-points">{tiebreaker.last_score}</td>
+                      <td className="text-xs-center pick-points">{tiebreaker.last_score_act}</td>
                     </tr>
                   );
                 })}

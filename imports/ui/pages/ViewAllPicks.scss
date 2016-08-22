@@ -1,5 +1,6 @@
 .reset-picks {
   margin-bottom: 5px;
+  margin-right: 5px;
 }
 
 .view-all-picks-table {
@@ -33,5 +34,11 @@
 
   .pick-points {
     border: 1px solid #ccc;
+  }
+}
+
+@media print {
+  @page {
+    size: landscape;
   }
 }

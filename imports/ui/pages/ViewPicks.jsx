@@ -29,6 +29,10 @@ class ViewPicks extends Component {
       <div>
         <Helmet title={`View My Picks for Week ${selectedWeek}`} />
         <h3 className="title-text text-xs-center text-md-left offset-xs-2 hidden-md-up">{`View My Picks for Week ${selectedWeek}`}</h3>
+        <button type="button" className="btn btn-primary hidden-sm-down print-page" onClick={window.print}>
+          <i className="fa fa-fw fa-print" />
+          Print this Page
+        </button>
         {pageReady ? [
           <table className="table table-hover view-picks-table" key="view-picks-table">
             <thead className="thead-default">

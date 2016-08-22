@@ -76,11 +76,17 @@ class MakePicks extends Component {
     ev.currentTarget.disabled = true;
     Bert.alert({ type: 'success', message: 'Your picks have been successfully saved!' });
   }
-  _submitPicks(ev) {
+  _submitPicks(picksLeft, noTiebreaker, ev) {
     const { selectedWeek } = this.props;
     ev.preventDefault();
-    submitPicks.call({ selectedWeek }, displayError);
-    Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+    if (picksLeft) {
+      Bert.alert({ type: 'warning', message: 'You must use all available points before you can submit' });
+    } else if (noTiebreaker) {
+      Bert.alert({ type: 'warning', message: 'You must fill in a tiebreaker score at the bottom of this page before you can submit' });
+    } else {
+      submitPicks.call({ selectedWeek }, displayError);
+      Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+    }
     return false;
   }
 
@@ -221,7 +227,7 @@ class MakePicks extends Component {
               <button type="button" className="btn btn-primary" disabled={used.length === 0} onClick={this._savePicks}>
                 <i className="fa fa-fw fa-save hidden-sm-down" /> Save
               </button>
-              <button type="submit" className="btn btn-success" disabled={available.length !== 0 || !tiebreaker.last_score} onClick={this._submitPicks}>
+              <button type="submit" className="btn btn-success" onClick={this._submitPicks.bind(null, available.length !== 0, !tiebreaker.last_score)}>
                 <i className="fa fa-fw fa-arrow-circle-right hidden-sm-down" /> Submit
               </button>
             </div>

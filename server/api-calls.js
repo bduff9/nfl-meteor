@@ -14,6 +14,9 @@ API = {
     if (Meteor.settings.mode === 'development') {
       data = {};
       url = `http://localhost:3003/W/${week}`;
+    } else if (Meteor.settings.mode === 'testing') {
+      data = {};
+      url = `http://mrcwebapps.com:3003/W/${week}`;
     } else {
       data = { TYPE: 'nflSchedule', JSON: 1, W: week };
       url = `http://www03.myfantasyleague.com/${currYear}/export`;
@@ -164,10 +167,14 @@ API = {
           updatePoints.call(err => {
             if (err) console.error('updatePoints', err);
           });
+          //TODO moved this from 202 to try and get more frequent placings
+          updatePlaces.call({ week: w }, err => {
+            if (err) console.error('updatePlaces', err);
+          });
           console.log(`Game ${game.game} picks updated!`);
           // Update the survivor pool
           console.log(`Game ${game.game} complete, updating survivor...`);
-          Meteor.users.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
+          User.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
           updateSurvivor.call({ week: w }, err => {
             if (err) console.error('updateSurvivor', err);
           });
@@ -192,9 +199,11 @@ API = {
         console.log(`Week ${w} complete, updating tiebreakers...`);
         const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
         User.update({ 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
-        updatePlaces.call({ week: w }, err => {
-          if (err) console.error('updatePlaces', err);
-        });
+        /* Commenting this to try and get more frequent placings
+        * updatePlaces.call({ week: w }, err => {
+        *   if (err) console.error('updatePlaces', err);
+        * });
+        */
         console.log(`Week ${w} tiebreakers successfully updated!`);
         endOfWeekMessage.call({ week: w }, logError);
       }

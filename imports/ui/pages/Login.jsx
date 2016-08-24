@@ -1,7 +1,6 @@
 /*jshint esversion: 6 */
 'use strict';
 
-import './Login.scss';
 import $ from 'jquery';
 import 'jquery-validation';
 import { Accounts } from 'meteor/accounts-base';

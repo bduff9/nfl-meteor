@@ -46,7 +46,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
       teamShort = thisWeek.pick_short;
       index = graphData.findIndex(team => team.team === teamShort);
       if (index === -1) {
-        graphData.push({ team: teamShort, count: 1, won: thisWeek.winner_id && thisWeek.pick_id === thisWeek.winner_id, lost: thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id });
+        graphData.push({ team: teamShort, count: 1, won: (thisWeek.winner_id && thisWeek.pick_id === thisWeek.winner_id ? true : false), lost: (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id ? true : false)});
       } else {
         graphData[index].count += 1;
       }
@@ -101,7 +101,9 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
           (
             <ResponsiveContainer height={300}>
               <BarChart data={graphData}>
-                {graphData.map(team => <Bar dataKey="count" fill={(team.won ? '#0f0' : (team.lost ? '#f00' : '#999'))} key={'line' + team.team} />)}
+                <Bar dataKey="count">
+                  {graphData.map(team => <Cell fill={(team.won ? '#0f0' : (team.lost ? '#f00' : '#999'))} key={'line' + team.team} />)}
+                </Bar>
                 <XAxis dataKey="team" type="category" />
                 <YAxis allowDecimals={false} type="number" />
                 <Tooltip />

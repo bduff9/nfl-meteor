@@ -86,6 +86,7 @@ class MakePicks extends Component {
     } else {
       submitPicks.call({ selectedWeek }, displayError);
       Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+      this.context.router.push('/picks/view');
     }
     return false;
   }

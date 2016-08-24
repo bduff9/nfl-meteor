@@ -92,6 +92,7 @@ export default class Login extends Component {
             displayError(err);
           }
         } else {
+          this.setState({ loading: 'verify' });
           Bert.alert({
             message: 'Please check your email to verify your account',
             type: 'success'
@@ -102,7 +103,11 @@ export default class Login extends Component {
       Meteor.loginWithPassword(email, password, (err) => {
         if (err) {
           this.setState({ loading: null });
-          displayError(err, { title: err.reason, type: 'warning' });
+          if (err.reason === 'User not found') {
+            displayError(err, { title: 'User not found!  Did you mean to register at the bottom of this page instead?', type: 'warning' });
+          } else {
+            displayError(err, { title: err.reason, type: 'warning' });
+          }
         } else {
           Bert.alert({
             message: 'Welcome!',
@@ -152,6 +157,7 @@ export default class Login extends Component {
                     <strong>{type === 'login' ? 'Sign In With Email' : 'Register With Email'}</strong>
                     {loading === 'email' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
                   </button>
+                  {loading === 'verify' ? <div className="text-xs-center text-success"><i className="fa fa-fw fa-check" /> <strong>Please check your email to verify your account</strong></div> : null}
                 </div>
               </div>
             </form>

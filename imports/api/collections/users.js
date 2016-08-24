@@ -218,8 +218,28 @@ export const submitPicks = new ValidatedMethod({
     if (Meteor.isServer) {
       tiebreaker.submitted = true;
       user.save();
+      sendAllPicksInEmail.call({ selectedWeek }, logError);
     }
     writeLog.call({ action: 'SUBMIT_PICKS', message: `${user.first_name} ${user.last_name} has just submitted their week ${selectedWeek} picks`, userId: this.userId }, logError);
+  }
+});
+
+export const sendAllPicksInEmail = new ValidatedMethod({
+  name: 'User.sendAllPicksInEmail',
+  validate: new SimpleSchema({
+    selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
+  }).validator(),
+  run({ selectedWeek }) {
+    const users = User.find().fetch(),
+        notSubmitted = users.filter(user => {
+          let tiebreaker = user.tiebreakers.filter(tb => tb.week === selectedWeek)[0];
+          return !tiebreaker.submitted;
+        });
+    if (Meteor.isServer && notSubmitted.length === 0) {
+      console.log(`All picks have been submitted for week ${selectedWeek}, sending emails...`);
+//TODO send emails out with all picks inside
+      console.log('All emails sent!');
+    }
   }
 });
 

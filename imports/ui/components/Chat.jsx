@@ -45,8 +45,6 @@ class Chat extends Component {
     const { newMessage } = this.state,
         { chats, pageReady } = this.props;
     let lastDay;
-//TODO remove this
-console.log('chats', chats);
     return (
       <div className="chat">
         <h3 className="text-xs-center">Chat</h3>

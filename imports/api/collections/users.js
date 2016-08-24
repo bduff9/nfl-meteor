@@ -233,12 +233,11 @@ export const assignPointsToMissed = new ValidatedMethod({
   run({ gameCount, gameId, week }) {
     if (Meteor.isServer) {
       const allUsers = User.find({ "picks.game_id": gameId }, { fields: {
+        "_id": 1,
         "picks.$": 1
       }}).fetch();
       let missedUsers = allUsers.filter(user => !user.picks[0].points).map(user => user._id),
-          users = User.find({ _id: { $in: missedUsers }}, { fields: {
-            picks: 1
-          }}).fetch(),
+          users = User.find({ _id: { $in: missedUsers }}).fetch(),
           pointsUsed, maxPointVal;
       if (users.length) console.log(`${users.length} users missed game ${gameId} in week ${week}`);
       users.forEach(user => {

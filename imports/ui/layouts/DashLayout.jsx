@@ -57,8 +57,8 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
                       { name: 'Points Missed', value: incorrectPoints, fill: '#f00' }
                     ]} outerRadius="40%" />
                   <Pie data={[
-                      { name: 'Games Correct', value: correctPoints, fill: '#0f0' },
-                      { name: 'Games Incorrect', value: incorrectPoints, fill: '#f00' }
+                      { name: 'Games Correct', value: correctPicks.length, fill: '#0f0' },
+                      { name: 'Games Incorrect', value: incorrectPicks.length, fill: '#f00' }
                     ]} innerRadius="47%" outerRadius="60%" label />
                   <Tooltip />
                 </PieChart>

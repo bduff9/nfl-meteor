@@ -278,7 +278,7 @@ export const updatePoints = new ValidatedMethod({
   name: 'User.updatePoints',
   validate: null,
   run() {
-    const allUsers = User.find();
+    const allUsers = User.find({ "done_registering": true });
     let picks, tiebreakers, games, points, weekGames, weekPoints;
     allUsers.forEach(user => {
       picks = user.picks;
@@ -314,7 +314,7 @@ export const updateSurvivor = new ValidatedMethod({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-    const allUsers = User.find().fetch();
+    const allUsers = User.find({ "done_registering": true }).fetch();
     let survivorPicks, alive;
     allUsers.forEach(user => {
       survivorPicks = user.survivor;
@@ -340,7 +340,7 @@ export const updatePlaces = new ValidatedMethod({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-    let ordUsers = User.find().fetch().sort(weekPlacer.bind(null, week));
+    let ordUsers = User.find({ "done_registering": true }).fetch().sort(weekPlacer.bind(null, week));
     ordUsers.forEach((user, i, allUsers) => {
       const tiebreaker = user.tiebreakers[week - 1];
       let nextUser, result, nextTiebreaker;

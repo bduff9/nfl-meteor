@@ -232,7 +232,7 @@ export const assignPointsToMissed = new ValidatedMethod({
   }).validator(),
   run({ gameCount, gameId, week }) {
     if (Meteor.isServer) {
-      const allUsers = User.find({ "picks.game_id": gameId }, { fields: {
+      const allUsers = User.find({ "done_registering": true, "picks.game_id": gameId }, { fields: {
         "_id": 1,
         "picks.$": 1
       }}).fetch();

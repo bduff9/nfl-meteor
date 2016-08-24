@@ -37,7 +37,7 @@ SyncedCron.add({
         console.log(`Email sent to ${user.email}`);
       });
     }
-    return 'TODO: Email task run';
+    return `Email task run for ${users.length} users`;
   }
 });
 

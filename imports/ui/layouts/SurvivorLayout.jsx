@@ -18,7 +18,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
       if (user.survivor.length < weekForSec) {
         dead.push(user);
       } else {
-        if (!lastWeek.pick_id || lastWeek.pick_id !== lastWeek.winner_id) {
+        if (!lastWeek.pick_id || (lastWeek.winner_id && lastWeek.pick_id !== lastWeek.winner_id)) {
           dead.push(user);
         } else {
           alive.push(user);
@@ -37,7 +37,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
   } else {
     data.forEach(user => {
       thisWeek = user.survivor[0];
-      if (!thisWeek.pick_id || thisWeek.pick_id !== thisWeek.winner_id) {
+      if (!thisWeek.pick_id || (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id)) {
         dead.push(user);
       } else {
         alive.push(user);

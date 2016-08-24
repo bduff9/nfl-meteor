@@ -167,7 +167,7 @@ API = {
           updatePoints.call(err => {
             if (err) console.error('updatePoints', err);
           });
-          //TODO moved this from 202 to try and get more frequent placings
+          // Moved this from line 202 to try and get more frequent placings
           updatePlaces.call({ week: w }, err => {
             if (err) console.error('updatePlaces', err);
           });
@@ -199,7 +199,7 @@ API = {
         console.log(`Week ${w} complete, updating tiebreakers...`);
         const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
         User.update({ 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
-        /* Commenting this to try and get more frequent placings
+        /* Commenting this to try and get more frequent placings (see line 170)
         * updatePlaces.call({ week: w }, err => {
         *   if (err) console.error('updatePlaces', err);
         * });

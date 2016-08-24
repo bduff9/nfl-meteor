@@ -14,7 +14,7 @@ export default createContainer(({ week, weekForSec }) => {
       survivorReady = survivorHandle.ready();
   let data = [];
   if (survivorReady) {
-    data = User.find({ "survivor.week": week }, {
+    data = User.find({ "done_registering": true, "survivor.week": week }, {
       sort: {
         'first_name': 1
       }

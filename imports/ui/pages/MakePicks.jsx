@@ -93,6 +93,7 @@ class MakePicks extends Component {
             Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
             this.context.router.push('/picks/view');
           }
+        });
       }, 500);
     }
     return false;

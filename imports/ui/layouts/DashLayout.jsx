@@ -21,7 +21,8 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
         return prev;
       }, 0),
       tiebreaker = week && user.tiebreakers[week - 1],
-      myPlace = (isOverall ? user.overall_place : tiebreaker.place_in_week);
+      myPlace = (isOverall ? user.overall_place : tiebreaker.place_in_week),
+      userId = user._id;
   let tied = '',
       aheadOfMe = 0,
       tiedMe = 0,
@@ -29,10 +30,10 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
       place;
   if (isOverall && user.overall_tied_flag) tied = 'T';
   if (!isOverall && tiebreaker && tiebreaker.tied_flag) tied = 'T';
-  data.forEach(user => {
-    place = (isOverall ? user.overall_place : user.tiebreaker.place_in_week);
+  data.forEach(u => {
+    place = (isOverall ? u.overall_place : u.tiebreaker.place_in_week);
     if (place < myPlace) aheadOfMe++;
-    if (place === myPlace) tiedMe++;
+    if (place === myPlace && u._id !== userId) tiedMe++;
     if (place > myPlace) behindMe++;
   });
 

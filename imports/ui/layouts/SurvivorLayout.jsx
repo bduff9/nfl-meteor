@@ -2,7 +2,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { Loading } from '../pages/Loading.jsx';
 

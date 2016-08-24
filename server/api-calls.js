@@ -181,16 +181,16 @@ API = {
           console.log(`Game ${game.game} survivor updated!`);
         }
         // Update home team data
-        if (hTeamData.passDefenseRank) hTeam.pass_defense = hTeamData.passDefenseRank;
-        if (hTeamData.passOffenseRank) hTeam.pass_offense = hTeamData.passOffenseRank;
-        if (hTeamData.rushDefenseRank) hTeam.rush_defense = hTeamData.rushDefenseRank;
-        if (hTeamData.rushOffenseRank) hTeam.rush_offense = hTeamData.rushOffenseRank;
+        if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
+        if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
+        if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
+        if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
         hTeam.save();
         // Update visiting team data
-        if (vTeamData.passDefenseRank) vTeam.pass_defense = vTeamData.passDefenseRank;
-        if (vTeamData.passOffenseRank) vTeam.pass_offense = vTeamData.passOffenseRank;
-        if (vTeamData.rushDefenseRank) vTeam.rush_defense = vTeamData.rushDefenseRank;
-        if (vTeamData.rushOffenseRank) vTeam.rush_offense = vTeamData.rushOffenseRank;
+        if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
+        if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
+        if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
+        if (vTeamData.rushOffenseRank) vTeam.rush_offense = parseInt(vTeamData.rushOffenseRank, 10);
         vTeam.save();
         console.log(`Week ${w} game ${game.game} successfully updated!`);
         return true;

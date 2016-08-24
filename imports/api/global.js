@@ -98,3 +98,9 @@ export const overallPlacer = (user1, user2) => {
     return 0;
   }
 };
+
+export const pad = (toPad, padWith = '0', ln) => {
+  let padded = '' + toPad;
+  while (padded.length < ln) padded = '' + padWith + padded;
+  return padded;
+};

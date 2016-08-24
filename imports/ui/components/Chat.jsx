@@ -45,6 +45,8 @@ class Chat extends Component {
     const { newMessage } = this.state,
         { chats, pageReady } = this.props;
     let lastDay;
+//TODO remove this
+console.log('chats', chats);
     return (
       <div className="chat">
         <h3 className="text-xs-center">Chat</h3>
@@ -66,6 +68,7 @@ class Chat extends Component {
                 <div className="a-chat" key={'chat' + chat._id}>
                   <strong>{`${user.first_name} ${user.last_name}: `}</strong>
                   {chat.message}
+                  <span className="chat-sent" title={moment(chat.when).format('dddd, MMMM Do, YYYY [at] h:mma')}>{moment(chat.when).fromNow()}</span>
                 </div>
               );
               return rows;
@@ -96,15 +99,13 @@ export default createContainer(() => {
       chatsReady = chatsHandle.ready(),
       usersHandle = Meteor.subscribe('usersForChat'),
       usersReady = usersHandle.ready();
-  let chats = [],
-      pageReady = false;
+  let chats = [];
   if (chatsReady && usersReady) {
     chats = NFLLog.find({ action: 'CHAT' }, { sort: { when: -1 }}).fetch();
-    pageReady = true;
   }
   return {
     chats,
     currentUser,
-    pageReady
+    pageReady: chatsReady && usersReady
   };
 }, Chat);

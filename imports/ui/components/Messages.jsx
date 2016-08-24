@@ -18,8 +18,9 @@ class Messages extends Component {
     this.state = {};
   }
 
-  _formatDate(dt) {
-    return moment(dt).format('ddd, MMM Do');
+  _formatDate(dt, incTime) {
+    const fmt = (incTime ? 'h:mma [on] ddd, MMM Do' : 'ddd, MMM Do');
+    return moment(dt).format(fmt);
   }
 
   render() {
@@ -33,9 +34,9 @@ class Messages extends Component {
         <div className="inner-messages">
           <div className="message-list">
             {!paid ? <Message message={`Please pay before ${this._formatDate(paymentDue)}`} unread /> : null}
-            {!submittedPicks ? <Message message={`Your week ${currentWeek} picks are due by ${this._formatDate(firstGame.kickoff)}`} unread /> : null}
-            {!submittedSurvivor ? <Message message={`Your week ${currentWeek} survivor pick is due by ${this._formatDate(firstGame.kickoff)}`} unread /> : null}
-            {pageReady ? messages.map(message => <Message from={message.getUser()} msgId={'' + message._id} message={message.message} sent={this._formatDate(message.when)} unread={!message.is_read} key={'message' + message._id} />)
+            {!submittedPicks ? <Message message={`Your week ${currentWeek} picks are due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
+            {!submittedSurvivor ? <Message message={`Your week ${currentWeek} survivor pick is due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
+            {pageReady ? messages.map(message => <Message from={message.getUser()} msgId={'' + message._id} message={message.message} sent={this._formatDate(message.when, true)} unread={!message.is_read} key={'message' + message._id} />)
             :
             (
               <div className="text-xs-center loading">Loading...

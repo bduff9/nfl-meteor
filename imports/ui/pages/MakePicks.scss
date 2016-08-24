@@ -7,10 +7,9 @@ $footerHeightLarge: 120px;
   padding-left: 0;
   position: fixed;
   z-index: 1;
-
-  .points {
-
-  }
+  min-height: 34px;
+  border: 1px dashed white;
+  background-color: rgba(255, 255, 255, 0.45);
 }
 
 .points {
@@ -41,13 +40,11 @@ $footerHeightLarge: 120px;
 
   tr {
     &.disabled {
-      //TODO style games that have already started?
       background-color: red;
       opacity: 0.5;
     }
 
     &.done {
-      //TODO style games that have been picked?
       background-color: green;
     }
   }
@@ -116,6 +113,15 @@ $footerHeightLarge: 120px;
           order: 6;
         }
       }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .pointBank {
+
+    .points {
+      width: 50%
     }
   }
 }

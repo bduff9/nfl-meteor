@@ -163,7 +163,7 @@ API = {
           }
           // Update the picks for each user
           console.log(`Game ${game.game} complete, updating picks...`);
-          User.update({ 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
+          User.update({ 'done_registering': true, 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
           updatePoints.call(err => {
             if (err) console.error('updatePoints', err);
           });
@@ -174,7 +174,7 @@ API = {
           console.log(`Game ${game.game} picks updated!`);
           // Update the survivor pool
           console.log(`Game ${game.game} complete, updating survivor...`);
-          User.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
+          User.update({ 'done_registering': true, 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
           updateSurvivor.call({ week: w }, err => {
             if (err) console.error('updateSurvivor', err);
           });
@@ -198,7 +198,7 @@ API = {
       if (gameCount === completeCount) {
         console.log(`Week ${w} complete, updating tiebreakers...`);
         const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
-        User.update({ 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
+        User.update({ 'done_registering': true, 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
         /* Commenting this to try and get more frequent placings (see line 170)
         * updatePlaces.call({ week: w }, err => {
         *   if (err) console.error('updatePlaces', err);

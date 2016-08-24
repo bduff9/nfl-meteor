@@ -85,9 +85,15 @@ class MakePicks extends Component {
     } else if (noTiebreaker && !tiebreakerVal) {
       Bert.alert({ type: 'warning', message: 'You must fill in a tiebreaker score at the bottom of this page before you can submit' });
     } else {
-      setTimeout(() => submitPicks.call({ selectedWeek }, displayError), 250);
-      Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
-      this.context.router.push('/picks/view');
+      setTimeout(() => {
+        submitPicks.call({ selectedWeek }, (err) => {
+          if (err) {
+            displayError(err);
+          } else {
+            Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+            this.context.router.push('/picks/view');
+          }
+      }, 500);
     }
     return false;
   }

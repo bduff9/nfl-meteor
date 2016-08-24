@@ -75,7 +75,7 @@ export const endOfWeekMessage = new ValidatedMethod({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-    const users = User.find().fetch(),
+    const users = User.find({ "done_registering": true, }).fetch(),
         MESSAGE = `Week ${week} is now over.`;
     let place, message, logEntry;
     users.forEach(user => {

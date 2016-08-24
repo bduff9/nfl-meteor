@@ -42,11 +42,11 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
       } else {
         alive.push(user);
       }
-      if (!user.survivor[0].pick_id) return;
-      team = thisWeek.pick_short;
-      index = graphData.findIndex(team => team.team === team);
+      if (!thisWeek.pick_id) return;
+      teamShort = thisWeek.pick_short;
+      index = graphData.findIndex(team => team.team === teamShort);
       if (index === -1) {
-        graphData.push({ team, count: 1, won: (team === thisWeek.winner_short) });
+        graphData.push({ team: teamShort, count: 1, won: thisWeek.pick_id === thisWeek.winner_id });
       } else {
         graphData[index].count += 1;
       }

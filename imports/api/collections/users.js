@@ -342,7 +342,7 @@ export const updateSurvivor = new ValidatedMethod({
       if (!alive) return true;
       survivorPicks.every((pick, i) => {
         if (!pick.pick_id && pick.week <= week) alive = false;
-        if (pick.pick_id !== pick.winner_id) alive = false;
+        if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
         if (!alive) {
           pick.winner_id = 'MISSED';
           survivorPicks.length = (i + 1);

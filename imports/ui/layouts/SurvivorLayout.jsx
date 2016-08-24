@@ -91,7 +91,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
               <LineChart data={graphData} margin={{ top: 5, right: 40, bottom: 5, left: 0 }}>
                 {alive.map(user => <Line type="monotone" dataKey={`${user.first_name} ${user.last_name}`} stroke="#0f0" key={'line' + user._id} />)}
                 {dead.map(user => <Line type="monotone" dataKey={`${user.first_name} ${user.last_name}`} stroke="#f00" key={'line' + user._id} />)}
-                <XAxis dataKey="x" />
+                <XAxis dataKey="x" type="category" />
                 <YAxis type="category" />
                 <Tooltip />
               </LineChart>
@@ -102,8 +102,8 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
             <ResponsiveContainer height={300}>
               <BarChart data={graphData}>
                 {graphData.map(team => <Bar dataKey="count" fill={(team.won ? '#0f0' : (team.lost ? '#f00' : '#999'))} key={'line' + team.team} />)}
-                <XAxis dataKey="team" />
-                <YAxis allowDecimals={false} />
+                <XAxis dataKey="team" type="category" />
+                <YAxis allowDecimals={false} type="number" />
                 <Tooltip />
               </BarChart>
             </ResponsiveContainer>

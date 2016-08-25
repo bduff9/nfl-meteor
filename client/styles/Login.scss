@@ -19,6 +19,18 @@
 
   .login-stretch {
 
+    .ball-logo-parent {
+      position: relative;
+    }
+
+    .ball-logo {
+      width: 200px;
+      position: absolute;
+      top:-121px;
+      left: 50%;
+      margin-left: -86px;
+    }
+    
     .signin-form {
       position: relative;
       border: none;

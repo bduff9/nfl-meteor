@@ -230,14 +230,25 @@ export const sendAllPicksInEmail = new ValidatedMethod({
     selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
   }).validator(),
   run({ selectedWeek }) {
-    const users = User.find().fetch(),
+    const users = User.find({ done_registering: true }).fetch(),
         notSubmitted = users.filter(user => {
           let tiebreaker = user.tiebreakers.filter(tb => tb.week === selectedWeek)[0];
           return !tiebreaker.submitted;
         });
     if (Meteor.isServer && notSubmitted.length === 0) {
       console.log(`All picks have been submitted for week ${selectedWeek}, sending emails...`);
-//TODO send emails out with all picks inside
+      users.forEach(user => {
+        Email.send({
+          to: user.email,
+          from: 'Brian Duffey <bduff9@gmail.com>',
+          subject: `All picks for week ${selectedWeek} have been submitted!`,
+          text: `Hello ${user.first_name},
+
+          This is just a notice that all picks have now been submitted for week ${selectedWeek}.  You can log into the pool to view everyone's picks.
+
+          Good luck!`,
+        });
+      });
       console.log('All emails sent!');
     }
   }

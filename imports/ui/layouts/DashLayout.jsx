@@ -37,8 +37,8 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
       if (user1.total_points > user2.total_points) return pointsSort
     }
     if (gamesSort) {
-      if (user1.total_points < user2.total_games) return -1 * gamesSort;
-      if (user1.total_points > user2.total_games) return gamesSort
+      if (user1.total_games < user2.total_games) return -1 * gamesSort;
+      if (user1.total_games > user2.total_games) return gamesSort
     }
     return 0;
   };

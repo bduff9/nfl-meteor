@@ -39,11 +39,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
           <i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />
           <ul className="nav nav-sidebar">
             <li>
-              <h5>
-                {`Welcome, ${currentUser.first_name}`}&nbsp;
-                {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger" onClick={_toggleRightSlider.bind(null, 'messages')}>{msgCt}</span> : null}
-                {(unreadChatCt > 0) ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-primary" onClick={_toggleRightSlider.bind(null, 'chat')}>{unreadChatCt}</span> : null}
-              </h5>
+              <h5>{`Welcome, ${currentUser.first_name}`}</h5>
             </li>
             <li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
             <li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
@@ -77,10 +73,20 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
             {nextGame.week > 1 || nextGame.game > 1 ? <li><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null}
           </ul>
           <ul className="nav nav-sidebar">
-            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'messages')}>{(msgCt > 0 ? <strong>{`${msgCt} Messages`}</strong> : 'No new messages')}</a></li>
+            <li>
+              <a href="#" onClick={_toggleRightSlider.bind(null, 'messages')}>
+                {(msgCt > 0 ? <strong>Messages</strong> : 'Messages')}&nbsp;
+                {(msgCt > 0 ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null)}
+              </a>
+            </li>
             <li><a href="#" onClick={_toggleRightSlider.bind(null, 'rules')}>Rules</a></li>
             <li><a href="#" onClick={_toggleRightSlider.bind(null, 'scoreboard')}>NFL Scoreboard</a></li>
-            <li><a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>{(unreadChatCt > 0 ? <strong>{`${unreadChatCt} New Chats`}</strong> : 'No new chats')}</a></li>
+            <li>
+              <a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>
+                {(unreadChatCt > 0 ? <strong>Chat</strong> : 'Chat')}
+                {(unreadChatCt > 0 ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-primary">{unreadChatCt}</span> : null)}
+              </a>
+            </li>
           </ul>
           {currentUser.is_admin ? (
             <ul className="nav nav-sidebar">

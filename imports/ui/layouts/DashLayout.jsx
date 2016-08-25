@@ -30,13 +30,18 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
       place;
   if (isOverall && user.overall_tied_flag) tied = 'T';
   if (!isOverall && tiebreaker && tiebreaker.tied_flag) tied = 'T';
-  data.forEach(u => {
-    place = (isOverall ? u.overall_place : u.tiebreaker.place_in_week);
-    if (place < myPlace) aheadOfMe++;
-    if (place === myPlace && u._id !== userId) tiedMe++;
-    if (place > myPlace) behindMe++;
-  });
 
+  const _sortForDash = (pointsSort, gamesSort, user1, user2) => {
+    if (pointsSort) {
+      if (user1.total_points < user2.total_points) return -1 * pointsSort;
+      if (user1.total_points > user2.total_points) return pointsSort
+    }
+    if (gamesSort) {
+      if (user1.total_points < user2.total_games) return -1 * gamesSort;
+      if (user1.total_points > user2.total_games) return gamesSort
+    }
+    return 0;
+  };
   const _customLabel = ({ cx, cy }) => {
     return (
       <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central">
@@ -44,6 +49,13 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
       </text>
     );
   };
+
+  data.sort(_sortForDash.bind(null, pointsSort, gamesSort)).forEach(u => {
+    place = (isOverall ? u.overall_place : u.tiebreaker.place_in_week);
+    if (place < myPlace) aheadOfMe++;
+    if (place === myPlace && u._id !== userId) tiedMe++;
+    if (place > myPlace) behindMe++;
+  });
 
   return (
     <div className="col-xs-12 dashboard-layout">

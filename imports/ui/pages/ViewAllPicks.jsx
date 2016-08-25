@@ -129,7 +129,7 @@ class ViewAllPicks extends Component {
                 {users.map(user => {
                   const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
                   return (
-                    <tr key={'user' + user._id}>
+                    <tr className={user._id === currentUser._id ? 'my-user' : null} key={'user' + user._id}>
                       <td className="name-cell">{`${tiebreaker.tied_flag ? 'T' : ''}${tiebreaker.place_in_week}. ${user.first_name} ${user.last_name}`}</td>
                       {user.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek).map((pick, i) => {
                         const game = games[i];

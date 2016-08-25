@@ -41,8 +41,8 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
             <li>
               <h5>
                 {`Welcome, ${currentUser.first_name}`}&nbsp;
-                {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger">{msgCt}</span> : null}
-                {(unreadChatCt > 0) ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-primary">{unreadChatCt}</span> : null}
+                {(msgCt > 0) ? <span title={`You have ${msgCt} messages`} className="tag tag-danger" onClick={_toggleRightSlider.bind(null, 'messages')}>{msgCt}</span> : null}
+                {(unreadChatCt > 0) ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-primary" onClick={_toggleRightSlider.bind(null, 'chat')}>{unreadChatCt}</span> : null}
               </h5>
             </li>
             <li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
@@ -134,8 +134,12 @@ export default createContainer(({ currentUser, rightSlider, ...rest }) => {
   if (unreadChatReady) {
     lastAction = NFLLog.findOne({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED'] }, user_id: currentUser._id }, { sort: { when: -1 }});
     if (lastAction) {
-      chatHidden = (lastAction.action === 'CHAT_HIDDEN' ? lastAction.when : new Date());
-      unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: chatHidden }}).count();
+      chatHidden = (lastAction.action === 'CHAT_HIDDEN' ? lastAction.when : null);
+      if (chatHidden) {
+        unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: chatHidden }}).count();
+      } else {
+        unreadChatCt = 0;
+      }
     }
   }
   if (nextGameReady) {

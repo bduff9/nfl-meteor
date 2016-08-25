@@ -14,6 +14,9 @@ API = {
     if (Meteor.settings.mode === 'development') {
       data = {};
       url = `http://localhost:3003/W/${week}`;
+    } else if (Meteor.settings.mode === 'testing') {
+      data = {};
+      url = `http://mrcwebapps.com:3003/W/${week}`;
     } else {
       data = { TYPE: 'nflSchedule', JSON: 1, W: week };
       url = `http://www03.myfantasyleague.com/${currYear}/export`;
@@ -160,30 +163,34 @@ API = {
           }
           // Update the picks for each user
           console.log(`Game ${game.game} complete, updating picks...`);
-          User.update({ 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
+          User.update({ 'done_registering': true, 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
           updatePoints.call(err => {
             if (err) console.error('updatePoints', err);
+          });
+          // Moved this from line 202 to try and get more frequent placings
+          updatePlaces.call({ week: w }, err => {
+            if (err) console.error('updatePlaces', err);
           });
           console.log(`Game ${game.game} picks updated!`);
           // Update the survivor pool
           console.log(`Game ${game.game} complete, updating survivor...`);
-          Meteor.users.update({ 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
+          User.update({ 'done_registering': true, 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
           updateSurvivor.call({ week: w }, err => {
             if (err) console.error('updateSurvivor', err);
           });
           console.log(`Game ${game.game} survivor updated!`);
         }
         // Update home team data
-        if (hTeamData.passDefenseRank) hTeam.pass_defense = hTeamData.passDefenseRank;
-        if (hTeamData.passOffenseRank) hTeam.pass_offense = hTeamData.passOffenseRank;
-        if (hTeamData.rushDefenseRank) hTeam.rush_defense = hTeamData.rushDefenseRank;
-        if (hTeamData.rushOffenseRank) hTeam.rush_offense = hTeamData.rushOffenseRank;
+        if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
+        if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
+        if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
+        if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
         hTeam.save();
         // Update visiting team data
-        if (vTeamData.passDefenseRank) vTeam.pass_defense = vTeamData.passDefenseRank;
-        if (vTeamData.passOffenseRank) vTeam.pass_offense = vTeamData.passOffenseRank;
-        if (vTeamData.rushDefenseRank) vTeam.rush_defense = vTeamData.rushDefenseRank;
-        if (vTeamData.rushOffenseRank) vTeam.rush_offense = vTeamData.rushOffenseRank;
+        if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
+        if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
+        if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
+        if (vTeamData.rushOffenseRank) vTeam.rush_offense = parseInt(vTeamData.rushOffenseRank, 10);
         vTeam.save();
         console.log(`Week ${w} game ${game.game} successfully updated!`);
         return true;
@@ -191,10 +198,12 @@ API = {
       if (gameCount === completeCount) {
         console.log(`Week ${w} complete, updating tiebreakers...`);
         const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
-        User.update({ 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
-        updatePlaces.call({ week: w }, err => {
-          if (err) console.error('updatePlaces', err);
-        });
+        User.update({ 'done_registering': true, 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
+        /* Commenting this to try and get more frequent placings (see line 170)
+        * updatePlaces.call({ week: w }, err => {
+        *   if (err) console.error('updatePlaces', err);
+        * });
+        */
         console.log(`Week ${w} tiebreakers successfully updated!`);
         endOfWeekMessage.call({ week: w }, logError);
       }

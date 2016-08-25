@@ -17,9 +17,11 @@ export default createContainer(({ sortBy, user, week, _changeSortBy }) => {
   if (dataReady) {
     data = User.find({ done_registering: true, "tiebreakers.week": week }, { sort }).fetch()
       .map((u, i, allUsers) => {
-        const tiebreaker = u.tiebreakers.filter(tb => tb.week === week)[0],
-            place = (tiebreaker.place_in_week ? (tiebreaker.tied_flag ? `T${tiebreaker.place_in_week}` : tiebreaker.place_in_week) : i + 1);
+        const tiebreaker = Object.assign({}, u.tiebreakers.filter(tb => tb.week === week)[0]),
+            place = (tiebreaker.place_in_week ? (tiebreaker.tied_flag ? `T${tiebreaker.place_in_week}` : tiebreaker.place_in_week) : 'T1'),
+            hasSubmitted = user.tiebreakers.filter(tb => tb.week === week)[0].submitted;
         highestScore = Math.max(highestScore, tiebreaker.points_earned);
+        if (!hasSubmitted) tiebreaker.last_score = null;
         return {
           _id: u._id,
           first_name: u.first_name,

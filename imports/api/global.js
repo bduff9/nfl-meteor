@@ -3,8 +3,6 @@
 
 export const displayError = (err, opts = { title: err && err.reason, type: 'danger' }) => {
   if (!err) return;
-console.log('displayError', err);
-console.log('displayError', opts);
   if (!opts.title) opts.title = 'Missing error title!';
   Bert.alert(opts);
 };
@@ -99,4 +97,10 @@ export const overallPlacer = (user1, user2) => {
   } else {
     return 0;
   }
+};
+
+export const pad = (toPad, padWith = '0', ln) => {
+  let padded = '' + toPad;
+  while (padded.length < ln) padded = '' + padWith + padded;
+  return padded;
 };

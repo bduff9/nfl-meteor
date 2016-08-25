@@ -9,6 +9,7 @@ import { moment } from 'meteor/momentjs:moment';
 
 import './ScoreBoard.scss';
 import { Game } from '../../api/schema';
+import { pad } from '../../api/global';
 
 class ScoreBoard extends Component {
   constructor(props) {
@@ -33,7 +34,7 @@ class ScoreBoard extends Component {
       secLeftQtr = time_left % SEC_IN_QTR || SEC_IN_QTR;
       minLeft = Math.floor(secLeftQtr / 60);
       secLeft = secLeftQtr % 60;
-      return `Q${status}, ${minLeft}:${secLeft}`;
+      return `Q${status}, ${minLeft}:${pad(secLeft, '0', 2)}`;
     default:
       console.error('Invalid status flag', status);
       return 'ERROR';
@@ -72,7 +73,7 @@ class ScoreBoard extends Component {
                     rows.push(
                       <tr className={'away-score' + (game.in_redzone === 'V' ? ' bg-danger' : '')} key={'teamScore' + game.visitor_short}>
                         <td colSpan={game.status === 'P' ? 3 : 1}>
-                          {game.visitor_short}
+                          {game.visitor_short} &nbsp;
                           {game.has_possession === 'V' ? <i className="fa fa-large fa-lemon-o has-possession" /> : null}
                         </td>
                         {game.status !== 'P' ? <td>{game.visitor_score}</td> : null}
@@ -82,7 +83,7 @@ class ScoreBoard extends Component {
                     rows.push(
                       <tr className={'home-score' + (game.in_redzone === 'H' ? ' bg-danger' : '')} key={'teamScore' + game.home_short}>
                         <td>
-                          {game.home_short}
+                          {game.home_short} &nbsp;
                           {game.has_possession === 'H' ? <i className="fa fa-large fa-lemon-o has-possession" /> : null}
                         </td>
                         {game.status !== 'P' ? <td>{game.home_score}</td> : null}

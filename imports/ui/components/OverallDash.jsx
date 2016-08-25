@@ -23,7 +23,7 @@ export default createContainer(({ sortBy, user, _changeSortBy }) => {
           last_name: u.last_name,
           team_name: u.team_name,
           missed_games: (missedGames.length > 0 ? 'Y' : ''),
-          place: (u.overall_tied_flag ? `T${u.overall_place}` : u.overall_place)
+          place: (u.overall_place ? (u.overall_tied_flag ? `T${u.overall_place}` : u.overall_place) : 'T1')
         };
       });
   }

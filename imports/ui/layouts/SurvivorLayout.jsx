@@ -2,7 +2,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { Loading } from '../pages/Loading.jsx';
 
@@ -18,7 +18,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
       if (user.survivor.length < weekForSec) {
         dead.push(user);
       } else {
-        if (!lastWeek.pick_id || lastWeek.pick_id !== lastWeek.winner_id) {
+        if (!lastWeek.pick_id || (lastWeek.winner_id && lastWeek.pick_id !== lastWeek.winner_id)) {
           dead.push(user);
         } else {
           alive.push(user);
@@ -37,16 +37,16 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
   } else {
     data.forEach(user => {
       thisWeek = user.survivor[0];
-      if (!thisWeek.pick_id || thisWeek.pick_id !== thisWeek.winner_id) {
+      if (!thisWeek.pick_id || (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id)) {
         dead.push(user);
       } else {
         alive.push(user);
       }
-      if (!user.survivor[0].pick_id) return;
-      team = thisWeek.pick_short;
-      index = graphData.findIndex(team => team.team === team);
+      if (!thisWeek.pick_id) return;
+      teamShort = thisWeek.pick_short;
+      index = graphData.findIndex(team => team.team === teamShort);
       if (index === -1) {
-        graphData.push({ team, count: 1, won: (team === thisWeek.winner_short) });
+        graphData.push({ team: teamShort, count: 1, won: (thisWeek.winner_id && thisWeek.pick_id === thisWeek.winner_id ? true : false), lost: (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id ? true : false)});
       } else {
         graphData[index].count += 1;
       }
@@ -91,7 +91,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
               <LineChart data={graphData} margin={{ top: 5, right: 40, bottom: 5, left: 0 }}>
                 {alive.map(user => <Line type="monotone" dataKey={`${user.first_name} ${user.last_name}`} stroke="#0f0" key={'line' + user._id} />)}
                 {dead.map(user => <Line type="monotone" dataKey={`${user.first_name} ${user.last_name}`} stroke="#f00" key={'line' + user._id} />)}
-                <XAxis dataKey="x" />
+                <XAxis dataKey="x" type="category" />
                 <YAxis type="category" />
                 <Tooltip />
               </LineChart>
@@ -101,9 +101,11 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
           (
             <ResponsiveContainer height={300}>
               <BarChart data={graphData}>
-                {graphData.map(team => <Bar dataKey="count" fill={(team.won ? '#0f0' : '#f00')} key={'line' + team.team} />)}
-                <XAxis dataKey="team" />
-                <YAxis allowDecimals={false} />
+                <Bar dataKey="count">
+                  {graphData.map(team => <Cell fill={(team.won ? '#0f0' : (team.lost ? '#f00' : '#999'))} key={'line' + team.team} />)}
+                </Bar>
+                <XAxis dataKey="team" type="category" />
+                <YAxis allowDecimals={false} type="number" />
                 <Tooltip />
               </BarChart>
             </ResponsiveContainer>

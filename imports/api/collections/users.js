@@ -218,8 +218,28 @@ export const submitPicks = new ValidatedMethod({
     if (Meteor.isServer) {
       tiebreaker.submitted = true;
       user.save();
+      sendAllPicksInEmail.call({ selectedWeek }, logError);
     }
     writeLog.call({ action: 'SUBMIT_PICKS', message: `${user.first_name} ${user.last_name} has just submitted their week ${selectedWeek} picks`, userId: this.userId }, logError);
+  }
+});
+
+export const sendAllPicksInEmail = new ValidatedMethod({
+  name: 'User.sendAllPicksInEmail',
+  validate: new SimpleSchema({
+    selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
+  }).validator(),
+  run({ selectedWeek }) {
+    const users = User.find().fetch(),
+        notSubmitted = users.filter(user => {
+          let tiebreaker = user.tiebreakers.filter(tb => tb.week === selectedWeek)[0];
+          return !tiebreaker.submitted;
+        });
+    if (Meteor.isServer && notSubmitted.length === 0) {
+      console.log(`All picks have been submitted for week ${selectedWeek}, sending emails...`);
+//TODO send emails out with all picks inside
+      console.log('All emails sent!');
+    }
   }
 });
 
@@ -232,13 +252,12 @@ export const assignPointsToMissed = new ValidatedMethod({
   }).validator(),
   run({ gameCount, gameId, week }) {
     if (Meteor.isServer) {
-      const allUsers = User.find({ "picks.game_id": gameId }, { fields: {
+      const allUsers = User.find({ "done_registering": true, "picks.game_id": gameId }, { fields: {
+        "_id": 1,
         "picks.$": 1
       }}).fetch();
       let missedUsers = allUsers.filter(user => !user.picks[0].points).map(user => user._id),
-          users = User.find({ _id: { $in: missedUsers }}, { fields: {
-            picks: 1
-          }}).fetch(),
+          users = User.find({ _id: { $in: missedUsers }}).fetch(),
           pointsUsed, maxPointVal;
       if (users.length) console.log(`${users.length} users missed game ${gameId} in week ${week}`);
       users.forEach(user => {
@@ -279,7 +298,7 @@ export const updatePoints = new ValidatedMethod({
   name: 'User.updatePoints',
   validate: null,
   run() {
-    const allUsers = User.find();
+    const allUsers = User.find({ "done_registering": true });
     let picks, tiebreakers, games, points, weekGames, weekPoints;
     allUsers.forEach(user => {
       picks = user.picks;
@@ -315,7 +334,7 @@ export const updateSurvivor = new ValidatedMethod({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-    const allUsers = User.find().fetch();
+    const allUsers = User.find({ "done_registering": true }).fetch();
     let survivorPicks, alive;
     allUsers.forEach(user => {
       survivorPicks = user.survivor;
@@ -323,7 +342,7 @@ export const updateSurvivor = new ValidatedMethod({
       if (!alive) return true;
       survivorPicks.every((pick, i) => {
         if (!pick.pick_id && pick.week <= week) alive = false;
-        if (pick.pick_id !== pick.winner_id) alive = false;
+        if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
         if (!alive) {
           pick.winner_id = 'MISSED';
           survivorPicks.length = (i + 1);
@@ -341,7 +360,7 @@ export const updatePlaces = new ValidatedMethod({
     week: { type: Number, label: 'Week' }
   }).validator(),
   run({ week }) {
-    let ordUsers = User.find().fetch().sort(weekPlacer.bind(null, week));
+    let ordUsers = User.find({ "done_registering": true }).fetch().sort(weekPlacer.bind(null, week));
     ordUsers.forEach((user, i, allUsers) => {
       const tiebreaker = user.tiebreakers[week - 1];
       let nextUser, result, nextTiebreaker;

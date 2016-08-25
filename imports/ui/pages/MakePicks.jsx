@@ -77,15 +77,24 @@ class MakePicks extends Component {
     Bert.alert({ type: 'success', message: 'Your picks have been successfully saved!' });
   }
   _submitPicks(picksLeft, noTiebreaker, ev) {
-    const { selectedWeek } = this.props;
+    const { selectedWeek } = this.props,
+        tiebreakerVal = this.refs.tiebreaker.value;
     ev.preventDefault();
     if (picksLeft) {
       Bert.alert({ type: 'warning', message: 'You must use all available points before you can submit' });
-    } else if (noTiebreaker) {
+    } else if (noTiebreaker && !tiebreakerVal) {
       Bert.alert({ type: 'warning', message: 'You must fill in a tiebreaker score at the bottom of this page before you can submit' });
     } else {
-      submitPicks.call({ selectedWeek }, displayError);
-      Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+      setTimeout(() => {
+        submitPicks.call({ selectedWeek }, (err) => {
+          if (err) {
+            displayError(err);
+          } else {
+            Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+            this.context.router.push('/picks/view');
+          }
+        });
+      }, 500);
     }
     return false;
   }
@@ -203,7 +212,7 @@ class MakePicks extends Component {
                   </tr>
                   <tr>
                     <td>
-                      <input type="number" className="form-control" defaultValue={tiebreaker.last_score} onBlur={this._setTiebreakerWrapper} />
+                      <input type="number" className="form-control" defaultValue={tiebreaker.last_score} onBlur={this._setTiebreakerWrapper} ref="tiebreaker" />
                     </td>
                   </tr>
                 </tbody>

@@ -38,6 +38,6 @@ jspm_packages
 
 .meteor
 settings.json
-mup.json
-mup.json2
+prod-settings.json
+mup.*
 *.orig

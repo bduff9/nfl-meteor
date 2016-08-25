@@ -17,7 +17,7 @@ SyncedCron.add({
   schedule: parse => parse.recur().on(30).minute(),
   job: () => {
     const week = currentWeek.call(),
-        users = User.find({ "tiebreakers.week": week, "tiebreakers.submitted": false }).fetch(),
+        users = User.find({ "done_registering": true, "tiebreakers.week": week, "tiebreakers.submitted": false }).fetch(),
         firstGameOfWeek = Game.findOne({ week, game: 1 }),
         now = moment(),
         kickoff = moment(firstGameOfWeek.kickoff),
@@ -37,7 +37,7 @@ SyncedCron.add({
         console.log(`Email sent to ${user.email}`);
       });
     }
-    return 'TODO: Email task run';
+    return `Email task run for ${users.length} users`;
   }
 });
 

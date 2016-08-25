@@ -40,7 +40,8 @@ Meteor.publish('usersForChat', function() {
     fields: {
       '_id': 1,
       'first_name': 1,
-      'last_name': 1
+      'last_name': 1,
+      'done_registering': 1
     }
   });
   if (allUsers) return allUsers;
@@ -102,11 +103,12 @@ Meteor.publish('weekSurvivor', function(week) {
     week: { type: Number, label: 'Week', min: 1, max: 17 }
   }).validate({ week });
   if (!this.userId) return this.ready();
-  weekUsers = User.find({ "survivor.week": week }, {
+  weekUsers = User.find({ "done_registering": true, "survivor.week": week }, {
     fields: {
       '_id': 1,
       'first_name': 1,
       'last_name': 1,
+      'done_registering': 1,
       'survivor.$': 1
     },
     sort: {
@@ -123,11 +125,12 @@ Meteor.publish('overallSurvivor', function(week) {
     week: { type: Number, label: 'Week', min: 1, max: 17 }
   }).validate({ week });
   if (!this.userId) return this.ready();
-  overallUsers = User.find({ "survivor.week": { $lte: week }}, {
+  overallUsers = User.find({ "done_registering": true, "survivor.week": { $lte: week }}, {
     fields: {
       '_id': 1,
       'first_name': 1,
       'last_name': 1,
+      'done_registering': 1,
       'survivor.$': 1
     },
     sort: {

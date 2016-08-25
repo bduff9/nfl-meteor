@@ -29,5 +29,15 @@
     overflow-x: hidden;
     overflow-y: scroll;
     padding: 0 5px;
+
+    .a-chat {
+      overflow: auto;
+
+      .chat-sent {
+        float: right;
+        color: #888;
+        font-size: smaller;
+      }
+    }
   }
 }

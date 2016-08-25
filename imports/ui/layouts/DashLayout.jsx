@@ -21,26 +21,46 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
         return prev;
       }, 0),
       tiebreaker = week && user.tiebreakers[week - 1],
-      myPlace = (isOverall ? user.overall_place : tiebreaker.place_in_week);
-  let tied = '';
+      myPlace = (isOverall ? user.overall_place : tiebreaker.place_in_week),
+      userId = user._id;
+  let tied = '',
+      aheadOfMe = 0,
+      tiedMe = 0,
+      behindMe = 0,
+      place;
   if (isOverall && user.overall_tied_flag) tied = 'T';
   if (!isOverall && tiebreaker && tiebreaker.tied_flag) tied = 'T';
+  data.forEach(u => {
+    place = (isOverall ? u.overall_place : u.tiebreaker.place_in_week);
+    if (place < myPlace) aheadOfMe++;
+    if (place === myPlace && u._id !== userId) tiedMe++;
+    if (place > myPlace) behindMe++;
+  });
+
+  const _customLabel = ({ cx, cy }) => {
+    return (
+      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central">
+        {`${tied}${myPlace} / ${data.length}`}
+      </text>
+    );
+  };
+
   return (
     <div className="col-xs-12 dashboard-layout">
       {dataReady ? (
         <div className="row text-xs-center">
           {correctPoints || incorrectPoints || correctPicks.length || incorrectPicks.length ?
-            <div className="col-xs-6 col-sm-4">
+            <div className="col-xs-12 col-md-6">
               <ResponsiveContainer height={200}>
                 <PieChart margin={{ left: 10, right: 10 }}>
                   <Pie data={[
                       { name: 'Points Earned', value: correctPoints, fill: '#0f0' },
                       { name: 'Points Missed', value: incorrectPoints, fill: '#f00' }
-                    ]} outerRadius="45%" />
+                    ]} outerRadius="40%" />
                   <Pie data={[
-                      { name: 'Games Correct', value: correctPoints, fill: '#0f0' },
-                      { name: 'Games Incorrect', value: incorrectPoints, fill: '#f00' }
-                    ]} innerRadius="50%" outerRadius="60%" label />
+                      { name: 'Games Correct', value: correctPicks.length, fill: '#0f0' },
+                      { name: 'Games Incorrect', value: incorrectPicks.length, fill: '#f00' }
+                    ]} innerRadius="47%" outerRadius="60%" label />
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
@@ -49,17 +69,17 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
             null
           }
           {myPlace ?
-            <div className="col-xs-6 col-sm-4">
-              <PieChart
-                data={[
-                  {key: 'Ahead of me', value: myPlace - 1, color: '#f00'},
-                  {key: 'I am ahead', value: data.length - myPlace, color: '#0f0'}
-                ]}
-                innerHoleSize={150}
-                size={200} />
-              <h3 className="my-rank">{`${tied}${myPlace} / ${data.length}`}</h3>
-              <h4>Place</h4>
-              <span className="text-muted">My Place</span>
+            <div className="col-xs-12 col-md-6">
+              <ResponsiveContainer height={200}>
+                <PieChart margin={{ left: 10, right: 10 }}>
+                  <Pie data={[
+                      { name: 'Ahead of me', value: aheadOfMe, fill: '#f00' },
+                      { name: 'Tied with me', value: tiedMe, fill: '#ff0' },
+                      { name: 'I am ahead', value: behindMe, fill: '#0f0' }
+                    ]} innerRadius="47%" outerRadius="60%" activeIndex={1} label={_customLabel} labelLine={false} />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
             :
             null

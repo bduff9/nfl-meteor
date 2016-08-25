@@ -1,0 +1,51 @@
+@media (min-width: 769px) {
+  .login-stretch {
+    .signin-form {
+      position: relative;
+      border: 1px solid black;
+      border-radius: 5px;
+      background-color: #F5F5F7;
+      padding: 60px 30px 30px 30px;
+      margin: 10% auto;
+      float: none;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  #react-root, #react-root > .row, .login-stretch {
+    height: 100%;
+  }
+
+  .login-stretch {
+
+    .signin-form {
+      position: relative;
+      border: none;
+      background-color: #F5F5F7;
+      padding: 60px 30px 30px 30px;
+      margin: 0 auto;
+      float: none;
+      height: 100%
+    }
+  }
+}
+
+.login-stretch {
+
+  .ball-logo {
+    width: 200px;
+    position: absolute;
+    top:-121px;
+    left: 133px;
+  }
+
+  .login-form {
+    margin-top: 20px;
+  }
+
+  .login-title {
+    margin-top:40px;
+    margin-bottom: 20px;
+  }
+}

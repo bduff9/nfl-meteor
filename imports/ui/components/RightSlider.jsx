@@ -27,7 +27,7 @@ export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSli
   };
 
   return (
-    <div className="col-xs-12 col-sm-5 col-md-4 right-slider right-slider-wrapper">
+    <div className="col-xs-12 col-sm-5 col-md-4 right-slider">
       <i className="fa fa-fw fa-times close-slider" onClick={_toggleRightSlider.bind(null, '')} />
       {_getSliderContent()}
     </div>

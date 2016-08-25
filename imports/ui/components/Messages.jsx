@@ -28,7 +28,7 @@ class Messages extends Component {
         submittedPicks = pageReady && currentUser.tiebreakers[currentWeek - 1].submitted,
         submittedSurvivor = pageReady && (!currentUser.survivor[currentWeek - 1] || currentUser.survivor[currentWeek - 1].pick_id);
     return (
-      <div className="messages messages-wrapper">
+      <div className="messages">
         <h3 className="text-xs-center">Private Messages</h3>
         <div className="inner-messages">
           <div className="message-list">

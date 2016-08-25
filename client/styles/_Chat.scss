@@ -1,45 +1,42 @@
-.chat-wrapper {
+.chat {
+  position: relative;
+  border: 1px solid black;
+  border-radius: 8px;
+  padding: 0 6px 28px;
+  width: 90%;
+  height: 99%;
+  margin: 3px auto;
+  background-color: #ccc;
 
-  .chat {
-    position: relative;
+  h3 {
+    margin: 0;
+    padding: 10px 0;
+  }
+
+  .new-chat {
+    width: 100%;
+  }
+
+  .chat-list {
     border: 1px solid black;
-    border-radius: 8px;
-    padding: 0 6px 28px;
-    width: 90%;
-    height: 99%;
-    margin: 3px auto;
-    background-color: #ccc;
+    border-radius: 0 0 8px 8px;
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    top: 150px;
+    background-color: #fff;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 0 5px;
 
-    h3 {
-      margin: 0;
-      padding: 10px 0;
-    }
+    .a-chat {
+      overflow: auto;
 
-    .new-chat {
-      width: 100%;
-    }
-
-    .chat-list {
-      border: 1px solid black;
-      border-radius: 0 0 8px 8px;
-      position: absolute;
-      left: 8px;
-      right: 8px;
-      bottom: 8px;
-      top: 150px;
-      background-color: #fff;
-      overflow-x: hidden;
-      overflow-y: scroll;
-      padding: 0 5px;
-
-      .a-chat {
-        overflow: auto;
-
-        .chat-sent {
-          float: right;
-          color: #888;
-          font-size: smaller;
-        }
+      .chat-sent {
+        float: right;
+        color: #888;
+        font-size: smaller;
       }
     }
   }

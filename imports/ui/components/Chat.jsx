@@ -45,7 +45,7 @@ class Chat extends Component {
         { chats, pageReady } = this.props;
     let lastDay;
     return (
-      <div className="chat chat-wrapper">
+      <div className="chat">
         <h3 className="text-xs-center">Chat</h3>
         <div className="inner-chat">
           <div className="text-xs-right add-chat">

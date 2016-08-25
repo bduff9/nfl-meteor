@@ -7,7 +7,6 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './Dashboard.scss';
 import { Loading } from './Loading.jsx';
 import OverallDash from '../components/OverallDash.jsx';
 import WeekDash from '../components/WeekDash.jsx';
@@ -69,7 +68,7 @@ class Dashboard extends Component {
         { selectedWeek, user } = this.props,
         pageReady = selectedWeek && user;
     return (
-      <div className="row">
+      <div className="row dashboard-wrapper">
         <Helmet title={`My Dashboard`} />
         <h3 className="title-text text-xs-center text-md-left hidden-md-up">My Dashboard</h3>
         {pageReady ? (

@@ -6,7 +6,6 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './ViewPicks.scss';
 import { Loading } from './Loading.jsx';
 import { Game, User } from '../../api/schema';
 import { displayError } from '../../api/global';
@@ -26,7 +25,7 @@ class ViewPicks extends Component {
           return prevScore;
         }, 0);
     return (
-      <div>
+      <div className="view-picks-wrapper">
         <Helmet title={`View My Picks for Week ${selectedWeek}`} />
         <h3 className="title-text text-xs-center text-md-left offset-xs-2 hidden-md-up">{`View My Picks for Week ${selectedWeek}`}</h3>
         <button type="button" className="btn btn-primary hidden-sm-down print-page" onClick={window.print}>

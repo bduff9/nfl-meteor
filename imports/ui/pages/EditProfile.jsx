@@ -8,7 +8,6 @@ import $ from 'jquery';
 import 'jquery-validation';
 import Helmet from 'react-helmet';
 
-import './EditProfile.scss';
 import { updateUser } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
@@ -126,7 +125,7 @@ export default class EditProfile extends Component {
     const { firstName, hasFacebook, hasGoogle, isCreate, isEdit, lastName, referredBy, showReferredBy, teamName } = this.state,
         user = Meteor.user();
     return (
-      <div className="container-fluid">
+      <div className="container-fluid edit-profile-wrapper">
         <div className="row">
           <div className="col-md-11">
                 <Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />

@@ -6,7 +6,6 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import './Messages.scss';
 import { Message } from './Message.jsx';
 import { Game, NFLLog, User } from '../../api/schema';
 import { getPaymentDue } from '../../api/collections/games';
@@ -29,7 +28,7 @@ class Messages extends Component {
         submittedPicks = pageReady && currentUser.tiebreakers[currentWeek - 1].submitted,
         submittedSurvivor = pageReady && (!currentUser.survivor[currentWeek - 1] || currentUser.survivor[currentWeek - 1].pick_id);
     return (
-      <div className="messages">
+      <div className="messages messages-wrapper">
         <h3 className="text-xs-center">Private Messages</h3>
         <div className="inner-messages">
           <div className="message-list">

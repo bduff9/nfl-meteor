@@ -1,0 +1,22 @@
+.admin-wrapper {
+
+  .admin-users-table {
+    background-color: rgba(255, 255, 255, 0.85);
+
+    i {
+      cursor: pointer;
+
+      &.toggle-paid {
+        color: green;
+      }
+
+      &.add-bonus {
+        color: blue;
+      }
+
+      &.toggle-admin {
+        color: black;
+      }
+    }
+  }
+}

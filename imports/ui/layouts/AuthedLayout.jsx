@@ -8,7 +8,6 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './AuthedLayout.scss';
 import { User } from '../../api/schema';
 import Navigation from '../components/Navigation.jsx';
 import { RightSlider } from '../components/RightSlider.jsx';
@@ -53,7 +52,7 @@ class AuthedLayout extends Component {
         { children, currentWeek, location, ...rest } = this.props,
         logoutOnly = location.pathname.indexOf('create') > -1;
     return (
-      <div className="col-xs-12">
+      <div className="col-xs-12 authed-layout-wrapper">
         <div className="row">
           <Helmet title="Welcome" />
           <i className="fa fa-lg fa-bars hidden-sm-up mobile-menu" onClick={this._toggleMenu} />

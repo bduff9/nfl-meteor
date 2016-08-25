@@ -6,7 +6,6 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './AdminUsers.scss';
 import { User } from '../../api/schema';
 import { updateUserAdmin } from '../../api/collections/users';
 import { displayError } from '../../api/global';
@@ -33,7 +32,7 @@ class AdminUsers extends Component {
   render() {
     const { pageReady, users } = this.props;
     return (
-      <div className="row">
+      <div className="row admin-wrapper">
         <Helmet title="User Admin" />
         {pageReady ? (
           <div className="col-xs-12">

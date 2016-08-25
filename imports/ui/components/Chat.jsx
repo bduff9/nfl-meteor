@@ -6,7 +6,6 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import './Chat.scss';
 import { NFLLog, User } from '../../api/schema';
 import { updateChatHidden } from '../../api/collections/users';
 import { writeLog } from '../../api/collections/nfllogs';
@@ -46,7 +45,7 @@ class Chat extends Component {
         { chats, pageReady } = this.props;
     let lastDay;
     return (
-      <div className="chat">
+      <div className="chat chat-wrapper">
         <h3 className="text-xs-center">Chat</h3>
         <div className="inner-chat">
           <div className="text-xs-right add-chat">

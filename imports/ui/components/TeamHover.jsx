@@ -5,7 +5,6 @@ import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import './TeamHover.scss';
 import { Team } from '../../api/schema';
 
 class TeamHover extends Component {
@@ -48,7 +47,7 @@ class TeamHover extends Component {
     }
 
     return (
-      <div>
+      <div className="team-hover-wrapper">
         <table className="team-hover" style={{ color: teamInfo.secondary_color, backgroundColor: teamInfo.primary_color, borderColor: teamInfo.secondary_color }} ref="hoverWindow">
           <thead>
             <tr>

@@ -4,7 +4,6 @@
 import React, { PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import './SurvivorPick.scss';
 import { Game } from '../../api/schema';
 
 const SurvivorPick = ({ game, gameReady, pick }) => {

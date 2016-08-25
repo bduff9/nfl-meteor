@@ -7,7 +7,6 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import './ScoreBoard.scss';
 import { Game } from '../../api/schema';
 import { pad } from '../../api/global';
 

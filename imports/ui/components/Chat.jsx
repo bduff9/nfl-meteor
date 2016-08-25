@@ -6,7 +6,6 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import './Chat.scss';
 import { NFLLog, User } from '../../api/schema';
 import { updateChatHidden } from '../../api/collections/users';
 import { writeLog } from '../../api/collections/nfllogs';

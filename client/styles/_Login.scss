@@ -9,6 +9,11 @@
       margin: 10% auto;
       float: none;
     }
+
+    .login-title {
+      margin-top:40px;
+      margin-bottom: 20px;
+  }
   }
 }
 
@@ -19,18 +24,6 @@
 
   .login-stretch {
 
-    .ball-logo-parent {
-      position: relative;
-    }
-
-    .ball-logo {
-      width: 200px;
-      position: absolute;
-      top:-121px;
-      left: 50%;
-      margin-left: -86px;
-    }
-    
     .signin-form {
       position: relative;
       border: none;
@@ -40,24 +33,28 @@
       float: none;
       height: 100%
     }
+
+    .login-title {
+      margin-bottom: 20px;
+    }
   }
 }
 
 .login-stretch {
 
+  .ball-logo-parent {
+    position: relative;
+  }
+
   .ball-logo {
     width: 200px;
     position: absolute;
-    top:-121px;
-    left: 133px;
+    top:-175px;
+    left: 50%;
+    margin-left: -86px;
   }
 
   .login-form {
     margin-top: 20px;
-  }
-
-  .login-title {
-    margin-top:40px;
-    margin-bottom: 20px;
   }
 }

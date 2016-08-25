@@ -3,7 +3,6 @@
 
 import React, { PropTypes } from 'react';
 
-import './Rules.scss';
 
 export const Rules = () => {
   const now = new Date(),

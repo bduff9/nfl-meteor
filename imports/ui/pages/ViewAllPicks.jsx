@@ -5,7 +5,6 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './ViewAllPicks.scss';
 import { Loading } from './Loading.jsx';
 import { Game, Team, User } from '../../api/schema';
 import { weekPlacer } from '../../api/global';
@@ -89,7 +88,7 @@ class ViewAllPicks extends Component {
     const { games, users } = this.state,
         { currentUser, pageReady, selectedWeek } = this.props;
     return (
-      <div className="row">
+      <div className="row view-all-picks-wrapper">
         <Helmet title={`View All Week ${selectedWeek} Picks`} />
         <h3 className="title-text text-xs-center text-md-left hidden-md-up">{`View All Week ${selectedWeek} Picks`}</h3>
         {pageReady ? (

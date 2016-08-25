@@ -6,7 +6,6 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import './Messages.scss';
 import { Message } from './Message.jsx';
 import { Game, NFLLog, User } from '../../api/schema';
 import { getPaymentDue } from '../../api/collections/games';

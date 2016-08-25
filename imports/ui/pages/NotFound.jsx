@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 
-import './NotFound.scss'
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 
@@ -17,7 +16,7 @@ export const NotFound = ({ location }) => {
   };
 
   return (
-    <div className="col-xs">
+    <div className="col-xs not-found-wrapper">
       <Helmet title="Not Found" />
       <div className="white-box col-xs-12 col-sm-10 col-md-8 col-xl-6">
         <div className="row">

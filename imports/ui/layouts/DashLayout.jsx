@@ -4,7 +4,6 @@
 import React, { PropTypes } from 'react';
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-import './DashLayout.scss';
 import { Loading } from '../pages/Loading.jsx';
 
 export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, user, week, _changeSortBy }) => {
@@ -58,7 +57,7 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
   });
 
   return (
-    <div className="col-xs-12 dashboard-layout">
+    <div className="col-xs-12 dashboard-layout dash-layout-wrapper">
       {dataReady ? (
         <div className="row text-xs-center">
           {correctPoints || incorrectPoints || correctPicks.length || incorrectPicks.length ?

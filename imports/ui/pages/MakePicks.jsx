@@ -7,7 +7,6 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './MakePicks.scss';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
 import TeamHover from '../components/TeamHover.jsx';
@@ -112,7 +111,7 @@ class MakePicks extends Component {
         pageReady = gamesReady && teamsReady;
     let lastHomeTeam, lastVisitingTeam;
     return (
-      <div className="row">
+      <div className="row make-picks-wrapper">
         <Helmet title={`Set Week ${selectedWeek} Picks`} />
         {pageReady ? [
             <div className="col-xs-12" key="picks">

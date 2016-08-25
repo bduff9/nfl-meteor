@@ -3,7 +3,6 @@
 
 import React, { PropTypes } from 'react';
 
-import './RightSlider.scss';
 import Messages from './Messages.jsx';
 import { Rules } from './Rules.jsx';
 import ScoreBoard from './ScoreBoard.jsx';

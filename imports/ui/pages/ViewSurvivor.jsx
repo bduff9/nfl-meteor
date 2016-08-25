@@ -5,7 +5,6 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './ViewSurvivor.scss';
 import { Loading } from './Loading.jsx';
 import OverallSurvivor from '../components/OverallSurvivor.jsx';
 import WeekSurvivor from '../components/WeekSurvivor.jsx';
@@ -37,7 +36,7 @@ class ViewSurvivor extends Component {
         { nextGame, pageReady, selectedWeek } = this.props,
         weekForSec = nextGame.week - (nextGame.game === 1 ? 1 : 0);
     return (
-      <div className="row">
+      <div className="row view-survivor-wrapper">
         <Helmet title={`View Survivor Picks`} />
         <h3 className="title-text text-xs-center text-md-left hidden-md-up">View Survivor Picks</h3>
         {pageReady ? (

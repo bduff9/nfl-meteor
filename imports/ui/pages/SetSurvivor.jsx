@@ -6,7 +6,6 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import './SetSurvivor.scss';
 import { Loading } from './Loading.jsx';
 import SurvivorPick from '../components/SurvivorPick.jsx';
 import SurvivorModal from '../components/SurvivorModal.jsx';
@@ -37,7 +36,7 @@ class SetSurvivor extends Component {
         weekForSec = nextGame.week - (nextGame.game === 1 ? 1 : 0),
         pageReady = nextGameReady && teamsReady && currentWeek;
     return (
-      <div className="row">
+      <div className="row set-survivor-wrapper">
         <Helmet title={`Make Survivor Picks`} />
         {pageReady ? (
           <div className="col-xs-12">

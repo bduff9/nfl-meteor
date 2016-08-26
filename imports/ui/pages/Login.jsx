@@ -3,10 +3,10 @@
 
 import $ from 'jquery';
 import 'jquery-validation';
-import { Accounts } from 'meteor/accounts-base';
-import { Bert } from 'meteor/themeteorchef:bert';
 import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
+import { Bert } from 'meteor/themeteorchef:bert';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';

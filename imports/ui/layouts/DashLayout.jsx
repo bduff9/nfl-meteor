@@ -57,7 +57,7 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
   });
 
   return (
-    <div className="col-xs-12 dashboard-layout dash-layout-wrapper">
+    <div className="col-xs-12 dashboard-layout">
       {dataReady ? (
         <div className="row text-xs-center">
           {correctPoints || incorrectPoints || correctPicks.length || incorrectPicks.length ?

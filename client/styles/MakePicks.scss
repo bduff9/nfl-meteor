@@ -91,28 +91,49 @@ $footerHeightLarge: 120px;
           display: flex;
           flex-flow: row wrap;
 
-          .homePoints {
-            order: 5;
+          &:before,
+          &:after {
+            content: normal;
           }
 
-          .homeLogo {
-            order: 3;
-          }
+          .col-xs-6 {
 
-          .homeName {
-            order: 1;
-          }
+            &:before,
+            &:after {
+              content: normal;
+            }
 
-          .visitorName {
-            order: 2;
-          }
+            &.homePoints {
+              order: 5;
 
-          .visitorLogo {
-            order: 4;
-          }
+              ul {
+                margin: 0 auto;
+              }
+            }
 
-          .visitorPoints {
-            order: 6;
+            &.homeLogo {
+              order: 3;
+            }
+
+            &.homeName {
+              order: 1;
+            }
+
+            &.visitorName {
+              order: 2;
+            }
+
+            &.visitorLogo {
+              order: 4;
+            }
+
+            &.visitorPoints {
+              order: 6;
+
+              ul {
+                margin: 0 auto;
+              }
+            }
           }
         }
       }
@@ -128,6 +149,3 @@ $footerHeightLarge: 120px;
     }
   }
 }
-
-// Removed for auto import
-//@import 'TeamHover';

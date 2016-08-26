@@ -167,12 +167,16 @@ class MakePicks extends Component {
                             </div>
                             <div className="col-xs-6 col-md-2 text-xs-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
                             <div className="col-xs-6 col-md-2 text-xs-center text-md-left homeName">
-                              {`${homeTeam.city} ${homeTeam.name} `}
+                              {homeTeam.city}&nbsp;
                               <i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
+                              <br />
+                              {homeTeam.name}
                             </div>
                             <div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorName">
                               <i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
-                              {` ${visitTeam.city} ${visitTeam.name}`}
+                              &nbsp;{visitTeam.city}
+                              <br />
+                              {visitTeam.name}
                             </div>
                             <div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
                             <div className="col-xs-6 col-md-2 visitorPoints">

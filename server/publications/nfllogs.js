@@ -43,7 +43,9 @@ Meteor.publishComposite('unreadChats', {
           fields: {
             '_id': 1,
             'action': 1,
-            'when': 1
+            'when': 1,
+            'message': 1,
+            'user_id': 1
           },
           sort: {
             when: -1
@@ -89,5 +91,29 @@ Meteor.publish('unreadMessages', function() {
     }
   });
   if (messages) return messages;
+  return this.ready();
+});
+
+Meteor.publish('adminLogs', function() {
+  let logs;
+  if (!this.userId) return this.ready();
+  logs = NFLLog.find({}, {
+    fields: {
+      '_id': 1,
+      'action': 1,
+      'when': 1,
+      'message': 1,
+      'user_id': 1,
+      'to_id': 1,
+      'is_read': 1,
+      'is_deleted': 1
+    },
+    sort: {
+      when: -1
+    },
+    limit: 10,
+    skip: 0
+  });
+  if (logs) return logs;
   return this.ready();
 });

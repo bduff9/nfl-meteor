@@ -469,7 +469,8 @@ export const NFLLog = Class.create({
     },
     when: Date,
     message: {
-      type: String
+      type: String,
+      optional: true
     },
     user_id: {
       type: String,

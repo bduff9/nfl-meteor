@@ -10,6 +10,7 @@ import { removeSelectedWeek } from '../../api/collections/users';
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 import AuthedLayout from '../../ui/layouts/AuthedLayout.jsx';
+import ResetPassword from '../../ui/pages/ResetPassword.jsx';
 import Dashboard from '../../ui/pages/Dashboard.jsx';
 import { Loading } from '../../ui/pages/Loading.jsx';
 import Login from '../../ui/pages/Login.jsx';
@@ -21,6 +22,7 @@ import SetSurvivor from '../../ui/pages/SetSurvivor.jsx';
 import ViewSurvivor from '../../ui/pages/ViewSurvivor.jsx';
 import EditProfile from '../../ui/pages/EditProfile.jsx';
 import AdminUsers from '../../ui/pages/AdminUsers.jsx';
+import AdminLogs from '../../ui/pages/AdminLogs.jsx';
 import { NotFound } from '../../ui/pages/NotFound.jsx';
 
 function requireAuth(nextState, replace) {
@@ -116,6 +118,7 @@ function logOut(nextState, replace) {
 export const Routes = () => (
   <Router history={browserHistory}>
     <Route path="/verify-email/:token" component={Loading} onEnter={verifyEmail} />
+    <Route path="/reset-password/:token" component={ResetPassword} />
     <Route path="/login" component={Login} onEnter={requireNoAuth} />
     <Route path="/logout" component={Logout} onEnter={logOut} />
     <Route path="/" component={AuthedLayout} onEnter={requireAuth}>
@@ -135,6 +138,7 @@ export const Routes = () => (
       </Route>
       <Route path="/admin" onEnter={verifyAdmin}>
         <Route path="users" component={AdminUsers} />
+        <Route path="logs" component={AdminLogs} />
       </Route>
     </Route>
     <Route path="*" component={NotFound} />

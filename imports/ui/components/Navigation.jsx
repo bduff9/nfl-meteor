@@ -90,6 +90,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
           {currentUser.is_admin ? (
             <ul className="nav nav-sidebar">
               <li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
+              <li><Link to="/admin/logs" activeClassName="active">View Logs</Link></li>
               <li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
               <li><a href="#" onClick={(ev) => testMessage.call(displayError)}>Test Message</a></li>
             </ul>

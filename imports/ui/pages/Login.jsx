@@ -3,10 +3,10 @@
 
 import $ from 'jquery';
 import 'jquery-validation';
-import { Accounts } from 'meteor/accounts-base';
-import { Bert } from 'meteor/themeteorchef:bert';
 import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
+import { Bert } from 'meteor/themeteorchef:bert';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
@@ -66,11 +66,16 @@ export default class Login extends Component {
         password: {
           required: true,
           minlength: 6
+        },
+        confirm_password: {
+          required: true,
+          equalTo: '#password'
         }
       },
       messages: {
         email: 'Please enter a valid email address',
-        password: 'Password must be at least six characters'
+        password: 'Password must be at least six characters',
+        confirm_password: 'Please enter the same password again'
       }
     });
   }
@@ -148,6 +153,7 @@ export default class Login extends Component {
               <div className="form-inputs">
                 <input ref="email" type="email" name="email" id="email" className="form-control" placeholder="Email" />
                 <input ref="password" type="password" name="password" id="password" className="form-control" placeholder="Password" />
+                {type === 'register' ? <input ref="confirm_password" type="password" name="confirm_password" id="confirm_password" className="form-control" placeholder="Confirm Password" /> : null}
               </div>
               <br/>
               <div className="row">

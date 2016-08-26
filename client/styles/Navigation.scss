@@ -1,0 +1,63 @@
+div.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 5px 15px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #4B4A48;
+    border-right: 0px solid #100C08;
+    color: #fff;
+    box-shadow: 7px -10px 15px -5px #100C08;
+
+
+    h5 {
+      font-weight: bold;
+    }
+
+    .close-menu {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .nav-sidebar {
+      margin-bottom: 15px;
+
+      li {
+
+        .tag {
+          cursor: pointer;
+        }
+
+        & > a {
+          white-space: nowrap;
+          margin-left: -15px;
+          padding: 4px 4px 4px 15px;
+          color: #fff;
+
+          &.active {
+            background-color: #C6C3BA;
+            color: black;
+            pointer-events: none;
+            padding-right: 100%;
+            font-weight: bolder;
+            box-shadow: inset -5px 0px 15px #100C08;
+          }
+        }
+
+        & > i {
+          cursor: pointer;
+
+          &.disabled {
+            color: transparent;
+            cursor: default;
+          }
+        }
+      }
+    }
+}

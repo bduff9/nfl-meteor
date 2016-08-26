@@ -41,6 +41,19 @@ export const updateUserAdmin = new ValidatedMethod({
   }
 });
 
+export const deleteUser = new ValidatedMethod({
+  name: 'User.deleteUser',
+  validate: new SimpleSchema({
+    userId: { type: String, label: 'User ID' }
+  }).validator(),
+  run({ userId }) {
+    const myUser = User.findOne(this.userId),
+        user = User.findOne(userId);
+    if (!this.userId || !myUser.is_admin || user.done_registering) throw new Meteor.Error('User.deleteUser.notAuthorized', 'Not authorized to this function');
+    user.remove();
+  }
+});
+
 export const updateSelectedWeek = new ValidatedMethod({
   name: 'User.selected_week.update',
   validate: new SimpleSchema({

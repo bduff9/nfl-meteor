@@ -96,6 +96,7 @@ templating-tools@1.0.4
 themeteorchef:bert@2.1.0
 themeteorchef:jquery-validation@1.14.0
 tmeasday:check-npm-versions@0.2.0
+tmeasday:publish-counts@0.7.3
 tracker@1.0.14
 twitter@1.1.11
 ui@1.0.11

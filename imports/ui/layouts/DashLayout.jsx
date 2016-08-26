@@ -65,16 +65,20 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
               <ResponsiveContainer height={200}>
                 <PieChart margin={{ left: 10, right: 10 }}>
                   <Pie data={[
-                      { name: 'Points Earned', value: correctPoints, fill: '#0f0' },
-                      { name: 'Points Missed', value: incorrectPoints, fill: '#f00' }
-                    ]} outerRadius="40%" />
+                      { name: 'Points Earned', value: correctPoints, fill: '#5cb85c' },
+                      { name: 'Points Missed', value: incorrectPoints, fill: '#d9534f' }
+                    ]} outerRadius="70%" />
                   <Pie data={[
-                      { name: 'Games Correct', value: correctPicks.length, fill: '#0f0' },
-                      { name: 'Games Incorrect', value: incorrectPicks.length, fill: '#f00' }
-                    ]} innerRadius="47%" outerRadius="60%" label />
+                      { name: 'Games Correct', value: correctPicks.length, fill: '#5cb85c' },
+                      { name: 'Games Incorrect', value: incorrectPicks.length, fill: '#d9534f' }
+                    ]} innerRadius="80%" outerRadius="100%" label />
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
+              <h4>My Results</h4>
+              <span className="text-muted">Outer: Games correct vs. incorrect</span>
+              <br />
+              <span className="text-muted">Inner: Points correct vs. incorrect</span>
             </div>
             :
             null
@@ -84,13 +88,17 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
               <ResponsiveContainer height={200}>
                 <PieChart margin={{ left: 10, right: 10 }}>
                   <Pie data={[
-                      { name: 'Ahead of me', value: aheadOfMe, fill: '#f00' },
-                      { name: 'Tied with me', value: tiedMe, fill: '#ff0' },
-                      { name: 'I am ahead', value: behindMe, fill: '#0f0' }
-                    ]} innerRadius="47%" outerRadius="60%" activeIndex={1} label={_customLabel} labelLine={false} />
+                      { name: 'Ahead of me', value: aheadOfMe, fill: '#d9534f' },
+                      { name: 'Tied with me', value: tiedMe, fill: '#f0ad4e' },
+                      { name: 'I am ahead', value: behindMe, fill: '#5cb85c' }
+                    ]} innerRadius="87%" outerRadius="100%" activeIndex={1} label={_customLabel} labelLine={false} />
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
+              <h4>My Place</h4>
+              <span className="text-muted">Where you stand</span>
+              <br />
+              <span className="text-muted"></span>
             </div>
             :
             null

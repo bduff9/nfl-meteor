@@ -1,12 +1,10 @@
-.team-hover-wrapper {
-
-  .team-hover {
-    white-space: nowrap;
-    box-shadow: 2px 2px 5px #000;
-    border-radius: 8px;
-    border-collapse: separate;
-    border: 2px solid;
-  }
+.team-hover {
+  white-space: nowrap;
+  box-shadow: 2px 2px 5px #000;
+  border-radius: 8px;
+  border-collapse: separate;
+  border: 2px solid;
+  z-index: 2;
 
   .did-win {
     color: #0f0;

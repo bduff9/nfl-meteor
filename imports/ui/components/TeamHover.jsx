@@ -19,7 +19,14 @@ class TeamHover extends Component {
     this._tether = new Tether({
       element,
       target,
-      attachment: 'middle right'
+      attachment: 'middle right',
+      constraints: [
+        {
+          to: 'window',
+          attachment: 'together',
+          pin: true
+        }
+      ]
     });
   }
   componentWillUnmount() {

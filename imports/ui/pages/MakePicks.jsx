@@ -151,7 +151,7 @@ class MakePicks extends Component {
                             <div className="col-xs-6 col-md-2 homePoints">
                               {homePicked || !started ? (
                                 <PointHolder
-                                  className="pull-xs-left"
+                                  className="pull-md-left"
                                   disabledPoints={homePicked && started ? [thisPick.points] : []}
                                   gameId={game._id}
                                   numGames={games.length}
@@ -178,7 +178,7 @@ class MakePicks extends Component {
                             <div className="col-xs-6 col-md-2 visitorPoints">
                               {visitorPicked || !started ? (
                                 <PointHolder
-                                  className="pull-xs-right"
+                                  className="pull-md-right"
                                   disabledPoints={visitorPicked && started ? [thisPick.points] : []}
                                   gameId={game._id}
                                   numGames={games.length}

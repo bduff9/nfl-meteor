@@ -138,11 +138,11 @@ export default class Login extends Component {
         <Helmet title="Login" />
         <div className="signin-form col-xs-12 col-sm-10 col-md-6 col-lg-4 col-xl-3">
           <div className="row ball-logo-parent">
-            <div className="ball-logo hidden-sm-down">
+            <div className="ball-logo">
               <Isvg src="/svg/football.svg" />
             </div>
           </div>
-          <div className="row ball-logo-parent">
+          <div className="row">
             <div className="login-title text-xs-center">
               <h2>{`${currYear} NFL Confidence Pool`}</h2>
               <h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
@@ -193,7 +193,7 @@ export default class Login extends Component {
             </div>
             <div className="row">
               <div className="col-xs-12">
-                <button type="button" className="btn btn-block btn-default" onClick={this._toggleType}>{type === 'login' ? 'Register Here' : 'Back To Login'}</button>
+                <button type="button" className="btn btn-block btn-default reg-switch-button" onClick={this._toggleType}>{type === 'login' ? 'Register Here' : 'Back To Login'}</button>
               </div>
             </div>
           </div>

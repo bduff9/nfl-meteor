@@ -492,11 +492,13 @@ export const NFLLog = Class.create({
   methods: {
     getUser() {
       const user = User.findOne(this.user_id);
-      return user;
+      if (this.user_id) return user;
+      return null;
     },
     getUserTo() {
       const user = User.findOne(this.to_id);
-      return user;
+      if (this.to_id) return user;
+      return null;
     }
   },
   indexes: {}

@@ -92,6 +92,6 @@ ResetPassword.propTypes = {
 
 ResetPassword.contextTypes = {
   router: PropTypes.object.isRequired
-}
+};
 
 export default ResetPassword;

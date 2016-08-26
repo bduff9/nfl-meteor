@@ -2,5 +2,19 @@
 
   .admin-logs-table {
     background-color: rgba(255, 255, 255, 0.85);
+
+    th {
+
+      .filter {
+
+        button {
+          border: none;
+          background: transparent;
+          font-weight: bold;
+          padding: 0;
+          margin: 0;
+        }
+      }
+    }
   }
 }

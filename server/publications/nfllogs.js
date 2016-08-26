@@ -94,9 +94,14 @@ Meteor.publish('unreadMessages', function() {
   return this.ready();
 });
 
-Meteor.publish('adminLogs', function() {
+Meteor.publish('adminLogs', function(limit, skip) {
   let logs;
+  new SimpleSchema({
+    limit: { type: Number, label: 'Records per Page', min: 1 },
+    skip: { type: Number, label: 'Records to Skip', min: 0 }
+  }).validate({ limit, skip });
   if (!this.userId) return this.ready();
+  Counts.publish(this, 'adminLogsCt', NFLLog.find(), { noReady: true });
   logs = NFLLog.find({}, {
     fields: {
       '_id': 1,
@@ -109,10 +114,10 @@ Meteor.publish('adminLogs', function() {
       'is_deleted': 1
     },
     sort: {
-      when: -1
+      when: 1
     },
-    limit: 10,
-    skip: 0
+    limit,
+    skip
   });
   if (logs) return logs;
   return this.ready();

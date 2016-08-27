@@ -1,5 +1,13 @@
 .dashboard-layout {
   margin-top: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  .dashboard-table-parent {
+    overflow: auto;
+    padding-left: 1px;
+    padding-right: 1px;
+  }
 
   .my-rank {
     position: absolute;

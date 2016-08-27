@@ -136,7 +136,7 @@ export default class Login extends Component {
     return (
       <div className="row login-stretch">
         <Helmet title="Login" />
-        <div className="signin-form col-xs-12 col-sm-10 col-md-6 col-lg-4 col-xl-3">
+        <div className="signin-form col-xs-12 col-sm-10 col-md-6 col-lg-4">
           <div className="row ball-logo-parent">
             <div className="ball-logo">
               <Isvg src="/svg/football.svg" />

@@ -1,6 +1,6 @@
 'use strict';
 
-import { NFLLog } from '../../imports/api/schema';
+import { NFLLog, NFLLogs } from '../../imports/api/schema';
 
 Meteor.publish('allChats', function() {
   let allChats;
@@ -94,15 +94,24 @@ Meteor.publish('unreadMessages', function() {
   return this.ready();
 });
 
-Meteor.publish('adminLogs', function(limit, skip) {
-  let logs;
+Meteor.publish('adminLogs', function(limit, skip, actions, userFroms, userTos) {
+  let filters = {},
+      logs;
   new SimpleSchema({
     limit: { type: Number, label: 'Records per Page', min: 1 },
-    skip: { type: Number, label: 'Records to Skip', min: 0 }
-  }).validate({ limit, skip });
+    skip: { type: Number, label: 'Records to Skip', min: 0 },
+    actions: { type: [String], label: 'Actions List', optional: true },
+    userFroms: { type: [String], label: 'User List', optional: true },
+    userTos: { type: [String], label: 'User To List', optional: true }
+  }).validate({ limit, skip, actions, userFroms, userTos });
   if (!this.userId) return this.ready();
-  Counts.publish(this, 'adminLogsCt', NFLLog.find(), { noReady: true });
-  logs = NFLLog.find({}, {
+  if (actions) filters.action = { $in: actions };
+  if (userFroms) filters.user_id = { $in: userFroms };
+  if (userTos) filters.to_id = { $in: userTos };
+console.log(filters);
+
+  Counts.publish(this, 'adminLogsCt', NFLLogs.find(filters), { noReady: true });
+  logs = NFLLogs.find(filters, {
     fields: {
       '_id': 1,
       'action': 1,

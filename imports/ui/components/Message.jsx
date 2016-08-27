@@ -21,7 +21,7 @@ export const Message = ({ from, msgId, message, sent, unread }) => {
       <div className="col-xs-6 text-xs-left">{fromStr ? fromStr : null}</div>
       <div className="col-xs-6 text-xs-right">{sent ? sent : null}</div>
       <div className="col-xs-12 text-xs-left">{message}</div>
-      {from ? (
+      {from || sent ? (
         <div className="col-xs-12 text-xs-center">
           <button type="button" className="btn btn-danger" onClick={deleteMsg}>
             <i className="fa fa-fw fa-trash" />

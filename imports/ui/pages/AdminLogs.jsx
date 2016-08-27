@@ -16,25 +16,75 @@ class AdminLogs extends Component {
     super();
     this.state = {};
     this._changePage = this._changePage.bind(this);
+    this._filterAction = this._filterAction.bind(this);
+    this._filterUser = this._filterUser.bind(this);
+    this._filterUserTos = this._filterUserTos.bind(this);
+    this._redirect = this._redirect.bind(this);
   }
 
   _changePage(dir, disabled, ev) {
-    const { limit, page, pathname } = this.props,
-        newPage = page + dir,
-        pageChanged = newPage !== 1,
-        limitChanged = limit !== 10;
-    let newPath = pathname;
+    const { actions, limit, page, pathname, userFroms, userTos } = this.props,
+        newPage = page + dir;
     ev.preventDefault();
-    if (!disabled) {
-      if (pageChanged) newPath += `?page=${newPage}`;
-      if (limit !== 10) newPath += `${pageChanged ? '&' : '?'}limit=${limit}`;
-      this.context.router.push(newPath);
-    }
+    if (!disabled) this._redirect(pathname, limit, newPage, actions, userFroms, userTos);
     return false;
+  }
+  _filterAction(action, add, ev) {
+    const { actions, limit, page, pathname, userFroms, userTos } = this.props;
+    let newActions;
+    ev.preventDefault();
+    if (add) {
+      newActions = Object.assign([], actions);
+      newActions.push(action);
+    } else {
+      newActions = actions.filter(a => a !== action);
+    }
+    this._redirect(pathname, limit, page, newActions, userFroms, userTos);
+    return false;
+  }
+  _filterUser(userId, add, ev) {
+    const { actions, limit, page, pathname, userFroms, userTos } = this.props;
+    let newUsers;
+    ev.preventDefault();
+    if (add) {
+      newUsers = Object.assign([], userFroms);
+      newUsers.push(userId);
+    } else {
+      newUsers = userFroms.filter(u => u !== userId);
+    }
+    this._redirect(pathname, limit, page, actions, newUsers, userTos);
+    return false;
+  }
+  _filterUserTos(userId, add, ev) {
+    const { actions, limit, page, pathname, userFroms, userTos } = this.props;
+    let newUsers;
+    ev.preventDefault();
+    if (add) {
+      newUsers = Object.assign([], userTos);
+      newUsers.push(userId);
+    } else {
+      newUsers = userTos.filter(u => u !== userId);
+    }
+    this._redirect(pathname, limit, page, actions, userFroms, newUsers);
+    return false;
+  }
+  _redirect(pathname, limit, page, actions, userFroms, userTos) {
+    const limitChanged = limit !== 10,
+        pageChanged = page !== 1,
+        actionChanged = actions && actions.length > 0,
+        userChanged = userFroms && userFroms.length > 0,
+        userToChanged = userTos && userTos.length > 0;
+    let newPath = pathname;
+    if (limitChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}limit=${limit}`
+    if (pageChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}page=${newPage}`;
+    if (actionChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}actions=${actions}`;
+    if (userChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}users=${userFroms}`;
+    if (userToChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}userTos=${userTos}`;
+    this.context.router.push(newPath);
   }
 
   render() {
-    const { limit, logCt, logs, page, pageReady } = this.props,
+    const { actions, limit, logCt, logs, page, pageReady, userFroms, users, userTos } = this.props,
         totalPages = Math.ceil(logCt / limit),
         hasPrev = page > 1,
         hasNext = (page * limit) < logCt;
@@ -72,18 +122,58 @@ class AdminLogs extends Component {
                         Action
                       </button>
                       <div className="dropdown-menu" aria-labelledby="action-filter">
-                        {ACTIONS.map((action, i) => (
-                          <a className="dropdown-item" href="#" onClick={null} key={'action' + i}>{action}</a>
-                        ))}
+                        {ACTIONS.map((action, i) => {
+                          const selected = actions && actions.indexOf(action) > -1;
+                          return (
+                            <a className="dropdown-item" href="#" onClick={this._filterAction.bind(null, action, !selected)} key={'action' + i}>
+                              {selected ? <i className="fa fa-fw fa-check" /> : null}
+                              {action}
+                            </a>
+                          );
+                        })}
                       </div>
                     </div>
                   </th>
                   <th>Time</th>
                   <th>Message</th>
-                  <th>User</th>
+                  <th>
+                    <div className="dropdown filter">
+                      <button className="btn btn-secondary dropdown-toggle" type="button" id="user-filter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        User
+                      </button>
+                      <div className="dropdown-menu" aria-labelledby="user-filter">
+                        {users.map(user => {
+                          const selected = userFroms && userFroms.indexOf(user._id) > -1;
+                          return (
+                            <a className="dropdown-item" href="#" onClick={this._filterUser.bind(null, user._id, !selected)} key={'user' + user._id}>
+                              {selected ? <i className="fa fa-fw fa-check" /> : null}
+                              {`${user.first_name} ${user.last_name}`}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </th>
                   <th>Is read?</th>
                   <th>Is deleted?</th>
-                  <th>To User</th>
+                  <th>
+                    <div className="dropdown filter">
+                      <button className="btn btn-secondary dropdown-toggle" type="button" id="user-to-filter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        User To
+                      </button>
+                      <div className="dropdown-menu" aria-labelledby="user-to-filter">
+                        {users.map(user => {
+                          const selected = userTos && userTos.indexOf(user._id) > -1;
+                          return (
+                            <a className="dropdown-item" href="#" onClick={this._filterUserTos.bind(null, user._id, !selected)} key={'userTo' + user._id}>
+                              {selected ? <i className="fa fa-fw fa-check" /> : null}
+                              {`${user.first_name} ${user.last_name}`}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -115,13 +205,16 @@ class AdminLogs extends Component {
 }
 
 AdminLogs.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.string),
   limit: PropTypes.number.isRequired,
   logCt: PropTypes.number.isRequired,
   logs: PropTypes.arrayOf(PropTypes.object).isRequired,
   page: PropTypes.number.isRequired,
   pageReady: PropTypes.bool.isRequired,
   pathname: PropTypes.string.isRequired,
-  users: PropTypes.arrayOf(PropTypes.object).isRequired
+  userFroms: PropTypes.arrayOf(PropTypes.string),
+  users: PropTypes.arrayOf(PropTypes.object).isRequired,
+  userTos: PropTypes.arrayOf(PropTypes.string)
 };
 
 AdminLogs.contextTypes = {
@@ -141,8 +234,23 @@ export default createContainer(({ location }) => {
         if (parm[0] === 'page') return parseInt(parm[1], 10);
         return prev;
       }, 1),
+      actions = searchArr.reduce((prev, q) => {
+        const parm = q.split('=');
+        if (parm[0] === 'actions') return parm[1].split(',');
+        return prev;
+      }, null),
+      userFroms = searchArr.reduce((prev, q) => {
+        const parm = q.split('=');
+        if (parm[0] === 'users') return parm[1].split(',');
+        return prev;
+      }, null),
+      userTos = searchArr.reduce((prev, q) => {
+        const parm = q.split('=');
+        if (parm[0] === 'userTos') return parm[1].split(',');
+        return prev;
+      }, null),
       skip = limit * page,
-      allLogsHandle = Meteor.subscribe('adminLogs', limit, skip),
+      allLogsHandle = Meteor.subscribe('adminLogs', limit, skip, actions, userFroms, userTos),
       allLogsReady = allLogsHandle.ready(),
       allUsersHandle = Meteor.subscribe('adminUsers'),
       allUsersReady = allUsersHandle.ready(),
@@ -156,12 +264,15 @@ export default createContainer(({ location }) => {
     users = User.find({}).fetch();
   }
   return {
+    actions,
     limit,
     logCt,
     logs,
     page,
     pageReady: allLogsReady && allUsersReady,
     pathname,
-    users
+    userFroms,
+    users,
+    userTos
   };
 }, AdminLogs);

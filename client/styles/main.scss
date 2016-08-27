@@ -9,7 +9,7 @@ label.error {
   color: #C9302C;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 675px) {
   body {
     background-image: url('/bkgd-pitch.png');
     background-repeat: no-repeat;
@@ -18,7 +18,7 @@ label.error {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 674px) {
   body {
     background-color: #000;
   }

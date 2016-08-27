@@ -1,5 +1,5 @@
 // Styling for screens over mobile
-@media (min-width: 769px) {
+@media (min-width: 851px) {
   .login-stretch {
 
     .signin-form {
@@ -27,12 +27,45 @@
     .login-title {
       margin-top:40px;
       margin-bottom: 20px;
+    }
   }
+}
+
+// Styling for portrait tablet
+@media (min-width: 675px) and (max-width: 850px) {
+  .login-stretch {
+
+    .signin-form {
+      position: relative;
+      border: 1px solid black;
+      border-radius: 5px;
+      background-color: #F5F5F7;
+      padding: 60px 30px 30px 30px;
+      margin: 25% auto;
+      float: none;
+    }
+
+    .ball-logo-parent {
+      position: relative;
+    }
+
+    .ball-logo {
+      width: 200px;
+      position: absolute;
+      top:-175px;
+      left: 50%;
+      margin-left: -86px;
+    }
+
+    .login-title {
+      margin-top:40px;
+      margin-bottom: 20px;
+    }
   }
 }
 
 // Styling for mobile screens
-@media (max-width: 768px) {
+@media (max-width: 674px) {
   #react-root, #react-root > .row, .login-stretch {
     height: 100%;
   }
@@ -66,12 +99,6 @@
     .login-title {
       margin-bottom: 20px;
     }
-
-    .reg-switch-button {
-      background-color: gray;
-      color: white;
-      font-weight: bold;
-    }
   }
 }
 
@@ -79,5 +106,11 @@
 
   .login-form {
     margin-top: 20px;
+  }
+
+  .reg-switch-button {
+    background-color: gray;
+    color: white;
+    font-weight: bold;
   }
 }

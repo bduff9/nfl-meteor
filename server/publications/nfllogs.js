@@ -1,6 +1,6 @@
 'use strict';
 
-import { NFLLog, NFLLogs } from '../../imports/api/schema';
+import { NFLLog } from '../../imports/api/schema';
 
 Meteor.publish('allChats', function() {
   let allChats;
@@ -97,7 +97,7 @@ Meteor.publish('unreadMessages', function() {
 Meteor.publish('adminLogs', function(filters, limit, skip) {
   let logs;
   new SimpleSchema({
-    filters: { type: Object, label: 'Filters' },
+    filters: { type: Object, label: 'Filters', blackbox: true },
     limit: { type: Number, label: 'Records per Page', min: 1 },
     skip: { type: Number, label: 'Records to Skip', min: 0 }
   }).validate({ filters, limit, skip });

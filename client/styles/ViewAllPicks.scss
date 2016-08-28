@@ -1,5 +1,9 @@
 .view-all-picks-wrapper {
 
+  .view-all-picks {
+    overflow: auto;
+  }
+
   .reset-picks {
     margin-bottom: 5px;
     margin-right: 5px;

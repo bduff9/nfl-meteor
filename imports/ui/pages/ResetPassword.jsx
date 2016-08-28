@@ -66,20 +66,32 @@ class ResetPassword extends Component {
   render() {
     const { pageReady, users } = this.props;
     return (
-      <div className="row reset-password">
-        <Helmet title="Reset Password" />
-        <div className="col-xs-12">
-          <h3 className="title-text text-xs-center text-md-left">Reset Password</h3>
-          <form id="reset-password-form" onSubmit={this._submitForm} ref="resetForm">
-            <div className="form-inputs">
-              <input ref="password" type="password" name="password" id="password" className="form-control" placeholder="Password" />
-              <input ref="confirm_password" type="password" name="confirm_password" id="confirm_password" className="form-control" placeholder="Confirm Password" />
-              <br />
-              <button type="submit" className="btn btn-primary">
-                Reset Password
-              </button>
+      <div className="container-fluid reset-password">
+        <div className="row">
+          <Helmet title="Reset Password" />
+          <div className="white-box col-xs-11 col-sm-10 col-md-6 col-xl-4">
+            <div className="row">
+              <h3 className="title-text text-xs-center">Reset Password</h3>
             </div>
-          </form>
+            <form id="reset-password-form" onSubmit={this._submitForm} ref="resetForm">
+              <div className="form-inputs">
+                <div className="row">
+                  <input ref="password" type="password" name="password" id="password" className="form-control" placeholder="Password" />
+                </div>
+                <div className="row">
+                  <input ref="confirm_password" type="password" name="confirm_password" id="confirm_password" className="form-control" placeholder="Confirm Password" />
+                </div>
+                <br />
+                <div className="row">
+                  <div className="col-xs-12 text-xs-center">
+                    <button type="submit" className="btn btn-primary">
+                      Reset Password
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     );

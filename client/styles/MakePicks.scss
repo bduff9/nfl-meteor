@@ -2,6 +2,39 @@ $pointBankWidth: 75px;
 $footerHeight: 60px;
 $footerHeightLarge: 120px;
 
+
+@media (min-width: 675px) {
+  .make-picks-wrapper {
+
+    .points {
+      background-color: #FFF;
+      border: 1px solid #000;
+      list-style-type: none;
+      padding: 4px 0;
+
+      &.disabled {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+@media (max-width: 674px) {
+  .make-picks-wrapper {
+
+    .points {
+      background-color: #FFF;
+      border: 1px solid #000;
+      list-style-type: none;
+      padding: 2px 0;
+
+      &.disabled {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
 .make-picks-wrapper {
 
   .pointBank {
@@ -12,17 +45,6 @@ $footerHeightLarge: 120px;
     min-height: 34px;
     border: 1px dashed white;
     background-color: rgba(255, 255, 255, 0.45);
-  }
-
-  .points {
-    background-color: #FFF;
-    border: 1px solid #000;
-    list-style-type: none;
-    padding: 4px 0;
-
-    &.disabled {
-      opacity: 0.5;
-    }
   }
 
   .makePickTable,
@@ -78,6 +100,10 @@ $footerHeightLarge: 120px;
     .pointBank {
       width: $pointBankWidth;
       margin-left: -9px;
+
+      .points {
+        padding:2px 0;
+      }
     }
 
     .makePickTable,
@@ -141,10 +167,11 @@ $footerHeightLarge: 120px;
   }
 
   @media (min-width: 768px) {
+
     .pointBank {
 
       .points {
-        width: 50%
+        width: 50%;
       }
     }
   }

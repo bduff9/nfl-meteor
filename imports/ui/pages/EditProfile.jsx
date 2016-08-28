@@ -195,7 +195,7 @@ export default class EditProfile extends Component {
                   <div className="row">
                     <div className="social-text col-xs-10 offset-xs-1 text-xs-center">
                       <span>
-                        Linking your account makes logging in a simple as a single click
+                        Linking your account makes logging in as simple as a single click on the login page
                       </span>
                     </div>
                   </div>

@@ -24,10 +24,10 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
           alive.push(user);
         }
       }
-      if (!user.survivor[0].pick_id) return;
+      if (!user.survivor[0] || !user.survivor[0].pick_id) return;
       for (let i = 0; i < weekForSec; i++) {
         pick = user.survivor[i];
-        if (pick.pick_id) {
+        if (pick && pick.pick_id) {
           graphData[i][`${user.first_name} ${user.last_name}`] = pick.pick_short;
         } else {
           break;
@@ -36,13 +36,13 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
     });
   } else {
     data.forEach(user => {
-      thisWeek = user.survivor[0];
-      if (!thisWeek.pick_id || (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id)) {
+      thisWeek = user.survivor.filter(s => s.week === week)[0];
+      if (!thisWeek || !thisWeek.pick_id || (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id)) {
         dead.push(user);
       } else {
         alive.push(user);
       }
-      if (!thisWeek.pick_id) return;
+      if (!thisWeek || !thisWeek.pick_id) return;
       teamShort = thisWeek.pick_short;
       index = graphData.findIndex(team => team.team === teamShort);
       if (index === -1) {

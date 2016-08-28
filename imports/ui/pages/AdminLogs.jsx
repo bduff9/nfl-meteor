@@ -76,7 +76,7 @@ class AdminLogs extends Component {
         userToChanged = userTos && userTos.length > 0;
     let newPath = pathname;
     if (limitChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}limit=${limit}`
-    if (pageChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}page=${newPage}`;
+    if (pageChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}page=${page}`;
     if (actionChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}actions=${actions}`;
     if (userChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}users=${userFroms}`;
     if (userToChanged) newPath += `${newPath.indexOf('?') === -1 ? '?' : '&'}userTos=${userTos}`;
@@ -91,11 +91,18 @@ class AdminLogs extends Component {
     return (
       <div className="row admin-logs">
         <Helmet title="View All Logs" />
+        <h3 className="title-text text-xs-center text-md-left hidden-md-up">View All Logs</h3>
         <nav className="text-xs-right">
           <ul className="pagination">
             <li className={'page-item' + (!hasPrev ? ' disabled' : '')}>
+              <a className="page-link" href="#" aria-label="First" onClick={this._changePage.bind(null, 1 - page, !hasPrev)}>
+                <i className="fa fa-fw fa-angle-double-left" />
+                <span className="sr-only">First Page</span>
+              </a>
+            </li>
+            <li className={'page-item' + (!hasPrev ? ' disabled' : '')}>
               <a className="page-link" href="#" aria-label="Previous" onClick={this._changePage.bind(null, -1, !hasPrev)}>
-                <span aria-hidden="true">&laquo;</span>
+                <i className="fa fa-fw fa-angle-left" />
                 <span className="sr-only">Previous</span>
               </a>
             </li>
@@ -104,15 +111,20 @@ class AdminLogs extends Component {
             </li>
             <li className={'page-item' + (!hasNext ? ' disabled' : '')}>
               <a className="page-link" href="#" aria-label="Next" onClick={this._changePage.bind(null, 1, !hasNext)}>
-                <span aria-hidden="true">&raquo;</span>
+                <i className="fa fa-fw fa-angle-right" />
                 <span className="sr-only">Next</span>
+              </a>
+            </li>
+            <li className={'page-item' + (!hasNext ? ' disabled' : '')}>
+              <a className="page-link" href="#" aria-label="Next" onClick={this._changePage.bind(null, totalPages - page, !hasNext)}>
+                <i className="fa fa-fw fa-angle-double-right" />
+                <span className="sr-only">Last Page</span>
               </a>
             </li>
           </ul>
         </nav>
         {pageReady ? (
           <div className="col-xs-12">
-            <h3 className="title-text text-xs-center text-md-left hidden-md-up">View All Logs</h3>
             <table className="table table-hover table-bordered admin-logs-table">
               <thead>
                 <tr>
@@ -249,16 +261,21 @@ export default createContainer(({ location }) => {
         if (parm[0] === 'userTos') return parm[1].split(',');
         return prev;
       }, null),
-      skip = limit * page,
-      allLogsHandle = Meteor.subscribe('adminLogs', limit, skip, actions, userFroms, userTos),
-      allLogsReady = allLogsHandle.ready(),
+      skip = limit * (page - 1),
       allUsersHandle = Meteor.subscribe('adminUsers'),
-      allUsersReady = allUsersHandle.ready(),
-      logCt = Counts.get('adminLogsCt');
-  let logs = [],
-      users = [];
+      allUsersReady = allUsersHandle.ready();
+  let filters = {},
+      logs = [],
+      users = [],
+      allLogsHandle, allLogsReady, logCt;
+  if (actions) filters.action = { $in: actions };
+  if (userFroms) filters.user_id = { $in: userFroms };
+  if (userTos) filters.to_id = { $in: userTos };
+  allLogsHandle = Meteor.subscribe('adminLogs', filters, limit, skip);
+  allLogsReady = allLogsHandle.ready();
+  logCt = Counts.get('adminLogsCt');
   if (allLogsReady) {
-    logs = NFLLog.find({}, { sort: { when: 1 }}).fetch();
+    logs = NFLLog.find(filters, { sort: { when: 1 }}).fetch();
   }
   if (allUsersReady) {
     users = User.find({}).fetch();

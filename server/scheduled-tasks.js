@@ -17,24 +17,27 @@ SyncedCron.add({
   schedule: parse => parse.recur().on(30).minute(),
   job: () => {
     const week = currentWeek.call(),
-        users = User.find({ "done_registering": true, "tiebreakers.week": week, "tiebreakers.submitted": false }).fetch(),
+        users = User.find({ "done_registering": true }).fetch(),
         firstGameOfWeek = Game.findOne({ week, game: 1 }),
         now = moment(),
         kickoff = moment(firstGameOfWeek.kickoff),
         timeToKickoff = kickoff.diff(now, 'hours', true);
-    if (timeToKickoff >= 23 && timeToKickoff < 24) {
+    if (timeToKickoff > 23 && timeToKickoff <= 24) {
       users.forEach(user => {
-        Email.send({
-          to: user.email,
-          from: 'Brian Duffey <bduff9@gmail.com>',
-          subject: `Hurry up, ${user.first_name}!`,
-          text: `Hello ${user.first_name},
+        const tiebreaker = user.tiebreakers.filter(t => t.week === week)[0];
+        if (!tiebreaker.submitted) {
+          Email.send({
+            to: user.email,
+            from: 'Brian Duffey <bduff9@gmail.com>',
+            subject: `Hurry up, ${user.first_name}!`,
+            text: `Hello ${user.first_name},
 
 This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.
 
 Good luck!`,
-        });
-        console.log(`Email sent to ${user.email}`);
+          });
+          console.log(`Email sent to ${user.first_name} ${user.last_name} (${user.email})`);
+        }
       });
     }
     return `Email task run for ${users.length} users`;

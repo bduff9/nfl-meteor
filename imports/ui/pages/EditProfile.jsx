@@ -193,6 +193,13 @@ export default class EditProfile extends Component {
                 <div className="col-xs-12 form-group text-xs-center save-wrapper">
                   {/* Add service check to show unlink option */}
                   <div className="row">
+                    <div className="social-text col-xs-10 offset-xs-1 text-xs-center">
+                      <span>
+                        Linking your account makes logging in a simple as a single click
+                      </span>
+                    </div>
+                  </div>
+                  <div className="row">
                     <div className="col-xs-12 col-md-6 text-xs-center text-md-right social-btns">
                       <button type="button" className="btn btn-primary btn-facebook" disabled={hasFacebook} onClick={this._oauthLink.bind(null, 'loginWithFacebook')}>
                         <i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}

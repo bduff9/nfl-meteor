@@ -25,12 +25,8 @@
   .set-survivor-table {
     background-color: rgba(255, 255, 255, 0.85);
 
-    .survivor-pick {
-      width: 120px;
+    .is-picked {
+      margin-bottom: 10px;
     }
   }
 }
-
-// Removed for auto import
-//@import 'SurvivorPick';
-//@import 'SurvivorModal';

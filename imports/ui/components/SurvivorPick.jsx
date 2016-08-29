@@ -15,17 +15,15 @@ const SurvivorPick = ({ game, gameReady, pick }) => {
   }
   return (
     <div className="survivor-pick">
-      {gameReady ? (
-        <div>
-          <div className="picked-team text-xs-center" style={teamStyle}>
-            <img src={`/NFLLogos/${team.logo}`} />
-          </div>
-          <div className="text-xs-center">-over-</div>
-          <div className="not-picked-team text-xs-center">
-            <img src={`/NFLLogos/${otherTeam.logo}`} />
-          </div>
+      {gameReady ? [
+        <div className="text-xs-center pull-xs-left picked-team" style={teamStyle} key={'pickedTeam' + game._id}>
+          <img src={`/NFLLogos/${team.logo}`} />
+        </div>,
+        <div className="text-xs-center pull-xs-left over-text" key={'over' + game._id}>-over-</div>,
+        <div className="text-xs-center pull-xs-left not-picked-team" key={'notPickedTeam' + game._id}>
+          <img src={`/NFLLogos/${otherTeam.logo}`} />
         </div>
-      )
+      ]
       :
         null
       }

@@ -41,62 +41,62 @@ class SetSurvivor extends Component {
         {pageReady ? (
           <div className="col-xs-12">
             <h3 className="title-text text-xs-center text-md-left hidden-md-up">Make Survivor Picks</h3>
-            <div className="col-md-4 hidden-sm-down side-bar">
-              {teams.map((team, i) => {
-                const weekIndex = survivorPicks.findIndex((pick, i) => team._id === pick.pick_id);
-                return (
-                  <div className="col-md-3 col-xs-2" key={'team' + i}>
-                    <div className="text-xs-center survivor-logo">
-                      <img src={`/NFLLogos/${team.logo}`} className={(weekIndex !== -1 ? 'used' : '')} />
-                      {weekIndex !== -1 ? <span className="tag tag-default when-picked">{weekIndex + 1}</span> : null}
+            <div className="row">
+              <div className="col-md-4 hidden-sm-down side-bar">
+                {teams.map((team, i) => {
+                  const weekIndex = survivorPicks.findIndex((pick, i) => team._id === pick.pick_id);
+                  return (
+                    <div className="col-md-3 col-xs-2" key={'team' + i}>
+                      <div className="text-xs-center survivor-logo">
+                        <img src={`/NFLLogos/${team.logo}`} className={(weekIndex !== -1 ? 'used' : '')} />
+                        {weekIndex !== -1 ? <span className="tag tag-default when-picked">{weekIndex + 1}</span> : null}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="col-md-7 offset-md-5 col-xs-12">
-              <table className="table table-hover set-survivor-table">
-                <thead className="thead-default">
-                  <tr>
-                    <th>Week</th>
-                    <th colSpan="2">Pick</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {survivorPicks.map((pick, i) => (
-                    <tr key={'survivor' + i}>
-                      <td>
-                        {pick.week}
-                        {pick.winner_id ? (pick.pick_id === pick.winner_id ? <i className="fa fa-fw fa-lg fa-check text-success" /> : <i className="fa fa-fw fa-lg fa-times text-danger" />) : null}
-                      </td>
-                      <td>
-                        {pick.week > weekForSec ? (
-                          <button type="button" className={'btn btn-' + (pick.pick_id ? 'success' : (pick.week === currentWeek ? 'danger' : 'primary'))} onClick={this._setModalWeek.bind(null, pick.week)}>
-                            <i className="fa fa-fw fa-large fa-pencil-square-o" />
-                            &nbsp; Pick Team
-                          </button>
-                        )
-                        :
-                          null
-                        }
-                      </td>
-                      <td className="survivor-pick">
-                        {pick.pick_id ? <SurvivorPick pick={pick} /> : null}
-                      </td>
+                  );
+                })}
+              </div>
+              <div className="col-md-7 offset-md-5 col-xs-12">
+                <table className="table table-hover set-survivor-table">
+                  <thead className="thead-default">
+                    <tr>
+                      <th className="text-xs-center">Week</th>
+                      <th className="text-xs-center">Pick</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              {modalWeek ? (
-                <SurvivorModal
-                  pick={survivorPicks[modalWeek - 1]}
-                  usedTeams={survivorPicks.filter(pick => pick.pick_id).map(pick => pick.pick_id)}
-                  week={modalWeek}
-                  _setModalWeek={this._setModalWeek} />
-                )
-                :
-                null
-              }
+                  </thead>
+                  <tbody>
+                    {survivorPicks.map((pick, i) => (
+                      <tr key={'survivor' + i}>
+                        <td className="text-xs-right">
+                          {pick.winner_id ? (pick.pick_id === pick.winner_id ? <i className="fa fa-fw fa-lg fa-check text-success" /> : <i className="fa fa-fw fa-lg fa-times text-danger" />) : null}
+                          {pick.week}
+                        </td>
+                        <td className="text-xs-left">
+                          {pick.week > weekForSec ? (
+                            <button type="button" className={'btn btn-' + (pick.pick_id ? 'success is-picked' : (pick.week === currentWeek ? 'danger' : 'primary'))} onClick={this._setModalWeek.bind(null, pick.week)}>
+                              <i className="fa fa-fw fa-large fa-pencil-square-o" />
+                              &nbsp; Pick Team
+                            </button>
+                          )
+                          :
+                            null
+                          }
+                          {pick.pick_id ? <SurvivorPick pick={pick} /> : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {modalWeek ? (
+                  <SurvivorModal
+                    pick={survivorPicks[modalWeek - 1]}
+                    usedTeams={survivorPicks.filter(pick => pick.pick_id).map(pick => pick.pick_id)}
+                    week={modalWeek}
+                    _setModalWeek={this._setModalWeek} />
+                  )
+                  :
+                  null
+                }
+              </div>
             </div>
           </div>
         )

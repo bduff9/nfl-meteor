@@ -1,18 +1,23 @@
 .survivor-pick {
+  display: flex;
+  align-items: center;
 
   .picked-team {
     width: 120px;
     height: 120px;
-    margin-bottom: 5px;
     padding-top: 20px;
     border-radius: 100%;
     border: 10px solid
+  }
+
+  .over-text {
+    transform: rotate(-90deg);
+    white-space: nowrap;
   }
 
   .not-picked-team {
     width: 60px;
     height: 60px;
     background-color: grey;
-    margin: 0 auto;
   }
 }

@@ -21,7 +21,7 @@ class ViewPicks extends Component {
         pageReady = gamesReady && teamsReady,
         maxPoints = (games.length * (games.length + 1)) / 2,
         possiblePoints = picks.reduce((prevScore, pick) => {
-          if ((pick.winner_id && pick.pick_id === pick.winner_id) || pick.pick_id) return prevScore + pick.points;
+          if ((pick.winner_id && pick.pick_id === pick.winner_id) || (!pick.winner_id && pick.pick_id)) return prevScore + pick.points;
           return prevScore;
         }, 0);
     return (

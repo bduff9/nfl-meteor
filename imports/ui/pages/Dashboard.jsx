@@ -59,14 +59,16 @@ class Dashboard extends Component {
     updateSelectedWeek.call({ week: newWeek }, displayError);
   }
   _toggleOverall(ev) {
-    const { viewOverall } = this.state;
-    this.setState({ sortBy: null, viewOverall: !viewOverall });
+    const viewOverall = ev.currentTarget.value === 'true';
+    this.setState({ sortBy: null, viewOverall });
   }
 
   render() {
     const { sortBy, viewOverall } = this.state,
-        { selectedWeek, user } = this.props,
-        pageReady = selectedWeek && user;
+        { pageReady, selectedWeek, user } = this.props;
+//TODO remove
+console.log('viewOverall', viewOverall  );
+
     return (
       <div className="row dashboard-wrapper">
         <Helmet title={`My Dashboard`} />
@@ -76,9 +78,9 @@ class Dashboard extends Component {
             <div className="col-xs-6">
               <div className="form-group">
                 <label htmlFor="view-overall">View:</label>
-                <select className="form-control" id="view-overall" value={viewOverall} onChange={this._toggleOverall}>
-                  <option value={true}>Overall</option>
-                  <option value={false}>Week</option>
+                <select className="form-control" id="view-overall" value={'' + viewOverall} onChange={this._toggleOverall}>
+                  <option value="true">Overall</option>
+                  <option value="false">Week</option>
                 </select>
               </div>
             </div>
@@ -118,6 +120,7 @@ class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
+  pageReady: PropTypes.bool.isRequired,
   selectedWeek: PropTypes.number,
   user: PropTypes.object.isRequired
 };
@@ -125,7 +128,11 @@ Dashboard.propTypes = {
 export default createContainer(() => {
   const selectedWeek = Session.get('selectedWeek'),
       user = User.findOne(Meteor.userId());
+//TODO remove
+console.log('create dash');
+
   return {
+    pageReady: selectedWeek && user,
     selectedWeek,
     user
   };

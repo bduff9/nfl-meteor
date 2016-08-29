@@ -23,6 +23,8 @@ Meteor.publish('userData', function() {
       'selected_week': 1,
       'total_points': 1,
       'total_games': 1,
+      'overall_place': 1,
+      'overall_tied_flag': 1,
       'bonus_points': 1,
       'picks': 1,
       'tiebreakers': 1,
@@ -85,6 +87,8 @@ Meteor.publish('overallPlaces', function() {
       'done_registering': 1,
       'total_points': 1,
       'total_games': 1,
+      'overall_place': 1,
+      'overall_tied_flag': 1,
       'bonus_points': 1,
       'picks': 1
     },

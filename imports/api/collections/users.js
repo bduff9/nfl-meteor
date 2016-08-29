@@ -359,16 +359,14 @@ export const updateSurvivor = new ValidatedMethod({
   }).validator(),
   run({ week }) {
     const allUsers = User.find({ "done_registering": true }).fetch();
-    let survivorPicks, alive;
     allUsers.forEach(user => {
-      survivorPicks = user.survivor;
-      alive = survivorPicks.length === 17;
+      let alive = user.survivor.length === 17;
       if (!alive) return true;
-      survivorPicks.every((pick, i) => {
+      user.survivor.every((pick, i) => {
         if (!pick.pick_id && pick.week <= week) pick.winner_id = 'MISSED';
         if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
         if (!alive) {
-          survivorPicks.length = (i + 1);
+          user.survivor.length = (i + 1);
           return false;
         }
       });

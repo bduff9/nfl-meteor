@@ -65,10 +65,8 @@ class Dashboard extends Component {
 
   render() {
     const { sortBy, viewOverall } = this.state,
-        { pageReady, selectedWeek, user } = this.props;
-//TODO remove
-console.log('viewOverall', viewOverall  );
-
+        { pageReady, selectedWeek } = this.props,
+        user = User.findOne(Meteor.userId());
     return (
       <div className="row dashboard-wrapper">
         <Helmet title={`My Dashboard`} />
@@ -121,19 +119,13 @@ console.log('viewOverall', viewOverall  );
 
 Dashboard.propTypes = {
   pageReady: PropTypes.bool.isRequired,
-  selectedWeek: PropTypes.number,
-  user: PropTypes.object.isRequired
+  selectedWeek: PropTypes.number
 };
 
 export default createContainer(() => {
-  const selectedWeek = Session.get('selectedWeek'),
-      user = User.findOne(Meteor.userId());
-//TODO remove
-console.log('create dash');
-
+  const selectedWeek = Session.get('selectedWeek');
   return {
-    pageReady: selectedWeek && user,
-    selectedWeek,
-    user
+    pageReady: !!selectedWeek,
+    selectedWeek
   };
 }, Dashboard);

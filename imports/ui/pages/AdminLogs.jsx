@@ -13,13 +13,30 @@ import { ACTIONS } from '../../api/constants';
 
 class AdminLogs extends Component {
   constructor(props) {
+    const { limit, logCt } = props;
     super();
-    this.state = {};
+    this.state = {
+      totalPages: Math.ceil(logCt / limit)
+    };
     this._changePage = this._changePage.bind(this);
     this._filterAction = this._filterAction.bind(this);
     this._filterUser = this._filterUser.bind(this);
     this._filterUserTos = this._filterUserTos.bind(this);
     this._redirect = this._redirect.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { actions, limit, logCt, page, pageReady, pathname, userFroms, userTos } = nextProps;
+    const { totalPages } = this.state;
+    let newTotal;
+    if (pageReady) {
+      newTotal = Math.ceil(logCt / limit);
+      if (newTotal > 0 && page > newTotal) {
+        this._redirect(pathname, limit, newTotal, actions, userFroms, userTos);
+      } else if (newTotal !== totalPages) {
+        this.setState({ totalPages: newTotal });
+      }
+    }
   }
 
   _changePage(dir, disabled, ev) {
@@ -30,7 +47,7 @@ class AdminLogs extends Component {
     return false;
   }
   _filterAction(action, add, ev) {
-    const { actions, limit, page, pathname, userFroms, userTos } = this.props;
+    const { actions, limit, pathname, userFroms, userTos } = this.props;
     let newActions;
     ev.preventDefault();
     if (add) {
@@ -39,11 +56,11 @@ class AdminLogs extends Component {
     } else {
       newActions = actions.filter(a => a !== action);
     }
-    this._redirect(pathname, limit, page, newActions, userFroms, userTos);
+    this._redirect(pathname, limit, 1, newActions, userFroms, userTos);
     return false;
   }
   _filterUser(userId, add, ev) {
-    const { actions, limit, page, pathname, userFroms, userTos } = this.props;
+    const { actions, limit, pathname, userFroms, userTos } = this.props;
     let newUsers;
     ev.preventDefault();
     if (add) {
@@ -52,11 +69,11 @@ class AdminLogs extends Component {
     } else {
       newUsers = userFroms.filter(u => u !== userId);
     }
-    this._redirect(pathname, limit, page, actions, newUsers, userTos);
+    this._redirect(pathname, limit, 1, actions, newUsers, userTos);
     return false;
   }
   _filterUserTos(userId, add, ev) {
-    const { actions, limit, page, pathname, userFroms, userTos } = this.props;
+    const { actions, limit, pathname, userFroms, userTos } = this.props;
     let newUsers;
     ev.preventDefault();
     if (add) {
@@ -65,12 +82,12 @@ class AdminLogs extends Component {
     } else {
       newUsers = userTos.filter(u => u !== userId);
     }
-    this._redirect(pathname, limit, page, actions, userFroms, newUsers);
+    this._redirect(pathname, limit, 1, actions, userFroms, newUsers);
     return false;
   }
   _redirect(pathname, limit, page, actions, userFroms, userTos) {
     const limitChanged = limit !== 10,
-        pageChanged = page !== 1,
+        pageChanged = page > 1,
         actionChanged = actions && actions.length > 0,
         userChanged = userFroms && userFroms.length > 0,
         userToChanged = userTos && userTos.length > 0;
@@ -84,8 +101,8 @@ class AdminLogs extends Component {
   }
 
   render() {
-    const { actions, limit, logCt, logs, page, pageReady, userFroms, users, userTos } = this.props,
-        totalPages = Math.ceil(logCt / limit),
+    const { totalPages } = this.state,
+        { actions, limit, logCt, logs, page, pageReady, userFroms, users, userTos } = this.props,
         hasPrev = page > 1,
         hasNext = (page * limit) < logCt;
     return (
@@ -107,7 +124,7 @@ class AdminLogs extends Component {
               </a>
             </li>
             <li className="page-item disabled">
-              <a className="page-link" href="#">Page {page} of {totalPages}</a>
+              <a className="page-link" href="#">Page {totalPages === 0 ? 0 : page} of {totalPages}</a>
             </li>
             <li className={'page-item' + (!hasNext ? ' disabled' : '')}>
               <a className="page-link" href="#" aria-label="Next" onClick={this._changePage.bind(null, 1, !hasNext)}>

@@ -46,6 +46,10 @@ class AdminUsers extends Component {
     const { _id } = user;
     deleteUser.call({ userId: _id }, displayError);
   }
+  _boolToString(flg) {
+    if (flg) return <span className="text-success">Yes</span>;
+    return <span className="text-danger">No</span>;
+  }
 
   render() {
     const { pageReady, users } = this.props;
@@ -85,10 +89,10 @@ class AdminUsers extends Component {
                     <td>{user.email}</td>
                     <td>{user.team_name}</td>
                     <td>{user.referred_by === 'RETURNING' ? 'N/A' : user.referred_by}</td>
-                    <td>{user.verified ? 'Y' : 'N'}</td>
-                    <td>{user.done_registering ? 'Y' : 'N'}</td>
-                    <td>{user.is_admin ? 'Y' : 'N'}</td>
-                    <td>{user.paid ? 'Y' : 'N'}</td>
+                    <td>{this._boolToString(user.verified)}</td>
+                    <td>{this._boolToString(user.done_registering)}</td>
+                    <td>{this._boolToString(user.is_admin)}</td>
+                    <td>{this._boolToString(user.paid)}</td>
                     <td>{user.bonus_points}</td>
                   </tr>
                 ))}

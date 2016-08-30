@@ -22,9 +22,11 @@ class AdminUsers extends Component {
     const { paid } = user;
     updateUserAdmin.call({ userId: user._id, paid: !paid }, displayError);
   }
-  _addBonus(user, numPoints, ev) {
-    const { bonus_points } = user;
-    updateUserAdmin.call({ userId: user._id, bonusPoints: numPoints }, displayError);
+  _addBonus(user, ev) {
+    updateUserAdmin.call({ userId: user._id, bonusPoints: 1 }, displayError);
+  }
+  _removeBonus(user, ev) {
+    updateUserAdmin.call({ userId: user._id, bonusPoints: -1 }, displayError);
   }
   _toggleAdmin(user, ev) {
     const { is_admin } = user;
@@ -56,7 +58,7 @@ class AdminUsers extends Component {
             <table className="table table-hover table-bordered admin-users-table">
               <thead>
                 <tr>
-                  <th colSpan={5}>Actions</th>
+                  <th colSpan={6}>Actions</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Team Name</th>
@@ -71,12 +73,13 @@ class AdminUsers extends Component {
               <tbody>
                 {users.map(user => (
                   <tr key={'user' + user._id}>
-                    <td><i className="fa fa-fw fa-money toggle-paid" onClick={this._togglePaid.bind(null, user)} /></td>
-                    <td><i className="fa fa-fw fa-plus add-bonus" onClick={this._addBonus.bind(null, user)} /></td>
-                    <td><i className="fa fa-fw fa-user-secret" onClick={this._toggleAdmin.bind(null, user)} /></td>
-                    <td><i className="fa fa-fw fa-envelope text-warning" onClick={this._resetPassword.bind(null, user)} /></td>
+                    <td><i className="fa fa-fw fa-money toggle-paid" title={`Toggle ${user.first_name} ${user.last_name} paid`} onClick={this._togglePaid.bind(null, user)} /></td>
+                    <td><i className="fa fa-fw fa-plus add-bonus" title={`Give ${user.first_name} ${user.last_name} 1 bonus point`} onClick={this._addBonus.bind(null, user)} /></td>
+                    <td><i className="fa fa-fw fa-minus remove-bonus" title={`Subtract from ${user.first_name} ${user.last_name} 1 bonus point`} onClick={this._removeBonus.bind(null, user)} /></td>
+                    <td><i className="fa fa-fw fa-user-secret" title={`Toggle ${user.first_name} ${user.last_name} as admin`} onClick={this._toggleAdmin.bind(null, user)} /></td>
+                    <td><i className="fa fa-fw fa-envelope text-warning" title={`Reset ${user.first_name} ${user.last_name}'s password'`} onClick={this._resetPassword.bind(null, user)} /></td>
                     <td>
-                      {!user.done_registering ? <i className="fa fa-fw fa-times text-danger" onClick={this._deleteUser.bind(null, user)} /> : null}
+                      {!user.done_registering ? <i className="fa fa-fw fa-times text-danger" title={`Delete ${user.first_name} ${user.last_name}`} onClick={this._deleteUser.bind(null, user)} /> : null}
                     </td>
                     <td>{`${user.first_name} ${user.last_name}`}</td>
                     <td>{user.email}</td>

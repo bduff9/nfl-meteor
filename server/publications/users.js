@@ -160,7 +160,15 @@ Meteor.publish('adminUsers', function() {
       'done_registering': 1,
       'is_admin': 1,
       'paid': 1,
-      'bonus_points': 1
+      'selected_week': 1,
+      'total_points': 1,
+      'total_games': 1,
+      'overall_place': 1,
+      'overall_tied_flag': 1,
+      'bonus_points': 1,
+      'picks': 1,
+      'tiebreakers': 1,
+      'survivor': 1
     }
   });
   if (allUsers) return allUsers;

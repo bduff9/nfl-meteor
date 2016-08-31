@@ -2,6 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
+import { moment } from 'meteor/momentjs:moment';
 
 import { Game, Pick, SurvivorPick, Tiebreaker, User } from '../schema';
 import { writeLog } from './nfllogs';
@@ -19,6 +20,38 @@ export const updateUser = new ValidatedMethod({
   run(userObj) {
     if (!this.userId) throw new Meteor.Error('User.update.notLoggedIn', 'Must be logged in to change profile');
     User.update(this.userId, { $set: userObj });
+    if (Meteor.isServer) {
+      sendWelcomeEmail.call({ userId: this.userId }, logError);
+    }
+  }
+});
+
+const sendWelcomeEmail = new ValidatedMethod({
+  name: 'User.sendWelcomeEmail',
+  validate: new SimpleSchema({
+    userId: { type: String, label: 'User ID' }
+  }).validator(),
+  run({ userId }) {
+    const user = User.findOne(userId),
+        admins = User.find({ is_admin: true }).fetch();
+//TODO send welcome email to user with various infos
+    admins.forEach(admin => {
+      Email.send({
+        to: admin.email,
+        from: 'Brian Duffey <bduff9@gmail.com>',
+        subject: '[NFL Confidence Pool] New User Registration',
+        text: `Hello ${admin.first_name},
+
+This is just a notice that a new user has registered at ${moment().format('h:mma [on] ddd, MMM Do YYYY')} with the following information:
+-Name: ${user.first_name} ${user.last_name}
+-Team Name: ${user.team_name}
+-Email: ${user.email}
+-Referred By: ${user.referred_by}
+
+You can maintain this user here:
+http://nfl.asitewithnoname.com/admin/users`,
+      });
+    });
   }
 });
 
@@ -257,7 +290,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
         Email.send({
           to: user.email,
           from: 'Brian Duffey <bduff9@gmail.com>',
-          subject: `All picks for week ${selectedWeek} have been submitted!`,
+          subject: `[NFL Confidence Pool] All picks for week ${selectedWeek} have been submitted!`,
           text: `Hello ${user.first_name},
 
           This is just a notice that all picks have now been submitted for week ${selectedWeek}.  You can log into the pool to view everyone's picks.

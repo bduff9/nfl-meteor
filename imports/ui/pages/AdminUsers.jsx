@@ -62,7 +62,7 @@ class AdminUsers extends Component {
             <table className="table table-hover table-bordered admin-users-table">
               <thead>
                 <tr>
-                  <th colSpan={6}>Actions</th>
+                  <th colSpan={6}>{`${users.length} Users`}</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Team Name</th>

@@ -13,7 +13,12 @@ Accounts.emailTemplates.verifyEmail = {
   }
 };
 
-Accounts.emailTemplates.resetPassword.text = function(user, url) {
-  url = url.replace('#/', '');
-  return ` To reset your password, simply click the link below:\n\n${url}`;
+Accounts.emailTemplates.resetPassword = {
+  subject() {
+    return '[NFL Confidence Pool] Reset Password Request';
+  },
+  text(user, url) {
+    let urlWithoutHash = url.replace('#/', '');
+    return `To reset your password, simply click the link below:\n\n${urlWithoutHash}`;
+  }
 };

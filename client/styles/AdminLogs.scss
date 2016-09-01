@@ -1,7 +1,7 @@
 .admin-logs {
 
   nav {
-    padding-right: 25px;
+    padding-right: 15px;
   }
 
   .admin-logs-table {
@@ -19,6 +19,15 @@
           margin: 0;
         }
       }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-logs {
+
+    nav {
+      padding-right: 0;
     }
   }
 }

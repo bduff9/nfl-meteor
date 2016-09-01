@@ -71,7 +71,7 @@ export const updateUserAdmin = new ValidatedMethod({
     if (bonusPoints != null) user.bonus_points += bonusPoints;
     if (paid != null) {
       user.paid = paid;
-      writeLog.call({ action: 'PAID', message: `${user.first_name} ${user.last_name} has paid`, userId }, logError);
+      if (paid) writeLog.call({ action: 'PAID', message: `${user.first_name} ${user.last_name} has paid`, userId }, logError);
     }
     user.save();
   }

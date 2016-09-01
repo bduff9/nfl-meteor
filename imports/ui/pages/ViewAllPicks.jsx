@@ -8,6 +8,7 @@ import Helmet from 'react-helmet';
 import { Loading } from './Loading.jsx';
 import { Game, Team, User } from '../../api/schema';
 import { weekPlacer } from '../../api/global';
+import WhatIf from '../components/WhatIf.jsx';
 
 class ViewAllPicks extends Component {
   constructor(props) {
@@ -85,7 +86,7 @@ class ViewAllPicks extends Component {
   }
 
   render() {
-    const { games, users } = this.state,
+    const { games, users, whatIf} = this.state,
         { currentUser, pageReady, selectedWeek } = this.props;
     return (
       <div className="row view-all-picks-wrapper">
@@ -101,6 +102,12 @@ class ViewAllPicks extends Component {
               <i className="fa fa-fw fa-print" />
               Print this Page
             </button>
+            {whatIf ? <WhatIf target={onClick}/> : null}
+            <div className="row">
+              <div className="col-xs-12 col-xs-left what-if">
+                <span>Click a winning team to initiate a what-if analyzer</span>
+              </div>
+            </div>
             <table className="table table-hover view-all-picks-table">
               <thead>
                 <tr>

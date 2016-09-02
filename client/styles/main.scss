@@ -88,6 +88,10 @@ label.error {
   margin-bottom: 5px;
 }
 
+.show-for-print {
+  display: none;
+}
+
 @media print {
   .container-fluid {
 
@@ -105,6 +109,14 @@ label.error {
 
       .view-pick-results-table {
         page-break-inside: avoid;
+      }
+
+      .hide-for-print {
+        display: none;
+      }
+
+      .show-for-print {
+        display: inline-block;
       }
     }
   }

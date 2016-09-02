@@ -1,0 +1,15 @@
+@media print {
+  @page {
+    size: 8.5in 11in;
+  }
+
+  .container-fluid {
+
+    div.col-xs-12.col-sm-9.offset-sm-3.col-lg-10.offset-lg-2.main {
+
+      .view-pick-results-table {
+        page-break-inside: avoid;
+      }
+    }
+  }
+}

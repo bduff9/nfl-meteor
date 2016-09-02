@@ -5,16 +5,9 @@
     margin-right: 5px;
   }
 
-  .what-if {
-    color: black;
-    font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.85);
-    margin-left: 15px;
-    padding: 5px 0px 5px 10px;
-  }
-
   .view-all-picks-table {
     background-color: rgba(255, 255, 255, 0.85);
+    border: 1px solid #ccc;
     border-collapse: collapse;
 
     thead {
@@ -22,10 +15,22 @@
       th {
         vertical-align: middle;
 
+        &.info-head {
+          border-left: 1px solid #ccc;
+          border-right: 1px solid #ccc;
+        }
+
         &.home-team,
         &.visiting-team {
-          transform: rotate(90deg);
-          cursor: pointer;
+          padding: 0;
+
+          & > * {
+            transform: rotate(90deg);
+          }
+
+          .btn-default {
+            border-color: #999;
+          }
         }
       }
     }
@@ -44,10 +49,13 @@
 
     .name-cell {
       white-space: nowrap;
+      border: 1px solid #ccc;
     }
 
     .pick-points {
-      border: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
     }
   }
 }

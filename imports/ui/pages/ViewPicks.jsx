@@ -6,6 +6,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
+import '../../ui/pages/ViewPicksPrint.scss';
 import { Loading } from './Loading.jsx';
 import { Game, User } from '../../api/schema';
 import { displayError } from '../../api/global';

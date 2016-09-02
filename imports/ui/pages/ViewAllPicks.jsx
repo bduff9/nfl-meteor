@@ -5,6 +5,7 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
+import '../../ui/pages/ViewAllPicksPrint.scss';
 import { Loading } from './Loading.jsx';
 import { Game, Team, User } from '../../api/schema';
 import { weekPlacer } from '../../api/global';
@@ -103,32 +104,42 @@ class ViewAllPicks extends Component {
               Print this Page
             </button>
             {whatIf ? <WhatIf target={onClick}/> : null}
-            <div className="row">
-              <div className="col-xs-12 col-xs-left what-if">
-                <span>Click a winning team to initiate a what-if analyzer</span>
-              </div>
-            </div>
             <table className="table table-hover view-all-picks-table">
               <thead>
+                <tr className="hide-for-print">
+                  <th colSpan={5 + games.length * 6}>
+                    Click the team names below to test "what-if" scenarios. To undo, click 'Reset Page' above.
+                  </th>
+                </tr>
                 <tr>
-                  <th>Name</th>
+                  <th className="info-head">Name</th>
                   {games.map((game, i) => {
                     let cells = [];
                     cells.push(
-                      <th className={'visiting-team' + (game.visitor_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))} colSpan={2} key={'team' + game.visitor_id} onClick={this._updateGame.bind(null, game.visitor_id, game.visitor_short, i)}>{game.visitor_short}</th>
+                      <th className="visiting-team" colSpan={2} key={'team' + game.visitor_id}>
+                        <button className={'btn' + (game.visitor_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.visitor_id, game.visitor_short, i)}>
+                          {game.visitor_short}
+                        </button>
+                        <div className={'show-for-print' + (game.visitor_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.visitor_short}</div>
+                      </th>
                     );
                     cells.push(
                       <th className="team-separator" colSpan={2} key={'game' + game._id}>@</th>
                     );
                     cells.push(
-                      <th className={'home-team' + (game.home_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))} colSpan={2} key={'team' + game.home_id} onClick={this._updateGame.bind(null, game.home_id, game.home_short, i)}>{game.home_short}</th>
+                      <th className="home-team" colSpan={2} key={'team' + game.home_id}>
+                        <button className={'btn' + (game.home_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.home_id, game.home_short, i)}>
+                          {game.home_short}
+                        </button>
+                        <div className={'show-for-print' + (game.home_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.home_short}</div>
+                      </th>
                     );
                     return cells;
                   })}
-                  <th>Points Earned</th>
-                  <th>Games Correct</th>
-                  <th>My Tiebreaker Score</th>
-                  <th>Last Game Score</th>
+                  <th className="info-head">Points Earned</th>
+                  <th className="info-head">Games Correct</th>
+                  <th className="info-head">My Tiebreaker Score</th>
+                  <th className="info-head">Last Game Score</th>
                 </tr>
               </thead>
               <tbody>

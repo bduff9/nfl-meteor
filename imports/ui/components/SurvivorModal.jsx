@@ -40,11 +40,11 @@ class SurvivorModal extends Component {
                     visitingTeam = game.getTeam('visitor');
                 return (
                   <div className="survivor-matchups pull-xs-left" key={'game' + i}>
-                    <button type="button" className={'btn btn-' + (game.visitor_id === pick.pick_id ? 'success' : 'default')} title={game.visitor_short} onClick={this._setSurvivorPick.bind(null, week, game._id, visitingTeam)} disabled={usedTeams.indexOf(game.visitor_id) > -1} data-dismiss="modal">
+                    <button type="button" className={'btn btn-' + (game.visitor_id === pick.pick_id ? 'success' : 'default')} title={`${visitingTeam.city} ${visitingTeam.name}`} onClick={this._setSurvivorPick.bind(null, week, game._id, visitingTeam)} disabled={usedTeams.indexOf(game.visitor_id) > -1} data-dismiss="modal">
                       <img src={`/NFLLogos/${visitingTeam.logo}`} />
                     </button>
                     <i className="fa fa-fw fa-large fa-at" />
-                    <button type="button" className={'btn btn-' + (game.home_id === pick.pick_id ? 'success' : 'default')} title={game.home_short} onClick={this._setSurvivorPick.bind(null, week, game._id, homeTeam)} disabled={usedTeams.indexOf(game.home_id) > -1} data-dismiss="modal">
+                    <button type="button" className={'btn btn-' + (game.home_id === pick.pick_id ? 'success' : 'default')} title={`${homeTeam.city} ${homeTeam.name}`} onClick={this._setSurvivorPick.bind(null, week, game._id, homeTeam)} disabled={usedTeams.indexOf(game.home_id) > -1} data-dismiss="modal">
                       <img src={`/NFLLogos/${homeTeam.logo}`} />
                     </button>
                   </div>

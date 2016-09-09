@@ -293,7 +293,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
           subject: `[NFL Confidence Pool] All picks for week ${selectedWeek} have been submitted!`,
           text: `Hello ${user.first_name},
 
-          This is just a notice that all picks have now been submitted for week ${selectedWeek}.  You can log into the pool to view everyone's picks.
+          This is just a notice that all picks have now been submitted for week ${selectedWeek}.  You can log into the pool to view everyone's picks here: http://nfl.asitewithnoname.com
 
           Good luck!`,
         });
@@ -420,9 +420,12 @@ export const updatePlaces = new ValidatedMethod({
     let ordUsers = User.find({ "done_registering": true }).fetch().sort(weekPlacer.bind(null, week));
     ordUsers.forEach((user, i, allUsers) => {
       const tiebreaker = user.tiebreakers[week - 1];
-      let nextUser, result, nextTiebreaker;
+      let currPlace = i + 1,
+          nextUser, result, nextTiebreaker;
       if (!tiebreaker.tied_flag || i === 0) {
-        tiebreaker.place_in_week = (i + 1);
+        tiebreaker.place_in_week = currPlace;
+      } else {
+        currPlace = tiebreaker.place_in_week;
       }
       nextUser = allUsers[i + 1];
       if (nextUser) {
@@ -430,10 +433,10 @@ export const updatePlaces = new ValidatedMethod({
         nextTiebreaker = nextUser.tiebreakers[week - 1];
         if (result === 0) {
           tiebreaker.tied_flag = true;
-          nextTiebreaker.place_in_week = (i + 1);
+          nextTiebreaker.place_in_week = currPlace;
           nextTiebreaker.tied_flag = true;
         } else {
-          tiebreaker.tied_flag = false;
+          if (i === 0) tiebreaker.tied_flag = false;
           nextTiebreaker.tied_flag = false;
         }
         nextUser.save();
@@ -442,16 +445,19 @@ export const updatePlaces = new ValidatedMethod({
     });
     ordUsers = ordUsers.sort(overallPlacer);
     ordUsers.forEach((user, i, allUsers) => {
-      let nextUser, result;
+      let currPlace = i + 1,
+          nextUser, result;
       if (!user.overall_tied_flag || i === 0) {
-        user.overall_place = (i + 1);
+        user.overall_place = currPlace;
+      } else {
+        currPlace = user.overall_place;
       }
       nextUser = allUsers[i + 1];
       if (nextUser) {
         result = overallPlacer(user, nextUser);
         if (result === 0) {
           user.overall_tied_flag = true;
-          nextUser.overall_place = (i + 1);
+          nextUser.overall_place = currPlace;
           nextUser.overall_tied_flag = true;
         } else {
           user.overall_tied_flag = false;

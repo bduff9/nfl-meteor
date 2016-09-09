@@ -169,6 +169,10 @@ Meteor.publish('adminUsers', function() {
       'picks': 1,
       'tiebreakers': 1,
       'survivor': 1
+    },
+    sort: {
+      'first_name': 1,
+      'last_name': 1
     }
   });
   if (allUsers) return allUsers;

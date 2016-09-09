@@ -29,10 +29,10 @@ SyncedCron.add({
           Email.send({
             to: user.email,
             from: 'Brian Duffey <bduff9@gmail.com>',
-            subject: `Hurry up, ${user.first_name}!`,
+            subject: `[NFL Confidence Pool] Hurry up, ${user.first_name}!`,
             text: `Hello ${user.first_name},
 
-This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.
+This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.  You can log in and submit your picks here: http://nfl.asitewithnoname.com
 
 Good luck!`,
           });

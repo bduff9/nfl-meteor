@@ -9,7 +9,6 @@ import '../../ui/pages/ViewAllPicksPrint.scss';
 import { Loading } from './Loading.jsx';
 import { Game, Team, User } from '../../api/schema';
 import { weekPlacer } from '../../api/global';
-import WhatIf from '../components/WhatIf.jsx';
 
 class ViewAllPicks extends Component {
   constructor(props) {
@@ -65,9 +64,12 @@ class ViewAllPicks extends Component {
     newUsers.sort(weekPlacer.bind(null, selectedWeek));
     newUsers.forEach((user, i, allUsers) => {
       const tiebreaker = user.tiebreakers[selectedWeek - 1];
-      let nextUser, result, nextTiebreaker;
+      let currPlace = i + 1,
+          nextUser, result, nextTiebreaker;
       if (!tiebreaker.tied_flag || i === 0) {
-        tiebreaker.place_in_week = (i + 1);
+        tiebreaker.place_in_week = currPlace;
+      } else {
+        currPlace = tiebreaker.place_in_week;
       }
       nextUser = allUsers[i + 1];
       if (nextUser) {
@@ -75,10 +77,10 @@ class ViewAllPicks extends Component {
         nextTiebreaker = nextUser.tiebreakers[selectedWeek - 1];
         if (result === 0) {
           tiebreaker.tied_flag = true;
-          nextTiebreaker.place_in_week = (i + 1);
+          nextTiebreaker.place_in_week = currPlace;
           nextTiebreaker.tied_flag = true;
         } else {
-          tiebreaker.tied_flag = false;
+          if (i === 0) tiebreaker.tied_flag = false;
           nextTiebreaker.tied_flag = false;
         }
       }
@@ -87,7 +89,7 @@ class ViewAllPicks extends Component {
   }
 
   render() {
-    const { games, users, whatIf} = this.state,
+    const { games, users } = this.state,
         { currentUser, pageReady, selectedWeek } = this.props;
     return (
       <div className="row view-all-picks-wrapper">
@@ -103,7 +105,6 @@ class ViewAllPicks extends Component {
               <i className="fa fa-fw fa-print" />
               Print this Page
             </button>
-            {whatIf ? <WhatIf target={onClick}/> : null}
             <table className="table table-hover view-all-picks-table">
               <thead>
                 <tr className="hide-for-print">

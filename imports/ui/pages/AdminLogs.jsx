@@ -295,7 +295,7 @@ export default createContainer(({ location }) => {
     logs = NFLLog.find(filters, { sort: { when: 1 }}).fetch();
   }
   if (allUsersReady) {
-    users = User.find({}).fetch();
+    users = User.find({}, { sort: { first_name: 1, last_name: 1 }}).fetch();
   }
   return {
     actions,

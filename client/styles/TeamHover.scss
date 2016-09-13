@@ -5,6 +5,17 @@
   border-collapse: separate;
   border: 2px solid;
   z-index: 2;
+  background-color: white;
+
+  &.team-loading {
+    min-width: 300px;
+    min-height: 175px;
+    text-align: center;
+  }
+
+  .history-separator {
+    border-bottom: 1px dashed;
+  }
 
   .did-win {
     color: #0f0;

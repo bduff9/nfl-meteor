@@ -55,41 +55,53 @@ class TeamHover extends Component {
 
     return (
       <div className="team-hover-wrapper">
-        <table className="team-hover" style={{ color: teamInfo.secondary_color, backgroundColor: teamInfo.primary_color, borderColor: teamInfo.secondary_color }} ref="hoverWindow">
-          <thead>
-            <tr>
-              <th>{`${teamInfo.city} ${teamInfo.name}`}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{`${teamInfo.conference} ${teamInfo.division}`}</td>
-            </tr>
-            <tr>
-              <td>{`Rushing Offense: ${teamInfo.rush_offense || ''} Passing Offense: ${teamInfo.pass_offense || ''}`}</td>
-            </tr>
-            <tr>
-              <td>{`Rushing Defense: ${teamInfo.rush_defense || ''} Passing Defense: ${teamInfo.pass_defense || ''}`}</td>
-            </tr>
-            <tr>
-              <td>{`Conference Rank: ${teamInfo.rank || ''}`}</td>
-            </tr>
-            <tr>
-              <td>{`Record: ${won}-${lost}-${tied}`}</td>
-            </tr>
-            {pageReady ? teamInfo.history.map(game => (
-              <tr key={'history' + game._id}>
+        <table className={`team-hover${!pageReady ? ' team-loading' : ''}`} style={{ color: teamInfo.secondary_color, backgroundColor: teamInfo.primary_color, borderColor: teamInfo.secondary_color }} ref="hoverWindow">
+          {pageReady ? [
+            <thead key={`theadFor${teamInfo._id}`}>
+              <tr>
+                <th>{`${teamInfo.city} ${teamInfo.name}`}</th>
+              </tr>
+            </thead>,
+            <tbody key={`tbodyFor${teamInfo._id}`}>
+              <tr>
+                <td>{`${teamInfo.conference} ${teamInfo.division}`}</td>
+              </tr>
+              <tr>
+                <td>{`Rushing Offense: ${teamInfo.rush_offense || ''} Passing Offense: ${teamInfo.pass_offense || ''}`}</td>
+              </tr>
+              <tr>
+                <td>{`Rushing Defense: ${teamInfo.rush_defense || ''} Passing Defense: ${teamInfo.pass_defense || ''}`}</td>
+              </tr>
+              <tr className="hidden-xs-up">
+                <td>{`Conference Rank: ${teamInfo.rank || ''}`}</td>
+              </tr>
+              <tr>
                 <td>
-                  {(game.was_home ? 'vs. ' : '@ ')}
-                  {game.getOpponent().name}&nbsp;
-                  <span className={game.did_win ? 'did-win' : (game.did_tie ? 'did-tie' : 'did-lose')}>
-                    {game.did_win ? 'W' : (game.did_tie ? 'T' : 'L')}
-                  </span>
-                  {` (${game.final_score})`}
+                  <div className="history-separator" style={{ borderBottomColor: teamInfo.secondary_color }}>{`Record: ${won}-${lost}-${tied}`}</div>
                 </td>
               </tr>
-            )) : null}
-          </tbody>
+              {teamInfo.history.map(game => (
+                <tr key={'history' + game._id}>
+                  <td>
+                    {(game.was_home ? 'vs. ' : '@ ')}
+                    {game.getOpponent().name}&nbsp;
+                    <span className={game.did_win ? 'did-win' : (game.did_tie ? 'did-tie' : 'did-lose')}>
+                      {game.did_win ? 'W' : (game.did_tie ? 'T' : 'L')}
+                    </span>
+                    {` (${game.final_score})`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ]
+          :
+          (
+            <tbody>
+              <tr>
+                <td>Loading...</td>
+              </tr>
+            </tbody>
+          )}
         </table>
       </div>
     );
@@ -107,14 +119,12 @@ TeamHover._tether = null;
 export default createContainer(({ teamId }) => {
   const teamHandle = Meteor.subscribe('getTeamInfo', teamId),
       teamReady = teamHandle.ready();
-  let teamInfo = {},
-      pageReady = false;
+  let teamInfo = {};
   if (teamReady) {
     teamInfo = Team.findOne(teamId);
-    pageReady = true;
   }
   return {
-    pageReady,
+    pageReady: teamReady,
     teamInfo
   };
 }, TeamHover);

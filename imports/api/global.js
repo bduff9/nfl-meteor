@@ -80,7 +80,7 @@ export const overallPlacer = (user1, user2) => {
   if (user1.total_points < user2.total_points) return 1;
   // Then, sort by games correct
   if (user1.total_games > user2.total_games) return -1;
-  if (user1.total_games > user2.total_games) return 1;
+  if (user1.total_games < user2.total_games) return 1;
   // Finally, if we get here, then they are identical
   return 0;
 };

@@ -38,7 +38,7 @@ export default createContainer(({ sortBy, user, week, _changeSortBy }) => {
           possible_points: u.picks.reduce((prev, pick) => {
             if (pick.week !== week) return prev;
             if (pick.pick_id === pick.winner_id || (pick.pick_id && !pick.winner_id)) {
-              return prev + pick.points;
+              return prev + (pick.points || 0);
             }
             return prev;
           }, 0),

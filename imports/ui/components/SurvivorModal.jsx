@@ -21,6 +21,9 @@ class SurvivorModal extends Component {
   }
 
   _setSurvivorPick(week, gameId, team, ev) {
+console.log('week', week);
+console.log('game id', gameId);
+console.log('team', team);
     setSurvivorPick.call({ gameId, teamId: team._id, teamShort: team.short_name, week }, displayError);
   }
 

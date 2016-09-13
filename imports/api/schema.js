@@ -92,6 +92,13 @@ export const Team = Class.create({
       default: () => []
     }
   },
+  methods: {
+    isInHistory(gameId) {
+      const allHist = this.history,
+          thisHist = allHist.filter(h => h.game_id === gameId);
+      return thisHist.length > 0;
+    }
+  },
   indexes: {
     shortName: {
       fields: {
@@ -364,7 +371,7 @@ export const SurvivorPick = Class.create({
       return team;
     },
     hasStarted() {
-      const game = Game.findOne(this.game_id),
+      const game = Game.findOne({ week: this.week, game: 1 }),
           now = new Date();
       return (game.kickoff <= now);
     }

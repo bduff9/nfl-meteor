@@ -439,9 +439,9 @@ export const updatePlaces = new ValidatedMethod({
           if (i === 0) tiebreaker.tied_flag = false;
           nextTiebreaker.tied_flag = false;
         }
-        nextUser.save();
+        //nextUser.save();
       }
-      user.save();
+      //user.save();
     });
     ordUsers = ordUsers.sort(overallPlacer);
     ordUsers.forEach((user, i, allUsers) => {
@@ -460,12 +460,14 @@ export const updatePlaces = new ValidatedMethod({
           nextUser.overall_place = currPlace;
           nextUser.overall_tied_flag = true;
         } else {
-          user.overall_tied_flag = false;
+          if (i === 0) user.overall_tied_flag = false;
           nextUser.overall_tied_flag = false;
         }
-        nextUser.save();
+        //nextUser.save();
       }
-      user.save();
+      //user.save();
     });
+    // 2016-09-13 Moved saving to end to try and prevent endless loading screen upon game updates
+    ordUsers.forEach(user => user.save());
   }
 });

@@ -89,14 +89,14 @@ API = {
     const weeksToRefresh = _.uniq(Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}, {
       sort: { week: 1 }, fields: { week: 1 }
     }).map(game => game.week), true);
-    let wasComplete = false,
-        response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
+    let response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
     weeksToRefresh.forEach(w => {
       games = this.getGamesForWeek(w);
       gameCount = games.length;
       completeCount = 0;
       console.log(`Updating week ${w}, ${gameCount} games found`);
       games.every((gameObj, i) => {
+        let wasComplete = false;
         gameObj.team.forEach(team => {
           if (team.isHome === '1') hTeamData = team;
           if (team.isHome === '0') vTeamData = team;
@@ -155,29 +155,24 @@ API = {
         if (status === 'C') {
           completeCount++;
           // Update the team's history array
-          if (!wasComplete) {
-            console.log(`Game ${game.game} complete, updating history...`);
+          // Updated 2016-09-13 to ensure history always gets filled in
+          console.log(`Game ${game.game} complete, updating history...`);
+          if (!hTeam.isInHistory(game._id)) {
             hTeam.history.push({ game_id: game._id, opponent_id: vTeam._id, opponent_short: vTeam.short_name, was_home: true, did_win: game.winner_short === hTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
-            vTeam.history.push({ game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
-            console.log(`Game ${game.game} history updated!`);
           }
+          if (!vTeam.isInHistory(game._id)) {
+            vTeam.history.push({ game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
+          }
+          console.log(`Game ${game.game} history updated!`);
           // Update the picks for each user
           console.log(`Game ${game.game} complete, updating picks...`);
-          User.update({ 'done_registering': true, 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
-          updatePoints.call(err => {
-            if (err) console.error('updatePoints', err);
-          });
-          // Moved this from line 202 to try and get more frequent placings
-          updatePlaces.call({ week: w }, err => {
-            if (err) console.error('updatePlaces', err);
-          });
+          // Changed the below to use the raw collection for performance (8 sec -> 5ms)
+          Meteor.users.update({ 'done_registering': true, 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
           console.log(`Game ${game.game} picks updated!`);
           // Update the survivor pool
           console.log(`Game ${game.game} complete, updating survivor...`);
-          User.update({ 'done_registering': true, 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
-          updateSurvivor.call({ week: w }, err => {
-            if (err) console.error('updateSurvivor', err);
-          });
+          // Changed the below to the raw collection for performance
+          Meteor.users.update({ 'done_registering': true, 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
           console.log(`Game ${game.game} survivor updated!`);
         }
         // Update home team data
@@ -199,14 +194,21 @@ API = {
         console.log(`Week ${w} complete, updating tiebreakers...`);
         const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
         User.update({ 'done_registering': true, 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
-        /* Commenting this to try and get more frequent placings (see line 170)
-        * updatePlaces.call({ week: w }, err => {
-        *   if (err) console.error('updatePlaces', err);
-        * });
-        */
         console.log(`Week ${w} tiebreakers successfully updated!`);
         endOfWeekMessage.call({ week: w }, logError);
       }
+      console.log(`Finished updating games for week ${w}, now updating users...`);
+      updatePoints.call(err => {
+        if (err) console.error('updatePoints', err);
+      });
+      // Updated 2016-09-13 to improve update performance
+      updatePlaces.call({ week: w }, err => {
+        if (err) console.error('updatePlaces', err);
+      });
+      updateSurvivor.call({ week: w }, err => {
+        if (err) console.error('updateSurvivor', err);
+      });
+      console.log(`Finished updating users for week ${w}!`);
       console.log(`Week ${w} successfully updated!`);
     });
     return `Successfully updated all weeks in list: ${weeksToRefresh}`;

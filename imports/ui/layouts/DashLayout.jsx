@@ -110,13 +110,13 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
                   <th>Rank</th>
                   <th>Team</th>
                   <th>Owner</th>
-                  <th className="can-sort" onClick={_changeSortBy.bind(null, sort, 'games')}>
-                    Games Correct&nbsp;
-                    {gamesSort ? <i className={'fa fa-sort-' + (gamesSort === 1 ? 'asc' : 'desc')} /> : null}
-                  </th>
                   <th className="can-sort" onClick={_changeSortBy.bind(null, sort, 'points')}>
                     Points Earned&nbsp;
                     {pointsSort ? <i className={'fa fa-sort-' + (pointsSort === 1 ? 'asc' : 'desc')} /> : null}
+                  </th>
+                  <th className="can-sort" onClick={_changeSortBy.bind(null, sort, 'games')}>
+                    Games Correct&nbsp;
+                    {gamesSort ? <i className={'fa fa-sort-' + (gamesSort === 1 ? 'asc' : 'desc')} /> : null}
                   </th>
                   {isOverall ? <th>Missed Games?</th> : null}
                   {!isOverall ? <th>Tiebreaker</th> : null}
@@ -131,12 +131,12 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
                       <td>{row.place}</td>
                       <td>{row.team_name || `${row.first_name}'s Team`}</td>
                       <td>{`${row.first_name} ${row.last_name}`}</td>
-                      <td>{row.total_games}</td>
                       <td>{row.total_points}</td>
+                      <td>{row.total_games}</td>
                       {isOverall ? <td>{row.missed_games}</td> : null}
                       {!isOverall ? <td>{row.tiebreaker.last_score}</td> : null}
                       {!isOverall ? <td>{row.tiebreaker.last_score_act}</td> : null}
-                      {!isOverall ? <td>{row.possible_points < highestScore ? 'X' : null}</td> : null}
+                      {!isOverall ? <td>{row.possible_points < highestScore ? 'X' : ''}</td> : null}
                     </tr>
                   );
                 })}

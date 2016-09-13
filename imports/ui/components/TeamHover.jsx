@@ -77,7 +77,7 @@ class TeamHover extends Component {
               </tr>
               <tr>
                 <td>
-                  <div className="history-separator" style={{ borderBottomColor: teamInfo.secondary_color }}>{`Record: ${won}-${lost}-${tied}`}</div>
+                  <div className={teamInfo.history.length > 0 ? 'history-separator' : ''} style={{ borderBottomColor: teamInfo.secondary_color }}>{`Record: ${won}-${lost}-${tied}`}</div>
                 </td>
               </tr>
               {teamInfo.history.map(game => (

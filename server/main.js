@@ -21,7 +21,7 @@ Meteor.startup(() => {
   Meteor.onConnection((conn) => {
     const systemVal = SystemVal.findOne();
     let newConn = {
-      opened: Date.now(),
+      opened: new Date(),
       on_view_my_picks: false,
       on_view_all_picks: false,
       scoreboard_open: false

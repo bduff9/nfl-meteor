@@ -9,11 +9,22 @@ import { moment } from 'meteor/momentjs:moment';
 
 import { Game } from '../../api/schema';
 import { pad } from '../../api/global';
+import { toggleScoreboard } from '../../api/collections/systemvals';
+import { displayError } from '../../api/global';
 
 class ScoreBoard extends Component {
   constructor(props) {
     super();
     this.state = {};
+  }
+
+  componentWillMount() {
+    const IS_OPEN = true;
+    toggleScoreboard.call({ isOpen: IS_OPEN }, displayError);
+  }
+  componentWillUnmount() {
+    const IS_OPEN = false;
+    toggleScoreboard.call({ isOpen: IS_OPEN }, displayError);
   }
 
   _getGameStatus({ kickoff, status, time_left }) {

@@ -98,7 +98,7 @@ export const updateSelectedWeek = new ValidatedMethod({
   run({ week }) {
     if (!this.userId) throw new Meteor.Error('User.selected_week.update.notLoggedIn', 'Must be logged in to choose week');
     if (Meteor.isServer) {
-      User.update(this.userId, { $set: { selected_week: { week, selected_on: new Date() }}});
+      User.update(this.userId, { $set: { "selected_week.week": week, "selected_week.selected_on": new Date() }});
     } else if (Meteor.isClient) {
       Session.set('selectedWeek', week);
     }

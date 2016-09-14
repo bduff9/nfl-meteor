@@ -1,6 +1,6 @@
 'use strict';
 
-import { Game, Team, User } from '../imports/api/schema';
+import { Game, SystemVal, Team, User } from '../imports/api/schema';
 import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 import { endOfWeekMessage } from '../imports/api/collections/nfllogs';
 import { convertEpoch, logError } from '../imports/api/global';
@@ -86,14 +86,20 @@ API = {
     }
   },
   refreshGameData() {
-    const weeksToRefresh = _.uniq(Game.find({ game: { $ne: 0 }, status: { $ne: "C" }, kickoff: { $lte: new Date() }}, {
-      sort: { week: 1 }, fields: { week: 1 }
-    }).map(game => game.week), true);
-    let response, games, gameCount, completeCount, game, bonus, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
+    const weeksToRefresh = _.uniq(Game.find({
+          game: { $ne: 0 },
+          status: { $ne: "C" },
+          kickoff: { $lte: new Date() }
+        }, {
+          sort: { week: 1 }, fields: { week: 1 }
+        }).map(game => game.week), true);
+    let games, gameCount, completeCount, justCompleted, game, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
+    if (weeksToRefresh.length > 0) SystemVal.update({}, { $set: { games_updating: true }});
     weeksToRefresh.forEach(w => {
       games = this.getGamesForWeek(w);
       gameCount = games.length;
       completeCount = 0;
+      justCompleted = 0;
       console.log(`Updating week ${w}, ${gameCount} games found`);
       games.every((gameObj, i) => {
         let wasComplete = false;
@@ -154,6 +160,7 @@ API = {
         }
         if (status === 'C') {
           completeCount++;
+          if (!wasComplete) justCompleted++;
           // Update the team's history array
           // Updated 2016-09-13 to ensure history always gets filled in
           console.log(`Game ${game.game} complete, updating history...`);
@@ -197,20 +204,24 @@ API = {
         console.log(`Week ${w} tiebreakers successfully updated!`);
         endOfWeekMessage.call({ week: w }, logError);
       }
-      console.log(`Finished updating games for week ${w}, now updating users...`);
-      updatePoints.call(err => {
-        if (err) console.error('updatePoints', err);
-      });
+      console.log(`Finished updating games for week ${w}!`);
       // Updated 2016-09-13 to improve update performance
-      updatePlaces.call({ week: w }, err => {
-        if (err) console.error('updatePlaces', err);
-      });
-      updateSurvivor.call({ week: w }, err => {
-        if (err) console.error('updateSurvivor', err);
-      });
-      console.log(`Finished updating users for week ${w}!`);
+      if (justCompleted > 0 || gameCount === completeCount) {
+        console.log(`${(gameCount === completeCount ? `All games complete for week ${w}` : `${justCompleted} games newly complete for week ${w}`)}, now updating users...`);
+        updatePoints.call(err => {
+          if (err) console.error('updatePoints', err);
+        });
+        updatePlaces.call({ week: w }, err => {
+          if (err) console.error('updatePlaces', err);
+        });
+        updateSurvivor.call({ week: w }, err => {
+          if (err) console.error('updateSurvivor', err);
+        });
+        console.log(`Finished updating users for week ${w}!`);
+      }
       console.log(`Week ${w} successfully updated!`);
     });
+    SystemVal.update({}, { $set: { games_updating: false }});
     return `Successfully updated all weeks in list: ${weeksToRefresh}`;
   }
 }

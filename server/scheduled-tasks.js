@@ -3,13 +3,24 @@
 
 import { moment } from 'meteor/momentjs:moment';
 
-import { Game, User } from '../imports/api/schema';
+import { Game, SystemVal, User } from '../imports/api/schema';
 import { currentWeek, refreshGames } from '../imports/api/collections/games';
 
 SyncedCron.add({
   name: 'Update games every hour on the hour',
   schedule: parse => parse.recur().first().minute(),
   job: () => refreshGames.call()
+});
+
+SyncedCron.add({
+  name: 'Update games every minute when needed',
+  schedule: parse => parse.recur().every(1).minute(),
+  job: () => {
+    const systemVal = SystemVal.findOne();
+    if (systemVal.games_updating) return 'Games already updating, skipping every minute call';
+    if (!systemVal.shouldUpdateFaster()) return 'No need to update games faster currently';
+    return refreshGames.call();
+  }
 });
 
 SyncedCron.add({

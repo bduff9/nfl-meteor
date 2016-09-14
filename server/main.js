@@ -5,9 +5,10 @@ import { Accounts } from 'meteor/accounts-base';
 
 import '../imports/api/collections/games';
 import '../imports/api/collections/nfllogs';
+import '../imports/api/collections/systemvals';
 import '../imports/api/collections/teams';
 import '../imports/api/collections/users';
-import { Game, Team } from '../imports/api/schema';
+import { Game, SystemVal, Team } from '../imports/api/schema';
 import { currentWeek } from '../imports/api/collections/games';
 import { writeLog } from '../imports/api/collections/nfllogs';
 import { logError } from '../imports/api/global';
@@ -16,6 +17,22 @@ const gmailUrl = Meteor.settings.private.gmail;
 
 Meteor.startup(() => {
   process.env.MAIL_URL = gmailUrl;
+
+  Meteor.onConnection((conn) => {
+    const systemVal = SystemVal.findOne();
+    let newConn = {
+      opened: Date.now(),
+      on_view_my_picks: false,
+      on_view_all_picks: false,
+      scoreboard_open: false
+    };
+    systemVal.current_connections[conn.id] = newConn;
+    systemVal.save();
+    conn.onClose(() => {
+      delete systemVal.current_connections[conn.id];
+      systemVal.save();
+    })
+  });
 
   Accounts.onCreateUser((options, user) => {
     const currentWeekSync = Meteor.wrapAsync(currentWeek.call, currentWeek),

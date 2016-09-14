@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Class } from 'meteor/jagi:astronomy';
+import { moment } from 'meteor/momentjs:moment';
 
 import { ACTIONS } from './constants';
 
@@ -447,17 +448,12 @@ export const User = Class.create({
       const NO_WEEK_SELECTED = null,
           setObj = this.selected_week,
           week = setObj.week,
-          dt = setObj.selected_on,
-          dt2 = new Date(),
-          y2 = dt2.getFullYear(),
-          m2 = dt2.getMonth(),
-          d2 = dt2.getDay();
-      let y, m, d;
-      if (!dt) return NO_WEEK_SELECTED;
-      y = dt.getFullYear();
-      m = dt.getMonth();
-      d = dt.getDay();
-      if (y === y2 && m === m2 && d === d2) return week;
+          dt = moment(setObj.selected_on),
+          dt2 = moment();
+      let hrs;
+      if (!setObj.selected_on) return NO_WEEK_SELECTED;
+      hrs = dt2.diff(dt, 'hours', true);
+      if (hrs < 24) return week;
       return NO_WEEK_SELECTED;
     }
   },
@@ -506,6 +502,41 @@ export const NFLLog = Class.create({
       const user = User.findOne(this.to_id);
       if (this.to_id) return user;
       return null;
+    }
+  },
+  indexes: {}
+});
+
+export const SystemVals = new Mongo.Collection('systemvals');
+export const SystemVal = Class.create({
+  name: 'SystemVal',
+  collection: SystemVals,
+  secured: true,
+  fields:{
+    games_updating: {
+      type: Boolean,
+      default: false
+    },
+    // current_connections = { CONN_ID: { opened: DATE_OPENED, on_view_my_picks: false, ... }, ... }
+    current_connections: {
+      type: Object,
+      default: () => {}
+    }
+  },
+  methods: {
+    shouldUpdateFaster() {
+      return Object.keys(this.current_connections).some(connId => {
+        const conn = this.current_connections[connId];
+        // Do we need to check time opened too? Maybe to prevent someone leaving this open all day?
+        switch (true) {
+        case conn.on_view_my_picks:
+        case conn.on_view_all_picks:
+        case conn.scoreboard_open:
+          return true;
+        default:
+          return false;
+        }
+      });
     }
   },
   indexes: {}

@@ -19,16 +19,26 @@ if (Game.find().count() === 0) {
   console.log('Populating schedule completed!');
 }
 
-console.log('Initializing system values...');
 if (SystemVal.find().count() === 0) {
+  console.log('Initializing system values...');
   systemVal = new SystemVal({
     games_updating: false,
     current_connections: {}
   });
   systemVal.save();
+  console.log('System values initialized!');
 } else {
+  let conns;
+  console.log('Cleaning up old connections...');
   systemVal = SystemVal.findOne();
-  systemVal.current_connections = {};
+  conns = systemVal.current_connections;
+  Object.keys(conns).forEach(connId => {
+    let conn = conns[connId],
+        opened = moment(conn.opened),
+        now = moment(),
+        hoursAgo = now.diff(opened, 'hours', true);
+    if (hoursAgo > 24) delete conns[connId];
+  });
   systemVal.save();
+  console.log('Old connections cleaned!');
 }
-console.log('System values initialized!');

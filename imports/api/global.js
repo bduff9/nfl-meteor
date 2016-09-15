@@ -52,11 +52,8 @@ export const formattedPlace = (place) => {
 };
 
 export const weekPlacer = (week, user1, user2) => {
-console.log('week', week);
-console.log('user1', user1);
-console.log('user2', user2);
-  const tie1 = user1.tiebreakers[week - 1],
-      tie2 = user2.tiebreakers[week - 1],
+  const tie1 = user1.tiebreakers.filter(t => t.week === week)[0],
+      tie2 = user2.tiebreakers.filter(t => t.week === week)[0],
       lastScoreDiff1 = tie1.last_score - tie1.last_score_act,
       lastScoreDiff2 = tie2.last_score - tie2.last_score_act;
   // First, sort by points

@@ -18,10 +18,13 @@ export const updateUser = new ValidatedMethod({
     team_name: { type: String, label: 'Team Name' }
   }).validator(),
   run(userObj) {
+    let user, isCreate;
     if (!this.userId) throw new Meteor.Error('User.update.notLoggedIn', 'Must be logged in to change profile');
+    user = User.findOne(this.userId);
+    isCreate = !user.done_registering;
     User.update(this.userId, { $set: userObj });
     if (Meteor.isServer) {
-      sendWelcomeEmail.call({ userId: this.userId }, logError);
+      if (isCreate) sendWelcomeEmail.call({ userId: this.userId }, logError);
     }
   }
 });

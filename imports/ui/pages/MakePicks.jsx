@@ -49,8 +49,8 @@ class MakePicks extends Component {
     if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
     return { available, unavailable, used };
   }
-  _setHover(hoverTeam, ev) {
-    this.setState({ hoverTeam, hoverOn: (hoverTeam ? ev.target : null) });
+  _setHover(hoverTeam = '', hoverGame = null, hoverIsHome = false, ev) {
+    this.setState({ hoverGame, hoverIsHome, hoverTeam, hoverOn: (hoverTeam ? ev.target : null) });
   }
   _setTiebreakerWrapper(ev) {
     const { selectedWeek } = this.props,
@@ -99,7 +99,7 @@ class MakePicks extends Component {
   }
 
   render() {
-    const { available, hoverOn, hoverTeam, unavailable, used } = this.state,
+    const { available, hoverGame, hoverIsHome, hoverOn, hoverTeam, unavailable, used } = this.state,
         { currentWeek, games, gamesReady, picks, selectedWeek, teamsReady, tiebreaker } = this.props,
         sortOpts = {
          model: 'points',
@@ -168,12 +168,12 @@ class MakePicks extends Component {
                             <div className="col-xs-6 col-md-2 text-xs-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
                             <div className="col-xs-6 col-md-2 text-xs-center text-md-left homeName">
                               {homeTeam.city}&nbsp;
-                              <i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
+                              <i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id, game, true)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
                               <br />
                               {homeTeam.name}
                             </div>
                             <div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorName">
-                              <i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id)} onMouseLeave={this._setHover.bind(null, '')} />
+                              <i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id, game, false)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
                               &nbsp;{visitTeam.city}
                               <br />
                               {visitTeam.name}
@@ -247,7 +247,7 @@ class MakePicks extends Component {
           :
           <Loading />
         }
-        {hoverTeam ? <TeamHover target={hoverOn} teamId={hoverTeam} /> : null}
+        {hoverTeam ? <TeamHover game={hoverGame} isHome={hoverIsHome} target={hoverOn} teamId={hoverTeam} /> : null}
       </div>
     );
   }

@@ -136,7 +136,9 @@ API = {
         } else { // timeLeft is less than 0
           status = 'I';
         }
+        game.home_spread = Math.round(parseFloat(hTeamData.spread || 0, 10) * 10) / 10;
         game.home_score = parseInt(hTeamData.score || 0, 10);
+        game.visitor_spread = Math.round(parseFloat(vTeamData.spread || 0, 10) * 10) / 10;
         game.visitor_score = parseInt(vTeamData.score || 0, 10);
         game.status = status;
         game.time_left = timeLeft;
@@ -165,10 +167,10 @@ API = {
           // Updated 2016-09-13 to ensure history always gets filled in
           console.log(`Game ${game.game} complete, updating history...`);
           if (!hTeam.isInHistory(game._id)) {
-            hTeam.history.push({ game_id: game._id, opponent_id: vTeam._id, opponent_short: vTeam.short_name, was_home: true, did_win: game.winner_short === hTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
+            hTeam.history.push({ week: w, game_id: game._id, opponent_id: vTeam._id, opponent_short: vTeam.short_name, was_home: true, did_win: game.winner_short === hTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
           }
           if (!vTeam.isInHistory(game._id)) {
-            vTeam.history.push({ game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
+            vTeam.history.push({ week: w, game_id: game._id, opponent_id: hTeam._id, opponent_short: hTeam.short_name, was_home: false, did_win: game.winner_short === vTeam.short_name, did_tie: game.winner_short === 'TIE', final_score: (game.home_score > game.visitor_score ? `${game.home_score}-${game.visitor_score}` : `${game.visitor_score}-${game.home_score}`) });
           }
           console.log(`Game ${game.game} history updated!`);
           // Update the picks for each user

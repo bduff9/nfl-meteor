@@ -8,6 +8,11 @@ export const History = Class.create({
   name: 'History',
   secured: true,
   fields: {
+    week: {
+      type: Number,
+      validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }],
+      optional: true
+    },
     game_id: String,
     opponent_id: String,
     opponent_short: String,
@@ -131,6 +136,10 @@ export const Game = Class.create({
       type: String,
       validators: [{ type: 'length', param: 3 }]
     },
+    home_spread: {
+      type: Number,
+      optional: true
+    },
     home_score: {
       type: Number,
       validators: [{ type: 'gte', param: 0 }]
@@ -139,6 +148,10 @@ export const Game = Class.create({
     visitor_short: {
       type: String,
       validators: [{ type: 'length', param: 3 }]
+    },
+    visitor_spread: {
+      type: Number,
+      optional: true
     },
     visitor_score: {
       type: Number,

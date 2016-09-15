@@ -6,6 +6,11 @@ import { moment } from 'meteor/momentjs:moment';
 import { Game, SystemVal, User } from '../imports/api/schema';
 import { currentWeek, refreshGames } from '../imports/api/collections/games';
 
+// Config synced cron here
+SyncedCron.config({
+  log: false
+});
+
 SyncedCron.add({
   name: 'Update games every hour on the hour',
   schedule: parse => parse.recur().first().minute(),
@@ -25,7 +30,7 @@ SyncedCron.add({
 
 SyncedCron.add({
   name: 'Send email notifications',
-  schedule: parse => parse.recur().on(30).minute(),
+  schedule: parse => parse.recur().on(45).minute(),
   job: () => {
     const week = currentWeek.call(),
         users = User.find({ "done_registering": true }).fetch(),
@@ -43,7 +48,8 @@ SyncedCron.add({
             subject: `[NFL Confidence Pool] Hurry up, ${user.first_name}!`,
             text: `Hello ${user.first_name},
 
-This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.  You can log in and submit your picks here: http://nfl.asitewithnoname.com
+This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.  You can log in and submit your picks here:
+http://nfl.asitewithnoname.com
 
 Good luck!`,
           });

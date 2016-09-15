@@ -36,7 +36,7 @@ class TeamHover extends Component {
   }
 
   render() {
-    const { pageReady, teamInfo } = this.props;
+    const { currentGame, isHome, pageReady, teamInfo } = this.props;
     let won, lost, tied;
     if (pageReady) {
       won = teamInfo.history.reduce((prev, game) => {
@@ -67,10 +67,10 @@ class TeamHover extends Component {
                 <td>{`${teamInfo.conference} ${teamInfo.division}`}</td>
               </tr>
               <tr>
-                <td>{`Rushing Offense: ${teamInfo.rush_offense || ''} Passing Offense: ${teamInfo.pass_offense || ''}`}</td>
+                <td>{`Rushing Offense: ${teamInfo.rush_offense || ''} | Passing Offense: ${teamInfo.pass_offense || ''}`}</td>
               </tr>
               <tr>
-                <td>{`Rushing Defense: ${teamInfo.rush_defense || ''} Passing Defense: ${teamInfo.pass_defense || ''}`}</td>
+                <td>{`Rushing Defense: ${teamInfo.rush_defense || ''} | Passing Defense: ${teamInfo.pass_defense || ''}`}</td>
               </tr>
               <tr className="hidden-xs-up">
                 <td>{`Conference Rank: ${teamInfo.rank || ''}`}</td>
@@ -80,10 +80,10 @@ class TeamHover extends Component {
                   <div className={teamInfo.history.length > 0 ? 'history-separator' : ''} style={{ borderBottomColor: teamInfo.secondary_color }}>{`Record: ${won}-${lost}-${tied}`}</div>
                 </td>
               </tr>
-              {teamInfo.history.map(game => (
+              {teamInfo.history.map((game, i) => (
                 <tr key={'history' + game._id}>
                   <td>
-                    {(game.was_home ? 'vs. ' : '@ ')}
+                    {`Week ${game.week || (i + 1)}: ${game.was_home ? 'vs. ' : '@ '}`}
                     {game.getOpponent().name}&nbsp;
                     <span className={game.did_win ? 'did-win' : (game.did_tie ? 'did-tie' : 'did-lose')}>
                       {game.did_win ? 'W' : (game.did_tie ? 'T' : 'L')}
@@ -92,6 +92,15 @@ class TeamHover extends Component {
                   </td>
                 </tr>
               ))}
+              <tr>
+                <td>
+                  <strong>
+                    {`Week ${currentGame.week}: ${isHome ? 'vs. ' : '@ '}`}
+                    {`${currentGame.getTeam(isHome ? 'visitor' : 'home').name}`}
+                    {`${isHome ? (currentGame.home_spread ? ` (${currentGame.home_spread})` : '') : (currentGame.visitor_spread ? ` (${currentGame.visitor_spread})` : '')}`}
+                  </strong>
+                </td>
+              </tr>
             </tbody>
           ]
           :
@@ -109,6 +118,8 @@ class TeamHover extends Component {
 }
 
 TeamHover.propTypes = {
+  currentGame: PropTypes.object.isRequired,
+  isHome: PropTypes.bool.isRequired,
   pageReady: PropTypes.bool.isRequired,
   target: PropTypes.any.isRequired,
   teamInfo: PropTypes.object.isRequired
@@ -116,7 +127,7 @@ TeamHover.propTypes = {
 
 TeamHover._tether = null;
 
-export default createContainer(({ teamId }) => {
+export default createContainer(({ game, isHome, teamId }) => {
   const teamHandle = Meteor.subscribe('getTeamInfo', teamId),
       teamReady = teamHandle.ready();
   let teamInfo = {};
@@ -124,6 +135,8 @@ export default createContainer(({ teamId }) => {
     teamInfo = Team.findOne(teamId);
   }
   return {
+    currentGame: game,
+    isHome,
     pageReady: teamReady,
     teamInfo
   };

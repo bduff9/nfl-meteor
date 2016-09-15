@@ -13,13 +13,13 @@ import { refreshGames } from '../../api/collections/games';
 import { displayError } from '../../api/global';
 
 const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
-  const tiebreaker = currentUser.tiebreakers[selectedWeek - 1],
+  const tiebreaker = currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
       survivorPicks = currentUser.survivor;
   let msgCt = unreadMessages.length;
 
   msgCt += (pageReady && currentUser.paid ? 0 : 1);
-  msgCt += (pageReady && currentUser.tiebreakers[currentWeek - 1].submitted ? 0 : 1);
-  msgCt += (pageReady && (!currentUser.survivor[currentWeek - 1] || currentUser.survivor[currentWeek - 1].pick_id) ? 0 : 1);
+  msgCt += (pageReady && currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === currentWeek)[0].submitted ? 0 : 1);
+  msgCt += (pageReady && (!currentUser.survivor.filter(s => s.week === currentWeek)[0] || currentUser.survivor.filter(s => s.week === currentWeek)[0].pick_id) ? 0 : 1);
 
   const _selectWeek = (newWeek, ev) => {
     ev.preventDefault();

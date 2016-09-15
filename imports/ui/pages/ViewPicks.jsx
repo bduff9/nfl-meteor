@@ -113,7 +113,7 @@ export default createContainer(() => {
   const user = User.findOne(Meteor.userId()),
       selectedWeek = Session.get('selectedWeek'),
       picks = user.picks.filter(pick => pick.week === selectedWeek && pick.game !== 0),
-      tiebreaker = user.tiebreakers[selectedWeek - 1],
+      tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
       gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
       gamesReady = gamesHandle.ready(),
       teamsHandle = Meteor.subscribe('allTeams'),

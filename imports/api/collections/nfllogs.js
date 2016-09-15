@@ -79,7 +79,7 @@ export const endOfWeekMessage = new ValidatedMethod({
         MESSAGE = `Week ${week} is now over.`;
     let place, message, logEntry;
     users.forEach(user => {
-      place = user.tiebreakers[week - 1].place_in_week;
+      place = user.tiebreakers.filter(tiebreaker => tiebreaker.week === week)[0].place_in_week;
       message = `${MESSAGE}  You finished in ${formattedPlace(place)} place.  ${(place < 3 ? 'Congrats!' : '')}`;
       logEntry = new NFLLog({
         action: 'MESSAGE',

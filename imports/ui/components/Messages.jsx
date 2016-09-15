@@ -25,7 +25,7 @@ class Messages extends Component {
   render() {
     const { currentUser, currentWeek, firstGame, messages, pageReady, paymentDue } = this.props,
         paid = pageReady && currentUser.paid,
-        submittedPicks = pageReady && currentUser.tiebreakers[currentWeek - 1].submitted,
+        submittedPicks = pageReady && currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === currentWeek)[0].submitted,
         submittedSurvivor = pageReady && (!currentUser.survivor[currentWeek - 1] || currentUser.survivor[currentWeek - 1].pick_id);
     return (
       <div className="messages">

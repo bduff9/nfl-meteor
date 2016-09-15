@@ -200,7 +200,7 @@ export const resetPicks = new ValidatedMethod({
     if (Meteor.isServer) {
       const user = User.findOne(this.userId),
           picks = user.picks,
-          tiebreaker = user.tiebreakers[selectedWeek - 1];
+          tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
       picks.forEach(pick => {
         if (pick.week === selectedWeek && !pick.hasStarted() && pick.game !== 0) {
           pick.pick_id = undefined;
@@ -260,7 +260,7 @@ export const submitPicks = new ValidatedMethod({
     if (!this.userId) throw new Meteor.Error('User.submitPicks.notLoggedIn', 'Must be logged in to submit picks');
     const user = User.findOne(this.userId),
         picks = user.picks,
-        tiebreaker = user.tiebreakers[selectedWeek - 1];
+        tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
     let noPicks = picks.filter(pick => pick.week === selectedWeek && pick.game !== 0 && !pick.hasStarted() && !pick.pick_id && !pick.pick_short && !pick.points);
     if (noPicks.length > 0) throw new Meteor.Error('User.submitPicks.missingPicks', 'You must complete all picks for the week before submitting');
     if (!tiebreaker.last_score) throw new Meteor.Error('User.submitPicks.noTiebreakerScore', 'You must submit a tiebreaker score for the last game of the week');
@@ -419,7 +419,7 @@ export const updatePlaces = new ValidatedMethod({
   run({ week }) {
     let ordUsers = User.find({ "done_registering": true }).fetch().sort(weekPlacer.bind(null, week));
     ordUsers.forEach((user, i, allUsers) => {
-      const tiebreaker = user.tiebreakers[week - 1];
+      const tiebreaker = user.tiebreakers.filter(t => t.week === week)[0];
       let currPlace = i + 1,
           nextUser, result, nextTiebreaker;
       if (!tiebreaker.tied_flag || i === 0) {
@@ -430,7 +430,7 @@ export const updatePlaces = new ValidatedMethod({
       nextUser = allUsers[i + 1];
       if (nextUser) {
         result = weekPlacer(week, user, nextUser);
-        nextTiebreaker = nextUser.tiebreakers[week - 1];
+        nextTiebreaker = nextUser.filter(t => t.week === week)[0];
         if (result === 0) {
           tiebreaker.tied_flag = true;
           nextTiebreaker.place_in_week = currPlace;
@@ -439,9 +439,7 @@ export const updatePlaces = new ValidatedMethod({
           if (i === 0) tiebreaker.tied_flag = false;
           nextTiebreaker.tied_flag = false;
         }
-        //nextUser.save();
       }
-      //user.save();
     });
     ordUsers = ordUsers.sort(overallPlacer);
     ordUsers.forEach((user, i, allUsers) => {
@@ -463,9 +461,7 @@ export const updatePlaces = new ValidatedMethod({
           if (i === 0) user.overall_tied_flag = false;
           nextUser.overall_tied_flag = false;
         }
-        //nextUser.save();
       }
-      //user.save();
     });
     // 2016-09-13 Moved saving to end to try and prevent endless loading screen upon game updates
     ordUsers.forEach(user => user.save());

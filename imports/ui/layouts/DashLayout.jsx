@@ -19,7 +19,7 @@ export const DashLayout = ({ data, dataReady, highestScore, isOverall, sort, use
         if (pick.points) return prev + pick.points;
         return prev;
       }, 0),
-      tiebreaker = week && user.tiebreakers[week - 1],
+      tiebreaker = week && user.tiebreakers.filter(tiebreaker => tiebreaker.week === week)[0],
       myPlace = (isOverall ? user.overall_place : tiebreaker.place_in_week),
       userId = user._id;
   let tied = '',

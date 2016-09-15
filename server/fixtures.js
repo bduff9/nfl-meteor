@@ -28,7 +28,8 @@ if (SystemVal.find().count() === 0) {
   systemVal.save();
   console.log('System values initialized!');
 } else {
-  let conns;
+  let oldCt = 0,
+      conns;
   console.log('Cleaning up old connections...');
   systemVal = SystemVal.findOne();
   conns = systemVal.current_connections;
@@ -37,8 +38,17 @@ if (SystemVal.find().count() === 0) {
         opened = moment(conn.opened),
         now = moment(),
         hoursAgo = now.diff(opened, 'hours', true);
-    if (hoursAgo > 24) delete conns[connId];
+    if (hoursAgo > 24) {
+      console.log(`Connection ${connId} ${hoursAgo} hours old, deleting...`);
+      delete conns[connId];
+      oldCt++;
+      console.log(`Connection ${connId} deleted!`);
+    }
   });
   systemVal.save();
-  console.log('Old connections cleaned!');
+  if (oldCt > 0) {
+    console.log(`${oldCt} old connections cleaned!`);
+  } else {
+    console.log('No connections to clean!');
+  }
 }

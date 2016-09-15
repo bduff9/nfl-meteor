@@ -46,7 +46,7 @@ class ViewAllPicks extends Component {
     let newUsers = users.map(user => {
       let newUser = Object.assign({}, user),
           picks = newUser.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek),
-          tiebreaker = newUser.tiebreakers.filter(tiebreaker => tiebreaker.week)[0],
+          tiebreaker = newUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
           pts = 0,
           gms = 0,
           game;
@@ -63,7 +63,7 @@ class ViewAllPicks extends Component {
     });
     newUsers.sort(weekPlacer.bind(null, selectedWeek));
     newUsers.forEach((user, i, allUsers) => {
-      const tiebreaker = user.tiebreakers[selectedWeek - 1];
+      const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
       let currPlace = i + 1,
           nextUser, result, nextTiebreaker;
       if (!tiebreaker.tied_flag || i === 0) {
@@ -74,7 +74,7 @@ class ViewAllPicks extends Component {
       nextUser = allUsers[i + 1];
       if (nextUser) {
         result = weekPlacer(selectedWeek, user, nextUser);
-        nextTiebreaker = nextUser.tiebreakers[selectedWeek - 1];
+        nextTiebreaker = nextUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
         if (result === 0) {
           tiebreaker.tied_flag = true;
           nextTiebreaker.place_in_week = currPlace;
@@ -201,7 +201,7 @@ export default createContainer(() => {
   const currentUser = User.findOne(Meteor.userId()),
       currentWeek = Session.get('currentWeek'),
       selectedWeek = Session.get('selectedWeek'),
-      tiebreaker = currentUser.tiebreakers[selectedWeek - 1],
+      tiebreaker = currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
       gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
       gamesReady = gamesHandle.ready(),
       teamsHandle = Meteor.subscribe('allTeams'),

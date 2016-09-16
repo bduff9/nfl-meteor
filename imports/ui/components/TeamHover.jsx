@@ -97,7 +97,7 @@ class TeamHover extends Component {
                   <strong>
                     {`Week ${currentGame.week}: ${isHome ? 'vs. ' : '@ '}`}
                     {`${currentGame.getTeam(isHome ? 'visitor' : 'home').name}`}
-                    {`${isHome ? (currentGame.home_spread ? ` (${currentGame.home_spread})` : '') : (currentGame.visitor_spread ? ` (${currentGame.visitor_spread})` : '')}`}
+                    {`${isHome ? (currentGame.home_spread != null ? ` (${currentGame.home_spread})` : '') : (currentGame.visitor_spread != null ? ` (${currentGame.visitor_spread})` : '')}`}
                   </strong>
                 </td>
               </tr>

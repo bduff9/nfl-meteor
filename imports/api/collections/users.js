@@ -400,7 +400,7 @@ export const updateSurvivor = new ValidatedMethod({
     const allUsers = User.find({ "done_registering": true }).fetch();
     allUsers.forEach(user => {
       let alive = user.survivor.length === 17;
-      if (!alive) return true;
+      if (!alive) return;
       user.survivor.every((pick, i) => {
         if (!pick.pick_id && pick.week <= week) pick.winner_id = 'MISSED';
         if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
@@ -433,7 +433,7 @@ export const updatePlaces = new ValidatedMethod({
       nextUser = allUsers[i + 1];
       if (nextUser) {
         result = weekPlacer(week, user, nextUser);
-        nextTiebreaker = nextUser.filter(t => t.week === week)[0];
+        nextTiebreaker = nextUser.tiebreakers.filter(t => t.week === week)[0];
         if (result === 0) {
           tiebreaker.tied_flag = true;
           nextTiebreaker.place_in_week = currPlace;

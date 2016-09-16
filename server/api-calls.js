@@ -1,6 +1,10 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
+import { moment } from 'meteor/momentjs:moment';
+
 import { Game, SystemVal, Team, User } from '../imports/api/schema';
+import { currentWeek } from '../imports/api/collections/games';
 import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 import { endOfWeekMessage } from '../imports/api/collections/nfllogs';
 import { convertEpoch, logError } from '../imports/api/global';
@@ -69,21 +73,55 @@ API = {
         });
         game.save();
         // Update home team data
-        if (hTeamData.passDefenseRank) hTeam.pass_defense = hTeamData.passDefenseRank;
-        if (hTeamData.passOffenseRank) hTeam.pass_offense = hTeamData.passOffenseRank;
-        if (hTeamData.rushDefenseRank) hTeam.rush_defense = hTeamData.rushDefenseRank;
-        if (hTeamData.rushOffenseRank) hTeam.rush_offense = hTeamData.rushOffenseRank;
+        if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
+        if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
+        if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
+        if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
         if (!hTeam.bye_week || hTeam.bye_week === w) hTeam.bye_week = w + 1;
         hTeam.save();
         // Update visiting team data
-        if (vTeamData.passDefenseRank) vTeam.pass_defense = vTeamData.passDefenseRank;
-        if (vTeamData.passOffenseRank) vTeam.pass_offense = vTeamData.passOffenseRank;
-        if (vTeamData.rushDefenseRank) vTeam.rush_defense = vTeamData.rushDefenseRank;
-        if (vTeamData.rushOffenseRank) vTeam.rush_offense = vTeamData.rushOffenseRank;
+        if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
+        if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
+        if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
+        if (vTeamData.rushOffenseRank) vTeam.rush_offense = parseInt(vTeamData.rushOffenseRank, 10);
         if (!vTeam.bye_week || vTeam.bye_week === w) vTeam.bye_week = w + 1;
         vTeam.save();
       });
     }
+  },
+  updateGames() {
+    const week = currentWeek.call(),
+        firstGameOfWeek = Game.findOne({ week, game: 1 }),
+        weekHasStarted = moment().isSameOrAfter(firstGameOfWeek.kickoff),
+        weekToUpdate = (weekHasStarted ? week + 1 : week),
+        games = this.getGamesForWeek(weekToUpdate);
+    console.log(`Updating game info for week ${weekToUpdate}...`);
+    games.forEach(gameObj => {
+      let hTeamData, vTeamData, game, hTeam, vTeam;
+      gameObj.team.forEach(team => {
+        if (team.isHome === '1') hTeamData = team;
+        if (team.isHome === '0') vTeamData = team;
+      });
+      game = Game.findOne({ week: weekToUpdate, home_short: hTeamData.id, visitor_short: vTeamData.id });
+      if (hTeamData.spread) game.home_spread = Math.round(parseFloat(hTeamData.spread, 10) * 10) / 10;
+      if (vTeamData.spread) game.visitor_spread = Math.round(parseFloat(vTeamData.spread, 10) * 10) / 10;
+      game.save();
+      // Update home team data
+      hTeam = Team.findOne({ short_name: hTeamData.id });
+      if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
+      if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
+      if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
+      if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
+      hTeam.save();
+      // Update visiting team data
+      vTeam = Team.findOne({ short_name: vTeamData.id });
+      if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
+      if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
+      if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
+      if (vTeamData.rushOffenseRank) vTeam.rush_offense = parseInt(vTeamData.rushOffenseRank, 10);
+      vTeam.save();
+    });
+    console.log(`Game info for week ${weekToUpdate} updated!`);
   },
   refreshGameData() {
     const weeksToRefresh = _.uniq(Game.find({
@@ -136,9 +174,9 @@ API = {
         } else { // timeLeft is less than 0
           status = 'I';
         }
-        game.home_spread = Math.round(parseFloat(hTeamData.spread || 0, 10) * 10) / 10;
+        if (hTeamData.spread) game.home_spread = Math.round(parseFloat(hTeamData.spread, 10) * 10) / 10;
         game.home_score = parseInt(hTeamData.score || 0, 10);
-        game.visitor_spread = Math.round(parseFloat(vTeamData.spread || 0, 10) * 10) / 10;
+        if (vTeamData.spread) game.visitor_spread = Math.round(parseFloat(vTeamData.spread, 10) * 10) / 10;
         game.visitor_score = parseInt(vTeamData.score || 0, 10);
         game.status = status;
         game.time_left = timeLeft;

@@ -14,7 +14,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
   if (isOverall) {
     for (let i = 0; i < weekForSec; i++) graphData[i] = { x: `Week ${i + 1}` };
     data.forEach(user => {
-      lastWeek = user.survivor[weekForSec - 1];
+      lastWeek = user.survivor.filter(s => s.week === weekForSec)[0];
       if (user.survivor.length < weekForSec) {
         dead.push(user);
       } else {
@@ -69,7 +69,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
                   <ul className="text-success alive">
                     {alive.map(user => (
                       <li key={'survivor' + user._id}>
-                        <span>{`${user.first_name} ${user.last_name}${(!isOverall ? ' - ' + user.survivor[0].pick_short : '')}`}</span>
+                        <span>{`${user.first_name} ${user.last_name}${(!isOverall ? ' - ' + user.survivor.filter(s => s.week === week)[0].pick_short : '')}`}</span>
                       </li>
                     ))}
                   </ul>
@@ -78,7 +78,7 @@ export const SurvivorLayout = ({ data, isOverall, pageReady, week, weekForSec })
                   <ul className="text-danger dead">
                     {dead.map(user => (
                       <li key={'survivor' + user._id}>
-                        <span>{`${user.first_name} ${user.last_name}${(!isOverall ? ' - ' + (user.survivor[0].pick_short || 'N/A') : '')}`}</span>
+                        <span>{`${user.first_name} ${user.last_name}${(!isOverall ? ' - ' + (user.survivor.filter(s => s.week === week)[0].pick_short || 'N/A') : '')}`}</span>
                       </li>
                     ))}
                   </ul>

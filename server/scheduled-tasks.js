@@ -12,6 +12,12 @@ SyncedCron.config({
 });
 
 SyncedCron.add({
+  name: 'Update spread and ranks outside of games',
+  schedule: parse => parse.recur().on(5, 17).hour(),
+  job: () => API.updateGames()
+});
+
+SyncedCron.add({
   name: 'Update games every hour on the hour',
   schedule: parse => parse.recur().first().minute(),
   job: () => refreshGames.call()

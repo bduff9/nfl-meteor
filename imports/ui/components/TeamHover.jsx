@@ -81,7 +81,7 @@ class TeamHover extends Component {
                 </td>
               </tr>
               {teamInfo.history.map((game, i) => (
-                <tr key={'history' + game._id}>
+                <tr key={'history' + game.game_id}>
                   <td>
                     {`Week ${game.week || (i + 1)}: ${game.was_home ? 'vs. ' : '@ '}`}
                     {game.getOpponent().name}&nbsp;
@@ -92,15 +92,20 @@ class TeamHover extends Component {
                   </td>
                 </tr>
               ))}
-              <tr>
-                <td>
-                  <strong>
-                    {`Week ${currentGame.week}: ${isHome ? 'vs. ' : '@ '}`}
-                    {`${currentGame.getTeam(isHome ? 'visitor' : 'home').name}`}
-                    {`${isHome ? (currentGame.home_spread != null ? ` (${currentGame.home_spread})` : '') : (currentGame.visitor_spread != null ? ` (${currentGame.visitor_spread})` : '')}`}
-                  </strong>
-                </td>
-              </tr>
+              {teamInfo.history.filter(game => game.week === currentGame.week).length === 0 ? (
+                <tr>
+                  <td>
+                    <strong>
+                      {`Week ${currentGame.week}: ${isHome ? 'vs. ' : '@ '}`}
+                      {`${currentGame.getTeam(isHome ? 'visitor' : 'home').name}`}
+                      {`${isHome ? (currentGame.home_spread != null ? ` (${currentGame.home_spread})` : '') : (currentGame.visitor_spread != null ? ` (${currentGame.visitor_spread})` : '')}`}
+                    </strong>
+                  </td>
+                </tr>
+              )
+              :
+                null
+              }
             </tbody>
           ]
           :

@@ -57,8 +57,10 @@ class ViewAllPicks extends Component {
           gms += 1;
         }
       });
-      tiebreaker.points_earned = pts;
-      tiebreaker.games_correct = gms;
+      if (tiebreaker) {
+        tiebreaker.points_earned = pts;
+        tiebreaker.games_correct = gms;
+      }
       return newUser;
     });
     newUsers.sort(weekPlacer.bind(null, selectedWeek));

@@ -405,9 +405,10 @@ export const updateSurvivor = new ValidatedMethod({
         if (!pick.pick_id && pick.week <= week) pick.winner_id = 'MISSED';
         if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
         if (!alive) {
-          user.survivor.length = (i + 1);
+          user.survivor.length = pick.week;
           return false;
         }
+        return true;
       });
       user.save();
     });

@@ -5,6 +5,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
+import { NO_MISS_WEEK } from '../../api/constants';
 import { DashLayout } from '../layouts/DashLayout.jsx';
 import { User } from '../../api/schema';
 
@@ -16,7 +17,7 @@ export default createContainer(({ sortBy, user, _changeSortBy }) => {
   if (dataReady) {
     data = User.find({ done_registering: true }, { sort }).fetch()
       .map((u, i, allUsers) => {
-        const missedGames = u.picks.filter(pick => pick.winner_id && !pick.pick_id);
+        const missedGames = u.picks.filter(pick => pick.week >= NO_MISS_WEEK && pick.winner_id && !pick.pick_id);
         return {
           _id: u._id,
           first_name: u.first_name,

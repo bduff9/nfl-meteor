@@ -14,3 +14,5 @@ export const ACTIONS = [
   'SUBMIT_PICKS',
   'SURVIVOR_PICK'
 ];
+
+export const NO_MISS_WEEK = 5;

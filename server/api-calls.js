@@ -242,7 +242,6 @@ API = {
         const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
         User.update({ 'done_registering': true, 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
         console.log(`Week ${w} tiebreakers successfully updated!`);
-        endOfWeekMessage.call({ week: w }, logError);
       }
       console.log(`Finished updating games for week ${w}!`);
       // Updated 2016-09-13 to improve update performance
@@ -257,6 +256,7 @@ API = {
         updateSurvivor.call({ week: w }, err => {
           if (err) console.error('updateSurvivor', err);
         });
+        if (gameCount === completeCount) endOfWeekMessage.call({ week: w }, logError);
         console.log(`Finished updating users for week ${w}!`);
       }
       console.log(`Week ${w} successfully updated!`);

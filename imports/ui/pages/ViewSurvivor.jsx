@@ -74,6 +74,7 @@ export default createContainer(() => {
   let nextGame = {};
   if (nextGameReady) {
     nextGame = Game.find({ status: { $eq: 'P' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
+    if (!nextGame) nextGame = { week: 17, game: 16 };
   }
   return {
     nextGame,

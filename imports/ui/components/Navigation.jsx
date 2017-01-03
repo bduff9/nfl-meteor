@@ -150,6 +150,7 @@ export default createContainer(({ currentUser, rightSlider, ...rest }) => {
   }
   if (nextGameReady) {
     nextGame = Game.find({ status: { $eq: 'P' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
+    if (!nextGame) nextGame = { week: 17, game: 16 };
   }
   if (messagesReady) {
     unreadMessages = NFLLog.find({ action: 'MESSAGE', is_read: false, is_deleted: false, to_id: Meteor.userId() }).fetch();

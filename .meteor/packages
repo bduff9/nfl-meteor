@@ -37,7 +37,4 @@ themeteorchef:jquery-validation
 momentjs:moment
 reywood:publish-composite
 tmeasday:publish-counts
-meteorhacks:kadira
-meteorhacks:kadira-debug
-meteorhacks:kadira-profiler
 blaze-html-templates

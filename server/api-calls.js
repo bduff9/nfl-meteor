@@ -13,18 +13,15 @@ API = {
   getGamesForWeek(week) {
     const currDate = new Date(),
         currMonth = currDate.getMonth(),
-        currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
-    let data, url, response;
-    if (Meteor.settings.mode === 'development') {
-      data = {};
-      url = `http://localhost:3003/W/${week}`;
-    } else if (Meteor.settings.mode === 'testing') {
-      data = {};
-      url = `http://mrcwebapps.com:3003/W/${week}`;
+        currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0),
+        data = { TYPE: 'nflSchedule', JSON: 1, W: week };
+    let url, response;
+    if (Meteor.settings.mode === 'production' || !Meteor.settings.apiHost) {
+      url = 'http://www03.myfantasyleague.com';
     } else {
-      data = { TYPE: 'nflSchedule', JSON: 1, W: week };
-      url = `http://www03.myfantasyleague.com/${currYear}/export`;
+      url = Meteor.settings.apiHost;
     }
+    url += `/${currYear}/export`;
     response = HTTP.get(url, { params: data });
     return response.data.nflSchedule.matchup;
   },

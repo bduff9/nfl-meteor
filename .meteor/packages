@@ -38,3 +38,4 @@ momentjs:moment
 reywood:publish-composite
 tmeasday:publish-counts
 blaze-html-templates
+practicalmeteor:mocha

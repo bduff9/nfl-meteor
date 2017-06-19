@@ -238,6 +238,25 @@ export const Game = Class.create({
   }
 });
 
+export const Notification = Class.create({
+  name: 'Notification',
+  secured: true,
+  fields: {
+    type: {
+      type: [String],
+      validators: [{ type: 'choice', param: ['H', 'V'] }]
+    },
+    hours_before: {
+      type: Number,
+      validators: [{ type: 'and', param: [{ type: 'gt', param: 0 }, { type: 'lt', param: 72 }] }]
+    },
+    is_quick: {
+      type: Boolean,
+      default: false
+    }
+  }
+});
+
 export const SelectedWeek = Class.create({
   name: 'SelectedWeek',
   secured: true,
@@ -254,10 +273,110 @@ export const SelectedWeek = Class.create({
   }
 });
 
-export const Pick = Class.create({
-  name: 'Pick',
+export const User = Class.create({
+  name: 'User',
+  collection: Meteor.users,
   secured: true,
   fields: {
+    email: {
+      type: String,
+      validators: [{ type: 'email' }]
+    },
+    phone_number: {
+      type: String,
+      optional: true
+    },
+    notifications: {
+      type: [Notification],
+      default: () => []
+    },
+    first_name: {
+      type: String,
+      validators: [{ type: 'minLength', param: 1 }]
+    },
+    last_name: {
+      type: String,
+      validators: [{ type: 'minLength', param: 1 }]
+    },
+    team_name: String,
+    referred_by: {
+      type: String,
+      validators: [{ type: 'minLength', param: 1, message: 'Please select whether you have played before or are new' }]
+    },
+    verified: Boolean,
+    done_registering: Boolean,
+    leagues: [String],
+    is_admin: {
+      type: Boolean,
+      default: false
+    },
+    survivor: {
+      type: Boolean,
+      default: false
+    },
+    payment_type: {
+      type: String,
+      validators: [{ type: 'choice', param: ['PayPal', 'QuickPay', 'Venmo'] }],
+      optional: true
+    },
+    payment_account: {
+      type: String,
+      optional: true
+    },
+    owe: {
+      type: Number,
+      default: 0.00
+    },
+    paid: {
+      type: Number,
+      default: 0.00
+    },
+    selected_week: {
+      type: SelectedWeek,
+      default: () => {}
+    },
+    total_points: {
+      type: Number,
+      validators: [{ type: 'gte', param: 0 }]
+    },
+    total_games: {
+      type: Number,
+      validators: [{ type: 'gte', param: 0 }]
+    },
+    overall_place: {
+      type: Number,
+      validators: [{ type: 'gt', param: 0 }],
+      optional: true
+    },
+    overall_tied_flag: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    getSelectedWeek() {
+      const NO_WEEK_SELECTED = null,
+          { week, selected_on } = this.selected_week,
+          dateSelected = moment(selected_on),
+          currentDate = moment();
+      let hrs;
+      if (!setObj.selected_on) return NO_WEEK_SELECTED;
+      hrs = currentDate.diff(dateSelected, 'hours', true);
+      if (hrs < 24) return week;
+      return NO_WEEK_SELECTED;
+    }
+  },
+  indexes: {}
+});
+
+export const Picks = new Mongo.Collection('picks');
+export const Pick = Class.create({
+  name: 'Pick',
+  collection: Picks,
+  secured: true,
+  fields: {
+    user_id: String,
+    league: String,
     week: {
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
@@ -302,13 +421,40 @@ export const Pick = Class.create({
       team = Teams.findOne({ _id: this.pick_id });
       return team;
     }
+  },
+  indexes: {
+    onePick: {
+      fields: {
+        user_id: 1,
+        league: 1,
+        week: 1,
+        game: 1
+      },
+      options: {
+        unique: true
+      }
+    },
+    onePick2: {
+      fields: {
+        user_id: 1,
+        league: 1,
+        game_id: 1
+      },
+      options: {
+        unique: true
+      }
+    }
   }
 });
 
+export const Tiebreakers = new Mongo.Collection('tiebreakers');
 export const Tiebreaker = Class.create({
   name: 'Tiebreaker',
+  collection: Tiebreakers,
   secured: true,
   fields: {
+    user_id: String,
+    league: String,
     week: {
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
@@ -344,13 +490,29 @@ export const Tiebreaker = Class.create({
       type: Boolean,
       default: false
     }
+  },
+  indexes: {
+    oneWeek: {
+      fields: {
+        user_id: 1,
+        league: 1,
+        week: 1
+      },
+      options: {
+        unique: true
+      }
+    }
   }
 });
 
+export const SurvivorPicks = new Mongo.Collection('survivor');
 export const SurvivorPick = Class.create({
   name: 'SurvivorPick',
+  collection: SurvivorPicks,
   secured: true,
   fields: {
+    user_id: String,
+    league: String,
     week: {
       type: Number,
       validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
@@ -389,88 +551,19 @@ export const SurvivorPick = Class.create({
           now = new Date();
       return (game.kickoff <= now);
     }
+  },
+  indexes: {
+    onePick: {
+      fields: {
+        user_id: 1,
+        league: 1,
+        week: 1
+      },
+      options: {
+        unique: true
+      }
+    }
   }
-});
-
-export const User = Class.create({
-  name: 'User',
-  collection: Meteor.users,
-  secured: true,
-  fields: {
-    email: {
-      type: String,
-      validators: [{ type: 'email' }]
-    },
-    first_name: {
-      type: String,
-      validators: [{ type: 'minLength', param: 1 }]
-    },
-    last_name: {
-      type: String,
-      validators: [{ type: 'minLength', param: 1 }]
-    },
-    team_name: String,
-    referred_by: {
-      type: String,
-      validators: [{ type: 'minLength', param: 1, message: 'Please select whether you have played before or are new' }]
-    },
-    verified: Boolean,
-    done_registering: Boolean,
-    is_admin: {
-      type: Boolean,
-      default: false
-    },
-    paid: Boolean,
-    selected_week: {
-      type: SelectedWeek,
-      default: () => {}
-    },
-    total_points: {
-      type: Number,
-      validators: [{ type: 'gte', param: 0 }]
-    },
-    total_games: {
-      type: Number,
-      validators: [{ type: 'gte', param: 0 }]
-    },
-    overall_place: {
-      type: Number,
-      validators: [{ type: 'gt', param: 0 }],
-      optional: true
-    },
-    overall_tied_flag: {
-      type: Boolean,
-      default: false
-    },
-    bonus_points: {
-      type: Number,
-      validators: [{ type: 'gte', param: 0 }]
-    },
-    picks: {
-      type: [Pick]
-    },
-    tiebreakers: {
-      type: [Tiebreaker]
-    },
-    survivor: {
-      type: [SurvivorPick]
-    }
-  },
-  methods: {
-    getSelectedWeek() {
-      const NO_WEEK_SELECTED = null,
-          setObj = this.selected_week,
-          week = setObj.week,
-          dt = moment(setObj.selected_on),
-          dt2 = moment();
-      let hrs;
-      if (!setObj.selected_on) return NO_WEEK_SELECTED;
-      hrs = dt2.diff(dt, 'hours', true);
-      if (hrs < 24) return week;
-      return NO_WEEK_SELECTED;
-    }
-  },
-  indexes: {}
 });
 
 export const NFLLogs = new Mongo.Collection('nfllogs');
@@ -520,12 +613,37 @@ export const NFLLog = Class.create({
   indexes: {}
 });
 
+export const PoolHistorys = new Mongo.Collection('poolhistory');
+export const PoolHistory = Class.create({
+  name: 'PoolHistory',
+  collection: PoolHistorys,
+  secured: true,
+  fields: {
+    user_id: String,
+    year: TODO,
+    league: String,
+    type: {
+      type: String,
+      validators: [{ type: 'choice', param: ['O', 'W'] }]
+    },
+    place: {
+      type: Number,
+      validators: [{ type: 'gt', param: 0 }]
+    }
+  }
+});
+
 export const SystemVals = new Mongo.Collection('systemvals');
 export const SystemVal = Class.create({
   name: 'SystemVal',
   collection: SystemVals,
   secured: true,
-  fields:{
+  fields: {
+    year_updated: {
+      type: Number,
+      validators: [{ type: 'gte', param: 2017 }], // BD: First year we added this attribute
+      default: new Date().getFullYear
+    },
     games_updating: {
       type: Boolean,
       default: false

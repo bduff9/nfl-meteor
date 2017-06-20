@@ -620,7 +620,10 @@ export const PoolHistory = Class.create({
   secured: true,
   fields: {
     user_id: String,
-    year: TODO,
+    year: {
+      type: Number,
+      validators: [{ type: 'gte', param: 2016 }], // BD: First year we started storing history
+    },
     league: String,
     type: {
       type: String,
@@ -642,7 +645,7 @@ export const SystemVal = Class.create({
     year_updated: {
       type: Number,
       validators: [{ type: 'gte', param: 2017 }], // BD: First year we added this attribute
-      default: new Date().getFullYear
+      default: new Date().getFullYear()
     },
     games_updating: {
       type: Boolean,

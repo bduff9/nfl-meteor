@@ -1,6 +1,9 @@
 'use strict';
 
-import { User } from '../../imports/api/schema';
+import { Meteor } from 'meteor/meteor';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+
+import { User } from '../../imports/api/collections/users';
 
 Meteor.publish('userData', function() {
   let myUser;

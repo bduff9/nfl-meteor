@@ -1,6 +1,6 @@
 'use strict';
 
-import { Team } from '../../imports/api/schema';
+import { Team } from '../../imports/api/collections/teams';
 
 Meteor.publish('allTeams', function() {
   let teams;

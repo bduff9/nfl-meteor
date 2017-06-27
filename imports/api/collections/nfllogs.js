@@ -1,8 +1,12 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
+import { Class } from 'meteor/jagi:astronomy';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { NFLLog, User } from '../schema';
+import { User } from '../collections/users';
 import { ACTIONS } from '../constants';
 import { formattedPlace } from '../global';
 
@@ -23,34 +27,6 @@ export const writeLog = new ValidatedMethod({
         user_id: userId
       });
       logEntry.save();
-    }
-  }
-});
-
-export const toggleRead = new ValidatedMethod({
-  name: 'NFLLog.update.toggleRead',
-  validate: new SimpleSchema({
-    msgId: { type: String, label: 'Message ID' },
-    markRead: { type: Boolean, label: 'Mark Read' }
-  }).validator(),
-  run({ msgId, markRead }) {
-    if (!this.userId) throw new Meteor.Error('NFLLog.update.toggleRead.not-signed-in', 'You must be logged in to write to the log');
-    if (Meteor.isServer) {
-      NFLLog.update({ _id: msgId, to_id: this.userId }, { $set: { is_read: markRead }});
-    }
-  }
-});
-
-export const toggleDeleted = new ValidatedMethod({
-  name: 'NFLLog.update.toggleDeleted',
-  validate: new SimpleSchema({
-    msgId: { type: String, label: 'Message ID' },
-    markDeleted: { type: Boolean, label: 'Mark Deleted' }
-  }).validator(),
-  run({ msgId, markDeleted }) {
-    if (!this.userId) throw new Meteor.Error('NFLLog.update.toggleDeleted.not-signed-in', 'You must be logged in to write to the log');
-    if (Meteor.isServer) {
-      NFLLog.update({ _id: msgId, to_id: this.userId }, { $set: { is_deleted: markDeleted }});
     }
   }
 });
@@ -89,5 +65,62 @@ export const endOfWeekMessage = new ValidatedMethod({
       });
       logEntry.save();
     });
+  }
+});
+
+export const NFLLogs = new Mongo.Collection('nfllogs');
+export const NFLLog = Class.create({
+  name: 'NFLLog',
+  collection: NFLLogs,
+  secured: true,
+  fields: {
+    action: {
+      type: String,
+      validators: [{ type: 'choice', param: ACTIONS }]
+    },
+    when: Date,
+    message: {
+      type: String,
+      optional: true
+    },
+    user_id: {
+      type: String,
+      optional: true
+    },
+    is_read: {
+      type: Boolean,
+      default: false
+    },
+    is_deleted: {
+      type: Boolean,
+      default: false
+    },
+    to_id: {
+      type: String,
+      optional: true
+    }
+  },
+  helpers: {
+    getUser() {
+      const user = User.findOne(this.user_id);
+      if (this.user_id) return user;
+      return null;
+    },
+    getUserTo() {
+      const user = User.findOne(this.to_id);
+      if (this.to_id) return user;
+      return null;
+    }
+  },
+  indexes: {},
+  meteorMethods: {
+    toggleDeleted(markDeleted) {
+      this.is_deleted = markDeleted;
+      return this.save();
+    },
+    toggleRead(markRead) {
+      this.is_read = markRead;
+      return this.save();
+    }
   }
 });

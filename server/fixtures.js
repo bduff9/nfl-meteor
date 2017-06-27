@@ -1,8 +1,10 @@
 'use strict';
 
-import { Game, SystemVal, Team } from '../imports/api/schema';
+import { Game } from '../imports/api/collections/games';
+import { SystemVal } from '../imports/api/collections/systemvals';
+import { Team } from '../imports/api/collections/teams';
 import { initSchedule } from '../imports/api/collections/games';
-import { initTeams } from '../imports/api/collections/teams';
+import { initTeams } from './collections/teams';
 import { logError } from '../imports/api/global';
 
 let systemVal;

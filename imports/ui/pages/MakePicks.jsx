@@ -10,7 +10,8 @@ import Helmet from 'react-helmet';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
 import TeamHover from '../components/TeamHover.jsx';
-import { Game, User } from '../../api/schema';
+import { Game } from '../../api/collections/games';
+import { User } from '../../api/collections/users';
 import { autoPick, resetPicks, setTiebreaker, submitPicks } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 

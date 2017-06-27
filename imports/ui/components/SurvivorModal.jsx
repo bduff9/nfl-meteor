@@ -5,7 +5,7 @@ import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { Game } from '../../api/schema';
+import { Game } from '../../api/collections/games';
 import { setSurvivorPick } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 

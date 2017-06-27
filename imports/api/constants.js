@@ -1,5 +1,6 @@
-/*jshint esversion: 6 */
 'use strict';
+
+export const dbVersion = '1';
 
 export const ACTIONS = [
   '404',

@@ -1,6 +1,10 @@
 'use strict';
 
-import { NFLLog } from '../../imports/api/schema';
+import { Meteor } from 'meteor/meteor';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { Counts } from 'meteor/tmeasday:publish-counts';
+
+import { NFLLog } from '../../imports/api/collections/nfllogs';
 
 Meteor.publish('allChats', function() {
   let allChats;

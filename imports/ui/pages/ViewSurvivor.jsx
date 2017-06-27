@@ -8,7 +8,9 @@ import Helmet from 'react-helmet';
 import { Loading } from './Loading.jsx';
 import OverallSurvivor from '../components/OverallSurvivor.jsx';
 import WeekSurvivor from '../components/WeekSurvivor.jsx';
-import { Game, Team, User } from '../../api/schema';
+import { Game } from '../../api/collections/games';
+import { Team } from '../../api/collections/teams';
+import { User } from '../../api/collections/users';
 
 class ViewSurvivor extends Component {
   constructor(props) {

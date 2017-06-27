@@ -5,17 +5,21 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Migrations } from 'meteor/percolate:migrations';
 
-import { Picks, PoolHistorys, SurvivorPicks, Tiebreakers } from '../imports/api/schema';
+import { dbVersion } from '../imports/api/constants';
+import { Games } from '../imports/api/collections/games';
+import { NFLLogs } from '../imports/api/collections/nfllogs';
+import { Picks } from '../imports/api/collections/picks';
+import { PoolHistorys } from '../imports/api/collections/poolhistorys';
+import { SurvivorPicks } from '../imports/api/collections/survivorpicks';
+import { SystemVals } from '../imports/api/collections/systemvals';
+import { Teams } from '../imports/api/collections/teams';
+import { Tiebreakers } from '../imports/api/collections/tiebreakers';
 
 const initialDB = function initialDB (migration) {
-  const Teams = new Mongo.Collection('teams');
-  const Games = new Mongo.Collection('games');
-  const NFLLogs = new Mongo.Collection('nfllogs');
-  const SystemVals = new Mongo.Collection('systemvals');
+  // NOOP as astronomy handles this
 };
 
 const make2017Changes = function make2017Changes (migration) {
-console.log(migration);
   const users = Meteor.users.find({});
   const DEF_LEAGUE = 'public';
   //TODO migrate data to new structures
@@ -38,14 +42,16 @@ console.log(migration);
       Tiebreakers.insert(tb);
     });
     //TODO delete values from user BE CAREFUL WITH THIS AS IF YOU DO THIS AND DON'T DO BELOW, YOU WILL LOSE DATA
-    //TODO set new field values with defaults
   });
   //TODO get rankings by week and overall for insert into pool history
 };
 
 const undo2017Changes = function undo2017Changes (migration) {
-console.log('migration', migration);
   const users = Meteor.users.find({});
+  const Picks = new Mongo.Collection('picks');
+  const Tiebreakers = new Mongo.Collection('tiebreakers');
+  const SurvivorPicks = new Mongo.Collection('survivor');
+  const PoolHistorys = new Mongo.Collection('poolhistorys');
   //TODO migrate data back to old structures - IMPORTANT TO DO THIS PRIOR TO DELETING VALUES ABOVE!!!
   users.forEach(user => {
     const id = user._id;
@@ -69,12 +75,11 @@ Migrations.add({
 
 Migrations.add({
   version: 2,
-  name: 'Changes for 2017 season i.e. un-embed schemas and new user values',
+  name: 'Changes for 2017 season i.e. un-embed collections and add new user values',
   up: make2017Changes,
   down: undo2017Changes
 });
 
 Meteor.startup(function () {
-  //Migrations.migrateTo('1');
-  Migrations.migrateTo('latest');
+  Migrations.migrateTo(dbVersion);
 });

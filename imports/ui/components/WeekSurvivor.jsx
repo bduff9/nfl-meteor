@@ -7,7 +7,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { SurvivorLayout } from '../layouts/SurvivorLayout.jsx';
-import { User } from '../../api/schema';
+import { User } from '../../api/collections/users';
 
 export default createContainer(({ week, weekForSec }) => {
   const survivorHandle = Meteor.subscribe('weekSurvivor', week),

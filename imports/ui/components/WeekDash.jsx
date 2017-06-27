@@ -6,7 +6,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { DashLayout } from '../layouts/DashLayout.jsx';
-import { User } from '../../api/schema';
+import { User } from '../../api/collections/users';
 
 export default createContainer(({ sortBy, user, week, _changeSortBy }) => {
   const dataHandle = Meteor.subscribe('weekPlaces', week),

@@ -8,7 +8,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import { User } from '../../api/schema';
+import { User } from '../../api/collections/users';
 import Navigation from '../components/Navigation.jsx';
 import { RightSlider } from '../components/RightSlider.jsx';
 import { currentWeek } from '../../api/collections/games';

@@ -9,7 +9,9 @@ import Helmet from 'react-helmet';
 import { Loading } from './Loading.jsx';
 import SurvivorPick from '../components/SurvivorPick.jsx';
 import SurvivorModal from '../components/SurvivorModal.jsx';
-import { Game, Team, User } from '../../api/schema';
+import { Game } from '../../api/collections/games';
+import { User } from '../../api/collections/users';
+import { Team } from '../../api/collections/teams.js';
 
 class SetSurvivor extends Component {
   constructor(props) {

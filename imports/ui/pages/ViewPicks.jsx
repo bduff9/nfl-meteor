@@ -8,7 +8,8 @@ import Helmet from 'react-helmet';
 
 import '../../ui/pages/ViewPicksPrint.scss';
 import { Loading } from './Loading.jsx';
-import { Game, User } from '../../api/schema';
+import { Game } from '../../api/collections/games';
+import { User } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 
 class ViewPicks extends Component {

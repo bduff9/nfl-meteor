@@ -7,7 +7,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import { Game } from '../../api/schema';
+import { Game } from '../../api/collections/games';
 import { pad } from '../../api/global';
 import { toggleScoreboard } from '../../api/collections/systemvals';
 import { displayError } from '../../api/global';

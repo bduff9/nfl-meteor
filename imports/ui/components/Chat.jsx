@@ -6,7 +6,8 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import { NFLLog, User } from '../../api/schema';
+import { NFLLog } from '../../api/collections/nfllogs';
+import { User } from '../../api/collections/users';
 import { updateChatHidden } from '../../api/collections/users';
 import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';

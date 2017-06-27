@@ -7,7 +7,8 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { Loading } from './Loading.jsx';
-import { NFLLog, User } from '../../api/schema';
+import { NFLLog } from '../../api/collections/nfllogs';
+import { User } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 import { ACTIONS } from '../../api/constants';
 

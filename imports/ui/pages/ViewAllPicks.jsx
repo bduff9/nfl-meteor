@@ -7,7 +7,9 @@ import Helmet from 'react-helmet';
 
 import '../../ui/pages/ViewAllPicksPrint.scss';
 import { Loading } from './Loading.jsx';
-import { Game, Team, User } from '../../api/schema';
+import { Game } from '../../api/collections/games';
+import { User } from '../../api/collections/users';
+import { Team } from '../../api/collections/teams';
 import { weekPlacer } from '../../api/global';
 
 class ViewAllPicks extends Component {

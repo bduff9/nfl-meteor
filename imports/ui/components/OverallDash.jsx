@@ -7,7 +7,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { NO_MISS_WEEK } from '../../api/constants';
 import { DashLayout } from '../layouts/DashLayout.jsx';
-import { User } from '../../api/schema';
+import { User } from '../../api/collections/users';
 
 export default createContainer(({ sortBy, user, _changeSortBy }) => {
   const dataHandle = Meteor.subscribe('overallPlaces'),

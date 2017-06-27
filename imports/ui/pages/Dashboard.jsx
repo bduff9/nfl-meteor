@@ -10,7 +10,7 @@ import Helmet from 'react-helmet';
 import { Loading } from './Loading.jsx';
 import OverallDash from '../components/OverallDash.jsx';
 import WeekDash from '../components/WeekDash.jsx';
-import { User } from '../../api/schema';
+import { User } from '../../api/collections/users';
 import { updateSelectedWeek } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 

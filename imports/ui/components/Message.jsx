@@ -3,18 +3,15 @@
 
 import React, { PropTypes } from 'react';
 
-import { toggleRead, toggleDeleted } from '../../api/collections/nfllogs';
+import { NFLLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 
 export const Message = ({ from, msgId, message, sent, unread }) => {
-  const fromStr = from && `${from.first_name} ${from.last_name}`;
+  const fromStr = from && `${from.first_name} ${from.last_name}`,
+      messageObj = NFLLog.findOne(msgId);
 
-  const toggleMsgRead = (ev) => {
-    toggleRead.call({ msgId, markRead: unread }, displayError);
-  };
-  const deleteMsg = (ev) => {
-    toggleDeleted.call({ msgId, markDeleted: true }, displayError);
-  };
+  const _toggleMsgRead = ev => messageObj.toggleRead(unread, displayError);
+  const _deleteMsg = ev => messageObj.toggleDeleted(true, displayError);
 
   return (
     <div className={'row message' + (unread ? ' unread' : '')}>
@@ -23,11 +20,11 @@ export const Message = ({ from, msgId, message, sent, unread }) => {
       <div className="col-xs-12 text-xs-left">{message}</div>
       {from || sent ? (
         <div className="col-xs-12 text-xs-center">
-          <button type="button" className="btn btn-danger" onClick={deleteMsg}>
+          <button type="button" className="btn btn-danger" onClick={_deleteMsg}>
             <i className="fa fa-fw fa-trash" />
             Delete
           </button>
-          <button type="button" className="btn btn-primary" onClick={toggleMsgRead}>
+          <button type="button" className="btn btn-primary" onClick={_toggleMsgRead}>
             <i className={'fa fa-fw fa-' + (unread ? 'envelope-o' : 'envelope')} />
             {unread ? 'Mark Read' : 'Mark Unread'}
           </button>

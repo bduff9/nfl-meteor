@@ -3,8 +3,17 @@
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { moment } from 'meteor/momentjs:moment';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import { Email } from 'meteor/email';
+import { Class } from 'meteor/jagi:astronomy';
+import { Migrations } from 'meteor/percolate:migrations';
 
-import { Game, Pick, SurvivorPick, Tiebreaker, User } from '../schema';
+import { dbVersion } from '../constants';
+import { Game } from '../collections/games';
+import { Pick } from '../collections/picks';
+import { SurvivorPick } from '../collections/survivorpicks';
+import { Tiebreaker } from '../collections/tiebreakers';
 import { writeLog } from './nfllogs';
 import { logError, overallPlacer, weekPlacer } from '../../api/global';
 
@@ -23,9 +32,7 @@ export const updateUser = new ValidatedMethod({
     user = User.findOne(this.userId);
     isCreate = !user.done_registering;
     User.update(this.userId, { $set: userObj });
-    if (Meteor.isServer) {
-      if (isCreate) sendWelcomeEmail.call({ userId: this.userId }, logError);
-    }
+    if (Meteor.isServer && isCreate) sendWelcomeEmail.call({ userId: this.userId }, logError);
   }
 });
 
@@ -70,9 +77,9 @@ export const updateUserAdmin = new ValidatedMethod({
     const myUser = User.findOne(this.userId),
         user = User.findOne(userId);
     if (!this.userId || !myUser.is_admin) throw new Meteor.Error('User.update.notLoggedIn', 'Not authorized to admin functions');
-    if (isAdmin != null) user.is_admin = isAdmin;
-    if (bonusPoints != null) user.bonus_points += bonusPoints;
-    if (paid != null) {
+    if (isAdmin !== null) user.is_admin = isAdmin;
+    if (bonusPoints !== null) user.bonus_points += bonusPoints;
+    if (paid !== null) {
       user.paid = paid;
       if (paid) writeLog.call({ action: 'PAID', message: `${user.first_name} ${user.last_name} has paid`, userId }, logError);
     }
@@ -115,9 +122,7 @@ export const removeSelectedWeek = new ValidatedMethod({
   }).validator(),
   run({ userId }) {
     if (!userId) throw new Meteor.Error('User.selected_week.delete.notLoggedIn', 'Must be logged in to change week');
-    if (Meteor.isServer) {
-      User.update(userId, { $set: { selected_week: {}}});
-    }
+    if (Meteor.isServer) User.update(userId, { $set: { selected_week: {}}});
   }
 });
 
@@ -471,3 +476,232 @@ export const updatePlaces = new ValidatedMethod({
     ordUsers.forEach(user => user.save());
   }
 });
+
+/**
+ * Notification, sub-schema from User
+ */
+let NotificationConditional = null;
+if (dbVersion > 1) {
+  NotificationConditional = Class.create({
+    name: 'Notification',
+    secured: true,
+    fields: {
+      type: {
+        type: [String],
+        validators: [{ type: 'choice', param: ['H', 'V'] }]
+      },
+      hours_before: {
+        type: Number,
+        validators: [{ type: 'and', param: [{ type: 'gt', param: 0 }, { type: 'lt', param: 72 }] }]
+      },
+      is_quick: {
+        type: Boolean,
+        default: false
+      }
+    }
+  });
+}
+export const Notification = NotificationConditional;
+
+/**
+ * Selected Week, sub-schema in User
+ */
+export const SelectedWeek = Class.create({
+  name: 'SelectedWeek',
+  secured: true,
+  fields: {
+    week: {
+      type: Number,
+      validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }],
+      optional: true
+    },
+    selected_on: {
+      type: Date,
+      optional: true
+    }
+  }
+});
+
+/**
+ * User schema
+ */
+let UserConditional;
+if (dbVersion < 2) {
+  UserConditional = Class.create({
+    name: 'User',
+    collection: Meteor.users,
+    secured: true,
+    fields: {
+      email: {
+        type: String,
+        validators: [{ type: 'email' }]
+      },
+      first_name: {
+        type: String,
+        validators: [{ type: 'minLength', param: 1 }]
+      },
+      last_name: {
+        type: String,
+        validators: [{ type: 'minLength', param: 1 }]
+      },
+      team_name: String,
+      referred_by: {
+        type: String,
+        validators: [{ type: 'minLength', param: 1, message: 'Please select whether you have played before or are new' }]
+      },
+      verified: Boolean,
+      done_registering: Boolean,
+      is_admin: {
+        type: Boolean,
+        default: false
+      },
+      paid: Boolean,
+      selected_week: {
+        type: SelectedWeek,
+        default: () => {}
+      },
+      total_points: {
+        type: Number,
+        validators: [{ type: 'gte', param: 0 }]
+      },
+      total_games: {
+        type: Number,
+        validators: [{ type: 'gte', param: 0 }]
+      },
+      overall_place: {
+        type: Number,
+        validators: [{ type: 'gt', param: 0 }],
+        optional: true
+      },
+      overall_tied_flag: {
+        type: Boolean,
+        default: false
+      },
+      bonus_points: {
+        type: Number,
+        validators: [{ type: 'gte', param: 0 }]
+      },
+      picks: {
+        type: [Pick]
+      },
+      tiebreakers: {
+        type: [Tiebreaker]
+      },
+      survivor: {
+        type: [SurvivorPick]
+      }
+    },
+    helpers: {
+      getSelectedWeek() {
+        const NO_WEEK_SELECTED = null,
+            setObj = this.selected_week,
+            week = setObj.week,
+            dt = moment(setObj.selected_on),
+            dt2 = moment();
+        let hrs;
+        if (!setObj.selected_on) return NO_WEEK_SELECTED;
+        hrs = dt2.diff(dt, 'hours', true);
+        if (hrs < 24) return week;
+        return NO_WEEK_SELECTED;
+      }
+    },
+    indexes: {}
+  });
+} else {
+  UserConditional = Class.create({
+    name: 'User',
+    collection: Meteor.users,
+    secured: true,
+    fields: {
+      email: {
+        type: String,
+        validators: [{ type: 'email' }]
+      },
+      phone_number: {
+        type: String,
+        optional: true
+      },
+      notifications: {
+        type: [Notification],
+        default: () => []
+      },
+      first_name: {
+        type: String,
+        validators: [{ type: 'minLength', param: 1 }]
+      },
+      last_name: {
+        type: String,
+        validators: [{ type: 'minLength', param: 1 }]
+      },
+      team_name: String,
+      referred_by: {
+        type: String,
+        validators: [{ type: 'minLength', param: 1, message: 'Please select whether you have played before or are new' }]
+      },
+      verified: Boolean,
+      done_registering: Boolean,
+      leagues: [String],
+      is_admin: {
+        type: Boolean,
+        default: false
+      },
+      survivor: {
+        type: Boolean,
+        default: false
+      },
+      payment_type: {
+        type: String,
+        validators: [{ type: 'choice', param: ['PayPal', 'QuickPay', 'Venmo'] }],
+        optional: true
+      },
+      payment_account: {
+        type: String,
+        optional: true
+      },
+      owe: {
+        type: Number,
+        default: 0.00
+      },
+      paid: {
+        type: Number,
+        default: 0.00
+      },
+      selected_week: {
+        type: SelectedWeek,
+        default: () => {}
+      },
+      total_points: {
+        type: Number,
+        validators: [{ type: 'gte', param: 0 }]
+      },
+      total_games: {
+        type: Number,
+        validators: [{ type: 'gte', param: 0 }]
+      },
+      overall_place: {
+        type: Number,
+        validators: [{ type: 'gt', param: 0 }],
+        optional: true
+      },
+      overall_tied_flag: {
+        type: Boolean,
+        default: false
+      }
+    },
+    helpers: {
+      getSelectedWeek() {
+        const NO_WEEK_SELECTED = null,
+            { week, selected_on } = this.selected_week,
+            dateSelected = moment(selected_on),
+            currentDate = moment();
+        let hrs;
+        if (!selected_on) return NO_WEEK_SELECTED;
+        hrs = currentDate.diff(dateSelected, 'hours', true);
+        if (hrs < 24) return week;
+        return NO_WEEK_SELECTED;
+      }
+    },
+    indexes: {}
+  });
+}
+export const User = UserConditional;

@@ -7,7 +7,9 @@ import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
 import { Message } from './Message.jsx';
-import { Game, NFLLog, User } from '../../api/schema';
+import { Game } from '../../api/collections/games';
+import { NFLLog } from '../../api/collections/nfllogs';
+import { User } from '../../api/collections/users';
 import { getPaymentDue } from '../../api/collections/games';
 import { displayError } from '../../api/global';
 

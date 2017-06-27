@@ -1,9 +1,14 @@
+/* global _, API */
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
 import { moment } from 'meteor/momentjs:moment';
+import { HTTP } from 'meteor/http';
 
-import { Game, SystemVal, Team, User } from '../imports/api/schema';
+import { Game } from '../imports/api/collections/games';
+import { SystemVal } from '../imports/api/collections/systemvals';
+import { Team } from '../imports/api/collections/teams';
+import { User } from '../imports/api/collections/users';
 import { currentWeek } from '../imports/api/collections/games';
 import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 import { endOfWeekMessage } from '../imports/api/collections/nfllogs';
@@ -261,4 +266,4 @@ API = {
     SystemVal.update({}, { $set: { games_updating: false }});
     return `Successfully updated all weeks in list: ${weeksToRefresh}`;
   }
-}
+};

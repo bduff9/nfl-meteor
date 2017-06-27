@@ -1,11 +1,11 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
 'use strict';
 
 import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { Team } from '../../api/schema';
+import { Team } from '../../api/collections/teams';
 
 class TeamHover extends Component {
   constructor(props) {

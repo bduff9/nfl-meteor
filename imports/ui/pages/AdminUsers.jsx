@@ -8,7 +8,7 @@ import Helmet from 'react-helmet';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 
-import { User } from '../../api/schema';
+import { User } from '../../api/collections/users';
 import { deleteUser, updateUserAdmin } from '../../api/collections/users';
 import { displayError } from '../../api/global';
 

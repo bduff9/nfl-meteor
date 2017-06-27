@@ -6,7 +6,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import { User } from '../../api/schema';
+import { User } from '../../api/collections/users';
 import { Routes } from '../../startup/client/Routes.jsx';
 import { Loading } from '../pages/Loading.jsx';
 

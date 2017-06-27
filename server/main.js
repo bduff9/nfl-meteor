@@ -8,7 +8,9 @@ import '../imports/api/collections/nfllogs';
 import '../imports/api/collections/systemvals';
 import '../imports/api/collections/teams';
 import '../imports/api/collections/users';
-import { Game, SystemVal, Team } from '../imports/api/schema';
+import { Game } from '../imports/api/collections/games';
+import { SystemVal } from '../imports/api/collections/systemvals';
+import { Team } from '../imports/api/collections/teams';
 import { currentWeek } from '../imports/api/collections/games';
 import { writeLog } from '../imports/api/collections/nfllogs';
 import { logError } from '../imports/api/global';
@@ -105,13 +107,9 @@ Meteor.startup(() => {
     }
     if (user && !user.verified) {
       vEmails = user.emails.filter(email => email.verified);
-      if (vEmails.length === 0) {
-        // Should we also re-send the verification email here?
-        throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
-        return false;
-      } else {
-        Meteor.users.update({ _id: user._id }, { $set: { verified: true }});
-      }
+      // Should we also re-send the verification email here?
+      if (vEmails.length === 0) throw new Meteor.Error('Email not verified!', 'Please check your email to verify your account');
+      Meteor.users.update({ _id: user._id }, { $set: { verified: true }});
     }
     return true;
   });

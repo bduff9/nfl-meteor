@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 
-import { NFLLog } from '../imports/api/schema';
+import { NFLLog } from '../imports/api/collections/nfllogs';
 
 const meldUserCallback = (origUser, newUser) => {
   const meldedUser = Object.assign({}, newUser, origUser);

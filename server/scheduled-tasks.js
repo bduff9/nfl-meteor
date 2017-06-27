@@ -1,9 +1,15 @@
-/*jshint esversion: 6 */
+/* jshint esversion: 6 */
+/* global API */
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import { moment } from 'meteor/momentjs:moment';
+import { SyncedCron } from 'meteor/percolate:synced-cron';
+import { Email } from 'meteor/email';
 
-import { Game, SystemVal, User } from '../imports/api/schema';
+import { Game } from '../imports/api/collections/games';
+import { SystemVal } from '../imports/api/collections/systemvals';
+import { User } from '../imports/api/collections/users';
 import { currentWeek, refreshGames } from '../imports/api/collections/games';
 
 // Config synced cron here

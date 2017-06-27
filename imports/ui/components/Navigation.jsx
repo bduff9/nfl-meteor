@@ -6,7 +6,9 @@ import { IndexLink, Link } from 'react-router';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { Game, NFLLog, User } from '../../api/schema';
+import { Game } from '../../api/collections/games';
+import { NFLLog } from '../../api/collections/nfllogs';
+import { User } from '../../api/collections/users';
 import { updateSelectedWeek } from '../../api/collections/users';
 import { testMessage } from '../../api/collections/nfllogs';
 import { refreshGames } from '../../api/collections/games';

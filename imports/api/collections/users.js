@@ -43,7 +43,7 @@ const sendWelcomeEmail = new ValidatedMethod({
 	run({ userId }) {
 		const user = User.findOne(userId),
 				admins = User.find({ is_admin: true }).fetch();
-		//TODO send welcome email to user with various infos
+		//TODO: send welcome email to user with various infos
 		admins.forEach(admin => {
 			Email.send({
 				to: admin.email,
@@ -402,9 +402,12 @@ export const updateSurvivor = new ValidatedMethod({
 	}).validator(),
 	run({ week }) {
 		const allUsers = User.find({ 'done_registering': true }).fetch();
+		let wasAlive = 0,
+				nowAlive = 0;
 		allUsers.forEach(user => {
 			let alive = user.survivor.length === 17;
 			if (!alive) return;
+			wasAlive++;
 			user.survivor.every((pick, i) => {
 				if (!pick.pick_id && pick.week <= week) pick.winner_id = 'MISSED';
 				if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
@@ -412,10 +415,14 @@ export const updateSurvivor = new ValidatedMethod({
 					user.survivor.length = pick.week;
 					return false;
 				}
+				nowAlive++;
 				return true;
 			});
 			user.save();
 		});
+		if (nowAlive === 0 && wasAlive > 0) {
+			//TODO: handle end of survivor pool here with a message to everyone and insert records into pool history
+		}
 	}
 });
 

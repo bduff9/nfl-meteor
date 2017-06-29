@@ -14,8 +14,6 @@ import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from
 import { endOfWeekMessage } from '../imports/api/collections/nfllogs';
 import { convertEpoch, logError } from '../imports/api/global';
 
-Meteor.methods({});
-
 export const getGamesForWeek = function getGamesForWeek (week) {
 	const currDate = new Date(),
 			currMonth = currDate.getMonth(),

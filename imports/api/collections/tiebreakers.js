@@ -2,6 +2,8 @@
 
 import { Mongo } from 'meteor/mongo';
 import { Class } from 'meteor/jagi:astronomy';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 
@@ -9,6 +11,17 @@ import { dbVersion } from '../../api/constants';
  * All tiebreaker logic
  * @since 2017-06-26
  */
+
+export const addTiebreaker = new ValidatedMethod({
+	name: 'Tiebreakers.addTiebreaker',
+	validate: new SimpleSchema({
+		tiebreaker: { type: Object, label: 'Tiebreaker' }
+	}).validator(),
+	run ({ tiebreaker }) {
+		const newTiebreaker = new Tiebreaker(tiebreaker);
+		newTiebreaker.save();
+	}
+});
 
 let TiebreakersConditional = null;
 let TiebreakerConditional = null;
@@ -118,5 +131,5 @@ if (dbVersion < 2) {
 	});
 }
 
-export const Tiebreakers = TiebreakersConditional;
-export const Tiebreaker = TiebreakerConditional;
+//const Tiebreakers = TiebreakersConditional;
+const Tiebreaker = TiebreakerConditional;

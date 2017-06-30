@@ -22,6 +22,12 @@ export const POOL_COST = 30;
 export const SURVIVOR_COST = 5;
 
 /**
+ * How many to insert into the pool history
+ */
+export const TOP_WEEKLY_FOR_HISTORY = 2;
+export const TOP_OVERALL_FOR_HISTORY = 3;
+
+/**
  * Actions for logging
  */
 export const ACTIONS = [
@@ -42,3 +48,8 @@ export const ACTIONS = [
  * The default league
  */
 export const DEFAULT_LEAGUE = 'public';
+
+/**
+ * The total number of weeks in an NFL regular season
+ */
+export const WEEKS_IN_SEASON = 17;

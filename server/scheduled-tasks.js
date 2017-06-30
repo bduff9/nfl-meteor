@@ -1,3 +1,4 @@
+/* globals API */
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
@@ -5,12 +6,12 @@ import { moment } from 'meteor/momentjs:moment';
 import { SyncedCron } from 'meteor/percolate:synced-cron';
 import { Email } from 'meteor/email';
 
-import { Game } from '../imports/api/collections/games';
-import { SystemVal } from '../imports/api/collections/systemvals';
-import { User } from '../imports/api/collections/users';
+import { displayError } from '../imports/api/global';
+import { getFirstGameOfWeek } from '../imports/api/collections/games';
+import { getSystemValues } from '../imports/api/collections/systemvals';
+import { getUsers } from '../imports/api/collections/users';
 import { currentWeek } from '../imports/api/collections/games';
 import { refreshGames } from './collections/games';
-import { updateGames } from '../server/api-calls';
 
 // Config synced cron here
 SyncedCron.config({
@@ -20,7 +21,7 @@ SyncedCron.config({
 SyncedCron.add({
 	name: 'Update spread and ranks outside of games',
 	schedule: parse => parse.recur().on(5, 17).hour(),
-	job: () => updateGames()
+	job: () => API.updateGames()
 });
 
 SyncedCron.add({
@@ -33,9 +34,9 @@ SyncedCron.add({
 	name: 'Update games every minute when needed',
 	schedule: parse => parse.recur().every(1).minute(),
 	job: () => {
-		const systemVal = SystemVal.findOne();
-		if (systemVal.games_updating) return 'Games already updating, skipping every minute call';
-		if (!systemVal.shouldUpdateFaster()) return 'No need to update games faster currently';
+		const systemVals = getSystemValues.call({}, displayError);
+		if (systemVals.games_updating) return 'Games already updating, skipping every minute call';
+		if (!systemVals.shouldUpdateFaster()) return 'No need to update games faster currently';
 		return refreshGames.call();
 	}
 });
@@ -45,8 +46,8 @@ SyncedCron.add({
 	schedule: parse => parse.recur().on(45).minute(),
 	job: () => {
 		const week = currentWeek.call(),
-				users = User.find({ 'done_registering': true }).fetch(),
-				firstGameOfWeek = Game.findOne({ week, game: 1 }),
+				users = getUsers.call({ activeOnly: true }, displayError),
+				firstGameOfWeek = getFirstGameOfWeek.call({ week }, displayError),
 				now = moment(),
 				kickoff = moment(firstGameOfWeek.kickoff),
 				timeToKickoff = kickoff.diff(now, 'hours', true);

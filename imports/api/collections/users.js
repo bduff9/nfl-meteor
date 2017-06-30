@@ -9,29 +9,24 @@ import { Email } from 'meteor/email';
 import { Class } from 'meteor/jagi:astronomy';
 
 import { dbVersion, DEFAULT_LEAGUE } from '../constants';
-import { Game } from '../collections/games';
+import { displayError } from '../global';
+import { gameHasStarted, getGameByID } from '../collections/games';
 import { Pick } from '../collections/picks';
 import { SurvivorPick } from '../collections/survivorpicks';
 import { Tiebreaker } from '../collections/tiebreakers';
 import { writeLog } from './nfllogs';
 import { logError, overallPlacer, weekPlacer } from '../../api/global';
 
-export const updateUser = new ValidatedMethod({
-	name: 'User.update',
+export const getUsers = new ValidatedMethod({
+	name: 'Users.getActiveUsers',
 	validate: new SimpleSchema({
-		done_registering: { type: Boolean, allowedValues: [true] },
-		first_name: { type: String, label: 'First Name' },
-		last_name: { type: String, label: 'Last Name' },
-		referred_by: { type: String, label: 'Referred By' },
-		team_name: { type: String, label: 'Team Name' }
+		activeOnly: { type: Boolean, label: 'Get Active Only' }
 	}).validator(),
-	run(userObj) {
-		let user, isCreate;
-		if (!this.userId) throw new Meteor.Error('User.update.notLoggedIn', 'Must be logged in to change profile');
-		user = User.findOne(this.userId);
-		isCreate = !user.done_registering;
-		User.update(this.userId, { $set: userObj });
-		if (Meteor.isServer && isCreate) sendWelcomeEmail.call({ userId: this.userId }, logError);
+	run ({ activeOnly }) {
+		const filter = (activeOnly ? { 'done_registering': true } : {});
+		const activeUsers = User.find(filter).fetch();
+		if (activeUsers.length) return activeUsers;
+		throw new Meteor.Error('No active users found!');
 	}
 });
 
@@ -40,7 +35,7 @@ const sendWelcomeEmail = new ValidatedMethod({
 	validate: new SimpleSchema({
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
-	run({ userId }) {
+	run ({ userId }) {
 		const user = User.findOne(userId),
 				admins = User.find({ is_admin: true }).fetch();
 		//TODO: send welcome email to user with various infos
@@ -64,6 +59,25 @@ http://nfl.asitewithnoname.com/admin/users`,
 	}
 });
 
+export const updateUser = new ValidatedMethod({
+	name: 'User.update',
+	validate: new SimpleSchema({
+		done_registering: { type: Boolean, allowedValues: [true] },
+		first_name: { type: String, label: 'First Name' },
+		last_name: { type: String, label: 'Last Name' },
+		referred_by: { type: String, label: 'Referred By' },
+		team_name: { type: String, label: 'Team Name' }
+	}).validator(),
+	run (userObj) {
+		let user, isCreate;
+		if (!this.userId) throw new Meteor.Error('User.update.notLoggedIn', 'Must be logged in to change profile');
+		user = User.findOne(this.userId);
+		isCreate = !user.done_registering;
+		User.update(this.userId, { $set: userObj });
+		if (Meteor.isServer && isCreate) sendWelcomeEmail.call({ userId: this.userId }, logError);
+	}
+});
+
 export const updateUserAdmin = new ValidatedMethod({
 	name: 'User.updateAdmin',
 	validate: new SimpleSchema({
@@ -72,7 +86,7 @@ export const updateUserAdmin = new ValidatedMethod({
 		paid: { type: Boolean, label: 'Has Paid', optional: true },
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
-	run({ bonusPoints, isAdmin, paid, userId }) {
+	run ({ bonusPoints, isAdmin, paid, userId }) {
 		const myUser = User.findOne(this.userId),
 				user = User.findOne(userId);
 		if (!this.userId || !myUser.is_admin) throw new Meteor.Error('User.update.notLoggedIn', 'Not authorized to admin functions');
@@ -91,7 +105,7 @@ export const deleteUser = new ValidatedMethod({
 	validate: new SimpleSchema({
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
-	run({ userId }) {
+	run ({ userId }) {
 		const myUser = User.findOne(this.userId),
 				user = User.findOne(userId);
 		if (!this.userId || !myUser.is_admin || user.done_registering) throw new Meteor.Error('User.deleteUser.notAuthorized', 'Not authorized to this function');
@@ -119,7 +133,7 @@ export const removeSelectedWeek = new ValidatedMethod({
 	validate: new SimpleSchema({
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
-	run({ userId }) {
+	run ({ userId }) {
 		if (!userId) throw new Meteor.Error('User.selected_week.delete.notLoggedIn', 'Must be logged in to change week');
 		if (Meteor.isServer) User.update(userId, { $set: { selected_week: {}}});
 	}
@@ -141,18 +155,11 @@ export const setPick = new ValidatedMethod({
 		addOnly: { type: Boolean, label: 'Add Only' },
 		removeOnly: { type: Boolean, label: 'Remove Only' }
 	}).validator(),
-	run({ selectedWeek, fromData, toData, pointVal, addOnly, removeOnly }) {
-		const now = new Date();
-		let game, user, picks;
+	run ({ selectedWeek, fromData, toData, pointVal, addOnly, removeOnly }) {
+		let user, picks;
 		if (!this.userId) throw new Meteor.Error('User.picks.set.notLoggedIn', 'Must be logged in to update picks');
-		if (fromData.gameId) {
-			game = Game.findOne(fromData.gameId);
-			if (game.kickoff < now) throw new Meteor.Error('User.picks.set.gameAlreadyStarted', 'This game has already begun');
-		}
-		if (toData.gameId) {
-			game = Game.findOne(toData.gameId);
-			if (game.kickoff < now) throw new Meteor.Error('User.picks.set.gameAlreadyStarted', 'This game has already begun');
-		}
+		if (fromData.gameId && gameHasStarted.call({ gameId: fromData.gameId }, displayError)) throw new Meteor.Error('User.picks.set.gameAlreadyStarted', 'This game has already begun');
+		if (toData.gameId && gameHasStarted.call({ gameId: toData.gameId }, displayError)) throw new Meteor.Error('User.picks.set.gameAlreadyStarted', 'This game has already begun');
 		if (Meteor.isServer) {
 			user = User.findOne(this.userId);
 			picks = user.picks;
@@ -185,7 +192,7 @@ export const setTiebreaker = new ValidatedMethod({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
 		lastScore: { type: Number, label: 'Last Score', min: 0 }
 	}).validator(),
-	run({ selectedWeek, lastScore }) {
+	run ({ selectedWeek, lastScore }) {
 		if (!this.userId) throw new Meteor.Error('User.setTiebreaker.notLoggedIn', 'Must be logged in to update tiebreaker');
 		if (Meteor.isServer) {
 			if (lastScore > 0) {
@@ -202,7 +209,7 @@ export const resetPicks = new ValidatedMethod({
 	validate: new SimpleSchema({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run({ selectedWeek }) {
+	run ({ selectedWeek }) {
 		if (!this.userId) throw new Meteor.Error('User.resetPicks.notLoggedIn', 'Must be logged in to reset picks');
 		if (Meteor.isServer) {
 			const user = User.findOne(this.userId),
@@ -228,7 +235,7 @@ export const autoPick = new ValidatedMethod({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
 		type: { type: String, label: 'Auto Pick Type', allowedValues: ['home', 'away', 'random'] }
 	}).validator(),
-	run({ available, selectedWeek, type }) {
+	run ({ available, selectedWeek, type }) {
 		if (!this.userId) throw new Meteor.Error('User.autoPick.notLoggedIn', 'Must be logged in to update picks');
 		if (Meteor.isServer) {
 			const user = User.findOne(this.userId),
@@ -237,7 +244,7 @@ export const autoPick = new ValidatedMethod({
 			let game, randomTeam, teamId, teamShort, pointIndex, point;
 			picks.forEach(pick => {
 				if (pick.week === selectedWeek && pick.game !== 0 && !pick.hasStarted() && !pick.pick_id) {
-					game = Game.findOne(pick.game_id);
+					game = getGameByID.call({ id: pick.game_id }, displayError);
 					randomTeam = Math.random();
 					if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
 						teamId = game.home_id;
@@ -263,7 +270,7 @@ export const submitPicks = new ValidatedMethod({
 	validate: new SimpleSchema({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run({ selectedWeek }) {
+	run ({ selectedWeek }) {
 		if (!this.userId) throw new Meteor.Error('User.submitPicks.notLoggedIn', 'Must be logged in to submit picks');
 		const user = User.findOne(this.userId),
 				picks = user.picks,
@@ -285,7 +292,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 	validate: new SimpleSchema({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run({ selectedWeek }) {
+	run ({ selectedWeek }) {
 		const users = User.find({ done_registering: true }).fetch(),
 				notSubmitted = users.filter(user => {
 					let tiebreaker = user.tiebreakers.filter(tb => tb.week === selectedWeek)[0];
@@ -317,7 +324,7 @@ export const assignPointsToMissed = new ValidatedMethod({
 		gameId: { type: String, label: 'Game ID' },
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run({ gameCount, gameId, week }) {
+	run ({ gameCount, gameId, week }) {
 		if (Meteor.isServer) {
 			const allUsers = User.find({ 'done_registering': true, 'picks.game_id': gameId }, { fields: {
 				'_id': 1,
@@ -346,7 +353,7 @@ export const setSurvivorPick = new ValidatedMethod({
 		teamShort: { type: String, label: 'Team Name' },
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run({ gameId, teamId, teamShort, week }) {
+	run ({ gameId, teamId, teamShort, week }) {
 		if (!this.userId) throw new Meteor.Error('User.survivor.setPick.notLoggedIn', 'Must be logged in to update survivor pool');
 		const user = User.findOne(this.userId),
 				survivorPicks = user.survivor,
@@ -364,7 +371,7 @@ export const setSurvivorPick = new ValidatedMethod({
 export const updatePoints = new ValidatedMethod({
 	name: 'User.updatePoints',
 	validate: null,
-	run() {
+	run () {
 		const allUsers = User.find({ 'done_registering': true });
 		let picks, tiebreakers, games, points, weekGames, weekPoints;
 		allUsers.forEach(user => {
@@ -400,7 +407,7 @@ export const updateSurvivor = new ValidatedMethod({
 	validate: new SimpleSchema({
 		week: { type: Number, label: 'Week' }
 	}).validator(),
-	run({ week }) {
+	run ({ week }) {
 		const allUsers = User.find({ 'done_registering': true }).fetch();
 		let wasAlive = 0,
 				nowAlive = 0;
@@ -422,6 +429,7 @@ export const updateSurvivor = new ValidatedMethod({
 		});
 		if (nowAlive === 0 && wasAlive > 0) {
 			//TODO: handle end of survivor pool here with a message to everyone and insert records into pool history
+
 		}
 	}
 });
@@ -431,7 +439,7 @@ export const updatePlaces = new ValidatedMethod({
 	validate: new SimpleSchema({
 		week: { type: Number, label: 'Week' }
 	}).validator(),
-	run({ week }) {
+	run ({ week }) {
 		let ordUsers = User.find({ 'done_registering': true }).fetch().sort(weekPlacer.bind(null, week));
 		ordUsers.forEach((user, i, allUsers) => {
 			const tiebreaker = user.tiebreakers.filter(t => t.week === week)[0];
@@ -716,4 +724,5 @@ if (dbVersion < 2) {
 		indexes: {}
 	});
 }
-export const User = UserConditional;
+
+const User = UserConditional;

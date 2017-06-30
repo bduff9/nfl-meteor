@@ -2,6 +2,8 @@
 
 import { Mongo } from 'meteor/mongo';
 import { Class } from 'meteor/jagi:astronomy';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 
@@ -9,6 +11,17 @@ import { dbVersion } from '../../api/constants';
  * All pool history logic
  * @since 2017-06-26
  */
+
+export const addPoolHistory = new ValidatedMethod({
+	name: 'PoolHistorys.addPoolHistory',
+	validate: new SimpleSchema({
+		poolHistory: { type: Object, label: 'Pool History' }
+	}).validator(),
+	run ({ poolHistory }) {
+		const newHistory = new PoolHistory(poolHistory);
+		newHistory.save();
+	}
+});
 
 let PoolHistorysConditional = null;
 let PoolHistoryConditional = null;
@@ -42,5 +55,5 @@ if (dbVersion > 1) {
 	});
 }
 
-export const PoolHistorys = PoolHistorysConditional;
-export const PoolHistory = PoolHistoryConditional;
+//const PoolHistorys = PoolHistorysConditional;
+const PoolHistory = PoolHistoryConditional;

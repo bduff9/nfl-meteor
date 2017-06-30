@@ -1,10 +1,13 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { Team } from '../collections/teams';
+import { displayError } from '../global';
+import { getTeamByID } from '../collections/teams';
 
 /**
  * All game collection logic
@@ -13,7 +16,7 @@ import { Team } from '../collections/teams';
 export const currentWeek = new ValidatedMethod({
 	name: 'Game.getCurrentWeek',
 	validate: null,
-	run() {
+	run () {
 		const MIN_WEEK = 1,
 				MAX_WEEK = 17;
 		let currTime = Math.round(new Date().getTime() / 1000),
@@ -33,6 +36,43 @@ export const currentWeek = new ValidatedMethod({
 	}
 });
 
+export const gameHasStarted = new ValidatedMethod({
+	name: 'Games.gameHasStarted',
+	validate: new SimpleSchema({
+		gameId: { type: String, label: 'Game ID' }
+	}).validator(),
+	run ({ gameId }) {
+		const game = Game.findOne(gameId);
+		const now = new Date();
+		if (!game) throw new Meteor.Error('No game found!');
+		return (game.kickoff < now);
+	}
+});
+
+export const getFirstGameOfWeek = new ValidatedMethod({
+	name: 'Game.getFirstGameOfWeek',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ week }) {
+		const firstGame = Game.findOne({ week, game: 1 });
+		if (firstGame) return firstGame;
+		throw new Meteor.Error(`No game 1 found for week ${week}`);
+	}
+});
+
+export const getGameByID = new ValidatedMethod({
+	name: 'Games.getGameByID',
+	validate: new SimpleSchema({
+		gameId: { type: String, label: 'Game ID' }
+	}).validator(),
+	run ({ gameId }) {
+		const game = Game.findOne(gameId);
+		if (!game) throw Meteor.Error('No game found!');
+		return game;
+	}
+});
+
 export const getPaymentDue = new ValidatedMethod({
 	name: 'Game.getPaymentDue',
 	validate: null,
@@ -46,8 +86,8 @@ export const getPaymentDue = new ValidatedMethod({
 /**
  * Game schema
  */
-export const Games = new Mongo.Collection('games');
-export const Game = Class.create({
+const Games = new Mongo.Collection('games');
+const Game = Class.create({
 	name: 'Game',
 	collection: Games,
 	secured: true,
@@ -117,18 +157,18 @@ export const Game = Class.create({
 	},
 	helpers: {
 		getTeam(which) {
-			let team;
+			let teamId;
 			if (which === 'home') {
-				team = Team.findOne(this.home_id);
+				teamId = this.home_id;
 			} else if (which === 'visitor') {
-				team = Team.findOne(this.visitor_id);
+				teamId = this.visitor_id;
 			} else if (which === 'winner') {
-				team = Team.findOne(this.winner_id);
+				teamId = this.winner_id;
 			} else {
 				console.error('Incorrect type passed', which);
 				return null;
 			}
-			return team;
+			return getTeamByID.call({ teamId }, displayError);
 		}
 	},
 	indexes: {

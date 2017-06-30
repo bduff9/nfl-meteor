@@ -8,6 +8,24 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 
+export const getSystemValues = new ValidatedMethod({
+	name: 'SystemVals.getSystemValues',
+	validate: null,
+	run () {
+		const systemVals = SystemVal.findOne();
+		if (systemVals) return systemVals;
+		throw new Meteor.Error('No system values found!');
+	}
+});
+
+export const removeYearUpdated = new ValidatedMethod({
+	name: 'SystemVals.removeYearUpdated',
+	validate: null,
+	run () {
+		SystemVals.update({}, { $unset: { year_updated: true }}, { multi: true });
+	}
+});
+
 export const toggleScoreboard = new ValidatedMethod({
 	name: 'SystemVal.updateScoreboard',
 	validate: new SimpleSchema({
@@ -31,7 +49,7 @@ export const toggleScoreboard = new ValidatedMethod({
 	}
 });
 
-export const SystemVals = new Mongo.Collection('systemvals');
+const SystemVals = new Mongo.Collection('systemvals');
 let SystemValConditional = null;
 
 if (dbVersion < 2) {
@@ -108,4 +126,4 @@ if (dbVersion < 2) {
 	});
 }
 
-export const SystemVal = SystemValConditional;
+const SystemVal = SystemValConditional;

@@ -2,15 +2,29 @@
 
 import { Mongo } from 'meteor/mongo';
 import { Class } from 'meteor/jagi:astronomy';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
-import { Game } from './games';
-import { Team } from './teams';
+import { displayError } from '../../api/global';
+import { gameHasStarted } from './games';
+import { getTeamByID } from './teams';
 
 /**
  * All pick logic
  * @since 2017-06-26
  */
+
+export const addPick = new ValidatedMethod({
+	name: 'Picks.addPick',
+	validate: new SimpleSchema({
+		pick: { type: Object, label: 'Pick' }
+	}).validator(),
+	run ({ pick }) {
+		const newPick = new Pick(pick);
+		newPick.save();
+	}
+});
 
 let PicksConditional = null;
 let PickConditional = null;
@@ -55,13 +69,10 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			hasStarted() {
-				const game = Game.findOne(this.game_id),
-						now = new Date();
-				return (game.kickoff <= now);
+				return gameHasStarted.call({ gameId: this.game_id }, displayError);
 			},
 			getTeam() {
-				let team;
-				team = Team.findOne(this.pick_id);
+				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
 				return team;
 			}
 		}
@@ -113,13 +124,10 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			hasStarted() {
-				const game = Game.findOne(this.game_id),
-						now = new Date();
-				return (game.kickoff <= now);
+				return gameHasStarted.call({ gameId: this.game_id }, displayError);
 			},
 			getTeam() {
-				let team;
-				team = Team.findOne(this.pick_id);
+				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
 				return team;
 			}
 		},
@@ -149,5 +157,5 @@ if (dbVersion < 2) {
 	});
 }
 
-export const Picks = PicksConditional;
-export const Pick = PickConditional;
+//const Picks = PicksConditional;
+const Pick = PickConditional;

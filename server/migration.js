@@ -6,19 +6,21 @@ import { Mongo } from 'meteor/mongo';
 import { Migrations } from 'meteor/percolate:migrations';
 
 import { dbVersion, DEFAULT_LEAGUE } from '../imports/api/constants';
-import { Picks } from '../imports/api/collections/picks';
-import { PoolHistorys } from '../imports/api/collections/poolhistorys';
-import { SurvivorPicks } from '../imports/api/collections/survivorpicks';
-import { SystemVals } from '../imports/api/collections/systemvals';
-import { Tiebreakers } from '../imports/api/collections/tiebreakers';
-import { User } from '../imports/api/collections/users';
+import { logError } from '../imports/api/global';
+import { addPick } from '../imports/api/collections/picks';
+import { addSurvivorPick } from '../imports/api/collections/survivorpicks';
+import { addTiebreaker } from '../imports/api/collections/tiebreakers';
+import { addPoolHistory } from '../imports/api/collections/poolhistorys';
+import { getSystemValues, removeYearUpdated } from '../imports/api/collections/systemvals';
+import { getUsers } from '../imports/api/collections/users';
 
 const initialDB = function initialDB (migration) {
 	// NOOP as astronomy handles this
 };
 
 const make2017Changes = function make2017Changes (migration) {
-	const lastUpdated = SystemVals.findOne().year_updated;
+	const systemVals = getSystemValues.call({}, logError);
+	const lastUpdated = systemVals.year_updated;
 	let users = Meteor.users.find({});
 	users.forEach(user => {
 		const id = user._id;
@@ -26,17 +28,17 @@ const make2017Changes = function make2017Changes (migration) {
 		picks.forEach(pick => {
 			pick.user_id = id;
 			pick.league = DEFAULT_LEAGUE;
-			Picks.insert(pick);
+			addPick.call({ pick }, logError);
 		});
 		survivor.forEach(surv => {
 			surv.user_id = id;
 			surv.league = DEFAULT_LEAGUE;
-			SurvivorPicks.insert(surv);
+			addSurvivorPick.call({ survivorPick: surv }, logError);
 		});
 		tiebreakers.forEach(tb => {
 			tb.user_id = id;
 			tb.league = DEFAULT_LEAGUE;
-			Tiebreakers.insert(tb);
+			addTiebreaker.call({ tiebreaker: tb }, logError);
 		});
 	});
 	// Get rankings by week (top 2) and overall (top 3) for insert into pool history. Should we get last place person as well?
@@ -60,19 +62,19 @@ const make2017Changes = function make2017Changes (migration) {
 			if (place <= 2) {
 				history.week = week.week;
 				history.place = place;
-				PoolHistorys.insert(history);
+				addPoolHistory.call({ poolHistory: history }, logError);
 			}
 		});
 		if (overallPlace <= 3) {
 			overallHistory.place = overallPlace;
-			PoolHistorys.insert(overallHistory);
+			addPoolHistory.call({ poolHistory: overallHistory }, logError);
 		}
 	});
 	Meteor.users.update({}, { $unset: { picks: true, tiebreakers: true, survivor: true }}, { multi: true });
 };
 
 const undo2017Changes = function undo2017Changes (migration) {
-	const users = User.find();
+	const users = getUsers.call({ activeOnly: false }, logError);
 	const Picks = new Mongo.Collection('picks');
 	const Tiebreakers = new Mongo.Collection('tiebreakers');
 	const SurvivorPicks = new Mongo.Collection('survivor');
@@ -110,7 +112,7 @@ const undo2017Changes = function undo2017Changes (migration) {
 		delete user.owe;
 		user.save();
 	});
-	SystemVals.update({}, { $unset: { year_updated: true }}, { multi: true });
+	removeYearUpdated.call({}, logError);
 	// Delete new db structures after previous so we don't lose data
 	Picks.rawCollection().drop();
 	Tiebreakers.rawCollection().drop();

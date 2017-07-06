@@ -51,6 +51,7 @@
     "eslint": "^4.1.1",
     "eslint-loader": "^1.8.0",
     "eslint-plugin-import": "^2.6.0",
-    "eslint-plugin-react": "^7.1.0"
+    "eslint-plugin-react": "^7.1.0",
+    "jshint": "^2.9.5"
   }
 }

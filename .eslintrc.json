@@ -50,6 +50,7 @@
       "error",
       "always"
     ],
-    "import/named": 2
+    "import/named": 2,
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
   }
 }

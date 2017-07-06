@@ -1,3 +1,4 @@
+/* globals _ */
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
@@ -33,6 +34,20 @@ export const currentWeek = new ValidatedMethod({
 		if (currWeek < MIN_WEEK) return MIN_WEEK;
 		if (currWeek > MAX_WEEK) return MAX_WEEK;
 		return currWeek;
+	}
+});
+
+export const findGame = new ValidatedMethod({
+	name: '',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week' },
+		home_short: { type: String, label: 'Home Short Name' },
+		visitor_short: { type: String, label: 'Visitor Short Name' }
+	}).validator(),
+	run ({ week, home_short, visitor_short }) {
+		const game = Game.findOne({ week, home_short, visitor_short });
+		if (!game) throw new Meteor.Error(`No game found in week ${week} between ${home_short} and ${visitor_short}`);
+		return game;
 	}
 });
 
@@ -110,6 +125,18 @@ export const getFirstGameOfWeek = new ValidatedMethod({
 	}
 });
 
+export const getLastGameOfWeek = new ValidatedMethod({
+	name: '',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ week }) {
+		const game = Game.findOne({ week }, { sort: { game: -1 }});
+		if (!game) throw new Meteor.Error(`No games found for week ${week}`);
+		return game;
+	}
+});
+
 export const getGameByID = new ValidatedMethod({
 	name: 'Games.getGameByID',
 	validate: new SimpleSchema({
@@ -129,6 +156,33 @@ export const getPaymentDue = new ValidatedMethod({
 		let week3Games;
 		week3Games = Game.find({ week: 3 }, { sort: { game: -1 }, limit: 1 }).fetch();
 		return week3Games[0].kickoff;
+	}
+});
+
+export const getWeeksToRefresh = new ValidatedMethod({
+	name: 'Games.getWeeksToRefresh',
+	validate: null,
+	run () {
+		const weeks = _.uniq(Game.find({
+			game: { $ne: 0 },
+			status: { $ne: 'C' },
+			kickoff: { $lte: new Date() }
+		}, {
+			sort: { week: 1 }, fields: { week: 1 }
+		}).map(game => game.week), true);
+		if (!weeks) throw new Meteor.Error('No weeks found to refresh!');
+		return weeks;
+	}
+});
+
+export const insertGame = new ValidatedMethod({
+	name: 'Games.insertGame',
+	validate: new SimpleSchema({
+		game: { type: Object, label: 'Game Object' }
+	}).validator(),
+	run ({ game }) {
+		const newGame = new Game(game);
+		newGame.save();
 	}
 });
 

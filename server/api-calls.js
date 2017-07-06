@@ -1,4 +1,4 @@
-/* global _, API:true */
+/* global API:true */
 /* exported API */
 'use strict';
 
@@ -8,10 +8,10 @@ import { HTTP } from 'meteor/http';
 
 import { WEEKS_IN_SEASON } from '../imports/api/constants';
 import { convertEpoch, logError } from '../imports/api/global';
-import { Game } from '../imports/api/collections/games';
-import { SystemVal } from '../imports/api/collections/systemvals';
-import { Team } from '../imports/api/collections/teams';
-import { User } from '../imports/api/collections/users';
+import { findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
+import { toggleGamesUpdating } from '../imports/api/collections/systemvals';
+import { getTeamByShort } from '../imports/api/collections/teams';
+import { updateLastGameOfWeekScore } from '../imports/api/collections/tiebreakers';
 import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 import { currentWeek } from '../imports/api/collections/games';
 import { endOfWeekMessage } from '../imports/api/collections/nfllogs';
@@ -38,12 +38,12 @@ API = {
 	},
 
 	populateGamesForWeek (w) {
-		let games, game, bonus, hTeamData, vTeamData, hTeam, vTeam;
+		const bonus = getTeamByShort.call({ short_name: 'BON' }, logError);
+		let games, game, hTeamData, vTeamData, hTeam, vTeam;
 		games = this.getGamesForWeek(w);
 		console.log('Week ' + w + ': ' + games.length + ' games');
 		// Insert one bonus game per week
-		bonus = Team.findOne({ short_name: 'BON' });
-		game = new Game({
+		game = {
 			week: w,
 			game: 0,
 			home_id: bonus._id,
@@ -55,17 +55,17 @@ API = {
 			status: 'P',
 			kickoff: convertEpoch(parseInt(games[0].kickoff, 10)),
 			time_left: 3600
-		});
-		game.save();
+		};
+		insertGame.call({ game }, logError);
 		games.forEach((gameObj, i) => {
 			gameObj.team.forEach(team => {
 				if (team.isHome === '1') hTeamData = team;
 				if (team.isHome === '0') vTeamData = team;
 			});
-			hTeam = Team.findOne({ short_name: hTeamData.id });
-			vTeam = Team.findOne({ short_name: vTeamData.id });
+			hTeam = getTeamByShort.call({ short_name: hTeamData.id }, logError);
+			vTeam = getTeamByShort.call({ short_name: vTeamData.id }, logError);
 			// Create and save this game
-			game = new Game({
+			game = {
 				week: w,
 				game: (i + 1),
 				home_id: hTeam._id,
@@ -77,8 +77,8 @@ API = {
 				status: 'P',
 				kickoff: convertEpoch(parseInt(gameObj.kickoff, 10)),
 				time_left: parseInt(gameObj.gameSecondsRemaining, 10)
-			});
-			game.save();
+			};
+			insertGame.call({ game }, logError);
 			// Update home team data
 			if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
 			if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
@@ -98,7 +98,7 @@ API = {
 
 	updateGames () {
 		const week = currentWeek.call(),
-				firstGameOfWeek = Game.findOne({ week, game: 1 }),
+				firstGameOfWeek = getFirstGameOfWeek.call({ week }, logError),
 				weekHasStarted = moment().isSameOrAfter(firstGameOfWeek.kickoff),
 				weekToUpdate = (weekHasStarted ? week + 1 : week),
 				games = this.getGamesForWeek(weekToUpdate);
@@ -109,19 +109,19 @@ API = {
 				if (team.isHome === '1') hTeamData = team;
 				if (team.isHome === '0') vTeamData = team;
 			});
-			game = Game.findOne({ week: weekToUpdate, home_short: hTeamData.id, visitor_short: vTeamData.id });
+			game = findGame.call({ week: weekToUpdate, home_short: hTeamData.id, visitor_short: vTeamData.id }, logError);
 			if (hTeamData.spread) game.home_spread = Math.round(parseFloat(hTeamData.spread, 10) * 10) / 10;
 			if (vTeamData.spread) game.visitor_spread = Math.round(parseFloat(vTeamData.spread, 10) * 10) / 10;
 			game.save();
 			// Update home team data
-			hTeam = Team.findOne({ short_name: hTeamData.id });
+			hTeam = getTeamByShort.call({ short_name: hTeamData.id }, logError);
 			if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
 			if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
 			if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
 			if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
 			hTeam.save();
 			// Update visiting team data
-			vTeam = Team.findOne({ short_name: vTeamData.id });
+			vTeam = getTeamByShort.call({ short_name: vTeamData.id }, logError);
 			if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
 			if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
 			if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
@@ -132,15 +132,9 @@ API = {
 	},
 
 	refreshGameData () {
-		const weeksToRefresh = _.uniq(Game.find({
-			game: { $ne: 0 },
-			status: { $ne: 'C' },
-			kickoff: { $lte: new Date() }
-		}, {
-			sort: { week: 1 }, fields: { week: 1 }
-		}).map(game => game.week), true);
+		const weeksToRefresh = getWeeksToRefresh.call({}, logError);
 		let games, gameCount, completeCount, justCompleted, game, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
-		if (weeksToRefresh.length > 0) SystemVal.update({}, { $set: { games_updating: true }});
+		if (weeksToRefresh.length > 0) toggleGamesUpdating.call({ is_updating: true }, logError);
 		weeksToRefresh.forEach(w => {
 			games = this.getGamesForWeek(w);
 			gameCount = games.length;
@@ -153,7 +147,7 @@ API = {
 					if (team.isHome === '1') hTeamData = team;
 					if (team.isHome === '0') vTeamData = team;
 				});
-				game = Game.findOne({ week: w, home_short: hTeamData.id, visitor_short: vTeamData.id });
+				game = findGame.call({ week: w, home_short: hTeamData.id, visitor_short: vTeamData.id }, logError);
 				if (game.status === 'C') {
 					wasComplete = true;
 					console.log(`Week ${w} game ${game.game} already complete, checking for updates...`);
@@ -161,8 +155,8 @@ API = {
 					console.log(`Week ${w} game ${game.game} hasn't begun, skipping...`);
 					return true;
 				}
-				hTeam = Team.findOne({ short_name: hTeamData.id });
-				vTeam = Team.findOne({ short_name: vTeamData.id });
+				hTeam = getTeamByShort.call({ short_name: hTeamData.id }, logError);
+				vTeam = getTeamByShort.call({ short_name: vTeamData.id }, logError);
 				// Update and save this game
 				timeLeft = parseInt(gameObj.gameSecondsRemaining, 10);
 				if (timeLeft >= 3600) {
@@ -196,7 +190,7 @@ API = {
 					} else if (game.home_score < game.visitor_score) {
 						winner = vTeam;
 					} else {
-						winner = Team.findOne({ short_name: 'TIE' });
+						winner = getTeamByShort.call({ short_name: 'TIE' }, logError);
 					}
 					game.winner_id = winner._id;
 					game.winner_short = winner.short_name;
@@ -247,8 +241,7 @@ API = {
 			});
 			if (gameCount === completeCount) {
 				console.log(`Week ${w} complete, updating tiebreakers...`);
-				const lastGame = Game.findOne({ week: w }, { sort: { game: -1 }});
-				User.update({ 'done_registering': true, 'tiebreakers.week': w }, { $set: { 'tiebreakers.$.last_score_act': (lastGame.home_score + lastGame.visitor_score) }}, { multi: true });
+				updateLastGameOfWeekScore.call({ week: w }, logError);
 				console.log(`Week ${w} tiebreakers successfully updated!`);
 			}
 			console.log(`Finished updating games for week ${w}!`);
@@ -269,7 +262,7 @@ API = {
 			}
 			console.log(`Week ${w} successfully updated!`);
 		});
-		SystemVal.update({}, { $set: { games_updating: false }});
+		toggleGamesUpdating.call({ is_updating: false }, logError);
 		return `Successfully updated all weeks in list: ${weeksToRefresh}`;
 	}
 };

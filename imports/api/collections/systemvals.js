@@ -46,6 +46,16 @@ export const systemValuesExist = new ValidatedMethod({
 	}
 });
 
+export const toggleGamesUpdating = new ValidatedMethod({
+	name: 'SystemVal.toggleGamesUpdating',
+	validate: new SimpleSchema({
+		is_updating: { type: Boolean, label: 'Games are updating' }
+	}).validator(),
+	run ({ is_updating }) {
+		SystemVal.update({}, { $set: { games_updating: is_updating }});
+	}
+});
+
 export const toggleScoreboard = new ValidatedMethod({
 	name: 'SystemVal.updateScoreboard',
 	validate: new SimpleSchema({

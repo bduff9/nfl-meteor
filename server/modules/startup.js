@@ -1,6 +1,9 @@
+/* globals Modules */
+'use strict';
+
 let startup = () => {
-  _setBrowserPolicies();
-  Modules.server.configureServices();
+	_setBrowserPolicies();
+	Modules.server.configureServices();
 };
 
 var _setBrowserPolicies = () => {};

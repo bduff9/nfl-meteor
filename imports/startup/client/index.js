@@ -1,11 +1,12 @@
-/*jshint esversion: 6 */
+/* jshint ignore: start */
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { render } from 'react-dom';
 
 import NFLPool from '../../ui/components/NFLPool.jsx';
 
 Meteor.startup(() => {
-  render(<NFLPool />, document.getElementById('react-root'));
+	render(<NFLPool />, document.getElementById('react-root'));
 });

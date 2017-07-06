@@ -1,17 +1,21 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
+import { logError } from '../../api/global';
+import { getLastGameOfWeek } from '../../api/collections/games';
 
 /**
  * All tiebreaker logic
  * @since 2017-06-26
  */
 
+// Server only?
 export const addTiebreaker = new ValidatedMethod({
 	name: 'Tiebreakers.addTiebreaker',
 	validate: new SimpleSchema({
@@ -20,6 +24,33 @@ export const addTiebreaker = new ValidatedMethod({
 	run ({ tiebreaker }) {
 		const newTiebreaker = new Tiebreaker(tiebreaker);
 		newTiebreaker.save();
+	}
+});
+
+export const getTiebreaker = new ValidatedMethod({
+	name: 'Tiebreaker.getTiebreaker',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
+		user_id: { type: String, label: 'User ID' },
+		league: { type: String, label: 'League' }
+	}).validator(),
+	run ({ week, user_id, league }) {
+		const tb = Tiebreaker.findOne({ user_id, week, league });
+		if (!tb) throw new Meteor.Error('No tiebreaker found');
+		return tb;
+	}
+});
+
+// Server only?
+export const updateLastGameOfWeekScore = new ValidatedMethod({
+	name: 'Tiebreakers.updateLastGameOfWeekScore',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ week }) {
+		const lastGame = getLastGameOfWeek.call({ week }, logError),
+				totalScore = (lastGame.home_score + lastGame.visitor_score);
+		Tiebreaker.update({ week }, { $set: { last_score_act: totalScore }}, { multi: true });
 	}
 });
 

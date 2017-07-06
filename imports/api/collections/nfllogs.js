@@ -6,12 +6,79 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { PoolHistory } from '../collections/poolhistorys';
-import { SystemVal } from '../collections/systemvals';
-import { Tiebreaker } from '../collections/tiebreakers';
-import { User } from '../collections/users';
+import { displayError, formattedPlace, logError } from '../global';
+import { addPoolHistory } from '../collections/poolhistorys';
+import { getSystemValues } from '../collections/systemvals';
+import { getTiebreaker } from '../collections/tiebreakers';
+import { getUserByID, getUsers } from '../collections/users';
 import { ACTIONS, TOP_WEEKLY_FOR_HISTORY } from '../constants';
-import { formattedPlace } from '../global';
+
+
+//TODO: refactor this to 1) Not reference other collections, 2) move to server as I believe its only called from the server
+export const endOfWeekMessage = new ValidatedMethod({
+	name: 'NFLLog.insert.endOfWeekMessage',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week' }
+	}).validator(),
+	run ({ week }) {
+		const users = getUsers.call({ activeOnly: true }, logError);
+		const MESSAGE = `Week ${week} is now over.`;
+		const systemVals = getSystemValues.call({}, logError);
+		const currentYear = systemVals.year_updated;
+		users.forEach(user => {
+			const userId = user._id;
+			const leagues = user.leagues;
+			leagues.forEach(league => {
+				const tiebreaker = getTiebreaker.call({ week, user_id: userId, league }, logError);
+				const place = tiebreaker.place_in_week;
+				const message = `${MESSAGE}  You finished in ${formattedPlace(place)} place.  ${(place < 3 ? 'Congrats!' : '')}`;
+				const logEntry = new NFLLog({
+					action: 'MESSAGE',
+					when: new Date(),
+					message,
+					to_id: user._id
+				});
+				logEntry.save();
+				if (place <= TOP_WEEKLY_FOR_HISTORY) {
+					const poolHistory = {
+						user_id: userId,
+						year: currentYear,
+						league: league,
+						type: 'W',
+						week: week,
+						place: place
+					};
+					addPoolHistory.call({ poolHistory }, logError);
+				}
+			});
+		});
+	}
+});
+
+export const migrateLogEntriesForUser = new ValidatedMethod({
+	name: 'NFLLog.migrateLogEntriesForUser',
+	validate: new SimpleSchema({
+		oldUserId: { type: String, label: 'Old User ID' },
+		newUserId: { type: String, label: 'New User ID' }
+	}).validator(),
+	run ({ oldUserId, newUserId }) {
+		NFLLog.update({ user_id: oldUserId }, { $set: { user_id: newUserId }}, { multi: true });
+	}
+});
+
+export const testMessage = new ValidatedMethod({
+	name: 'NFLLog.testMessage',
+	validate: null,
+	run () {
+		const logEntry = new NFLLog({
+			action: 'MESSAGE',
+			when: new Date(),
+			message: 'Testing messaging',
+			to_id: this.userId
+		});
+		logEntry.save();
+	}
+});
 
 export const writeLog = new ValidatedMethod({
 	name: 'NFLLog.insert',
@@ -31,60 +98,6 @@ export const writeLog = new ValidatedMethod({
 			});
 			logEntry.save();
 		}
-	}
-});
-
-export const testMessage = new ValidatedMethod({
-	name: 'NFLLog.testMessage',
-	validate: null,
-	run () {
-		const logEntry = new NFLLog({
-			action: 'MESSAGE',
-			when: new Date(),
-			message: 'Testing messaging',
-			to_id: this.userId
-		});
-		logEntry.save();
-	}
-});
-
-//TODO: refactor this to 1) Not reference other collections, 2) move to server as I believe its only called from the server
-export const endOfWeekMessage = new ValidatedMethod({
-	name: 'NFLLog.insert.endOfWeekMessage',
-	validate: new SimpleSchema({
-		week: { type: Number, label: 'Week' }
-	}).validator(),
-	run ({ week }) {
-		const users = User.find({ 'done_registering': true, }).fetch();
-		const MESSAGE = `Week ${week} is now over.`;
-		const currentYear = SystemVal.findOne().year_updated;
-		users.forEach(user => {
-			const userId = user._id;
-			const leagues = user.leagues;
-			leagues.forEach(league => {
-				const tiebreaker = Tiebreaker.findOne({ user_id: userId, week: week, league: league });
-				const place = tiebreaker.place_in_week;
-				const message = `${MESSAGE}  You finished in ${formattedPlace(place)} place.  ${(place < 3 ? 'Congrats!' : '')}`;
-				const logEntry = new NFLLog({
-					action: 'MESSAGE',
-					when: new Date(),
-					message,
-					to_id: user._id
-				});
-				logEntry.save();
-				if (place <= TOP_WEEKLY_FOR_HISTORY) {
-					const poolHistory = new PoolHistory({
-						user_id: userId,
-						year: currentYear,
-						league: league,
-						type: 'W',
-						week: week,
-						place: place
-					});
-					poolHistory.save();
-				}
-			});
-		});
 	}
 });
 
@@ -125,12 +138,12 @@ const NFLLog = Class.create({
 	},
 	helpers: {
 		getUser() {
-			const user = User.findOne(this.user_id);
+			const user = getUserByID.call({ user_id: this.user_id }, displayError);
 			if (this.user_id) return user;
 			return null;
 		},
 		getUserTo() {
-			const user = User.findOne(this.to_id);
+			const user = getUserByID.call({ user_id: this.to_id }, displayError);
 			if (this.to_id) return user;
 			return null;
 		}

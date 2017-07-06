@@ -11,17 +11,17 @@ import { Team } from '../../imports/api/collections/teams';
  */
 
 export const initTeams = new ValidatedMethod({
-  name: 'Team.insert',
-  validate: null,
-  run() {
-    if (Meteor.isServer) {
-      const data = Assets.getText('teams.json'),
-          teams = JSON.parse(data);
-      teams.forEach(teamObj => {
-        let team = new Team(teamObj);
-        team.save();
-        console.log('Team Inserted: ', team);
-      });
-    }
-  }
+	name: 'Team.insert',
+	validate: null,
+	run() {
+		if (Meteor.isServer) {
+			const data = Assets.getText('teams.json'),
+					teams = JSON.parse(data);
+			teams.forEach(teamObj => {
+				let team = new Team(teamObj);
+				team.save();
+				console.log('Team Inserted: ', team);
+			});
+		}
+	}
 });

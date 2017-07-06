@@ -17,8 +17,28 @@ export const getTeamByID = new ValidatedMethod({
 	}).validator(),
 	run ({ teamId }) {
 		const team = Team.findOne(teamId);
-		if (team) return team;
-		throw new Meteor.Error('No team found');
+		if (!team) throw new Meteor.Error('No team found');
+		return team;
+	}
+});
+
+export const getTeamByShort = new ValidatedMethod({
+	name: 'Teams.getTeamByShort',
+	validate: new SimpleSchema({
+		teamShort: { type: String, label: 'Team Short Name' }
+	}).validator(),
+	run ({ teamShort }) {
+		const team = Team.findOne({ short_name: teamShort });
+		if (!team) throw new Meteor.Error('No team found');
+		return team;
+	}
+});
+
+export const teamsExist = new ValidatedMethod({
+	name: 'Teams.teamsExist',
+	validate: null,
+	run () {
+		return (Team.find().count() === 0);
 	}
 });
 

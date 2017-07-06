@@ -7,7 +7,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { displayError } from '../global';
-import { getTeamByID } from '../collections/teams';
+import { getTeamByID, getTeamByShort } from './teams';
 
 /**
  * All game collection logic
@@ -46,6 +46,55 @@ export const gameHasStarted = new ValidatedMethod({
 		const now = new Date();
 		if (!game) throw new Meteor.Error('No game found!');
 		return (game.kickoff < now);
+	}
+});
+
+export const gamesExist = new ValidatedMethod({
+	name: 'Games.gamesExist',
+	validate: null,
+	run () {
+		return (Game.find().count() === 0);
+	}
+});
+
+export const getEmptyUserPicks = new ValidatedMethod({
+	name: 'Game.getEmptyUserPicks',
+	validate: null,
+	run () {
+		return Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
+			let bonusTeam = getTeamByShort.call({ short_name: 'BON' }, displayError);
+			return {
+				'week': game.week,
+				'game_id': game._id,
+				'game': game.game,
+				'pick_id': (game.game === 0 ? bonusTeam._id : undefined),
+				'pick_short': (game.game === 0 ? bonusTeam.short_name : undefined)
+			};
+		});
+	}
+});
+
+export const getEmptyUserSurvivorPicks = new ValidatedMethod({
+	name: 'Game.getEmptyUserSurvivorPicks',
+	validate: null,
+	run () {
+		return Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
+			return {
+				'week': game.week
+			};
+		});
+	}
+});
+
+export const getEmptyUserTiebreakers = new ValidatedMethod({
+	name: 'Game.getEmoptyUserTiebreakers',
+	validate: null,
+	run () {
+		return Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
+			return {
+				'week': game.week
+			};
+		});
 	}
 });
 

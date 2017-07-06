@@ -8,6 +8,18 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 
+export const createSystemValues = new ValidatedMethod({
+	name: '',
+	validate: null,
+	run () {
+		const systemVal = new SystemVal({
+			games_updating: false,
+			current_connections: {}
+		});
+		systemVal.save();
+	}
+});
+
 export const getSystemValues = new ValidatedMethod({
 	name: 'SystemVals.getSystemValues',
 	validate: null,
@@ -23,6 +35,14 @@ export const removeYearUpdated = new ValidatedMethod({
 	validate: null,
 	run () {
 		SystemVals.update({}, { $unset: { year_updated: true }}, { multi: true });
+	}
+});
+
+export const systemValuesExist = new ValidatedMethod({
+	name: 'SystemVals.systemValuesExist',
+	validate: null,
+	run () {
+		return (SystemVal.find().count() === 0);
 	}
 });
 

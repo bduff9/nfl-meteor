@@ -2,40 +2,35 @@
 
 import { moment } from 'meteor/momentjs:moment';
 
-import { Game } from '../imports/api/collections/games';
-import { SystemVal } from '../imports/api/collections/systemvals';
-import { Team } from '../imports/api/collections/teams';
+import { gamesExist } from '../imports/api/collections/games';
+import { createSystemValues, getSystemValues, systemValuesExist } from '../imports/api/collections/systemvals';
+import { teamsExist } from '../imports/api/collections/teams';
 import { initSchedule } from './collections/games';
 import { initTeams } from './collections/teams';
 import { logError } from '../imports/api/global';
 
-let systemVal;
 
-if (Team.find().count() === 0) {
+if (teamsExist.call({}, logError)) {
 	console.log('Begin populating teams...');
 	initTeams.call(logError);
 	console.log('Populating teams completed!');
 }
 
-if (Game.find().count() === 0) {
+if (gamesExist.call({}, logError)) {
 	console.log('Begin populating schedule...');
 	initSchedule.call(logError);
 	console.log('Populating schedule completed!');
 }
 
-if (SystemVal.find().count() === 0) {
+if (systemValuesExist.call({}, logError)) {
 	console.log('Initializing system values...');
-	systemVal = new SystemVal({
-		games_updating: false,
-		current_connections: {}
-	});
-	systemVal.save();
+	createSystemValues.call({}, logError);
 	console.log('System values initialized!');
 } else {
+	const systemVal = getSystemValues.call({}, logError);
 	let oldCt = 0,
 			conns;
 	console.log('Cleaning up old connections...');
-	systemVal = SystemVal.findOne();
 	conns = systemVal.current_connections;
 	Object.keys(conns).forEach(connId => {
 		let conn = conns[connId],

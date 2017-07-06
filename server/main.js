@@ -8,12 +8,11 @@ import { Accounts } from 'meteor/accounts-base';
 //import '../imports/api/collections/systemvals';
 //import '../imports/api/collections/teams';
 //import '../imports/api/collections/users';
-import { Game } from '../imports/api/collections/games';
-import { Team } from '../imports/api/collections/teams';
+import { getEmptyUserPicks, getEmptyUserSurvivorPicks, getEmptyUserTiebreakers } from '../imports/api/collections/games';
 import { currentWeek } from '../imports/api/collections/games';
 import { getSystemValues } from '../imports/api/collections/systemvals';
 import { writeLog } from '../imports/api/collections/nfllogs';
-import { logError } from '../imports/api/global';
+import { logError , displayError} from '../imports/api/global';
 
 const gmailUrl = Meteor.settings.private.gmail;
 
@@ -71,26 +70,9 @@ Meteor.startup(() => {
 		user.total_points = 0;
 		user.total_games = 0;
 		user.bonus_points = 0;
-		user.picks = Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
-			let bonusTeam = Team.findOne({ short_name: 'BON' });
-			return {
-				'week': game.week,
-				'game_id': game._id,
-				'game': game.game,
-				'pick_id': (game.game === 0 ? bonusTeam._id : undefined),
-				'pick_short': (game.game === 0 ? bonusTeam.short_name : undefined)
-			};
-		});
-		user.tiebreakers = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
-			return {
-				'week': game.week
-			};
-		});
-		user.survivor = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
-			return {
-				'week': game.week
-			};
-		});
+		user.picks = getEmptyUserPicks.call({}, displayError);
+		user.tiebreakers = getEmptyUserTiebreakers.call({}, displayError);
+		user.survivor = getEmptyUserSurvivorPicks.call({}, displayError);
 		firstName = first_name || 'An unknown';
 		lastName = last_name || 'user';
 		writeLog.call({ userId: user._id, action: 'REGISTER', message: `${firstName} ${lastName} registered with email ${email}` }, logError);

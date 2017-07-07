@@ -69,7 +69,6 @@ Meteor.startup(() => {
 		user.selected_week = {};
 		user.total_points = 0;
 		user.total_games = 0;
-		user.bonus_points = 0;
 		user.picks = getEmptyUserPicks.call({}, displayError);
 		user.tiebreakers = getEmptyUserTiebreakers.call({}, displayError);
 		user.survivor = getEmptyUserSurvivorPicks.call({}, displayError);

@@ -50,6 +50,16 @@ export const ACTIONS = [
 export const DEFAULT_LEAGUE = 'public';
 
 /**
+ * The first week of the season
+ */
+export const MIN_WEEK = 1;
+
+/**
  * The total number of weeks in an NFL regular season
  */
 export const WEEKS_IN_SEASON = 17;
+
+/**
+ * Maximum games in any 1 week
+ */
+export const MAX_GAMES_IN_WEEK = 16;

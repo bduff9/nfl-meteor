@@ -38,25 +38,9 @@ API = {
 	},
 
 	populateGamesForWeek (w) {
-		const bonus = getTeamByShort.call({ short_name: 'BON' }, logError);
 		let games, game, hTeamData, vTeamData, hTeam, vTeam;
 		games = this.getGamesForWeek(w);
 		console.log('Week ' + w + ': ' + games.length + ' games');
-		// Insert one bonus game per week
-		game = {
-			week: w,
-			game: 0,
-			home_id: bonus._id,
-			home_short: bonus.short_name,
-			home_score: 0,
-			visitor_id: bonus._id,
-			visitor_short: bonus.short_name,
-			visitor_score: 0,
-			status: 'P',
-			kickoff: convertEpoch(parseInt(games[0].kickoff, 10)),
-			time_left: 3600
-		};
-		insertGame.call({ game }, logError);
 		games.forEach((gameObj, i) => {
 			gameObj.team.forEach(team => {
 				if (team.isHome === '1') hTeamData = team;

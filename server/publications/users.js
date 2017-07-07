@@ -28,7 +28,6 @@ Meteor.publish('userData', function () {
 			'total_games': 1,
 			'overall_place': 1,
 			'overall_tied_flag': 1,
-			'bonus_points': 1,
 			'picks': 1,
 			'tiebreakers': 1,
 			'survivor': 1
@@ -92,7 +91,6 @@ Meteor.publish('overallPlaces', function () {
 			'total_games': 1,
 			'overall_place': 1,
 			'overall_tied_flag': 1,
-			'bonus_points': 1,
 			'picks': 1
 		},
 		sort: {
@@ -168,7 +166,6 @@ Meteor.publish('adminUsers', function () {
 			'total_games': 1,
 			'overall_place': 1,
 			'overall_tied_flag': 1,
-			'bonus_points': 1,
 			'picks': 1,
 			'tiebreakers': 1,
 			'survivor': 1

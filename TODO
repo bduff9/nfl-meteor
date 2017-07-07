@@ -2,4 +2,4 @@
 imports/api/collections/users.js
 server/publications/*.js
 
-Current File: imports/ui/pages/ViewSurvivor.jsx
+Current File: imports/ui/pages/ViewPicks.jsx

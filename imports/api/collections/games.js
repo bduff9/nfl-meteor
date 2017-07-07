@@ -7,8 +7,9 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import { MAX_GAMES_IN_WEEK, MIN_WEEK, WEEKS_IN_SEASON } from '../constants';
 import { displayError } from '../global';
-import { getTeamByID, getTeamByShort } from './teams';
+import { getTeamByID } from './teams';
 
 /**
  * All game collection logic
@@ -18,21 +19,17 @@ export const currentWeek = new ValidatedMethod({
 	name: 'Game.getCurrentWeek',
 	validate: null,
 	run () {
-		const MIN_WEEK = 1,
-				MAX_WEEK = 17;
 		let currTime = Math.round(new Date().getTime() / 1000),
 				nextGame, currWeek, startOfNextWeek;
-		nextGame = Game.find({ status: { $ne: 'C' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
-		if (!nextGame) {
-			currWeek = MAX_WEEK;
-		} else if (nextGame.game === 1) {
+		nextGame = getNextGame.call({}, displayError);
+		if (nextGame.game === 1) {
 			startOfNextWeek = Math.round(nextGame.kickoff.getTime() / 1000) - (24 * 3600);
 			currWeek = currTime >= startOfNextWeek ? nextGame.week : nextGame.week - 1;
 		} else {
 			currWeek = nextGame.week;
 		}
 		if (currWeek < MIN_WEEK) return MIN_WEEK;
-		if (currWeek > MAX_WEEK) return MAX_WEEK;
+		if (currWeek > WEEKS_IN_SEASON) return WEEKS_IN_SEASON;
 		return currWeek;
 	}
 });
@@ -77,13 +74,10 @@ export const getEmptyUserPicks = new ValidatedMethod({
 	validate: null,
 	run () {
 		return Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
-			let bonusTeam = getTeamByShort.call({ short_name: 'BON' }, displayError);
 			return {
 				'week': game.week,
 				'game_id': game._id,
-				'game': game.game,
-				'pick_id': (game.game === 0 ? bonusTeam._id : undefined),
-				'pick_short': (game.game === 0 ? bonusTeam.short_name : undefined)
+				'game': game.game
 			};
 		});
 	}
@@ -146,6 +140,28 @@ export const getGameByID = new ValidatedMethod({
 		const game = Game.findOne(gameId);
 		if (!game) throw Meteor.Error('No game found!');
 		return game;
+	}
+});
+
+export const getGamesForWeek = new ValidatedMethod({
+	name: 'Games.getGamesForWeek',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ week }) {
+		const games = Game.find({ week }, { sort: { game: 1 }}).fetch();
+		if (!games) throw new Meteor.Error(`No games found for week ${week}`);
+		return games;
+	}
+});
+
+export const getNextGame = new ValidatedMethod({
+	name: 'Games.getNextGame',
+	validate: null,
+	run () {
+		const nextGame = Game.find({ status: { $eq: 'P' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
+		if (!nextGame) return { week: WEEKS_IN_SEASON, game: MAX_GAMES_IN_WEEK, notFound: true };
+		return nextGame;
 	}
 });
 

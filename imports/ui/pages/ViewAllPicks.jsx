@@ -1,232 +1,233 @@
-/*jshint esversion: 6 */
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import React, { Component, PropTypes } from 'react';
+import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import '../../ui/pages/ViewAllPicksPrint.scss';
 import { Loading } from './Loading.jsx';
-import { Game } from '../../api/collections/games';
-import { User } from '../../api/collections/users';
-import { Team } from '../../api/collections/teams';
+import { Game2 } from '../../api/collections/games';
+import { User2 } from '../../api/collections/users';
 import { weekPlacer } from '../../api/global';
 
 class ViewAllPicks extends Component {
-  constructor(props) {
-    super();
-    this.state = {
-      games: [],
-      users: []
-    };
-    this._resetPicks = this._resetPicks.bind(this);
-    this._updateGame = this._updateGame.bind(this);
-  }
+	constructor(props) {
+		super();
+		this.state = {
+			games: [],
+			users: []
+		};
+		this._resetPicks = this._resetPicks.bind(this);
+		this._updateGame = this._updateGame.bind(this);
+	}
 
-  componentWillReceiveProps(nextProps) {
-    const { currentWeek, games, pageReady, selectedWeek, tiebreaker = {}, users } = nextProps,
-        notAllowed = pageReady && ((selectedWeek <= currentWeek && tiebreaker.submitted === false) || selectedWeek > currentWeek);
-    let gameObj;
-    if (notAllowed) this.context.router.push('/picks/set');
-    if (pageReady) {
-      this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers(users, games, selectedWeek) });
-    }
-  }
+	componentWillReceiveProps(nextProps) {
+		const { currentWeek, games, pageReady, selectedWeek, tiebreaker = {}, users } = nextProps,
+				notAllowed = pageReady && ((selectedWeek <= currentWeek && tiebreaker.submitted === false) || selectedWeek > currentWeek);
+		if (notAllowed) this.context.router.push('/picks/set');
+		if (pageReady) this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers(users, games, selectedWeek) });
+	}
 
-  _resetPicks(ev) {
-    const { games, selectedWeek, users } = this.props;
-    this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers(users, games, selectedWeek) });
-  }
-  _updateGame(teamId, teamShort, i, ev) {
-    const { games } = this.state,
-        { selectedWeek, users } = this.props;
-    games[i].winner_id = teamId;
-    games[i].winner_short = teamShort;
-    this.setState({ games, users: this._updateUsers(users, games, selectedWeek) });
-  }
-  _updateUsers(users, games, selectedWeek) {
-    let newUsers = users.map(user => {
-      let newUser = Object.assign({}, user),
-          picks = newUser.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek),
-          tiebreaker = newUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
-          pts = 0,
-          gms = 0,
-          game;
-      picks.forEach((pick, i) => {
-        game = games[i];
-        if (game.winner_id && pick.pick_id === game.winner_id) {
-          pts += pick.points;
-          gms += 1;
-        }
-      });
-      if (tiebreaker) {
-        tiebreaker.points_earned = pts;
-        tiebreaker.games_correct = gms;
-      }
-      return newUser;
-    });
-    newUsers.sort(weekPlacer.bind(null, selectedWeek));
-    newUsers.forEach((user, i, allUsers) => {
-      const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
-      let currPlace = i + 1,
-          nextUser, result, nextTiebreaker;
-      if (!tiebreaker.tied_flag || i === 0) {
-        tiebreaker.place_in_week = currPlace;
-      } else {
-        currPlace = tiebreaker.place_in_week;
-      }
-      nextUser = allUsers[i + 1];
-      if (nextUser) {
-        result = weekPlacer(selectedWeek, user, nextUser);
-        nextTiebreaker = nextUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
-        if (result === 0) {
-          tiebreaker.tied_flag = true;
-          nextTiebreaker.place_in_week = currPlace;
-          nextTiebreaker.tied_flag = true;
-        } else {
-          if (i === 0) tiebreaker.tied_flag = false;
-          nextTiebreaker.tied_flag = false;
-        }
-      }
-    });
-    return newUsers;
-  }
+	_resetPicks(ev) {
+		const { games, selectedWeek, users } = this.props;
+		this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers(users, games, selectedWeek) });
+	}
+	_updateGame(teamId, teamShort, i, ev) {
+		const { games } = this.state,
+				{ selectedWeek, users } = this.props;
+		games[i].winner_id = teamId;
+		games[i].winner_short = teamShort;
+		this.setState({ games, users: this._updateUsers(users, games, selectedWeek) });
+	}
+	_updateUsers(users, games, selectedWeek) {
+		let newUsers = users.map(user => {
+			let newUser = Object.assign({}, user),
+					picks = newUser.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek),
+					tiebreaker = newUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
+					pts = 0,
+					gms = 0,
+					game;
+			picks.forEach((pick, i) => {
+				game = games[i];
+				if (game.winner_id && pick.pick_id === game.winner_id) {
+					pts += pick.points;
+					gms += 1;
+				}
+			});
+			if (tiebreaker) {
+				tiebreaker.points_earned = pts;
+				tiebreaker.games_correct = gms;
+			}
+			return newUser;
+		});
+		newUsers.sort(weekPlacer.bind(null, selectedWeek));
+		newUsers.forEach((user, i, allUsers) => {
+			const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
+			let currPlace = i + 1,
+					nextUser, result, nextTiebreaker;
+			if (!tiebreaker.tied_flag || i === 0) {
+				tiebreaker.place_in_week = currPlace;
+			} else {
+				currPlace = tiebreaker.place_in_week;
+			}
+			nextUser = allUsers[i + 1];
+			if (nextUser) {
+				result = weekPlacer(selectedWeek, user, nextUser);
+				nextTiebreaker = nextUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
+				if (result === 0) {
+					tiebreaker.tied_flag = true;
+					nextTiebreaker.place_in_week = currPlace;
+					nextTiebreaker.tied_flag = true;
+				} else {
+					if (i === 0) tiebreaker.tied_flag = false;
+					nextTiebreaker.tied_flag = false;
+				}
+			}
+		});
+		return newUsers;
+	}
 
-  render() {
-    const { games, users } = this.state,
-        { currentUser, pageReady, selectedWeek } = this.props;
-    return (
-      <div className="row view-all-picks-wrapper">
-        <Helmet title={`View All Week ${selectedWeek} Picks`} />
-        <h3 className="title-text text-xs-center text-md-left hidden-md-up">{`View All Week ${selectedWeek} Picks`}</h3>
-        {pageReady ? (
-          <div className="col-xs-12 text-xs-left view-all-picks">
-            <button type="button" className="btn btn-danger reset-picks" onClick={this._resetPicks}>
-              <i className="fa fa-fw fa-refresh" />
-              Reset Page
-            </button>
-            <button type="button" className="btn btn-primary hidden-sm-down print-page" onClick={window.print}>
-              <i className="fa fa-fw fa-print" />
-              Print this Page
-            </button>
-            <table className="table table-hover view-all-picks-table">
-              <thead>
-                <tr className="hide-for-print">
-                  <th colSpan={5 + games.length * 6}>
-                    Click the team names below to test "what-if" scenarios. To undo, click 'Reset Page' above.
-                  </th>
-                </tr>
-                <tr>
-                  <th className="info-head">Name</th>
-                  {games.map((game, i) => {
-                    let cells = [];
-                    cells.push(
-                      <th className="visiting-team" colSpan={2} key={'team' + game.visitor_id}>
-                        <button className={'btn' + (game.visitor_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.visitor_id, game.visitor_short, i)}>
-                          {game.visitor_short}
-                        </button>
-                        <div className={'show-for-print' + (game.visitor_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.visitor_short}</div>
-                      </th>
-                    );
-                    cells.push(
-                      <th className="team-separator" colSpan={2} key={'game' + game._id}>@</th>
-                    );
-                    cells.push(
-                      <th className="home-team" colSpan={2} key={'team' + game.home_id}>
-                        <button className={'btn' + (game.home_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.home_id, game.home_short, i)}>
-                          {game.home_short}
-                        </button>
-                        <div className={'show-for-print' + (game.home_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.home_short}</div>
-                      </th>
-                    );
-                    return cells;
-                  })}
-                  <th className="info-head">Points Earned</th>
-                  <th className="info-head">Games Correct</th>
-                  <th className="info-head">My Tiebreaker Score</th>
-                  <th className="info-head">Last Game Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(user => {
-                  const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
-                  return (
-                    <tr className={user._id === currentUser._id ? 'my-user' : null} key={'user' + user._id}>
-                      <td className="name-cell">{`${tiebreaker.tied_flag ? 'T' : ''}${tiebreaker.place_in_week}. ${user.first_name} ${user.last_name}`}</td>
-                      {user.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek).map((pick, i) => {
-                        const game = games[i];
-                        let cells = [];
-                        cells.push(
-                          <td className={'text-xs-center visiting-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'uservisitorpick' + pick._id}>
-                            {pick.pick_id && pick.pick_id === game.visitor_id ? pick.points : null}
-                          </td>
-                        );
-                        cells.push(
-                          <td className={'text-xs-center home-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'userhomepick' + pick._id}>
-                            {pick.pick_id && pick.pick_id === game.home_id ? pick.points : null}
-                          </td>
-                        );
-                        return cells;
-                      })}
-                      <td className="text-xs-center pick-points">{tiebreaker.points_earned}</td>
-                      <td className="text-xs-center pick-points">{tiebreaker.games_correct}</td>
-                      <td className="text-xs-center pick-points">{tiebreaker.last_score}</td>
-                      <td className="text-xs-center pick-points">{tiebreaker.last_score_act}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )
-        :
-          <Loading />
-        }
-      </div>
-    );
-  }
+	render() {
+		const { games, users } = this.state,
+				{ currentUser, pageReady, selectedWeek } = this.props;
+		return (
+			<div className="row view-all-picks-wrapper">
+				<Helmet title={`View All Week ${selectedWeek} Picks`} />
+				<h3 className="title-text text-xs-center text-md-left hidden-md-up">{`View All Week ${selectedWeek} Picks`}</h3>
+				{pageReady ? (
+					<div className="col-xs-12 text-xs-left view-all-picks">
+						<button type="button" className="btn btn-danger reset-picks" onClick={this._resetPicks}>
+							<i className="fa fa-fw fa-refresh" />
+							Reset Page
+						</button>
+						<button type="button" className="btn btn-primary hidden-sm-down print-page" onClick={window.print}>
+							<i className="fa fa-fw fa-print" />
+							Print this Page
+						</button>
+						<table className="table table-hover view-all-picks-table">
+							<thead>
+								<tr className="hide-for-print">
+									<th colSpan={5 + games.length * 6}>
+										Click the team names below to test &quot;what-if&quot; scenarios. To undo, click &apos;Reset Page&apos; above.
+									</th>
+								</tr>
+								<tr>
+									<th className="info-head">Name</th>
+									{games.map((game, i) => {
+										let cells = [];
+										cells.push(
+											<th className="visiting-team" colSpan={2} key={'team' + game.visitor_id}>
+												<button className={'btn' + (game.visitor_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.visitor_id, game.visitor_short, i)}>
+													{game.visitor_short}
+												</button>
+												<div className={'show-for-print' + (game.visitor_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.visitor_short}</div>
+											</th>
+										);
+										cells.push(
+											<th className="team-separator" colSpan={2} key={'game' + game._id}>@</th>
+										);
+										cells.push(
+											<th className="home-team" colSpan={2} key={'team' + game.home_id}>
+												<button className={'btn' + (game.home_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.home_id, game.home_short, i)}>
+													{game.home_short}
+												</button>
+												<div className={'show-for-print' + (game.home_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.home_short}</div>
+											</th>
+										);
+										return cells;
+									})}
+									<th className="info-head">Points Earned</th>
+									<th className="info-head">Games Correct</th>
+									<th className="info-head">My Tiebreaker Score</th>
+									<th className="info-head">Last Game Score</th>
+								</tr>
+							</thead>
+							<tbody>
+								{users.map(user => {
+									const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
+									return (
+										<tr className={user._id === currentUser._id ? 'my-user' : null} key={'user' + user._id}>
+											<td className="name-cell">{`${tiebreaker.tied_flag ? 'T' : ''}${tiebreaker.place_in_week}. ${user.first_name} ${user.last_name}`}</td>
+											{user.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek).map((pick, i) => {
+												const game = games[i];
+												let cells = [];
+												cells.push(
+													<td className={'text-xs-center visiting-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'uservisitorpick' + pick._id}>
+														{pick.pick_id && pick.pick_id === game.visitor_id ? pick.points : null}
+													</td>
+												);
+												cells.push(
+													<td className={'text-xs-center home-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'userhomepick' + pick._id}>
+														{pick.pick_id && pick.pick_id === game.home_id ? pick.points : null}
+													</td>
+												);
+												return cells;
+											})}
+											<td className="text-xs-center pick-points">{tiebreaker.points_earned}</td>
+											<td className="text-xs-center pick-points">{tiebreaker.games_correct}</td>
+											<td className="text-xs-center pick-points">{tiebreaker.last_score}</td>
+											<td className="text-xs-center pick-points">{tiebreaker.last_score_act}</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
+				)
+					:
+					<Loading />
+				}
+			</div>
+		);
+	}
 }
 
 ViewAllPicks.propTypes = {
-  currentUser: PropTypes.object,
-  currentWeek: PropTypes.number,
-  games: PropTypes.arrayOf(PropTypes.object).isRequired,
-  pageReady: PropTypes.bool.isRequired,
-  selectedWeek: PropTypes.number,
-  tiebreaker: PropTypes.object,
-  users: PropTypes.arrayOf(PropTypes.object).isRequired
+	currentUser: PropTypes.object,
+	currentWeek: PropTypes.number,
+	games: PropTypes.arrayOf(PropTypes.object).isRequired,
+	pageReady: PropTypes.bool.isRequired,
+	selectedWeek: PropTypes.number,
+	tiebreaker: PropTypes.object,
+	users: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 ViewAllPicks.contextTypes = {
-  router: PropTypes.object.isRequired
-}
+	router: PropTypes.object.isRequired
+};
 
 export default createContainer(() => {
-  const currentUser = User.findOne(Meteor.userId()),
-      currentWeek = Session.get('currentWeek'),
-      selectedWeek = Session.get('selectedWeek'),
-      tiebreaker = currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
-      gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
-      gamesReady = gamesHandle.ready(),
-      teamsHandle = Meteor.subscribe('allTeams'),
-      teamsReady = teamsHandle.ready(),
-      usersHandle = Meteor.subscribe('weekPlaces', selectedWeek),
-      usersReady = usersHandle.ready();
-  let games = [],
-      users = [];
-  if (gamesReady) {
-    games = Game.find({ week: selectedWeek, game: { $ne: 0 }}, { sort: { game: 1 }}).fetch();
-  }
-  if (usersReady) {
-    users = User.find({ done_registering: true }).fetch();
-  }
-  return {
-    currentUser,
-    currentWeek,
-    games,
-    pageReady: gamesReady && teamsReady && usersReady,
-    selectedWeek,
-    tiebreaker,
-    users
-  };
+	/**
+	 * TODO:
+	 * 1. get league (from session, but defaulted for now)
+	 * 2. write method to get current user
+	 * 3. Use getTiebreaker method and subscribe to tiebreaker
+	 * 4. Can we use getallusers method or do we need a new one for this weekPlaces sub?
+	 * 5. Subscribe and get all picks for week, then once done with all this, must go through all code above to fix pick refs (and maybe tiebreakers)
+	 */
+	const currentUser = User.findOne(Meteor.userId()),
+			currentWeek = Session.get('currentWeek'),
+			selectedWeek = Session.get('selectedWeek'),
+			tiebreaker = currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
+			gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
+			gamesReady = gamesHandle.ready(),
+			teamsHandle = Meteor.subscribe('allTeams'),
+			teamsReady = teamsHandle.ready(),
+			usersHandle = Meteor.subscribe('weekPlaces', selectedWeek),
+			usersReady = usersHandle.ready();
+	let games = [],
+			users = [];
+	if (gamesReady) games = Game.find({ week: selectedWeek, game: { $ne: 0 }}, { sort: { game: 1 }}).fetch();
+	if (usersReady) users = User.find({ done_registering: true }).fetch();
+	return {
+		currentUser,
+		currentWeek,
+		games,
+		pageReady: gamesReady && teamsReady && usersReady,
+		selectedWeek,
+		tiebreaker,
+		users
+	};
 }, ViewAllPicks);

@@ -17,6 +17,7 @@ Meteor.publish('singleWeekPicksForUser', function (week, league) {
 			'_id': 1,
 			'user_id': 1,
 			'week': 1,
+			'league': 1,
 			'game_id': 1,
 			'game': 1,
 			'pick_id': 1,

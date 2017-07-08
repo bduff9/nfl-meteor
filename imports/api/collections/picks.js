@@ -1,5 +1,6 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
@@ -22,7 +23,22 @@ export const addPick = new ValidatedMethod({
 	}).validator(),
 	run ({ pick }) {
 		const newPick = new Pick(pick);
+		if (!this.user_id) throw new Meteor.Error('You are not signed in!');
 		newPick.save();
+	}
+});
+
+export const getPicksForWeek = new ValidatedMethod({
+	name: 'Picks.getPicksForWeek',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
+		league: { type: String, label: 'League' }
+	}).validator(),
+	run ({ league, week }) {
+		const user_id = this.userId;
+		const picks = Pick.find({ league, user_id, week }, { sort: { game: 1 } }).fetch();
+		if (!user_id) throw new Meteor.Error('You are not signed in!');
+		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
 	}
 });
 

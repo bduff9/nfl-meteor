@@ -6,54 +6,9 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { displayError, formattedPlace, logError } from '../global';
-import { addPoolHistory } from '../collections/poolhistorys';
-import { getSystemValues } from '../collections/systemvals';
-import { getTiebreaker } from '../collections/tiebreakers';
-import { getUserByID, getUsers } from '../collections/users';
-import { ACTIONS, TOP_WEEKLY_FOR_HISTORY } from '../constants';
-
-
-//TODO: refactor this to 1) Not reference other collections, 2) move to server as I believe its only called from the server
-export const endOfWeekMessage = new ValidatedMethod({
-	name: 'NFLLog.insert.endOfWeekMessage',
-	validate: new SimpleSchema({
-		week: { type: Number, label: 'Week' }
-	}).validator(),
-	run ({ week }) {
-		const users = getUsers.call({ activeOnly: true }, logError);
-		const MESSAGE = `Week ${week} is now over.`;
-		const systemVals = getSystemValues.call({}, logError);
-		const currentYear = systemVals.year_updated;
-		users.forEach(user => {
-			const userId = user._id;
-			const leagues = user.leagues;
-			leagues.forEach(league => {
-				const tiebreaker = getTiebreaker.call({ week, user_id: userId, league }, logError);
-				const place = tiebreaker.place_in_week;
-				const message = `${MESSAGE}  You finished in ${formattedPlace(place)} place.  ${(place < 3 ? 'Congrats!' : '')}`;
-				const logEntry = new NFLLog({
-					action: 'MESSAGE',
-					when: new Date(),
-					message,
-					to_id: user._id
-				});
-				logEntry.save();
-				if (place <= TOP_WEEKLY_FOR_HISTORY) {
-					const poolHistory = {
-						user_id: userId,
-						year: currentYear,
-						league: league,
-						type: 'W',
-						week: week,
-						place: place
-					};
-					addPoolHistory.call({ poolHistory }, logError);
-				}
-			});
-		});
-	}
-});
+import { displayError } from '../global';
+import { getUserByID } from '../collections/users';
+import { ACTIONS } from '../constants';
 
 export const migrateLogEntriesForUser = new ValidatedMethod({
 	name: 'NFLLog.migrateLogEntriesForUser',

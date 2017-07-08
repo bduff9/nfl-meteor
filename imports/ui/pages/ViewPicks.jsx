@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
@@ -13,6 +12,8 @@ import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import { getGamesForWeek } from '../../api/collections/games';
+import { getTiebreaker } from '../../api/collections/tiebreakers';
+import { getPicksForWeek } from '../../api/collections/picks';
 
 class ViewPicks extends Component {
 	constructor(prop) {
@@ -88,7 +89,7 @@ class ViewPicks extends Component {
 								<td>{tiebreaker.last_score}</td>
 							</tr>
 							<tr>
-								<td>Final game&#39s total</td>
+								<td>Final game&apos;s total</td>
 								<td>{tiebreaker.last_score_act}</td>
 							</tr>
 						</tbody>
@@ -113,14 +114,13 @@ ViewPicks.propTypes = {
 export default createContainer(() => {
 	const selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
-			//TODO: Write subscriptions to tiebreakers
 			picksHandle = Meteor.subscribe('singleWeekPicksForUser', selectedWeek, currentLeague),
 			picksReady = picksHandle.ready(),
 			tiebreakersHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
 			tiebreakersReady = tiebreakersHandle.ready(),
 			//TODO: Then, replace picks and tiebreaker below with method calls, passing week and league to them
-			picks = user.picks.filter(pick => pick.week === selectedWeek && pick.game !== 0),
-			tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
+			picks = getPicksForWeek.call({ league: currentLeague, week: selectedWeek }, displayError),
+			tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError),
 			gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
 			gamesReady = gamesHandle.ready(),
 			teamsHandle = Meteor.subscribe('allTeams'),

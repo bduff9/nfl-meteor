@@ -11,10 +11,10 @@ import { convertEpoch, logError } from '../imports/api/global';
 import { findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
 import { toggleGamesUpdating } from '../imports/api/collections/systemvals';
 import { getTeamByShort } from '../imports/api/collections/teams';
-import { updateLastGameOfWeekScore } from '../imports/api/collections/tiebreakers';
+import { updateLastGameOfWeekScore } from './collections/tiebreakers';
 import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 import { currentWeek } from '../imports/api/collections/games';
-import { endOfWeekMessage } from '../imports/api/collections/nfllogs';
+import { endOfWeekMessage } from './collections/nfllogs';
 
 API = {
 	getGamesForWeek (week) {

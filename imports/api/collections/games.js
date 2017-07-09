@@ -159,7 +159,7 @@ export const getNextGame = new ValidatedMethod({
 	name: 'Games.getNextGame',
 	validate: null,
 	run () {
-		const nextGame = Game.find({ status: { $eq: 'P' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
+		const nextGame = Game.find({ status: 'P' }, { sort: { kickoff: 1 } }).fetch()[0];
 		if (!nextGame) return { week: WEEKS_IN_SEASON, game: MAX_GAMES_IN_WEEK, notFound: true };
 		return nextGame;
 	}
@@ -275,7 +275,7 @@ const Game = Class.create({
 		}
 	},
 	helpers: {
-		getTeam(which) {
+		getTeam (which) {
 			let teamId;
 			if (which === 'home') {
 				teamId = this.home_id;

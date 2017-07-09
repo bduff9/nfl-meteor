@@ -10,6 +10,17 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
  * The team schema, which stores all info about NFL teams and their season history
  */
 
+export const getAllNFLTeams = new ValidatedMethod({
+	name: 'Teams.getAllNFLTeams',
+	validate: null,
+	run () {
+		const teams = Team.find({ short_name: { $ne: 'TIE' }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		if (!teams) throw new Meteor.Error('No NFL teams found');
+		return teams;
+	}
+});
+
 export const getTeamByID = new ValidatedMethod({
 	name: 'Teams.getTeamByID',
 	validate: new SimpleSchema({

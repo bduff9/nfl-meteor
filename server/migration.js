@@ -9,7 +9,7 @@ import { dbVersion, DEFAULT_LEAGUE } from '../imports/api/constants';
 import { logError } from '../imports/api/global';
 import { addPick } from '../imports/api/collections/picks';
 import { addSurvivorPick } from '../imports/api/collections/survivorpicks';
-import { addTiebreaker } from '../imports/api/collections/tiebreakers';
+import { addTiebreaker } from './collections/tiebreakers';
 import { addPoolHistory } from '../imports/api/collections/poolhistorys';
 import { getSystemValues, removeYearUpdated } from '../imports/api/collections/systemvals';
 import { getUsers } from '../imports/api/collections/users';

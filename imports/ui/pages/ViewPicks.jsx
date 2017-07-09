@@ -118,14 +118,14 @@ export default createContainer(() => {
 			picksReady = picksHandle.ready(),
 			tiebreakersHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
 			tiebreakersReady = tiebreakersHandle.ready(),
-			//TODO: Then, replace picks and tiebreaker below with method calls, passing week and league to them
 			picks = getPicksForWeek.call({ league: currentLeague, week: selectedWeek }, displayError),
-			tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError),
 			gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
 			gamesReady = gamesHandle.ready(),
 			teamsHandle = Meteor.subscribe('allTeams'),
 			teamsReady = teamsHandle.ready();
-	let games = [];
+	let tiebreaker = {},
+			games = [];
+	if (tiebreakersReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
 	if (gamesReady) games = getGamesForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
 	return {
 		games,

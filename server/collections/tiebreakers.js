@@ -1,14 +1,23 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
-import { Mongo } from 'meteor/mongo';
-import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { logError } from '../global';
 import { Tiebreaker } from '../../imports/api/collections/tiebreakers';
 import { getLastGameOfWeek } from '../../imports/api/collections/games';
+
+export const addTiebreaker = new ValidatedMethod({
+	name: 'Tiebreakers.addTiebreaker',
+	validate: new SimpleSchema({
+		tiebreaker: { type: Object, label: 'Tiebreaker' }
+	}).validator(),
+	run ({ tiebreaker }) {
+		const newTiebreaker = new Tiebreaker(tiebreaker);
+		newTiebreaker.save();
+	}
+});
 
 export const getTiebreakerFromServer = new ValidatedMethod({
 	name: 'Tiebreaker.getTiebreakerFromServer',

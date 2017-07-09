@@ -7,45 +7,48 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import '../../ui/pages/ViewAllPicksPrint.scss';
+
+import { DEFAULT_LEAGUE } from '../../api/constants';
+import { displayError, weekPlacer } from '../../api/global';
 import { Loading } from './Loading.jsx';
-import { Game2 } from '../../api/collections/games';
-import { User2 } from '../../api/collections/users';
-import { weekPlacer } from '../../api/global';
+import { getGamesForWeek } from '../../api/collections/games';
+import { getCurrentUser } from '../../api/collections/users';
+import { getTiebreaker, getAllTiebreakersForWeek} from '../../api/collections/tiebreakers';
+import { getAllPicksForWeek } from '../../api/collections/picks';
 
 class ViewAllPicks extends Component {
 	constructor(props) {
 		super();
 		this.state = {
 			games: [],
-			users: []
+			tiebreaker: []
 		};
 		this._resetPicks = this._resetPicks.bind(this);
 		this._updateGame = this._updateGame.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps) {
-		const { currentWeek, games, pageReady, selectedWeek, tiebreaker = {}, users } = nextProps,
-				notAllowed = pageReady && ((selectedWeek <= currentWeek && tiebreaker.submitted === false) || selectedWeek > currentWeek);
+		const { currentWeek, games, pageReady, picks, selectedWeek, tiebreaker = {}, tiebreakers } = nextProps,
+				notAllowed = pageReady && ((selectedWeek >= currentWeek && !tiebreaker.submitted) || selectedWeek < currentWeek);
 		if (notAllowed) this.context.router.push('/picks/set');
-		if (pageReady) this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers(users, games, selectedWeek) });
+		if (pageReady) this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers({ games, picks, selectedWeek, tiebreakers }) });
 	}
 
 	_resetPicks(ev) {
-		const { games, selectedWeek, users } = this.props;
-		this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers(users, games, selectedWeek) });
+		const { games, picks, selectedWeek, tiebreakers } = this.props;
+		this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers({ games, picks, selectedWeek, tiebreakers }) });
 	}
 	_updateGame(teamId, teamShort, i, ev) {
 		const { games } = this.state,
-				{ selectedWeek, users } = this.props;
+				{ picks, selectedWeek, tiebreakers } = this.props;
 		games[i].winner_id = teamId;
 		games[i].winner_short = teamShort;
-		this.setState({ games, users: this._updateUsers(users, games, selectedWeek) });
+		this.setState({ games, users: this._updateUsers({ games, picks, selectedWeek, tiebreakers }) });
 	}
-	_updateUsers(users, games, selectedWeek) {
-		let newUsers = users.map(user => {
-			let newUser = Object.assign({}, user),
-					picks = newUser.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek),
-					tiebreaker = newUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
+	_updateUsers({ games, picks, selectedWeek, tiebreakers }) {
+		let newTiebreakers = tiebreakers.map(tiebreaker => {
+			let newTiebreaker = Object.assign({}, tiebreaker),
+					picks = picks.filter(pick => pick.user_id === newTiebreaker.user_id),
 					pts = 0,
 					gms = 0,
 					game;
@@ -56,26 +59,24 @@ class ViewAllPicks extends Component {
 					gms += 1;
 				}
 			});
-			if (tiebreaker) {
-				tiebreaker.points_earned = pts;
-				tiebreaker.games_correct = gms;
+			if (newTiebreaker) {
+				newTiebreaker.points_earned = pts;
+				newTiebreaker.games_correct = gms;
 			}
-			return newUser;
+			return newTiebreaker;
 		});
-		newUsers.sort(weekPlacer.bind(null, selectedWeek));
-		newUsers.forEach((user, i, allUsers) => {
-			const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
+		newTiebreakers.sort(weekPlacer.bind(null, selectedWeek));
+		newTiebreakers.forEach((tiebreaker, i, allTiebreakers) => {
 			let currPlace = i + 1,
-					nextUser, result, nextTiebreaker;
+					result, nextTiebreaker;
 			if (!tiebreaker.tied_flag || i === 0) {
 				tiebreaker.place_in_week = currPlace;
 			} else {
 				currPlace = tiebreaker.place_in_week;
 			}
-			nextUser = allUsers[i + 1];
-			if (nextUser) {
-				result = weekPlacer(selectedWeek, user, nextUser);
-				nextTiebreaker = nextUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
+			nextTiebreaker = allTiebreakers[i + 1];
+			if (nextTiebreaker) {
+				result = weekPlacer(selectedWeek, tiebreaker, nextTiebreaker);
 				if (result === 0) {
 					tiebreaker.tied_flag = true;
 					nextTiebreaker.place_in_week = currPlace;
@@ -86,12 +87,12 @@ class ViewAllPicks extends Component {
 				}
 			}
 		});
-		return newUsers;
+		return newTiebreakers;
 	}
 
 	render() {
-		const { games, users } = this.state,
-				{ currentUser, pageReady, selectedWeek } = this.props;
+		const { games, tiebreakers } = this.state,
+				{ currentUser, pageReady, picks, selectedWeek } = this.props;
 		return (
 			<div className="row view-all-picks-wrapper">
 				<Helmet title={`View All Week ${selectedWeek} Picks`} />
@@ -145,12 +146,11 @@ class ViewAllPicks extends Component {
 								</tr>
 							</thead>
 							<tbody>
-								{users.map(user => {
-									const tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
+								{tiebreakers.map(tiebreaker => {
 									return (
-										<tr className={user._id === currentUser._id ? 'my-user' : null} key={'user' + user._id}>
-											<td className="name-cell">{`${tiebreaker.tied_flag ? 'T' : ''}${tiebreaker.place_in_week}. ${user.first_name} ${user.last_name}`}</td>
-											{user.picks.filter(pick => pick.game > 0 && pick.week === selectedWeek).map((pick, i) => {
+										<tr className={tiebreaker.user_id === currentUser._id ? 'my-user' : null} key={'user' + tiebreaker.user_id}>
+											<td className="name-cell">{`${tiebreaker.tied_flag ? 'T' : ''}${tiebreaker.place_in_week}. ${tiebreaker.getFullName()}`}</td>
+											{picks.filter(pick => pick.user_id === tiebreaker.user_id).map((pick, i) => {
 												const game = games[i];
 												let cells = [];
 												cells.push(
@@ -189,9 +189,10 @@ ViewAllPicks.propTypes = {
 	currentWeek: PropTypes.number,
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
 	pageReady: PropTypes.bool.isRequired,
+	picks: PropTypes.arrayOf(PropTypes.object).isRequired,
 	selectedWeek: PropTypes.number,
 	tiebreaker: PropTypes.object,
-	users: PropTypes.arrayOf(PropTypes.object).isRequired
+	tiebreakers: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 ViewAllPicks.contextTypes = {
@@ -199,35 +200,38 @@ ViewAllPicks.contextTypes = {
 };
 
 export default createContainer(() => {
-	/**
-	 * TODO:
-	 * 1. get league (from session, but defaulted for now)
-	 * 2. write method to get current user
-	 * 3. Use getTiebreaker method and subscribe to tiebreaker
-	 * 4. Can we use getallusers method or do we need a new one for this weekPlaces sub?
-	 * 5. Subscribe and get all picks for week, then once done with all this, must go through all code above to fix pick refs (and maybe tiebreakers)
-	 */
-	const currentUser = User.findOne(Meteor.userId()),
+	const currentUser = getCurrentUser.call({}, displayError),
 			currentWeek = Session.get('currentWeek'),
 			selectedWeek = Session.get('selectedWeek'),
-			tiebreaker = currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
+			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
+			tiebreakerReady = tiebreakerHandle.ready(),
+			picksHandle = Meteor.subscribe('allPicksForWeek', selectedWeek, currentLeague),
+			picksReady = picksHandle.ready(),
+			tiebreakersHandle = Meteor.subscribe('allTiebreakersForWeek', selectedWeek, currentLeague),
+			tiebreakersReady = tiebreakersHandle.ready(),
 			gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
 			gamesReady = gamesHandle.ready(),
 			teamsHandle = Meteor.subscribe('allTeams'),
 			teamsReady = teamsHandle.ready(),
-			usersHandle = Meteor.subscribe('weekPlaces', selectedWeek),
+			usersHandle = Meteor.subscribe('basicUsersInfo'),
 			usersReady = usersHandle.ready();
-	let games = [],
-			users = [];
-	if (gamesReady) games = Game.find({ week: selectedWeek, game: { $ne: 0 }}, { sort: { game: 1 }}).fetch();
-	if (usersReady) users = User.find({ done_registering: true }).fetch();
+	let tiebreaker = {},
+			tiebreakers = [],
+			picks = [],
+			games = [];
+	if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
+	if (gamesReady) games = getGamesForWeek.call({}, displayError);
+	if (picksReady) picks = getAllPicksForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
+	if (tiebreakersReady) tiebreakers = getAllTiebreakersForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
 	return {
 		currentUser,
 		currentWeek,
 		games,
-		pageReady: gamesReady && teamsReady && usersReady,
+		pageReady: gamesReady && picksReady && teamsReady && tiebreakerReady && tiebreakersReady && usersReady,
+		picks,
 		selectedWeek,
 		tiebreaker,
-		users
+		tiebreakers
 	};
 }, ViewAllPicks);

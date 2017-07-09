@@ -16,7 +16,7 @@ Meteor.publish('allTeams', function () {
 Meteor.publish('nflTeams', function () {
 	let teams;
 	if (!this.userId) return this.ready();
-	teams = Team.find({ short_name: { $nin: ['TIE', 'BON'] }});
+	teams = Team.find({ short_name: { $ne: 'TIE' } });
 	if (teams) return teams;
 	return this.ready();
 });

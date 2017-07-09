@@ -1,4 +1,7 @@
-import React from 'react';
+'use strict';
+
+import { Meteor } from 'meteor/meteor';
+import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 
@@ -13,7 +16,7 @@ export const _get404Image = () => {
 };
 
 export const NotFound = ({ location }) => {
-	
+
 	writeLog.call({ userId: Meteor.userId(), action: '404', message: location.pathname }, displayError);
 
 	return (
@@ -44,4 +47,8 @@ export const NotFound = ({ location }) => {
 			</div>
 		</div>
 	);
+};
+
+NotFound.propTypes = {
+	location: PropTypes.object.isRequired
 };

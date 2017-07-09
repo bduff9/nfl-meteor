@@ -37,7 +37,7 @@ Meteor.publish('userData', function () {
 	return this.ready();
 });
 
-Meteor.publish('usersForChat', function () {
+Meteor.publish('basicUsersInfo', function () {
 	let allUsers;
 	if (!this.userId) return this.ready();
 	allUsers = User.find({ done_registering: true }, {
@@ -45,6 +45,7 @@ Meteor.publish('usersForChat', function () {
 			'_id': 1,
 			'first_name': 1,
 			'last_name': 1,
+			'team_name': 1,
 			'done_registering': 1
 		}
 	});

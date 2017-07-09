@@ -394,16 +394,4 @@
   "logo_small": "bal_s.png",
   "primary_color": "#31196B",
   "secondary_color": "#FFFFFF"
-}, {
-  "_id": "WtFD8onKYfXwZie8b",
-  "city": "Bonus",
-  "name": "Points",
-  "short_name": "BON",
-  "alt_short_name": "BON",
-  "conference": "NFC",
-  "division": "West",
-  "logo": "",
-  "logo_small": "",
-  "primary_color": "#FFF",
-  "secondary_color": "#FFF"
 }]

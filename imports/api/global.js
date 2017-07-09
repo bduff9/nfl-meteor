@@ -2,21 +2,16 @@
 
 import { Bert } from 'meteor/themeteorchef:bert';
 
-export const displayError = (err, opts = { title: err && err.reason, type: 'danger' }) => {
-	if (!err) return;
-	if (!opts.title) opts.title = 'Missing error title!';
-	Bert.alert(opts);
-};
-
-export const logError = (err) => {
-	if (!err) return;
-	console.error('Error from logError', err);
-};
-
 export const convertEpoch = (epoch) => {
 	let d = new Date(0);
 	d.setUTCSeconds(epoch);
 	return d;
+};
+
+export const displayError = (err, opts = { title: err && err.reason, type: 'danger' }) => {
+	if (!err) return;
+	if (!opts.title) opts.title = 'Missing error title!';
+	Bert.alert(opts);
 };
 
 export const getColor = (point, max) => {
@@ -37,19 +32,34 @@ export const formattedPlace = (place) => {
 	return place + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
+export const logError = (err) => {
+	if (!err) return;
+	console.error('Error from logError', err);
+};
+
+export const sortForDash = (pointsSort, gamesSort, user1, user2) => {
+	if (pointsSort) {
+		if (user1.total_points < user2.total_points) return -1 * pointsSort;
+		if (user1.total_points > user2.total_points) return pointsSort;
+	}
+	if (gamesSort) {
+		if (user1.total_games < user2.total_games) return -1 * gamesSort;
+		if (user1.total_games > user2.total_games) return gamesSort;
+	}
+	return 0;
+};
+
 export const weekPlacer = (week, user1, user2) => {
-	const tie1 = user1.tiebreakers.filter(tiebreaker => tiebreaker.week === week)[0],
-			tie2 = user2.tiebreakers.filter(tiebreaker => tiebreaker.week === week)[0],
-			lastScoreDiff1 = tie1.last_score - tie1.last_score_act,
-			lastScoreDiff2 = tie2.last_score - tie2.last_score_act;
+	const lastScoreDiff1 = user1.last_score - user1.last_score_act,
+			lastScoreDiff2 = user2.last_score - user2.last_score_act;
 	// First, sort by points
-	if (tie1.points_earned > tie2.points_earned) return -1;
-	if (tie1.points_earned < tie2.points_earned) return 1;
+	if (user1.points_earned > user2.points_earned) return -1;
+	if (user1.points_earned < user2.points_earned) return 1;
 	// Then, sort by games correct
-	if (tie1.games_correct > tie2.games_correct) return -1;
-	if (tie1.games_correct > tie2.games_correct) return 1;
+	if (user1.games_correct > user2.games_correct) return -1;
+	if (user1.games_correct > user2.games_correct) return 1;
 	// Stop here if last game hasn't been played
-	if (!tie1.last_score_act && !tie2.last_score_act) return 0;
+	if (!user1.last_score_act && !user2.last_score_act) return 0;
 	// Otherwise, sort by whomever didn't go over the last game's score
 	if (lastScoreDiff1 >= 0 && lastScoreDiff2 < 0) return -1;
 	if (lastScoreDiff1 < 0 && lastScoreDiff2 >= 0) return 1;

@@ -28,17 +28,33 @@ export const addPick = new ValidatedMethod({
 	}
 });
 
+export const getAllPicksForWeek = new ValidatedMethod({
+	name: 'Picks.getAllPicksForWeek',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, week }) {
+		const user_id = this.userId;
+		const picks = Pick.find({ league, week }, { sort: { user_id: 1, game: 1 } }).fetch();
+		if (!user_id) throw new Meteor.Error('You are not signed in!');
+		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
+		return picks;
+	}
+});
+
 export const getPicksForWeek = new ValidatedMethod({
 	name: 'Picks.getPicksForWeek',
 	validate: new SimpleSchema({
-		week: { type: Number, label: 'Week', min: 1, max: 17 },
-		league: { type: String, label: 'League' }
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
 	run ({ league, week }) {
 		const user_id = this.userId;
 		const picks = Pick.find({ league, user_id, week }, { sort: { game: 1 } }).fetch();
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
 		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
+		return picks;
 	}
 });
 

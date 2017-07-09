@@ -7,35 +7,40 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
-import { logError } from '../../api/global';
-import { getLastGameOfWeek } from '../../api/collections/games';
+import { displayError } from '../global';
+import { getUserName } from '../collections/users';
 
 /**
  * All tiebreaker logic
  * @since 2017-06-26
  */
 
-// Server only?
-export const addTiebreaker = new ValidatedMethod({
-	name: 'Tiebreakers.addTiebreaker',
+export const getAllTiebreakersForWeek = new ValidatedMethod({
+	name: 'Tiebreakers.getAllTiebreakersForWeek',
 	validate: new SimpleSchema({
-		tiebreaker: { type: Object, label: 'Tiebreaker' }
+		league: { type: String, label: 'League' },
+		overrideSort: { type: Object, label: 'Sort', optional: true },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run ({ tiebreaker }) {
-		const newTiebreaker = new Tiebreaker(tiebreaker);
-		newTiebreaker.save();
+	run ({ league, overrideSort, week }) {
+		const user_id = this.userId,
+				sort = overrideSort || { points_earned: -1, games_correct: -1 },
+				tbs = Tiebreaker.find({ league, week }, { sort }).fetch();
+		if (!user_id) throw new Meteor.Error('You are not signed in!');
+		if (!tbs) throw new Meteor.Error(`No tiebreakers found for week ${week}`);
+		return tbs;
 	}
 });
 
 export const getTiebreaker = new ValidatedMethod({
 	name: 'Tiebreaker.getTiebreaker',
 	validate: new SimpleSchema({
-		week: { type: Number, label: 'Week', min: 1, max: 17 },
-		league: { type: String, label: 'League' }
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
 	run ({ league, week }) {
 		const user_id = this.userId;
-		const tb = Tiebreaker.findOne({ user_id, week, league });
+		const tb = Tiebreaker.findOne({ league, user_id, week });
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
 		if (!tb) throw new Meteor.Error('No tiebreaker found');
 		return tb;
@@ -133,6 +138,12 @@ if (dbVersion < 2) {
 			tied_flag: {
 				type: Boolean,
 				default: false
+			}
+		},
+		helpers: {
+			getFullName () {
+				const name = getUserName.call({ user_id: this.user_id }, displayError);
+				return name;
 			}
 		},
 		indexes: {

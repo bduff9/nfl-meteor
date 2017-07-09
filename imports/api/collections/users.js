@@ -1,3 +1,4 @@
+/* jshint -W079 */
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
@@ -94,6 +95,17 @@ export const deleteUser = new ValidatedMethod({
 	}
 });
 
+export const getCurrentUser = new ValidatedMethod({
+	name: 'Users.getCurrentUser',
+	validate: null,
+	run () {
+		const user_id = this.userId,
+				currentUser = User.findOne(user_id);
+		if (!user_id || !currentUser) throw new Meteor.Error('You are not signed in');
+		return currentUser;
+	}
+});
+
 export const getUserByID = new ValidatedMethod({
 	name: 'User.getUserByID',
 	validate: new SimpleSchema({
@@ -103,6 +115,19 @@ export const getUserByID = new ValidatedMethod({
 		const user = User.findOne(user_id);
 		if (!user) throw new Meteor.Error('No user found!');
 		return user;
+	}
+});
+
+export const getUserName = new ValidatedMethod({
+	name: 'Users.getUserName',
+	validate: new SimpleSchema({
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ user_id }) {
+		const user = User.findOne(user_id);
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		if (!user) throw new Meteor.Error('No user found');
+		return `${user.first_name} ${user.last_name}`;
 	}
 });
 

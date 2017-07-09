@@ -45,6 +45,11 @@ export const ACTIONS = [
 ];
 
 /**
+ * The week where misses count against players for the last place prize
+ */
+export const NO_MISS_WEEK = 3;
+
+/**
  * The default league
  */
 export const DEFAULT_LEAGUE = 'public';

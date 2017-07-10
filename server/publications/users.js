@@ -53,31 +53,6 @@ Meteor.publish('basicUsersInfo', function () {
 	return this.ready();
 });
 
-Meteor.publish('weekPlaces', function (week) {
-	let weekUsers;
-	new SimpleSchema({
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
-	}).validate({ week });
-	if (!this.userId) return this.ready();
-	weekUsers = User.find({ done_registering: true, 'tiebreakers.week': week }, {
-		fields: {
-			'_id': 1,
-			'first_name': 1,
-			'last_name': 1,
-			'team_name': 1,
-			'done_registering': 1,
-			'picks': 1,
-			'tiebreakers.$': 1
-		},
-		sort: {
-			'tiebreakers.$.points_earned': -1,
-			'tiebreakers.$.games_correct': -1
-		}
-	});
-	if (weekUsers) return weekUsers;
-	return this.ready();
-});
-
 Meteor.publish('overallPlaces', function () {
 	let overallUsers;
 	if (!this.userId) return this.ready();
@@ -91,8 +66,7 @@ Meteor.publish('overallPlaces', function () {
 			'total_points': 1,
 			'total_games': 1,
 			'overall_place': 1,
-			'overall_tied_flag': 1,
-			'picks': 1
+			'overall_tied_flag': 1
 		},
 		sort: {
 			'total_points': -1,

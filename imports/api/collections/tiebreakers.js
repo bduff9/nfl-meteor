@@ -8,7 +8,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 import { displayError } from '../global';
-import { getUserName } from '../collections/users';
+import { getUserByID, getUserName } from './users';
 
 /**
  * All tiebreaker logic
@@ -144,6 +144,10 @@ if (dbVersion < 2) {
 			getFullName () {
 				const name = getUserName.call({ user_id: this.user_id }, displayError);
 				return name;
+			},
+			getUser () {
+				const user = getUserByID.call({ user_id: this.user_id }, displayError);
+				return user;
 			}
 		},
 		indexes: {

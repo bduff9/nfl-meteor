@@ -134,10 +134,13 @@ export const getUserName = new ValidatedMethod({
 export const getUsers = new ValidatedMethod({
 	name: 'Users.getUsers',
 	validate: new SimpleSchema({
-		activeOnly: { type: Boolean, label: 'Get Active Only' }
+		activeOnly: { type: Boolean, label: 'Get Active Only' },
+		league: { type: String, label: 'League', optional: true }
 	}).validator(),
-	run ({ activeOnly }) {
-		const filter = (activeOnly ? { 'done_registering': true } : {});
+	run ({ activeOnly, league }) {
+		const filter = {};
+		if (activeOnly) filter.done_registering = true;
+		if (league) filter.league = league;
 		const activeUsers = User.find(filter).fetch();
 		if (activeUsers.length) return activeUsers;
 		throw new Meteor.Error('No active users found!');

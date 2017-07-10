@@ -4,20 +4,21 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { logError } from '../global';
+import { logError } from '../../imports/api/global';
 import { Tiebreaker } from '../../imports/api/collections/tiebreakers';
 import { getLastGameOfWeek } from '../../imports/api/collections/games';
 
 export const addTiebreaker = new ValidatedMethod({
 	name: 'Tiebreakers.addTiebreaker',
 	validate: new SimpleSchema({
-		tiebreaker: { type: Object, label: 'Tiebreaker' }
+		tiebreaker: { type: Object, label: 'Tiebreaker', blackbox: true }
 	}).validator(),
 	run ({ tiebreaker }) {
 		const newTiebreaker = new Tiebreaker(tiebreaker);
 		newTiebreaker.save();
 	}
 });
+export const addTiebreakerSync = Meteor.wrapAsync(addTiebreaker.call, addTiebreaker);
 
 export const getTiebreakerFromServer = new ValidatedMethod({
 	name: 'Tiebreaker.getTiebreakerFromServer',
@@ -34,6 +35,7 @@ export const getTiebreakerFromServer = new ValidatedMethod({
 		return tb;
 	}
 });
+export const getTiebreakerFromServerSync = Meteor.wrapAsync(getTiebreakerFromServer.call, getTiebreakerFromServer);
 
 export const updateLastGameOfWeekScore = new ValidatedMethod({
 	name: 'Tiebreakers.updateLastGameOfWeekScore',
@@ -46,3 +48,4 @@ export const updateLastGameOfWeekScore = new ValidatedMethod({
 		Tiebreaker.update({ week }, { $set: { last_score_act: totalScore }}, { multi: true });
 	}
 });
+export const updateLastGameOfWeekScoreSync = Meteor.wrapAsync(updateLastGameOfWeekScore.call, updateLastGameOfWeekScore);

@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 'use strict';
 
 import React, { Component, PropTypes } from 'react';
@@ -6,11 +5,9 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import { NFLLog } from '../../api/collections/nfllogs';
-import { User } from '../../api/collections/users';
-import { updateChatHidden } from '../../api/collections/users';
-import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
+import { getCurrentUser } from '../../api/collections/users';
+import { getAllChats, writeLog } from '../../api/collections/nfllogs';
 
 class Chat extends Component {
 	constructor(props) {
@@ -92,15 +89,14 @@ Chat.propTypes = {
 };
 
 export default createContainer(() => {
-	const currentUser = User.findOne(Meteor.userId()),
+	const currentUser = getCurrentUser.call({}, displayError),
 			chatsHandle = Meteor.subscribe('allChats'),
 			chatsReady = chatsHandle.ready(),
 			usersHandle = Meteor.subscribe('basicUsersInfo'),
-			usersReady = usersHandle.ready();
+			usersReady = usersHandle.ready(),
+			pageReady = chatsReady && usersReady;
 	let chats = [];
-	if (chatsReady && usersReady) {
-		chats = NFLLog.find({ action: 'CHAT' }, { sort: { when: -1 }}).fetch();
-	}
+	if (pageReady) chats = getAllChats.call({}, displayError);
 	return {
 		chats,
 		currentUser,

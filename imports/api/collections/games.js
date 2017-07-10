@@ -17,11 +17,11 @@ import { getTeamByID } from './teams';
 
 export const currentWeek = new ValidatedMethod({
 	name: 'Game.getCurrentWeek',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		let currTime = Math.round(new Date().getTime() / 1000),
 				nextGame, currWeek, startOfNextWeek;
-		nextGame = getNextGame.call({}, displayError);
+		nextGame = getNextGameSync();
 		if (nextGame.game === 1) {
 			startOfNextWeek = Math.round(nextGame.kickoff.getTime() / 1000) - (24 * 3600);
 			currWeek = currTime >= startOfNextWeek ? nextGame.week : nextGame.week - 1;
@@ -33,6 +33,7 @@ export const currentWeek = new ValidatedMethod({
 		return currWeek;
 	}
 });
+export const currentWeekSync = Meteor.wrapAsync(currentWeek.call, currentWeek);
 
 export const findGame = new ValidatedMethod({
 	name: 'Game.findGame',
@@ -47,6 +48,7 @@ export const findGame = new ValidatedMethod({
 		return game;
 	}
 });
+export const findGameSync = Meteor.wrapAsync(findGame.call, findGame);
 
 export const gameHasStarted = new ValidatedMethod({
 	name: 'Games.gameHasStarted',
@@ -60,18 +62,20 @@ export const gameHasStarted = new ValidatedMethod({
 		return (game.kickoff < now);
 	}
 });
+export const gameHasStartedSync = Meteor.wrapAsync(gameHasStarted.call, gameHasStarted);
 
 export const gamesExist = new ValidatedMethod({
 	name: 'Games.gamesExist',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
-		return (Game.find().count() === 0);
+		return Game.find().count() > 0;
 	}
 });
+export const gamesExistSync = Meteor.wrapAsync(gamesExist.call, gamesExist);
 
 export const getEmptyUserPicks = new ValidatedMethod({
 	name: 'Game.getEmptyUserPicks',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		return Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
 			return {
@@ -82,10 +86,11 @@ export const getEmptyUserPicks = new ValidatedMethod({
 		});
 	}
 });
+export const getEmptyUserPicksSync = Meteor.wrapAsync(getEmptyUserPicks.call, getEmptyUserPicks);
 
 export const getEmptyUserSurvivorPicks = new ValidatedMethod({
 	name: 'Game.getEmptyUserSurvivorPicks',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		return Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
 			return {
@@ -94,10 +99,11 @@ export const getEmptyUserSurvivorPicks = new ValidatedMethod({
 		});
 	}
 });
+export const getEmptyUserSurvivorPicksSync = Meteor.wrapAsync(getEmptyUserSurvivorPicks.call, getEmptyUserSurvivorPicks);
 
 export const getEmptyUserTiebreakers = new ValidatedMethod({
 	name: 'Game.getEmoptyUserTiebreakers',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		return Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
 			return {
@@ -106,6 +112,7 @@ export const getEmptyUserTiebreakers = new ValidatedMethod({
 		});
 	}
 });
+export const getEmptyUserTiebreakersSync = Meteor.wrapAsync(getEmptyUserTiebreakers.call, getEmptyUserTiebreakers);
 
 export const getFirstGameOfWeek = new ValidatedMethod({
 	name: 'Game.getFirstGameOfWeek',
@@ -118,6 +125,7 @@ export const getFirstGameOfWeek = new ValidatedMethod({
 		throw new Meteor.Error(`No game 1 found for week ${week}`);
 	}
 });
+export const getFirstGameOfWeekSync = Meteor.wrapAsync(getFirstGameOfWeek.call, getFirstGameOfWeek);
 
 export const getLastGameOfWeek = new ValidatedMethod({
 	name: 'Game.getLastGameOfWeek',
@@ -130,6 +138,7 @@ export const getLastGameOfWeek = new ValidatedMethod({
 		return game;
 	}
 });
+export const getLastGameOfWeekSync = Meteor.wrapAsync(getLastGameOfWeek.call, getLastGameOfWeek);
 
 export const getGameByID = new ValidatedMethod({
 	name: 'Games.getGameByID',
@@ -142,6 +151,7 @@ export const getGameByID = new ValidatedMethod({
 		return game;
 	}
 });
+export const getGameByIDSync = Meteor.wrapAsync(getGameByID.call, getGameByID);
 
 export const getGamesForWeek = new ValidatedMethod({
 	name: 'Games.getGamesForWeek',
@@ -154,30 +164,33 @@ export const getGamesForWeek = new ValidatedMethod({
 		return games;
 	}
 });
+export const getGamesForWeekSync = Meteor.wrapAsync(getGamesForWeek.call, getGamesForWeek);
 
 export const getNextGame = new ValidatedMethod({
 	name: 'Games.getNextGame',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		const nextGame = Game.find({ status: 'P' }, { sort: { kickoff: 1 } }).fetch()[0];
 		if (!nextGame) return { week: WEEKS_IN_SEASON, game: MAX_GAMES_IN_WEEK, notFound: true };
 		return nextGame;
 	}
 });
+export const getNextGameSync = Meteor.wrapAsync(getNextGame.call, getNextGame);
 
 export const getPaymentDue = new ValidatedMethod({
 	name: 'Game.getPaymentDue',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run() {
 		let week3Games;
 		week3Games = Game.find({ week: 3 }, { sort: { game: -1 }, limit: 1 }).fetch();
 		return week3Games[0].kickoff;
 	}
 });
+export const getPaymentDueSync = Meteor.wrapAsync(getPaymentDue.call, getPaymentDue);
 
 export const getWeeksToRefresh = new ValidatedMethod({
 	name: 'Games.getWeeksToRefresh',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		const weeks = _.uniq(Game.find({
 			game: { $ne: 0 },
@@ -190,23 +203,25 @@ export const getWeeksToRefresh = new ValidatedMethod({
 		return weeks;
 	}
 });
+export const getWeeksToRefreshSync = Meteor.wrapAsync(getWeeksToRefresh.call, getWeeksToRefresh);
 
 export const insertGame = new ValidatedMethod({
 	name: 'Games.insertGame',
 	validate: new SimpleSchema({
-		game: { type: Object, label: 'Game Object' }
+		game: { type: Object, label: 'Game Object', blackbox: true }
 	}).validator(),
 	run ({ game }) {
 		const newGame = new Game(game);
 		newGame.save();
 	}
 });
+export const insertGameSync = Meteor.wrapAsync(insertGame.call, insertGame);
 
 /**
  * Game schema
  */
 const Games = new Mongo.Collection('games');
-const Game = Class.create({
+export const Game = Class.create({
 	name: 'Game',
 	collection: Games,
 	secured: true,

@@ -12,7 +12,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 export const getAllNFLTeams = new ValidatedMethod({
 	name: 'Teams.getAllNFLTeams',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		const teams = Team.find({ short_name: { $ne: 'TIE' }}).fetch();
 		if (!this.userId) throw new Meteor.Error('You are not signed in');
@@ -20,6 +20,7 @@ export const getAllNFLTeams = new ValidatedMethod({
 		return teams;
 	}
 });
+export const getAllNFLTeamsSync = Meteor.wrapAsync(getAllNFLTeams.call, getAllNFLTeams);
 
 export const getTeamByID = new ValidatedMethod({
 	name: 'Teams.getTeamByID',
@@ -32,26 +33,29 @@ export const getTeamByID = new ValidatedMethod({
 		return team;
 	}
 });
+export const getTeamByIDSync = Meteor.wrapAsync(getTeamByID.call, getTeamByID);
 
 export const getTeamByShort = new ValidatedMethod({
 	name: 'Teams.getTeamByShort',
 	validate: new SimpleSchema({
-		teamShort: { type: String, label: 'Team Short Name' }
+		short_name: { type: String, label: 'Team Short Name' }
 	}).validator(),
-	run ({ teamShort }) {
-		const team = Team.findOne({ short_name: teamShort });
+	run ({ short_name }) {
+		const team = Team.findOne({ short_name });
 		if (!team) throw new Meteor.Error('No team found');
 		return team;
 	}
 });
+export const getTeamByShortSync = Meteor.wrapAsync(getTeamByShort.call, getTeamByShort);
 
 export const teamsExist = new ValidatedMethod({
 	name: 'Teams.teamsExist',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
-		return (Team.find().count() === 0);
+		return Team.find().count() > 0;
 	}
 });
+export const teamsExistSync = Meteor.wrapAsync(teamsExist.call, teamsExist);
 
 /**
  * Game history, sub-schema in team
@@ -85,7 +89,7 @@ const History = Class.create({
  * Team schema
  */
 const Teams = new Mongo.Collection('teams');
-const Team = Class.create({
+export const Team = Class.create({
 	name: 'Team',
 	collection: Teams,
 	secured: true,

@@ -3,16 +3,9 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
-//import '../imports/api/collections/games';
-//import '../imports/api/collections/nfllogs';
-//import '../imports/api/collections/systemvals';
-//import '../imports/api/collections/teams';
-//import '../imports/api/collections/users';
-import { getEmptyUserPicks, getEmptyUserSurvivorPicks, getEmptyUserTiebreakers } from '../imports/api/collections/games';
-import { currentWeek } from '../imports/api/collections/games';
-import { getSystemValues } from '../imports/api/collections/systemvals';
-import { writeLog } from '../imports/api/collections/nfllogs';
-import { logError , displayError} from '../imports/api/global';
+import { currentWeekSync, getEmptyUserPicksSync, getEmptyUserSurvivorPicksSync, getEmptyUserTiebreakersSync } from '../imports/api/collections/games';
+import { getSystemValuesSync } from '../imports/api/collections/systemvals';
+import { writeLogSync } from '../imports/api/collections/nfllogs';
 
 const gmailUrl = Meteor.settings.private.gmail;
 
@@ -20,7 +13,7 @@ Meteor.startup(() => {
 	process.env.MAIL_URL = gmailUrl;
 
 	Meteor.onConnection((conn) => {
-		const systemVals = getSystemValues.call({}, logError);
+		const systemVals = getSystemValuesSync();
 		let newConn = {
 			opened: new Date(),
 			on_view_my_picks: false,
@@ -36,8 +29,7 @@ Meteor.startup(() => {
 	});
 
 	Accounts.onCreateUser((options, user) => {
-		const currentWeekSync = Meteor.wrapAsync(currentWeek.call, currentWeek),
-				currWeek = currentWeekSync(),
+		const currWeek = currentWeekSync(),
 				EMPTY_VAL = '';
 		let first_name = EMPTY_VAL,
 				last_name = EMPTY_VAL,
@@ -69,12 +61,12 @@ Meteor.startup(() => {
 		user.selected_week = {};
 		user.total_points = 0;
 		user.total_games = 0;
-		user.picks = getEmptyUserPicks.call({}, displayError);
-		user.tiebreakers = getEmptyUserTiebreakers.call({}, displayError);
-		user.survivor = getEmptyUserSurvivorPicks.call({}, displayError);
+		user.picks = getEmptyUserPicksSync();
+		user.tiebreakers = getEmptyUserTiebreakersSync();
+		user.survivor = getEmptyUserSurvivorPicksSync();
 		firstName = first_name || 'An unknown';
 		lastName = last_name || 'user';
-		writeLog.call({ userId: user._id, action: 'REGISTER', message: `${firstName} ${lastName} registered with email ${email}` }, logError);
+		writeLogSync({ userId: user._id, action: 'REGISTER', message: `${firstName} ${lastName} registered with email ${email}` });
 		return user;
 	});
 

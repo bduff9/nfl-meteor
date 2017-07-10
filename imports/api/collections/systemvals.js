@@ -10,7 +10,7 @@ import { dbVersion } from '../../api/constants';
 
 export const createSystemValues = new ValidatedMethod({
 	name: '',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		const systemVal = new SystemVal({
 			games_updating: false,
@@ -19,32 +19,36 @@ export const createSystemValues = new ValidatedMethod({
 		systemVal.save();
 	}
 });
+export const createSystemValuesSync = Meteor.wrapAsync(createSystemValues.call, createSystemValues);
 
 export const getSystemValues = new ValidatedMethod({
 	name: 'SystemVals.getSystemValues',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		const systemVals = SystemVal.findOne();
-		if (systemVals) return systemVals;
-		throw new Meteor.Error('No system values found!');
+		if (!systemVals) throw new Meteor.Error('No system values found!');
+		return systemVals;
 	}
 });
+export const getSystemValuesSync = Meteor.wrapAsync(getSystemValues.call, getSystemValues);
 
 export const removeYearUpdated = new ValidatedMethod({
 	name: 'SystemVals.removeYearUpdated',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		SystemVals.update({}, { $unset: { year_updated: true }}, { multi: true });
 	}
 });
+export const removeYearUpdatedSync = Meteor.wrapAsync(removeYearUpdated.call, removeYearUpdated);
 
 export const systemValuesExist = new ValidatedMethod({
 	name: 'SystemVals.systemValuesExist',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
-		return (SystemVal.find().count() === 0);
+		return SystemVal.find().count() > 0;
 	}
 });
+export const systemValuesExistSync = Meteor.wrapAsync(systemValuesExist.call, systemValuesExist);
 
 export const toggleGamesUpdating = new ValidatedMethod({
 	name: 'SystemVal.toggleGamesUpdating',
@@ -55,6 +59,7 @@ export const toggleGamesUpdating = new ValidatedMethod({
 		SystemVal.update({}, { $set: { games_updating: is_updating }});
 	}
 });
+export const toggleGamesUpdatingSync = Meteor.wrapAsync(toggleGamesUpdating.call, toggleGamesUpdating);
 
 export const toggleScoreboard = new ValidatedMethod({
 	name: 'SystemVal.updateScoreboard',
@@ -78,6 +83,7 @@ export const toggleScoreboard = new ValidatedMethod({
 		}
 	}
 });
+export const toggleScoreboardSync = Meteor.wrapAsync(toggleScoreboard.call, toggleScoreboard);
 
 const SystemVals = new Mongo.Collection('systemvals');
 let SystemValConditional = null;
@@ -124,7 +130,7 @@ if (dbVersion < 2) {
 		fields: {
 			year_updated: {
 				type: Number,
-				validators: [{ type: 'gte', param: 2017 }], // BD: First year we added this attribute
+				validators: [{ type: 'gte', param: 2016 }], // BD: First year we added this attribute
 				default: new Date().getFullYear() - 1
 			},
 			games_updating: {

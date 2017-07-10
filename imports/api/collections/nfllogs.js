@@ -10,10 +10,47 @@ import { ACTIONS } from '../constants';
 import { displayError } from '../global';
 import { getUserByID } from '../collections/users';
 
+export const getAllChats = new ValidatedMethod({
+	name: 'NFLLogs.getAllChats',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		const chats = NFLLog.find({ action: 'CHAT' }, { sort: { when: -1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		return chats;
+	}
+});
+export const getAllChatsSync = Meteor.wrapAsync(getAllChats.call, getAllChats);
+
+export const getAllMessages = new ValidatedMethod({
+	name: 'NFLLogs.getAllMessages',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		const to_id = this.userId;
+		const messages = NFLLog.find({ action: 'MESSAGE', is_deleted: false, to_id }, { sort: { when: -1 }}).fetch();
+		if (!to_id) throw new Meteor.Error('You are not signed in');
+		return messages;
+	}
+});
+export const getAllMessagesSync = Meteor.wrapAsync(getAllMessages.call, getAllMessages);
+
+export const getLogByID = new ValidatedMethod({
+	name: 'NFLLogs.getLogByID',
+	validate: new SimpleSchema({
+		logId: { type: String, label: 'Log ID' }
+	}).validator(),
+	run ({ logId }) {
+		const log = NFLLog.findOne(logId);
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		if (!log) throw new Meteor.Error('No log record found');
+		return log;
+	}
+});
+export const getLogByIDSync = Meteor.wrapAsync(getLogByID.call, getLogByID);
+
 export const getLogs = new ValidatedMethod({
 	name: 'NFLLogs.getLogs',
 	validate: new SimpleSchema({
-		filters: { type: Object, label: 'NFL Log Filters' }
+		filters: { type: Object, label: 'NFL Log Filters', blackbox: true }
 	}).validator(),
 	run ({ filters }) {
 		const logs = NFLLog.find(filters, { sort: { when: 1 }}).fetch();
@@ -21,6 +58,39 @@ export const getLogs = new ValidatedMethod({
 		return logs;
 	}
 });
+export const getLogsSync = Meteor.wrapAsync(getLogs.call, getLogs);
+
+export const getUnreadChatCount = new ValidatedMethod({
+	name: 'NFLLogs.getUnreadChatCount',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		const user_id = this.userId,
+				lastAction = NFLLog.findOne({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED'] }, user_id }, { sort: { when: -1 }});
+		let unreadChatCt = 0,
+				chatHidden;
+		if (!user_id) throw new Meteor.Error('You are not signed in');
+		if (lastAction) {
+			chatHidden = (lastAction.action === 'CHAT_HIDDEN' ? lastAction.when : null);
+			if (chatHidden) unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: chatHidden }}).count();
+		} else {
+			unreadChatCt = NFLLog.find({ action: 'CHAT' }).count();
+		}
+		return unreadChatCt;
+	}
+});
+export const getUnreadChatCountSync = Meteor.wrapAsync(getUnreadChatCount.call, getUnreadChatCount);
+
+export const getUnreadMessages = new ValidatedMethod({
+	name: 'NFLLogs.getUnreadMessages',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		const to_id = this.userId;
+		const unread = NFLLog.find({ action: 'MESSAGE', is_read: false, is_deleted: false, to_id }).fetch();
+		if (!to_id) throw new Meteor.Error('You are not signed in');
+		return unread;
+	}
+});
+export const getUnreadMessagesSync = Meteor.wrapAsync(getUnreadMessages.call, getUnreadMessages);
 
 export const migrateLogEntriesForUser = new ValidatedMethod({
 	name: 'NFLLog.migrateLogEntriesForUser',
@@ -32,10 +102,11 @@ export const migrateLogEntriesForUser = new ValidatedMethod({
 		NFLLog.update({ user_id: oldUserId }, { $set: { user_id: newUserId }}, { multi: true });
 	}
 });
+export const migrateLogEntriesForUserSync = Meteor.wrapAsync(migrateLogEntriesForUser.call, migrateLogEntriesForUser);
 
 export const testMessage = new ValidatedMethod({
 	name: 'NFLLog.testMessage',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run () {
 		const logEntry = new NFLLog({
 			action: 'MESSAGE',
@@ -46,6 +117,7 @@ export const testMessage = new ValidatedMethod({
 		logEntry.save();
 	}
 });
+export const testMessageSync = Meteor.wrapAsync(testMessage.call, testMessage);
 
 export const writeLog = new ValidatedMethod({
 	name: 'NFLLog.insert',
@@ -67,12 +139,13 @@ export const writeLog = new ValidatedMethod({
 		}
 	}
 });
+export const writeLogSync = Meteor.wrapAsync(writeLog.call, writeLog);
 
 /**
  * NFLLogs schema
  */
 const NFLLogs = new Mongo.Collection('nfllogs');
-const NFLLog = Class.create({
+export const NFLLog = Class.create({
 	name: 'NFLLog',
 	collection: NFLLogs,
 	secured: true,

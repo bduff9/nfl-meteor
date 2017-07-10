@@ -1,5 +1,6 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
@@ -15,13 +16,14 @@ import { dbVersion } from '../../api/constants';
 export const addPoolHistory = new ValidatedMethod({
 	name: 'PoolHistorys.addPoolHistory',
 	validate: new SimpleSchema({
-		poolHistory: { type: Object, label: 'Pool History' }
+		poolHistory: { type: Object, label: 'Pool History', blackbox: true }
 	}).validator(),
 	run ({ poolHistory }) {
 		const newHistory = new PoolHistory(poolHistory);
 		newHistory.save();
 	}
 });
+export const addPoolHistorySync = Meteor.wrapAsync(addPoolHistory.call, addPoolHistory);
 
 let PoolHistorysConditional = null;
 let PoolHistoryConditional = null;

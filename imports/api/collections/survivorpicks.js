@@ -19,13 +19,14 @@ import { getTeamByID } from './teams';
 export const addSurvivorPick = new ValidatedMethod({
 	name: 'SurvivorPicks.addSurvivorPick',
 	validate: new SimpleSchema({
-		survivorPick: { type: Object, label: 'Survivor Pick' }
+		survivorPick: { type: Object, label: 'Survivor Pick', blackbox: true }
 	}).validator(),
 	run ({ survivorPick }) {
 		const newPick = new SurvivorPick(survivorPick);
 		newPick.save();
 	}
 });
+export const addSurvivorPickSync = Meteor.wrapAsync(addSurvivorPick.call, addSurvivorPick);
 
 export const getAllSurvivorPicks = new ValidatedMethod({
 	name: 'SurvivorPicks.getAllSurvivorPicks',
@@ -39,6 +40,7 @@ export const getAllSurvivorPicks = new ValidatedMethod({
 		return picks;
 	}
 });
+export const getAllSurvivorPicksSync = Meteor.wrapAsync(getAllSurvivorPicks.call, getAllSurvivorPicks);
 
 export const getMySurvivorPicks = new ValidatedMethod({
 	name: 'SurvivorPicks.getMySurvivorPicks',
@@ -52,6 +54,7 @@ export const getMySurvivorPicks = new ValidatedMethod({
 		return picks;
 	}
 });
+export const getMySurvivorPicksSync = Meteor.wrapAsync(getMySurvivorPicks.call, getMySurvivorPicks);
 
 export const getWeekSurvivorPicks = new ValidatedMethod({
 	name: 'SurvivorPicks.getWeekSurvivorPicks',
@@ -65,6 +68,7 @@ export const getWeekSurvivorPicks = new ValidatedMethod({
 		return picks;
 	}
 });
+export const getWeekSurvivorPicksSync = Meteor.wrapAsync(getWeekSurvivorPicks.call, getWeekSurvivorPicks);
 
 let SurvivorPicksConditional = null;
 let SurvivorPickConditional = null;
@@ -171,5 +175,4 @@ if (dbVersion < 2) {
 	});
 }
 
-//const SurvivorPicks = SurvivorPicksConditional;
-const SurvivorPick = SurvivorPickConditional;
+export const SurvivorPick = SurvivorPickConditional;

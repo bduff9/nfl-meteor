@@ -10,7 +10,7 @@ import { WEEKS_IN_SEASON } from '../imports/api/constants';
 import { convertEpoch, logError } from '../imports/api/global';
 import { findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
 import { toggleGamesUpdating } from '../imports/api/collections/systemvals';
-import { getTeamByShort } from '../imports/api/collections/teams';
+import { getTeamByShortSync } from '../imports/api/collections/teams';
 import { updateLastGameOfWeekScore } from './collections/tiebreakers';
 import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 import { currentWeek } from '../imports/api/collections/games';
@@ -46,8 +46,8 @@ API = {
 				if (team.isHome === '1') hTeamData = team;
 				if (team.isHome === '0') vTeamData = team;
 			});
-			hTeam = getTeamByShort.call({ short_name: hTeamData.id }, logError);
-			vTeam = getTeamByShort.call({ short_name: vTeamData.id }, logError);
+			hTeam = getTeamByShortSync({ short_name: hTeamData.id });
+			vTeam = getTeamByShortSync({ short_name: vTeamData.id });
 			// Create and save this game
 			game = {
 				week: w,
@@ -98,14 +98,14 @@ API = {
 			if (vTeamData.spread) game.visitor_spread = Math.round(parseFloat(vTeamData.spread, 10) * 10) / 10;
 			game.save();
 			// Update home team data
-			hTeam = getTeamByShort.call({ short_name: hTeamData.id }, logError);
+			hTeam = getTeamByShortSync({ short_name: hTeamData.id });
 			if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
 			if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
 			if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
 			if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
 			hTeam.save();
 			// Update visiting team data
-			vTeam = getTeamByShort.call({ short_name: vTeamData.id }, logError);
+			vTeam = getTeamByShortSync({ short_name: vTeamData.id });
 			if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
 			if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
 			if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
@@ -139,8 +139,8 @@ API = {
 					console.log(`Week ${w} game ${game.game} hasn't begun, skipping...`);
 					return true;
 				}
-				hTeam = getTeamByShort.call({ short_name: hTeamData.id }, logError);
-				vTeam = getTeamByShort.call({ short_name: vTeamData.id }, logError);
+				hTeam = getTeamByShortSync({ short_name: hTeamData.id });
+				vTeam = getTeamByShortSync({ short_name: vTeamData.id });
 				// Update and save this game
 				timeLeft = parseInt(gameObj.gameSecondsRemaining, 10);
 				if (timeLeft >= 3600) {
@@ -174,7 +174,7 @@ API = {
 					} else if (game.home_score < game.visitor_score) {
 						winner = vTeam;
 					} else {
-						winner = getTeamByShort.call({ short_name: 'TIE' }, logError);
+						winner = getTeamByShortSync({ short_name: 'TIE' });
 					}
 					game.winner_id = winner._id;
 					game.winner_short = winner.short_name;

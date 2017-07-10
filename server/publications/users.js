@@ -1,7 +1,6 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { User } from '../../imports/api/collections/users';
 

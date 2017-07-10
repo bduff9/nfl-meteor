@@ -19,7 +19,7 @@ import { getTeamByID } from './teams';
 export const addPick = new ValidatedMethod({
 	name: 'Picks.addPick',
 	validate: new SimpleSchema({
-		pick: { type: Object, label: 'Pick' }
+		pick: { type: Object, label: 'Pick', blackbox: true }
 	}).validator(),
 	run ({ pick }) {
 		const newPick = new Pick(pick);
@@ -27,6 +27,7 @@ export const addPick = new ValidatedMethod({
 		newPick.save();
 	}
 });
+export const addPickSync = Meteor.wrapAsync(addPick.call, addPick);
 
 export const getAllPicks = new ValidatedMethod({
 	name: 'Picks.getAllPicks',
@@ -37,10 +38,11 @@ export const getAllPicks = new ValidatedMethod({
 		const user_id = this.userId;
 		const picks = Pick.find({ league }, { sort: { user_id: 1, week: 1, game: 1 } }).fetch();
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
-		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
+		if (!picks) throw new Meteor.Error('No picks found');
 		return picks;
 	}
 });
+export const getAllPicksSync = Meteor.wrapAsync(getAllPicks.call, getAllPicks);
 
 export const getAllPicksForWeek = new ValidatedMethod({
 	name: 'Picks.getAllPicksForWeek',
@@ -56,6 +58,7 @@ export const getAllPicksForWeek = new ValidatedMethod({
 		return picks;
 	}
 });
+export const getAllPicksForWeekSync = Meteor.wrapAsync(getAllPicksForWeek.call, getAllPicksForWeek);
 
 export const getPicksForWeek = new ValidatedMethod({
 	name: 'Picks.getPicksForWeek',
@@ -71,6 +74,7 @@ export const getPicksForWeek = new ValidatedMethod({
 		return picks;
 	}
 });
+export const getPicksForWeekSync = Meteor.wrapAsync(getPicksForWeek.call, getPicksForWeek);
 
 let PicksConditional = null;
 let PickConditional = null;
@@ -203,5 +207,4 @@ if (dbVersion < 2) {
 	});
 }
 
-//const Picks = PicksConditional;
-const Pick = PickConditional;
+export const Pick = PickConditional;

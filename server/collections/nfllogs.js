@@ -1,15 +1,16 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { formattedPlace, logError } from '../global';
+import { TOP_WEEKLY_FOR_HISTORY } from '../../imports/api/constants';
+import { formattedPlace, logError } from '../../imports/api/global';
 import { NFLLog } from '../../imports/api/collections/nfllogs';
 import { addPoolHistory } from '../../imports/api/collections/poolhistorys';
 import { getSystemValues } from '../../imports/api/collections/systemvals';
 import { getTiebreakerFromServer } from './tiebreakers';
-import { getUsers } from '../collections/users';
-import { TOP_WEEKLY_FOR_HISTORY } from '../constants';
+import { getUsers } from '../../imports/api/collections/users';
 
 export const endOfWeekMessage = new ValidatedMethod({
 	name: 'NFLLog.insert.endOfWeekMessage',
@@ -50,3 +51,4 @@ export const endOfWeekMessage = new ValidatedMethod({
 		});
 	}
 });
+export const endOfWeekMessageSync = Meteor.wrapAsync(endOfWeekMessage.call, endOfWeekMessage);

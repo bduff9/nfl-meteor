@@ -1,5 +1,4 @@
-~Files that require collection export:~
-imports/api/collections/users.js
-server/publications/*.js
-
-Current File: imports/ui/components/SurvivorModal.jsx
+Registration:
+	Fix user creation (remove embedded, add new fields, etc.)
+	Navigation has a ref to user.tiebreakers
+	More async v. sync

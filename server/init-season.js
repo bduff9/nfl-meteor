@@ -1,6 +1,7 @@
 'use strict';
 
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 /**
  * Before new year begins, reset all data i.e. clear out games, teams, picks, etc. and reset users back to empty
@@ -8,7 +9,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 
 export const resetPool = new ValidatedMethod({
 	name: 'Pool.reset',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run() {
 		//TODO: grab overall top 3 and insert into poolhistory
 		//TODO: empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers

@@ -6,7 +6,7 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { dbVersion } from '../../api/constants';
+import { dbVersion } from '../constants';
 import { displayError } from '../global';
 import { getUserByID, getUserName } from './users';
 
@@ -19,7 +19,7 @@ export const getAllTiebreakersForWeek = new ValidatedMethod({
 	name: 'Tiebreakers.getAllTiebreakersForWeek',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
-		overrideSort: { type: Object, label: 'Sort', optional: true },
+		overrideSort: { type: Object, label: 'Sort', optional: true, blackbox: true },
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
 	run ({ league, overrideSort, week }) {
@@ -31,6 +31,7 @@ export const getAllTiebreakersForWeek = new ValidatedMethod({
 		return tbs;
 	}
 });
+export const getAllTiebreakersForWeekSync = Meteor.wrapAsync(getAllTiebreakersForWeek.call, getAllTiebreakersForWeek);
 
 export const getTiebreaker = new ValidatedMethod({
 	name: 'Tiebreaker.getTiebreaker',
@@ -46,6 +47,7 @@ export const getTiebreaker = new ValidatedMethod({
 		return tb;
 	}
 });
+export const getTiebreakerSync = Meteor.wrapAsync(getTiebreaker.call, getTiebreaker);
 
 let TiebreakersConditional = null;
 let TiebreakerConditional = null;
@@ -165,5 +167,4 @@ if (dbVersion < 2) {
 	});
 }
 
-//const Tiebreakers = TiebreakersConditional;
-const Tiebreaker = TiebreakerConditional;
+export const Tiebreaker = TiebreakerConditional;

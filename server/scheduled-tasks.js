@@ -6,12 +6,11 @@ import { moment } from 'meteor/momentjs:moment';
 import { SyncedCron } from 'meteor/percolate:synced-cron';
 import { Email } from 'meteor/email';
 
-import { displayError } from '../imports/api/global';
-import { getFirstGameOfWeek } from '../imports/api/collections/games';
-import { getSystemValues } from '../imports/api/collections/systemvals';
-import { getUsers } from '../imports/api/collections/users';
-import { currentWeek } from '../imports/api/collections/games';
-import { refreshGames } from './collections/games';
+import { getFirstGameOfWeekSync } from '../imports/api/collections/games';
+import { getSystemValuesSync } from '../imports/api/collections/systemvals';
+import { getUsersSync } from '../imports/api/collections/users';
+import { currentWeekSync } from '../imports/api/collections/games';
+import { refreshGamesSync } from './collections/games';
 
 // Config synced cron here
 SyncedCron.config({
@@ -27,17 +26,17 @@ SyncedCron.add({
 SyncedCron.add({
 	name: 'Update games every hour on the hour',
 	schedule: parse => parse.recur().first().minute(),
-	job: () => refreshGames.call()
+	job: () => refreshGamesSync()
 });
 
 SyncedCron.add({
 	name: 'Update games every minute when needed',
 	schedule: parse => parse.recur().every(1).minute(),
 	job: () => {
-		const systemVals = getSystemValues.call({}, displayError);
+		const systemVals = getSystemValuesSync();
 		if (systemVals.games_updating) return 'Games already updating, skipping every minute call';
 		if (!systemVals.shouldUpdateFaster()) return 'No need to update games faster currently';
-		return refreshGames.call();
+		return refreshGamesSync();
 	}
 });
 
@@ -45,9 +44,9 @@ SyncedCron.add({
 	name: 'Send email notifications',
 	schedule: parse => parse.recur().on(45).minute(),
 	job: () => {
-		const week = currentWeek.call(),
-				users = getUsers.call({ activeOnly: true }, displayError),
-				firstGameOfWeek = getFirstGameOfWeek.call({ week }, displayError),
+		const week = currentWeekSync(),
+				users = getUsersSync({ activeOnly: true }),
+				firstGameOfWeek = getFirstGameOfWeekSync({ week }),
 				now = moment(),
 				kickoff = moment(firstGameOfWeek.kickoff),
 				timeToKickoff = kickoff.diff(now, 'hours', true);

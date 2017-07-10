@@ -1,17 +1,16 @@
-/*jshint esversion: 6 */
 'use strict';
 
 import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
+import { Session } from 'meteor/session';
 
-import { Message } from './Message.jsx';
-import { Game } from '../../api/collections/games';
-import { NFLLog } from '../../api/collections/nfllogs';
-import { User } from '../../api/collections/users';
-import { getPaymentDue } from '../../api/collections/games';
 import { displayError } from '../../api/global';
+import { Message } from './Message.jsx';
+import { getFirstGameOfWeek, getPaymentDue } from '../../api/collections/games';
+import { getAllMessages } from '../../api/collections/nfllogs';
+import { getCurrentUser } from '../../api/collections/users';
 
 class Messages extends Component {
 	constructor(props) {
@@ -62,7 +61,7 @@ Messages.propTypes = {
 };
 
 export default createContainer(() => {
-	const currentUser = User.findOne(Meteor.userId()),
+	const currentUser = getCurrentUser.call({}, displayError),
 			messagesHandle = Meteor.subscribe('allMessages'),
 			messagesReady = messagesHandle.ready(),
 			usersHandle = Meteor.subscribe('basicUsersInfo'),
@@ -80,12 +79,8 @@ export default createContainer(() => {
 	});
 	let messages = [],
 			firstGame = {};
-	if (messagesReady) {
-		messages = NFLLog.find({ action: 'MESSAGE', is_deleted: false, to_id: Meteor.userId() }, { sort: { when: -1 }}).fetch();
-	}
-	if (firstGameReady) {
-		firstGame = Game.findOne({ week: currentWeek, game: 1 });
-	}
+	if (messagesReady) messages = getAllMessages.call({}, displayError);
+	if (firstGameReady) firstGame = getFirstGameOfWeek.call({ week: currentWeek }, displayError);
 	return {
 		currentUser,
 		currentWeek,

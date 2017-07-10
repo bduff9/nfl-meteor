@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 'use strict';
 
 import React, { PropTypes } from 'react';
@@ -6,8 +5,8 @@ import { IndexLink, Link } from 'react-router';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { Game } from '../../api/collections/games';
-import { NFLLog } from '../../api/collections/nfllogs';
+import { getNextGame } from '../../api/collections/games';
+import { getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
 import { updateSelectedWeek } from '../../api/collections/users';
 import { testMessage } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
@@ -135,26 +134,10 @@ export default createContainer(({ currentUser, rightSlider, ...rest }) => {
 			messagesReady = messagesHandle.ready();
 	let unreadChatCt = 0,
 			nextGame = {},
-			unreadMessages = [],
-			lastAction, chatHidden;
-	if (unreadChatReady) {
-		lastAction = NFLLog.findOne({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED'] }, user_id: currentUser._id }, { sort: { when: -1 }});
-		if (lastAction) {
-			chatHidden = (lastAction.action === 'CHAT_HIDDEN' ? lastAction.when : null);
-			if (chatHidden) {
-				unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: chatHidden }}).count();
-			} else {
-				unreadChatCt = 0;
-			}
-		}
-	}
-	if (nextGameReady) {
-		nextGame = Game.find({ status: { $eq: 'P' }, game: { $ne: 0 }}, { sort: { kickoff: 1 }}).fetch()[0];
-		if (!nextGame) nextGame = { week: 17, game: 16 };
-	}
-	if (messagesReady) {
-		unreadMessages = NFLLog.find({ action: 'MESSAGE', is_read: false, is_deleted: false, to_id: Meteor.userId() }).fetch();
-	}
+			unreadMessages = [];
+	if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({}, displayError);
+	if (nextGameReady) nextGame = getNextGame.call({}, displayError);
+	if (messagesReady) unreadMessages = getUnreadMessages.call({}, displayError);
 	return {
 		...rest,
 		currentUser,

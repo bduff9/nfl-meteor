@@ -117,7 +117,7 @@ class MakePicks extends Component {
 							numGames={games.length}
 							points={available}
 							selectedWeek={selectedWeek}
-							thisRef="pointBank" />
+							thisRef="pointBankRef" />
 						<table className="table table-hover makePickTable">
 							<thead className="thead-default">
 								<tr>
@@ -154,7 +154,7 @@ class MakePicks extends Component {
 																selectedWeek={selectedWeek}
 																teamId={homeTeam._id}
 																teamShort={homeTeam.short_name}
-																thisRef={homeTeam.short_name} />
+																thisRef={`${homeTeam.short_name}Ref`} />
 														)
 															:
 															null
@@ -185,7 +185,7 @@ class MakePicks extends Component {
 																selectedWeek={selectedWeek}
 																teamId={visitTeam._id}
 																teamShort={visitTeam.short_name}
-																thisRef={visitTeam.short_name} />
+																thisRef={`${visitTeam.short_name}Ref`} />
 														)
 															:
 															null

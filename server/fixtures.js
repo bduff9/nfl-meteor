@@ -2,32 +2,30 @@
 
 import { moment } from 'meteor/momentjs:moment';
 
-import { gamesExist } from '../imports/api/collections/games';
-import { createSystemValues, getSystemValues, systemValuesExist } from '../imports/api/collections/systemvals';
-import { teamsExist } from '../imports/api/collections/teams';
-import { initSchedule } from './collections/games';
-import { initTeams } from './collections/teams';
-import { logError } from '../imports/api/global';
+import { gamesExistSync } from '../imports/api/collections/games';
+import { createSystemValuesSync, getSystemValuesSync, systemValuesExistSync } from '../imports/api/collections/systemvals';
+import { teamsExistSync } from '../imports/api/collections/teams';
+import { initScheduleSync } from './collections/games';
+import { initTeamsSync } from './collections/teams';
 
-
-if (teamsExist.call({}, logError)) {
+if (!teamsExistSync()) {
 	console.log('Begin populating teams...');
-	initTeams.call(logError);
+	initTeamsSync();
 	console.log('Populating teams completed!');
 }
 
-if (gamesExist.call({}, logError)) {
+if (!gamesExistSync()) {
 	console.log('Begin populating schedule...');
-	initSchedule.call(logError);
+	initScheduleSync();
 	console.log('Populating schedule completed!');
 }
 
-if (systemValuesExist.call({}, logError)) {
+if (!systemValuesExistSync()) {
 	console.log('Initializing system values...');
-	createSystemValues.call({}, logError);
+	createSystemValuesSync();
 	console.log('System values initialized!');
 } else {
-	const systemVal = getSystemValues.call({}, logError);
+	const systemVal = getSystemValuesSync();
 	let oldCt = 0,
 			conns;
 	console.log('Cleaning up old connections...');

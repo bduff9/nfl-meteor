@@ -3,6 +3,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Team } from '../../imports/api/collections/teams';
 
@@ -12,7 +13,7 @@ import { Team } from '../../imports/api/collections/teams';
 
 export const initTeams = new ValidatedMethod({
 	name: 'Team.insert',
-	validate: null,
+	validate: new SimpleSchema({}).validator(),
 	run() {
 		if (Meteor.isServer) {
 			const data = Assets.getText('teams.json'),
@@ -20,8 +21,9 @@ export const initTeams = new ValidatedMethod({
 			teams.forEach(teamObj => {
 				let team = new Team(teamObj);
 				team.save();
-				console.log('Team Inserted: ', team);
+				console.log('Team Inserted: ', teamObj.short_name);
 			});
 		}
 	}
 });
+export const initTeamsSync = Meteor.wrapAsync(initTeams.call, initTeams);

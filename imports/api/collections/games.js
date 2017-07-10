@@ -35,7 +35,7 @@ export const currentWeek = new ValidatedMethod({
 });
 
 export const findGame = new ValidatedMethod({
-	name: '',
+	name: 'Game.findGame',
 	validate: new SimpleSchema({
 		week: { type: Number, label: 'Week' },
 		home_short: { type: String, label: 'Home Short Name' },
@@ -120,7 +120,7 @@ export const getFirstGameOfWeek = new ValidatedMethod({
 });
 
 export const getLastGameOfWeek = new ValidatedMethod({
-	name: '',
+	name: 'Game.getLastGameOfWeek',
 	validate: new SimpleSchema({
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),

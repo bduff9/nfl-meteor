@@ -77,50 +77,6 @@ Meteor.publish('overallPlaces', function () {
 	return this.ready();
 });
 
-Meteor.publish('weekSurvivor', function (week) {
-	let weekUsers;
-	new SimpleSchema({
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
-	}).validate({ week });
-	if (!this.userId) return this.ready();
-	weekUsers = User.find({ 'done_registering': true, 'survivor.week': week }, {
-		fields: {
-			'_id': 1,
-			'first_name': 1,
-			'last_name': 1,
-			'done_registering': 1,
-			'survivor.$': 1
-		},
-		sort: {
-			'first_name': 1
-		}
-	});
-	if (weekUsers) return weekUsers;
-	return this.ready();
-});
-
-Meteor.publish('overallSurvivor', function (week) {
-	let overallUsers;
-	new SimpleSchema({
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
-	}).validate({ week });
-	if (!this.userId) return this.ready();
-	overallUsers = User.find({ 'done_registering': true }, {
-		fields: {
-			'_id': 1,
-			'first_name': 1,
-			'last_name': 1,
-			'done_registering': 1,
-			'survivor': 1
-		},
-		sort: {
-			'first_name': 1
-		}
-	});
-	if (overallUsers) return overallUsers;
-	return this.ready();
-});
-
 Meteor.publish('adminUsers', function () {
 	let allUsers;
 	if (!this.userId) return this.ready();

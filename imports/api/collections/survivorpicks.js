@@ -27,6 +27,19 @@ export const addSurvivorPick = new ValidatedMethod({
 	}
 });
 
+export const getAllSurvivorPicks = new ValidatedMethod({
+	name: 'SurvivorPicks.getAllSurvivorPicks',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, week }) {
+		const picks = SurvivorPick.find({ league, week: { $lte: week }}, { sort: { user_id: 1, week: 1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		return picks;
+	}
+});
+
 export const getMySurvivorPicks = new ValidatedMethod({
 	name: 'SurvivorPicks.getMySurvivorPicks',
 	validate: new SimpleSchema({
@@ -36,6 +49,19 @@ export const getMySurvivorPicks = new ValidatedMethod({
 		const user_id = this.userId,
 				picks = SurvivorPick.find({ league, user_id }, { sort: { week: 1 } }).fetch();
 		if (!user_id) throw new Meteor.Error('You are not signed in');
+		return picks;
+	}
+});
+
+export const getWeekSurvivorPicks = new ValidatedMethod({
+	name: 'SurvivorPicks.getWeekSurvivorPicks',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, week }) {
+		const picks = SurvivorPick.find({ league, week }, { sort: { user_id: 1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
 		return picks;
 	}
 });

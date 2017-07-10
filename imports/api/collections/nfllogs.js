@@ -6,9 +6,21 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import { ACTIONS } from '../constants';
 import { displayError } from '../global';
 import { getUserByID } from '../collections/users';
-import { ACTIONS } from '../constants';
+
+export const getLogs = new ValidatedMethod({
+	name: 'NFLLogs.getLogs',
+	validate: new SimpleSchema({
+		filters: { type: Object, label: 'NFL Log Filters' }
+	}).validator(),
+	run ({ filters }) {
+		const logs = NFLLog.find(filters, { sort: { when: 1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		return logs;
+	}
+});
 
 export const migrateLogEntriesForUser = new ValidatedMethod({
 	name: 'NFLLog.migrateLogEntriesForUser',

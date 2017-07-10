@@ -1,30 +1,54 @@
-/*jshint esversion: 6 */
 'use strict';
 
-import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 
+import { DEFAULT_LEAGUE } from '../../api/constants';
+import { displayError } from '../../api/global';
 import { SurvivorLayout } from '../layouts/SurvivorLayout.jsx';
-import { User } from '../../api/collections/users';
+import { getSurvivorUsers } from '../../api/collections/users';
+import { getWeekSurvivorPicks } from '../../api/collections/survivorpicks';
 
 export default createContainer(({ week, weekForSec }) => {
-  const survivorHandle = Meteor.subscribe('weekSurvivor', week),
-      survivorReady = survivorHandle.ready();
-  let data = [];
-  if (survivorReady) {
-    data = User.find({ "done_registering": true, "survivor.week": week }, {
-      sort: {
-        'first_name': 1
-      }
-    }).fetch();
-  }
-  return {
-    data,
-    isOverall: false,
-    pageReady: survivorReady,
-    week,
-    weekForSec
-  };
+	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+			survivorHandle = Meteor.subscribe('weekSurvivor', currentLeague, weekForSec),
+			survivorReady = survivorHandle.ready(),
+			usersHandle = Meteor.subscribe('basicUsersInfo'),
+			usersReady = usersHandle.ready(),
+			pageReady = survivorReady && usersReady;
+	let users = [],
+			survivor = [],
+			alive = [],
+			dead = [],
+			graphData = [];
+	if (pageReady) {
+		users = getSurvivorUsers.call({ league: currentLeague }, displayError);
+		survivor = getWeekSurvivorPicks.call({ league: currentLeague, week: weekForSec }, displayError);
+		users.forEach(user => {
+			const userSurvivor = survivor.filter(s => s.user_id === user._id),
+					thisWeek = userSurvivor.filter(s => s.week === week)[0];
+			let teamShort, index;
+			if (!thisWeek || !thisWeek.pick_id || (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id)) {
+				dead.push(user);
+			} else {
+				alive.push(user);
+			}
+			if (!thisWeek || !thisWeek.pick_id) return;
+			teamShort = thisWeek.pick_short;
+			index = graphData.findIndex(team => team.team === teamShort);
+			if (index === -1) {
+				graphData.push({ team: teamShort, count: 1, won: (thisWeek.winner_id && thisWeek.pick_id === thisWeek.winner_id ? true : false), lost: (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id ? true : false)});
+			} else {
+				graphData[index].count += 1;
+			}
+		});
+	}
+	return {
+		alive,
+		dead,
+		graphData,
+		isOverall: false,
+		pageReady,
+		weekForSec
+	};
 }, SurvivorLayout);

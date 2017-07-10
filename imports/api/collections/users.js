@@ -95,6 +95,16 @@ export const deleteUser = new ValidatedMethod({
 	}
 });
 
+export const getAdminUsers = new ValidatedMethod({
+	name: 'Users.getAdminUsers',
+	validate: null,
+	run () {
+		const users = User.find({}, { sort: { last_name: 1, first_name: 1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		return users;
+	}
+});
+
 export const getCurrentUser = new ValidatedMethod({
 	name: 'Users.getCurrentUser',
 	validate: null,
@@ -103,6 +113,18 @@ export const getCurrentUser = new ValidatedMethod({
 				currentUser = User.findOne(user_id);
 		if (!user_id || !currentUser) throw new Meteor.Error('You are not signed in');
 		return currentUser;
+	}
+});
+
+export const getSurvivorUsers = new ValidatedMethod({
+	name: 'Users.getSurvivorUsers',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' }
+	}).validator(),
+	run ({ league }) {
+		const users = User.find({ league }, { sort: { first_name: 1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		return users;
 	}
 });
 
@@ -144,6 +166,16 @@ export const getUsers = new ValidatedMethod({
 		const activeUsers = User.find(filter).fetch();
 		if (activeUsers.length) return activeUsers;
 		throw new Meteor.Error('No active users found!');
+	}
+});
+
+export const getUsersForLogs = new ValidatedMethod({
+	name: 'Users.getUsersForLogs',
+	validate: null,
+	run () {
+		const users = User.find({}, { sort: { first_name: 1, last_name: 1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+		return users;
 	}
 });
 

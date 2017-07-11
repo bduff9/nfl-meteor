@@ -1,4 +1,4 @@
 Registration:
-	Fix user creation (remove embedded, add new fields, etc.)
-	Navigation has a ref to user.tiebreakers
+	Remove old picks, tiebreakers, survivor on register in case something went wrong
+	Set unique index for picks, tiebreakers, survivor
 	More async v. sync

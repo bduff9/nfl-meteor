@@ -6,8 +6,8 @@ import { Mongo } from 'meteor/mongo';
 import { Migrations } from 'meteor/percolate:migrations';
 
 import { dbVersion, DEFAULT_LEAGUE } from '../imports/api/constants';
-import { addPickSync } from '../imports/api/collections/picks';
-import { addSurvivorPickSync } from '../imports/api/collections/survivorpicks';
+import { addPickSync } from './collections/picks';
+import { addSurvivorPickSync } from './collections/survivorpicks';
 import { addTiebreakerSync } from './collections/tiebreakers';
 import { addPoolHistorySync } from '../imports/api/collections/poolhistorys';
 import { getSystemValuesSync, removeYearUpdatedSync } from '../imports/api/collections/systemvals';

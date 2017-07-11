@@ -5,20 +5,20 @@ import { IndexLink, Link } from 'react-router';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { getNextGame } from '../../api/collections/games';
-import { getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
-import { updateSelectedWeek } from '../../api/collections/users';
-import { testMessage } from '../../api/collections/nfllogs';
+import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError } from '../../api/global';
+import { getNextGame } from '../../api/collections/games';
+import { getUnreadChatCount, getUnreadMessages, testMessage } from '../../api/collections/nfllogs';
+import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
+import { getTiebreaker } from  '../../api/collections/tiebreakers';
+import { updateSelectedWeek } from '../../api/collections/users';
 
-const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
-	const tiebreaker = currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0],
-			survivorPicks = currentUser.survivor;
+const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length;
 
 	msgCt += (pageReady && currentUser.paid ? 0 : 1);
-	msgCt += (pageReady && currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === currentWeek)[0].submitted ? 0 : 1);
-	msgCt += (pageReady && (!currentUser.survivor.filter(s => s.week === currentWeek)[0] || currentUser.survivor.filter(s => s.week === currentWeek)[0].pick_id) ? 0 : 1);
+	msgCt += (pageReady && tiebreaker.submitted ? 0 : 1);
+	msgCt += (pageReady && (!survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id) ? 0 : 1);
 
 	const _selectWeek = (newWeek, ev) => {
 		ev.preventDefault();
@@ -119,30 +119,43 @@ Navigation.propTypes = {
 	openMenu: PropTypes.bool.isRequired,
 	pageReady: PropTypes.bool.isRequired,
 	selectedWeek: PropTypes.number,
+	survivorPicks: PropTypes.arrayOf(PropTypes.object).isRequired,
+	tiebreaker: PropTypes.object.isRequired,
 	unreadChatCt: PropTypes.number.isRequired,
 	unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
 	_toggleMenu: PropTypes.func.isRequired,
 	_toggleRightSlider: PropTypes.func.isRequired
 };
 
-export default createContainer(({ currentUser, rightSlider, ...rest }) => {
-	const unreadChatHandle = Meteor.subscribe('unreadChats'),
+export default createContainer(({ currentUser, currentWeek, rightSlider, ...rest }) => {
+	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+			unreadChatHandle = Meteor.subscribe('unreadChats'),
 			unreadChatReady = unreadChatHandle.ready(),
 			nextGameHandle = Meteor.subscribe('nextGameToStart'),
 			nextGameReady = nextGameHandle.ready(),
 			messagesHandle = Meteor.subscribe('unreadMessages'),
-			messagesReady = messagesHandle.ready();
+			messagesReady = messagesHandle.ready(),
+			survivorHandle = Meteor.subscribe('mySurvivorPicks', currentLeague),
+			survivorReady = survivorHandle.ready(),
+			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague),
+			tiebreakerReady = tiebreakerHandle.ready();
 	let unreadChatCt = 0,
 			nextGame = {},
-			unreadMessages = [];
+			unreadMessages = [],
+			survivorPicks = [],
+			tiebreaker = {};
 	if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({}, displayError);
 	if (nextGameReady) nextGame = getNextGame.call({}, displayError);
 	if (messagesReady) unreadMessages = getUnreadMessages.call({}, displayError);
+	if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague }, displayError);
+	if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek }, displayError);
 	return {
 		...rest,
 		currentUser,
 		nextGame,
 		pageReady: unreadChatReady && nextGameReady && messagesReady,
+		survivorPicks,
+		tiebreaker,
 		unreadChatCt,
 		unreadMessages
 	};

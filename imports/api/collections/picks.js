@@ -16,19 +16,6 @@ import { getTeamByID } from './teams';
  * @since 2017-06-26
  */
 
-export const addPick = new ValidatedMethod({
-	name: 'Picks.addPick',
-	validate: new SimpleSchema({
-		pick: { type: Object, label: 'Pick', blackbox: true }
-	}).validator(),
-	run ({ pick }) {
-		const newPick = new Pick(pick);
-		if (!this.user_id) throw new Meteor.Error('You are not signed in!');
-		newPick.save();
-	}
-});
-export const addPickSync = Meteor.wrapAsync(addPick.call, addPick);
-
 export const getAllPicks = new ValidatedMethod({
 	name: 'Picks.getAllPicks',
 	validate: new SimpleSchema({

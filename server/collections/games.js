@@ -6,10 +6,84 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Game } from '../../imports/api/collections/games';
+import { addPickSync } from './picks';
+import { addSurvivorPickSync } from './survivorpicks';
+import { addTiebreakerSync } from './tiebreakers';
 
 /**
  * All server side game logic
  */
+
+export const getEmptyUserPicks = new ValidatedMethod({
+	name: 'Game.getEmptyUserPicks',
+	validate: new SimpleSchema({
+		leagues: { type: [String], label: 'Leagues' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ leagues, user_id }) {
+		leagues.forEach(league => {
+			const picks = Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
+				return {
+					user_id,
+					league,
+					week: game.week,
+					game_id: game._id,
+					game: game.game
+				};
+			});
+			picks.forEach(pick => {
+				addPickSync({ pick });
+			});
+		});
+	}
+});
+export const getEmptyUserPicksSync = Meteor.wrapAsync(getEmptyUserPicks.call, getEmptyUserPicks);
+
+export const getEmptyUserSurvivorPicks = new ValidatedMethod({
+	name: 'Game.getEmptyUserSurvivorPicks',
+	validate: new SimpleSchema({
+		leagues: { type: [String], label: 'Leagues' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ leagues, user_id }) {
+		leagues.forEach(league => {
+			const survivorPicks = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
+				return {
+					user_id,
+					league,
+					week: game.week
+				};
+			});
+			survivorPicks.forEach(survivorPick => {
+				addSurvivorPickSync({ survivorPick });
+			});
+		});
+	}
+});
+export const getEmptyUserSurvivorPicksSync = Meteor.wrapAsync(getEmptyUserSurvivorPicks.call, getEmptyUserSurvivorPicks);
+
+export const getEmptyUserTiebreakers = new ValidatedMethod({
+	name: 'Game.getEmptyUserTiebreakers',
+	validate: new SimpleSchema({
+		leagues: { type: [String], label: 'Leagues' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ leagues, user_id }) {
+		leagues.forEach(league => {
+			const tiebreakers = Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
+				return {
+					user_id,
+					league,
+					week: game.week
+				};
+			});
+			tiebreakers.forEach(tiebreaker => {
+				addTiebreakerSync({ tiebreaker });
+			});
+		});
+	}
+});
+export const getEmptyUserTiebreakersSync = Meteor.wrapAsync(getEmptyUserTiebreakers.call, getEmptyUserTiebreakers);
 
 export const initSchedule = new ValidatedMethod({
 	name: 'Game.insert',

@@ -73,47 +73,6 @@ export const gamesExist = new ValidatedMethod({
 });
 export const gamesExistSync = Meteor.wrapAsync(gamesExist.call, gamesExist);
 
-export const getEmptyUserPicks = new ValidatedMethod({
-	name: 'Game.getEmptyUserPicks',
-	validate: new SimpleSchema({}).validator(),
-	run () {
-		return Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
-			return {
-				'week': game.week,
-				'game_id': game._id,
-				'game': game.game
-			};
-		});
-	}
-});
-export const getEmptyUserPicksSync = Meteor.wrapAsync(getEmptyUserPicks.call, getEmptyUserPicks);
-
-export const getEmptyUserSurvivorPicks = new ValidatedMethod({
-	name: 'Game.getEmptyUserSurvivorPicks',
-	validate: new SimpleSchema({}).validator(),
-	run () {
-		return Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
-			return {
-				'week': game.week
-			};
-		});
-	}
-});
-export const getEmptyUserSurvivorPicksSync = Meteor.wrapAsync(getEmptyUserSurvivorPicks.call, getEmptyUserSurvivorPicks);
-
-export const getEmptyUserTiebreakers = new ValidatedMethod({
-	name: 'Game.getEmoptyUserTiebreakers',
-	validate: new SimpleSchema({}).validator(),
-	run () {
-		return Game.find({ game: 1 }, { sort: { week: 1 }}).map(game => {
-			return {
-				'week': game.week
-			};
-		});
-	}
-});
-export const getEmptyUserTiebreakersSync = Meteor.wrapAsync(getEmptyUserTiebreakers.call, getEmptyUserTiebreakers);
-
 export const getFirstGameOfWeek = new ValidatedMethod({
 	name: 'Game.getFirstGameOfWeek',
 	validate: new SimpleSchema({

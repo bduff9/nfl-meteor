@@ -3,9 +3,12 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
-import { currentWeekSync, getEmptyUserPicksSync, getEmptyUserSurvivorPicksSync, getEmptyUserTiebreakersSync } from '../imports/api/collections/games';
+import { DEFAULT_LEAGUE, POOL_COST } from '../imports/api/constants';
+import { displayError } from '../imports/api/global';
+import { currentWeekSync } from '../imports/api/collections/games';
+import { getEmptyUserPicksSync, getEmptyUserSurvivorPicksSync, getEmptyUserTiebreakersSync } from './collections/games';
 import { getSystemValuesSync } from '../imports/api/collections/systemvals';
-import { writeLogSync } from '../imports/api/collections/nfllogs';
+import { writeLog } from '../imports/api/collections/nfllogs';
 
 const gmailUrl = Meteor.settings.private.gmail;
 
@@ -50,23 +53,33 @@ Meteor.startup(() => {
 			verified = false;
 		}
 		user.profile = options.profile || {};
+		user.email = email;
+		user.phone_number = '';
+		user.notifications = [];
 		user.first_name = first_name;
 		user.last_name = last_name;
-		user.email = email;
 		user.team_name = EMPTY_VAL;
 		user.referred_by = EMPTY_VAL;
 		user.verified = verified;
 		user.done_registering = false;
-		user.paid = false;
+		user.leagues = [DEFAULT_LEAGUE];
+		user.is_admin = false;
+		user.survivor = null;
+		user.payment_type = '';
+		user.payment_account = '';
+		user.owe = POOL_COST;
+		user.paid = 0;
 		user.selected_week = {};
 		user.total_points = 0;
 		user.total_games = 0;
-		user.picks = getEmptyUserPicksSync();
-		user.tiebreakers = getEmptyUserTiebreakersSync();
-		user.survivor = getEmptyUserSurvivorPicksSync();
+		user.overall_place = 1;
+		user.overall_tied_flag = true;
+		getEmptyUserPicksSync({ user_id: user._id, leagues: user.leagues });
+		getEmptyUserTiebreakersSync({ user_id: user._id, leagues: user.leagues });
+		getEmptyUserSurvivorPicksSync({ user_id: user._id, leagues: user.leagues });
 		firstName = first_name || 'An unknown';
 		lastName = last_name || 'user';
-		writeLogSync({ userId: user._id, action: 'REGISTER', message: `${firstName} ${lastName} registered with email ${email}` });
+		writeLog.call({ userId: user._id, action: 'REGISTER', message: `${firstName} ${lastName} registered with email ${email}` }, displayError);
 		return user;
 	});
 

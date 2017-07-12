@@ -105,10 +105,10 @@ if (dbVersion < 2) {
 			}
 		},
 		helpers: {
-			hasStarted() {
+			hasStarted () {
 				return gameHasStarted.call({ gameId: this.game_id }, displayError);
 			},
-			getTeam() {
+			getTeam () {
 				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
 				return team;
 			}
@@ -160,10 +160,10 @@ if (dbVersion < 2) {
 			}
 		},
 		helpers: {
-			hasStarted() {
+			hasStarted () {
 				return gameHasStarted.call({ gameId: this.game_id }, displayError);
 			},
-			getTeam() {
+			getTeam () {
 				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
 				return team;
 			}

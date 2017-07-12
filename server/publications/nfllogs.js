@@ -26,7 +26,7 @@ Meteor.publish('allChats', function () {
 });
 
 Meteor.publishComposite('unreadChats', {
-	find: function() {
+	find: function () {
 		return NFLLog.find({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED']}, user_id: this.userId }, {
 			fields: {
 				'_id': 1,

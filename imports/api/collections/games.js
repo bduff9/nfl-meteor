@@ -139,7 +139,7 @@ export const getNextGameSync = Meteor.wrapAsync(getNextGame.call, getNextGame);
 export const getPaymentDue = new ValidatedMethod({
 	name: 'Game.getPaymentDue',
 	validate: new SimpleSchema({}).validator(),
-	run() {
+	run () {
 		let week3Games;
 		week3Games = Game.find({ week: 3 }, { sort: { game: -1 }, limit: 1 }).fetch();
 		return week3Games[0].kickoff;

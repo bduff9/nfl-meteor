@@ -10,7 +10,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 export const resetPool = new ValidatedMethod({
 	name: 'Pool.reset',
 	validate: new SimpleSchema({}).validator(),
-	run() {
+	run () {
 		//TODO: grab overall top 3 and insert into poolhistory
 		//TODO: empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers
 		//TODO: refill teams then games

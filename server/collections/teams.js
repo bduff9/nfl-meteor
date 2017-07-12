@@ -14,7 +14,7 @@ import { Team } from '../../imports/api/collections/teams';
 export const initTeams = new ValidatedMethod({
 	name: 'Team.insert',
 	validate: new SimpleSchema({}).validator(),
-	run() {
+	run () {
 		if (Meteor.isServer) {
 			const data = Assets.getText('teams.json'),
 					teams = JSON.parse(data);

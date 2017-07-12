@@ -94,11 +94,11 @@ if (dbVersion < 2) {
 			}
 		},
 		helpers: {
-			getTeam() {
+			getTeam () {
 				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
 				return team;
 			},
-			hasStarted() {
+			hasStarted () {
 				return gameHasStarted.call({ gameId: this.game_id }, displayError);
 			}
 		}
@@ -140,11 +140,11 @@ if (dbVersion < 2) {
 			}
 		},
 		helpers: {
-			getTeam() {
+			getTeam () {
 				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
 				return team;
 			},
-			hasStarted() {
+			hasStarted () {
 				return gameHasStarted.call({ gameId: this.game_id }, displayError);
 			}
 		},

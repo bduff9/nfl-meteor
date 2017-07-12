@@ -126,7 +126,7 @@ export const writeLog = new ValidatedMethod({
 		message: { type: String, label: 'Message' },
 		userId: { type: String, optional: true, label: 'User ID' }
 	}).validator(),
-	run({ action, message, userId }) {
+	run ({ action, message, userId }) {
 		if (action !== '404' && !userId) throw new Meteor.Error('NFLLog.insert.not-signed-in', 'You must be logged in to write to the log');
 		if (Meteor.isServer) {
 			let logEntry = new NFLLog({
@@ -177,12 +177,12 @@ export const NFLLog = Class.create({
 		}
 	},
 	helpers: {
-		getUser() {
+		getUser () {
 			const user = getUserByID.call({ user_id: this.user_id }, displayError);
 			if (this.user_id) return user;
 			return null;
 		},
-		getUserTo() {
+		getUserTo () {
 			const user = getUserByID.call({ user_id: this.to_id }, displayError);
 			if (this.to_id) return user;
 			return null;
@@ -190,11 +190,11 @@ export const NFLLog = Class.create({
 	},
 	indexes: {},
 	meteorMethods: {
-		toggleDeleted(markDeleted) {
+		toggleDeleted (markDeleted) {
 			this.is_deleted = markDeleted;
 			return this.save();
 		},
-		toggleRead(markRead) {
+		toggleRead (markRead) {
 			this.is_read = markRead;
 			return this.save();
 		}

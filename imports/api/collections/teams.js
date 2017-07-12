@@ -78,7 +78,7 @@ const History = Class.create({
 		final_score: String
 	},
 	helpers: {
-		getOpponent() {
+		getOpponent () {
 			const team = Team.findOne(this.opponent_id);
 			return team;
 		}
@@ -158,7 +158,7 @@ export const Team = Class.create({
 		}
 	},
 	helpers: {
-		isInHistory(gameId) {
+		isInHistory (gameId) {
 			const allHist = this.history,
 					thisHist = allHist.filter(h => h.game_id === gameId);
 			return thisHist.length > 0;

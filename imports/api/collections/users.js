@@ -499,7 +499,7 @@ export const updateSelectedWeek = new ValidatedMethod({
 	validate: new SimpleSchema({
 		week: { type: Number, label: 'Week' }
 	}).validator(),
-	run({ week }) {
+	run ({ week }) {
 		if (!this.userId) throw new Meteor.Error('Users.selected_week.update.notLoggedIn', 'Must be logged in to choose week');
 		if (Meteor.isServer) {
 			User.update(this.userId, { $set: { 'selected_week.week': week, 'selected_week.selected_on': new Date() }});
@@ -703,7 +703,7 @@ if (dbVersion < 2) {
 			}
 		},
 		helpers: {
-			getSelectedWeek() {
+			getSelectedWeek () {
 				const NO_WEEK_SELECTED = null,
 						setObj = this.selected_week,
 						week = setObj.week,
@@ -803,7 +803,7 @@ if (dbVersion < 2) {
 			}
 		},
 		helpers: {
-			getSelectedWeek() {
+			getSelectedWeek () {
 				const NO_WEEK_SELECTED = null,
 						{ week, selected_on } = this.selected_week,
 						dateSelected = moment(selected_on),

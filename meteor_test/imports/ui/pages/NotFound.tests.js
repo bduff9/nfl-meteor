@@ -22,8 +22,12 @@ if (Meteor.isClient) {
 	describe('404 Page', function() {
 		describe('NFL Image', function() {
 			it('Image names are valid', function(){
-				console.log(imgs);
-				console.log(_get404Image);
+				var img = _get404Image();
+				var imgNo = imgs.indexOf(img);		
+				console.log(img);
+				console.log(imgNo);
+				assert.equal(img, imgNo);
+				
 			});
 
 			it('Image exists on server', function() {

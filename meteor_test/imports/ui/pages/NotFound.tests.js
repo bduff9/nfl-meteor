@@ -10,13 +10,11 @@ if (Meteor.isClient) {
 		describe('NFL Image', function () {
 			it('Random image is valid', function () {
 				var imgName = _get404Image();
-				var imgIndex = imgs.indexOf(imgName);		
+				var imgIndex = imgs.indexOf(imgName);
 				assert.notStrictEqual(imgIndex, -1);
 			});
 
-			it('Image exists on server', function () {
-
-			});
+			it('Image exists on server', function () {});
 		});
 	});
 }

@@ -34,6 +34,7 @@
     "linebreak-style": "off",
     "no-console": "off",
     "no-constant-condition": "off",
+    "space-before-function-paren": ["error", "always"],
     "no-unused-vars": [
       "warn", {
         "varsIgnorePattern": "UU",

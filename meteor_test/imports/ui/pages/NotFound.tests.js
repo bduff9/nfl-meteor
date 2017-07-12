@@ -5,28 +5,16 @@ import { assert } from 'meteor/practicalmeteor:chai';
 
 import { _get404Image, imgs } from '../../../../imports/ui/pages/NotFound.jsx';
 
-if (Meteor.isServer) {
-	describe('Base Test', function() {
-		describe('Sub Test', function() {
-			it('Should pass', function() {
-				assert.equal(1, 1);
-			});
-			it('Should fail', function() {
-				assert.equal(1, 2);
-			});
-		});
-	});
-}
-
 if (Meteor.isClient) {
-	describe('404 Page', function() {
-		describe('NFL Image', function() {
-			it('Image names are valid', function(){
-				console.log(imgs);
-				console.log(_get404Image);
+	describe('404 Page', function () {
+		describe('NFL Image', function () {
+			it('Random image is valid', function () {
+				var imgName = _get404Image();
+				var imgIndex = imgs.indexOf(imgName);		
+				assert.notStrictEqual(imgIndex, -1);
 			});
 
-			it('Image exists on server', function() {
+			it('Image exists on server', function () {
 
 			});
 		});

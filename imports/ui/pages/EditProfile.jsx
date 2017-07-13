@@ -12,7 +12,7 @@ import { displayError } from '../../api/global';
 
 export default class EditProfile extends Component {
 
-	constructor(props) {
+	constructor (props) {
 		const { location } = props,
 				isCreate = location.pathname.indexOf('create') > -1,
 				isEdit = !isCreate,
@@ -22,12 +22,15 @@ export default class EditProfile extends Component {
 			firstName: user.first_name,
 			hasFacebook: !!user.services && !!user.services.facebook,
 			hasGoogle: !!user.services && !!user.services.google,
+			hasSurvivor: false, //TODO: add this to page
 			isCreate,
 			isEdit,
 			lastName: user.last_name,
-			teamName: user.team_name,
+			paymentAccount: '', //TODO: add this to page
+			paymentType: 'Cash', //TODO: add this to page
 			referredBy: user.referred_by,
-			showReferredBy: false
+			showReferredBy: false,
+			teamName: user.team_name
 		};
 		this._handleChanges = this._handleChanges.bind(this);
 		this._handleReferredBy = this._handleReferredBy.bind(this);
@@ -35,17 +38,17 @@ export default class EditProfile extends Component {
 		this._validate = this._validate.bind(this);
 	}
 
-	componentDidMount() {
+	componentDidMount () {
 		this._validate();
 	}
-	_handleChanges(ev) {
+	_handleChanges (ev) {
 		const el = ev.currentTarget;
 		this.setState({ [el.id]: el.value });
 	}
-	_handleReferredBy(showReferredBy, ev) {
+	_handleReferredBy (showReferredBy, ev) {
 		this.setState({ showReferredBy, referredBy: (!showReferredBy ? 'RETURNING' : '') });
 	}
-	_oauthLink(service, ev) {
+	_oauthLink (service, ev) {
 		const options = {
 			requestPermissions: ['email']
 		};
@@ -60,15 +63,15 @@ export default class EditProfile extends Component {
 			}
 		});
 	}
-	_submitForm(ev) {
+	_submitForm (ev) {
 		ev.preventDefault();
 	}
-	_updateUser() {
-		const { firstName, isCreate, lastName, referredBy, teamName } = this.state,
+	_updateUser () {
+		const { firstName, hasSurvivor, isCreate, lastName, paymentAccount, paymentType, referredBy, teamName } = this.state,
 				{ router } = this.context,
 				DONE_REGISTERING = true;
 		try {
-			updateUser.call({ done_registering: DONE_REGISTERING, first_name: firstName, last_name: lastName, referred_by: referredBy, team_name: teamName }, displayError);
+			updateUser.call({ done_registering: DONE_REGISTERING, first_name: firstName, last_name: lastName, payment_account: paymentAccount, payment_type: paymentType, referred_by: referredBy, survivor: hasSurvivor, team_name: teamName });
 			if (isCreate) {
 				Bert.alert(`Thanks for registering, ${firstName}`, 'success');
 				router.push('/');
@@ -83,12 +86,12 @@ export default class EditProfile extends Component {
 			displayError(err);
 		}
 	}
-	_validate() {
+	_validate () {
 		const that = this;
 		$(this.userFormRef).validate({
 			errorLabelContainer: '#error-messages',
 			wrapper: 'li',
-			submitHandler() {
+			submitHandler () {
 				that._updateUser();
 			},
 			rules: {
@@ -119,7 +122,7 @@ export default class EditProfile extends Component {
 		});
 	}
 
-	render() {
+	render () {
 		const { firstName, hasFacebook, hasGoogle, isCreate, lastName, referredBy, showReferredBy, teamName } = this.state,
 				user = Meteor.user();
 		return (

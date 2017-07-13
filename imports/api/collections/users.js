@@ -549,7 +549,10 @@ export const updateUser = new ValidatedMethod({
 		done_registering: { type: Boolean, allowedValues: [true] },
 		first_name: { type: String, label: 'First Name' },
 		last_name: { type: String, label: 'Last Name' },
+		payment_account: { type: String, label: 'Payment Account' },
+		payment_type: { type: String, label: 'Payment Type' },
 		referred_by: { type: String, label: 'Referred By' },
+		survivor: { type: Boolean, label: 'Has Survivior?' },
 		team_name: { type: String, label: 'Team Name' }
 	}).validator(),
 	run (userObj) {
@@ -765,8 +768,7 @@ if (dbVersion < 2) {
 			},
 			payment_type: {
 				type: String,
-				validators: [{ type: 'choice', param: ['PayPal', 'QuickPay', 'Venmo'] }],
-				optional: true
+				validators: [{ type: 'choice', param: ['Cash', 'PayPal', 'QuickPay', 'Venmo'] }]
 			},
 			payment_account: {
 				type: String,

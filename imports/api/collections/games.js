@@ -19,9 +19,10 @@ export const currentWeek = new ValidatedMethod({
 	name: 'Game.getCurrentWeek',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		let currTime = Math.round(new Date().getTime() / 1000),
-				nextGame, currWeek, startOfNextWeek;
-		nextGame = getNextGameSync();
+		const currTime = Math.round(new Date().getTime() / 1000),
+				nextGame = Game.find({ status: 'P' }, { sort: { kickoff: 1 } }).fetch()[0];
+		let currWeek, startOfNextWeek;
+		if (!nextGame) return { week: WEEKS_IN_SEASON, game: MAX_GAMES_IN_WEEK, notFound: true };
 		if (nextGame.game === 1) {
 			startOfNextWeek = Math.round(nextGame.kickoff.getTime() / 1000) - (24 * 3600);
 			currWeek = currTime >= startOfNextWeek ? nextGame.week : nextGame.week - 1;

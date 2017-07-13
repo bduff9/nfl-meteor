@@ -6,7 +6,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Game } from '../../imports/api/collections/games';
 
 Meteor.publish('nextGame', function () {
-	const nextGame = Game.find({ status: { $ne: 'C' }, game: { $ne: 0 }}, {
+	const nextGame = Game.find({ status: { $ne: 'C' }}, {
 		fields: {
 			'_id': 1,
 			'week': 1,

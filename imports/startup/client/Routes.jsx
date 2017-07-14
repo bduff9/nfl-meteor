@@ -26,7 +26,7 @@ import AdminUsers from '../../ui/pages/AdminUsers.jsx';
 import AdminLogs from '../../ui/pages/AdminLogs.jsx';
 import { NotFound } from '../../ui/pages/NotFound.jsx';
 
-function requireAuth(nextState, replace) {
+function requireAuth (nextState, replace) {
 	if (!Meteor.userId()) {
 		replace({
 			pathname: '/login',
@@ -35,7 +35,7 @@ function requireAuth(nextState, replace) {
 	}
 }
 
-function requireNoAuth(nextState, replace) {
+function requireNoAuth (nextState, replace) {
 	const { location } = nextState;
 	if (Meteor.userId()) {
 		if (location.state && location.state.nextPathname) {
@@ -51,7 +51,7 @@ function requireNoAuth(nextState, replace) {
 	}
 }
 
-function validateUser(nextState, replace) {
+function validateUser (nextState, replace) {
 	const { done_registering } = Meteor.user();
 	if (!done_registering) {
 		replace({
@@ -60,7 +60,7 @@ function validateUser(nextState, replace) {
 	}
 }
 
-function noValidateUser(nextState, replace) {
+function noValidateUser (nextState, replace) {
 	const { done_registering } = Meteor.user();
 	if (done_registering) {
 		replace({
@@ -69,7 +69,7 @@ function noValidateUser(nextState, replace) {
 	}
 }
 
-function verifyEmail(nextState, replace) {
+function verifyEmail (nextState, replace) {
 	const { params } = nextState;
 	if (Meteor.userId()) {
 		replace({
@@ -89,7 +89,7 @@ function verifyEmail(nextState, replace) {
 	}
 }
 
-function verifyAdmin(nextState, replace) {
+function verifyAdmin (nextState, replace) {
 	const user = Meteor.user();
 	if (!user.is_admin) {
 		replace({
@@ -98,7 +98,7 @@ function verifyAdmin(nextState, replace) {
 	}
 }
 
-function logOut(nextState, replace) {
+function logOut (nextState, replace) {
 	const { location } = nextState,
 			user = Meteor.user();
 	if (Meteor.userId()) {

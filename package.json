@@ -7,9 +7,9 @@
   },
   "license": "UNLICENSED",
   "scripts": {
-    "install": "meteor npm prune && meteor npm i",
-    "prestart": "npm run install",
-    "predebug": "npm run install",
+    "initApp": "meteor npm prune && meteor npm i",
+    "prestart": "meteor npm run initApp",
+    "predebug": "meteor npm run initApp",
     "start": "meteor npm prune && meteor npm i && meteor --settings settings.json",
     "debug": "meteor debug --settings settings.json",
     "test": "meteor test --driver-package=practicalmeteor:mocha --port=3004"

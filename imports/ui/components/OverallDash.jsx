@@ -4,13 +4,13 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { NO_MISS_WEEK } from '../../api/constants';
-import { displayError, sortForDash } from '../../api/global';
+import { sortForDash } from '../../api/global';
 import { DashLayout } from '../layouts/DashLayout.jsx';
-import { getCurrentUser, getUsers } from '../../api/collections/users';
-import { getAllPicks } from '../../api/collections/picks';
+import { getCurrentUserSync, getUsersSync } from '../../api/collections/users';
+import { getAllPicksSync } from '../../api/collections/picks';
 
 export default createContainer(({ league, sortBy, _changeSortBy }) => {
-	const myUser = getCurrentUser.call({}, displayError),
+	const myUser = getCurrentUserSync({}),
 			picksHandle = Meteor.subscribe('allPicks', league),
 			picksReady = picksHandle.ready(),
 			usersHandle = Meteor.subscribe('overallPlaces'),
@@ -21,9 +21,9 @@ export default createContainer(({ league, sortBy, _changeSortBy }) => {
 			users = [],
 			data = [];
 	if (picksReady && usersReady) {
-		picks = getAllPicks.call({ league }, displayError);
+		picks = getAllPicksSync({ league });
 		myPicks = picks.filter(pick => pick.user_id === myUser._id);
-		users = getUsers.call({ activeOnly: true, league }, displayError);
+		users = getUsersSync({ activeOnly: true, league });
 		data = users.map(u => {
 			const missedGames = picks.filter(pick => {
 				if (pick.week < NO_MISS_WEEK) return false;

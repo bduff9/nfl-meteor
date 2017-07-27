@@ -9,11 +9,11 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
 
-import { displayError } from '../../api/global';
+import { displayError, getCurrentSeasonYear } from '../../api/global';
 
 export default class Login extends Component {
 
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {
 			loading: null,
@@ -25,10 +25,10 @@ export default class Login extends Component {
 		this._toggleType = this._toggleType.bind(this);
 	}
 
-	componentDidMount() {
+	componentDidMount () {
 		this._beginValidating();
 	}
-	_oauthLogin(service, ev) {
+	_oauthLogin (service, ev) {
 		const options = {
 			requestPermissions: ['email']
 		};
@@ -46,13 +46,13 @@ export default class Login extends Component {
 			}
 		});
 	}
-	_emailLogin(ev) {
+	_emailLogin (ev) {
 		ev.preventDefault();
 	}
-	_beginValidating() {
+	_beginValidating () {
 		const that = this;
 		$(this.emailFormRef).validate({
-			submitHandler() {
+			submitHandler () {
 				that.setState({ loading: 'email' });
 				that._submitEmail();
 			},
@@ -77,7 +77,7 @@ export default class Login extends Component {
 			}
 		});
 	}
-	_submitEmail() {
+	_submitEmail () {
 		const { type } = this.state,
 				email = this.emailRef.value.trim(),
 				password = this.passwordRef.value.trim();
@@ -120,17 +120,15 @@ export default class Login extends Component {
 			});
 		}
 	}
-	_toggleType(ev) {
+	_toggleType (ev) {
 		let { type } = this.state;
 		type = (type === 'login' ? 'register' : 'login');
 		this.setState({ type });
 	}
 
-	render() {
+	render () {
 		const { loading, type } = this.state,
-				currDate = new Date(),
-				currMonth = currDate.getMonth(),
-				currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
+				currYear = getCurrentSeasonYear();
 		return (
 			<div className="row login-stretch">
 				<Helmet title="Login" />

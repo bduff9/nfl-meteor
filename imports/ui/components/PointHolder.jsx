@@ -4,17 +4,17 @@ import React, { Component, PropTypes } from 'react';
 import Sortable from 'sortablejs';
 
 import { getColor } from '../../api/global';
-import { setPick } from '../../api/collections/users';
+import { setPick } from '../../api/collections/picks';
 import { displayError } from '../../api/global';
 
 class PointHolder extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {};
 		this._handlePointAdd = this._handlePointAdd.bind(this);
 	}
 
-	componentDidMount() {
+	componentDidMount () {
 		const { thisRef } = this.props,
 				opts = {
 					group: 'picks',
@@ -26,7 +26,18 @@ class PointHolder extends Component {
 		this._sortableInstance = Sortable.create(this[thisRef], opts);
 	}
 
-	_validatePointDrop(ev) {
+	_handlePointAdd (ev) {
+		const { from, item, to } = ev,
+				{ league, selectedWeek } = this.props,
+				pointVal = parseInt(item.innerText, 10),
+				addOnly = (Sortable.utils.is(from, '.pointBank')),
+				removeOnly = (Sortable.utils.is(to, '.pointBank'));
+		setPick.call({ addOnly, fromData: from.dataset, league, pointVal, removeOnly, selectedWeek, toData: to.dataset }, displayError);
+		// Fix for removeChild error
+		item.style.display = 'none';
+		from.appendChild(item);
+	}
+	_validatePointDrop (ev) {
 		const { dragged, to } = ev;
 		let usedPoints;
 		if (Sortable.utils.is(to, '.pointBank')) return true;
@@ -36,16 +47,8 @@ class PointHolder extends Component {
 		usedPoints = Array.from(usedPoints).filter(point => Sortable.utils.is(point, '.points') && point !== dragged);
 		return (usedPoints.length === 0);
 	}
-	_handlePointAdd(ev) {
-		const { from, item, to } = ev,
-				{ selectedWeek } = this.props,
-				pointVal = parseInt(item.innerText, 10),
-				addOnly = (Sortable.utils.is(from, '.pointBank')),
-				removeOnly = (Sortable.utils.is(to, '.pointBank'));
-		setPick.call({ selectedWeek, fromData: from.dataset, toData: to.dataset, pointVal, addOnly, removeOnly }, displayError);
-	}
 
-	render() {
+	render () {
 		const { className, disabledPoints, gameId, numGames, points, teamId, teamShort, thisRef } = this.props;
 		return (
 			<ul className={className} data-game-id={gameId} data-team-id={teamId} data-team-short={teamShort} ref={ul => { this[thisRef] = ul; }}>
@@ -60,6 +63,7 @@ PointHolder.propTypes = {
 	className: PropTypes.string,
 	disabledPoints: PropTypes.arrayOf(PropTypes.number).isRequired,
 	gameId: PropTypes.string,
+	league: PropTypes.string.isRequired,
 	numGames: PropTypes.number.isRequired,
 	points: PropTypes.arrayOf(PropTypes.number).isRequired,
 	selectedWeek: PropTypes.number.isRequired,

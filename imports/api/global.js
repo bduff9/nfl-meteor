@@ -27,6 +27,13 @@ export const getColor = (point, max) => {
 	return style;
 };
 
+export const getCurrentSeasonYear = () => {
+	const currDate = new Date(),
+			currMonth = currDate.getMonth(),
+			currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0);
+	return currYear;
+};
+
 export const formattedPlace = (place) => {
 	const s = ['th', 'st', 'nd', 'rd'],
 			v = place % 100;

@@ -14,6 +14,7 @@ Meteor.publish('userData', function () {
 			'services.google.email': 1,
 			'profile': 1,
 			'email': 1,
+			'leagues': 1,
 			'first_name': 1,
 			'last_name': 1,
 			'team_name': 1,
@@ -42,6 +43,7 @@ Meteor.publish('basicUsersInfo', function () {
 	allUsers = User.find({ done_registering: true }, {
 		fields: {
 			'_id': 1,
+			'leagues': 1,
 			'first_name': 1,
 			'last_name': 1,
 			'team_name': 1,
@@ -58,6 +60,7 @@ Meteor.publish('overallPlaces', function () {
 	overallUsers = User.find({ done_registering: true }, {
 		fields: {
 			'_id': 1,
+			'leagues': 1,
 			'first_name': 1,
 			'last_name': 1,
 			'team_name': 1,
@@ -83,6 +86,7 @@ Meteor.publish('adminUsers', function () {
 		fields: {
 			'_id': 1,
 			'email': 1,
+			'leagues': 1,
 			'first_name': 1,
 			'last_name': 1,
 			'team_name': 1,

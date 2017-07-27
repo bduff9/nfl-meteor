@@ -1,7 +1,7 @@
 'use strict';
 
-import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
+import React, { Component, PropTypes } from 'react';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
@@ -18,7 +18,7 @@ import { getPicksForWeek } from '../../api/collections/picks';
 import { getTiebreaker } from '../../api/collections/tiebreakers';
 
 class MakePicks extends Component {
-	constructor(props) {
+	constructor (props) {
 		const { games, pageReady, picks } = props;
 		super();
 		this.state = this._populatePoints(games, picks, pageReady);
@@ -29,7 +29,7 @@ class MakePicks extends Component {
 		this._submitPicks = this._submitPicks.bind(this);
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps (nextProps) {
 		const { currentWeek, games, pageReady, picks, selectedWeek, tiebreaker = {} } = nextProps,
 				notAllowed = pageReady && (selectedWeek < currentWeek || tiebreaker.submitted);
 		let pointObj;
@@ -40,7 +40,15 @@ class MakePicks extends Component {
 		}
 	}
 
-	_populatePoints(games, picks, gamesReady) {
+	_autopick (type, ev) {
+		const { available } = this.state,
+				{ selectedWeek } = this.props;
+		ev.preventDefault();
+		autoPick.call({ selectedWeek, type, available }, displayError);
+		Bert.alert({ type: 'success', message: `Your unset picks have been automatically set ${type === 'random' ? 'randomly' : `to the ${type} teams`}!` });
+		return false;
+	}
+	_populatePoints (games, picks, gamesReady) {
 		if (!gamesReady) return { available: [], unavailable: [], used: [] };
 		const used = picks.filter(pick => pick.points && pick.pick_id).map(pick => pick.points),
 				missedGames = picks.filter((pick, i) => !pick.pick_id && games[i].kickoff <= new Date());
@@ -52,33 +60,25 @@ class MakePicks extends Component {
 		if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
 		return { available, unavailable, used };
 	}
-	_setHover(hoverTeam = '', hoverGame = null, hoverIsHome = false, ev) {
+	_setHover (hoverTeam = '', hoverGame = null, hoverIsHome = false, ev) {
 		this.setState({ hoverGame, hoverIsHome, hoverTeam, hoverOn: (hoverTeam ? ev.target : null) });
 	}
-	_setTiebreakerWrapper(ev) {
+	_setTiebreakerWrapper (ev) {
 		const { selectedWeek } = this.props,
 				lastScoreStr = ev.currentTarget.value,
 				lastScore = (lastScoreStr ? parseInt(lastScoreStr, 10) : 0);
 		setTiebreaker.call({ selectedWeek, lastScore }, displayError);
 	}
-	_resetPicks(ev) {
+	_resetPicks (ev) {
 		const { selectedWeek } = this.props;
 		resetPicks.call({ selectedWeek }, displayError);
 		Bert.alert({ type: 'success', message: 'Your picks have been reset!' });
 	}
-	_autopick(type, ev) {
-		const { available } = this.state,
-				{ selectedWeek } = this.props;
-		ev.preventDefault();
-		autoPick.call({ selectedWeek, type, available }, displayError);
-		Bert.alert({ type: 'success', message: `Your unset picks have been automatically set ${type === 'random' ? 'randomly' : `to the ${type} teams`}!` });
-		return false;
-	}
-	_savePicks(ev) {
+	_savePicks (ev) {
 		ev.currentTarget.disabled = true;
 		Bert.alert({ type: 'success', message: 'Your picks have been successfully saved!' });
 	}
-	_submitPicks(picksLeft, noTiebreaker, ev) {
+	_submitPicks (picksLeft, noTiebreaker, ev) {
 		const { selectedWeek } = this.props,
 				tiebreakerVal = this.tiebreakerRef.value;
 		ev.preventDefault();
@@ -101,9 +101,9 @@ class MakePicks extends Component {
 		return false;
 	}
 
-	render() {
+	render () {
 		const { available, hoverGame, hoverIsHome, hoverOn, hoverTeam, unavailable, used } = this.state,
-				{ games, pageReady, picks, selectedWeek, tiebreaker } = this.props;
+				{ currentLeague, games, pageReady, picks, selectedWeek, tiebreaker } = this.props;
 		let lastHomeTeam, lastVisitingTeam;
 		return (
 			<div className="row make-picks-wrapper">
@@ -114,6 +114,7 @@ class MakePicks extends Component {
 						<PointHolder
 							className="pointBank"
 							disabledPoints={unavailable}
+							league={currentLeague}
 							numGames={games.length}
 							points={available}
 							selectedWeek={selectedWeek}
@@ -149,6 +150,7 @@ class MakePicks extends Component {
 																className="pull-md-left"
 																disabledPoints={homePicked && started ? [thisPick.points] : []}
 																gameId={game._id}
+																league={currentLeague}
 																numGames={games.length}
 																points={homePicked && !started ? [thisPick.points] : []}
 																selectedWeek={selectedWeek}
@@ -180,6 +182,7 @@ class MakePicks extends Component {
 																className="pull-md-right"
 																disabledPoints={visitorPicked && started ? [thisPick.points] : []}
 																gameId={game._id}
+																league={currentLeague}
 																numGames={games.length}
 																points={visitorPicked && !started ? [thisPick.points] : []}
 																selectedWeek={selectedWeek}
@@ -249,6 +252,7 @@ class MakePicks extends Component {
 }
 
 MakePicks.propTypes = {
+	currentLeague: PropTypes.string.isRequired,
 	currentWeek: PropTypes.number,
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
 	pageReady: PropTypes.bool.isRequired,
@@ -280,6 +284,7 @@ export default createContainer(() => {
 	if (picksReady) picks = getPicksForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
 	if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
 	return {
+		currentLeague,
 		currentWeek,
 		games,
 		pageReady: gamesReady && teamsReady,

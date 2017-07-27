@@ -25,6 +25,18 @@ export const addPoolHistory = new ValidatedMethod({
 });
 export const addPoolHistorySync = Meteor.wrapAsync(addPoolHistory.call, addPoolHistory);
 
+export const migratePoolHistorysForUser = new ValidatedMethod({
+	name: 'PoolHistorys.migratePoolHistorysForUser',
+	validate: new SimpleSchema({
+		newUserId: { type: String, label: 'New User ID' },
+		oldUserId: { type: String, label: 'Old User ID' }
+	}).validator(),
+	run ({ newUserId, oldUserId }) {
+		PoolHistory.update({ user_id: oldUserId }, { $set: { user_id: newUserId }}, { multi: true });
+	}
+});
+export const migratePoolHistorysForUserSync = Meteor.wrapAsync(migratePoolHistorysForUser.call, migratePoolHistorysForUser);
+
 let PoolHistorysConditional = null;
 let PoolHistoryConditional = null;
 

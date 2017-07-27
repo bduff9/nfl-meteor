@@ -7,10 +7,11 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
  * Before new year begins, reset all data i.e. clear out games, teams, picks, etc. and reset users back to empty
  */
 
-export const resetPool = new ValidatedMethod({
-	name: 'Pool.reset',
+export const initPoolOnServer = new ValidatedMethod({
+	name: 'initPoolOnServer',
 	validate: new SimpleSchema({}).validator(),
 	run () {
+		//TODO: validate that current year and system vals year are different, also that current user is an admin
 		//TODO: grab overall top 3 and insert into poolhistory
 		//TODO: empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers
 		//TODO: refill teams then games

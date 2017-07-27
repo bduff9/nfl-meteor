@@ -58,6 +58,18 @@ export const getWeekSurvivorPicks = new ValidatedMethod({
 });
 export const getWeekSurvivorPicksSync = Meteor.wrapAsync(getWeekSurvivorPicks.call, getWeekSurvivorPicks);
 
+export const migrateSurvivorPicksForUser = new ValidatedMethod({
+	name: 'SurvivorPicks.migrateSurvivorPicksForUser',
+	validate: new SimpleSchema({
+		newUserId: { type: String, label: 'New User ID' },
+		oldUserId: { type: String, label: 'Old User ID' }
+	}).validator(),
+	run ({ newUserId, oldUserId }) {
+		SurvivorPick.update({ user_id: oldUserId }, { $set: { user_id: newUserId }}, { multi: true });
+	}
+});
+export const migrateSurvivorPicksForUserSync = Meteor.wrapAsync(migrateSurvivorPicksForUser.call, migrateSurvivorPicksForUser);
+
 let SurvivorPicksConditional = null;
 let SurvivorPickConditional = null;
 

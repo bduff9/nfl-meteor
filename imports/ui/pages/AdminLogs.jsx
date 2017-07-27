@@ -14,7 +14,7 @@ import { getLogs } from '../../api/collections/nfllogs';
 import { getUsersForLogs } from '../../api/collections/users';
 
 class AdminLogs extends Component {
-	constructor(props) {
+	constructor (props) {
 		const { limit, logCt } = props;
 		super();
 		this.state = {
@@ -27,7 +27,7 @@ class AdminLogs extends Component {
 		this._redirect = this._redirect.bind(this);
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps (nextProps) {
 		const { actions, limit, logCt, page, pageReady, pathname, userFroms, userTos } = nextProps;
 		const { totalPages } = this.state;
 		let newTotal;
@@ -41,14 +41,14 @@ class AdminLogs extends Component {
 		}
 	}
 
-	_changePage(dir, disabled, ev) {
+	_changePage (dir, disabled, ev) {
 		const { actions, limit, page, pathname, userFroms, userTos } = this.props,
 				newPage = page + dir;
 		ev.preventDefault();
 		if (!disabled) this._redirect(pathname, limit, newPage, actions, userFroms, userTos);
 		return false;
 	}
-	_filterAction(action, add, ev) {
+	_filterAction (action, add, ev) {
 		const { actions, limit, pathname, userFroms, userTos } = this.props;
 		let newActions;
 		ev.preventDefault();
@@ -61,7 +61,7 @@ class AdminLogs extends Component {
 		this._redirect(pathname, limit, 1, newActions, userFroms, userTos);
 		return false;
 	}
-	_filterUser(userId, add, ev) {
+	_filterUser (userId, add, ev) {
 		const { actions, limit, pathname, userFroms, userTos } = this.props;
 		let newUsers;
 		ev.preventDefault();
@@ -74,7 +74,7 @@ class AdminLogs extends Component {
 		this._redirect(pathname, limit, 1, actions, newUsers, userTos);
 		return false;
 	}
-	_filterUserTos(userId, add, ev) {
+	_filterUserTos (userId, add, ev) {
 		const { actions, limit, pathname, userFroms, userTos } = this.props;
 		let newUsers;
 		ev.preventDefault();
@@ -87,7 +87,7 @@ class AdminLogs extends Component {
 		this._redirect(pathname, limit, 1, actions, userFroms, newUsers);
 		return false;
 	}
-	_redirect(pathname, limit, page, actions, userFroms, userTos) {
+	_redirect (pathname, limit, page, actions, userFroms, userTos) {
 		const limitChanged = limit !== 10,
 				pageChanged = page > 1,
 				actionChanged = actions && actions.length > 0,
@@ -102,7 +102,7 @@ class AdminLogs extends Component {
 		this.context.router.push(newPath);
 	}
 
-	render() {
+	render () {
 		const { totalPages } = this.state,
 				{ actions, limit, logCt, logs, page, pageReady, userFroms, users, userTos } = this.props,
 				hasPrev = page > 1,

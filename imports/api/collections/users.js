@@ -170,10 +170,10 @@ export const getUsers = new ValidatedMethod({
 	run ({ activeOnly, league }) {
 		const filter = {};
 		if (activeOnly) filter.done_registering = true;
-		if (league) filter.league = league;
+		if (league) filter.leagues = league;
 		const activeUsers = User.find(filter).fetch();
-		if (activeUsers.length) return activeUsers;
-		throw new Meteor.Error('No active users found!');
+		if (activeUsers.length === 0) throw new Meteor.Error('No active users found!');
+		return activeUsers;
 	}
 });
 export const getUsersSync = Meteor.wrapAsync(getUsers.call, getUsers);
@@ -286,54 +286,6 @@ http://nfl.asitewithnoname.com/admin/users`,
 	}
 });
 export const sendWelcomeEmailSync = Meteor.wrapAsync(sendWelcomeEmail.call, sendWelcomeEmail);
-
-export const setPick = new ValidatedMethod({
-	name: 'Users.picks.add',
-	validate: new SimpleSchema({
-		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
-		fromData: { type: Object, label: 'From List' },
-		'fromData.gameId': { type: String, label: 'From Game ID', optional: true },
-		'fromData.teamId': { type: String, label: 'From Team ID', optional: true },
-		'fromData.teamShort': { type: String, label: 'From Team Name', optional: true },
-		toData: { type: Object, label: 'To List' },
-		'toData.gameId': { type: String, label: 'To Game ID', optional: true },
-		'toData.teamId': { type: String, label: 'To Team ID', optional: true },
-		'toData.teamShort': { type: String, label: 'To Team Name', optional: true },
-		pointVal: { type: Number, label: 'Points' },
-		addOnly: { type: Boolean, label: 'Add Only' },
-		removeOnly: { type: Boolean, label: 'Remove Only' }
-	}).validator(),
-	run ({ selectedWeek, fromData, toData, pointVal, addOnly, removeOnly }) {
-		let user, picks;
-		if (!this.userId) throw new Meteor.Error('Users.picks.set.notLoggedIn', 'Must be logged in to update picks');
-		if (fromData.gameId && gameHasStarted.call({ gameId: fromData.gameId }, displayError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
-		if (toData.gameId && gameHasStarted.call({ gameId: toData.gameId }, displayError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
-		if (Meteor.isServer) {
-			user = User.findOne(this.userId);
-			picks = user.picks;
-			if (!addOnly && fromData.gameId !== toData.gameId) {
-				picks.forEach(pick => {
-					if (pick.week === selectedWeek && pick.game_id === fromData.gameId) {
-						pick.pick_id = undefined;
-						pick.pick_short = undefined;
-						pick.points = undefined;
-					}
-				});
-			}
-			if (!removeOnly) {
-				picks.forEach(pick => {
-					if (pick.week === selectedWeek && pick.game_id === toData.gameId) {
-						pick.pick_id = toData.teamId;
-						pick.pick_short = toData.teamShort;
-						pick.points = pointVal;
-					}
-				});
-			}
-			user.save();
-		}
-	}
-});
-export const setPickSync = Meteor.wrapAsync(setPick.call, setPick);
 
 export const setSurvivorPick = new ValidatedMethod({
 	name: 'Users.survivor.setPick',

@@ -49,6 +49,18 @@ export const getTiebreaker = new ValidatedMethod({
 });
 export const getTiebreakerSync = Meteor.wrapAsync(getTiebreaker.call, getTiebreaker);
 
+export const migrateTiebreakersForUser = new ValidatedMethod({
+	name: 'Tiebreakers.migrateTiebreakersForUser',
+	validate: new SimpleSchema({
+		newUserId: { type: String, label: 'New User ID' },
+		oldUserId: { type: String, label: 'Old User ID' }
+	}).validator(),
+	run ({ newUserId, oldUserId }) {
+		Tiebreaker.update({ user_id: oldUserId }, { $set: { user_id: newUserId }}, { multi: true });
+	}
+});
+export const migrateTiebreakersForUserSync = Meteor.wrapAsync(migrateTiebreakersForUser.call, migrateTiebreakersForUser);
+
 let TiebreakersConditional = null;
 let TiebreakerConditional = null;
 
@@ -148,7 +160,6 @@ if (dbVersion < 2) {
 				return name;
 			},
 			getUser () {
-				console.log(this.user_id);
 				const user = getUserByID.call({ user_id: this.user_id }, displayError);
 				return user;
 			}

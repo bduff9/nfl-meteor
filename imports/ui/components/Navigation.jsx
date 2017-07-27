@@ -6,7 +6,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { displayError, getCurrentSeasonYear } from '../../api/global';
 import { getNextGame } from '../../api/collections/games';
 import { getUnreadChatCount, getUnreadMessages, testMessage } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
@@ -20,14 +20,19 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 	msgCt += (pageReady && tiebreaker.submitted ? 0 : 1);
 	msgCt += (pageReady && (!survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id) ? 0 : 1);
 
-	const _selectWeek = (newWeek, ev) => {
+	const _initPool = (ev) => {
 		ev.preventDefault();
-		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, displayError);
+		Meteor.call('initPoolOnServer', displayError);
+		return false;
 	};
 	const _refreshGames = (ev) => {
 		ev.preventDefault();
 		Meteor.call('Game.refreshGameData', displayError);
 		return false;
+	};
+	const _selectWeek = (newWeek, ev) => {
+		ev.preventDefault();
+		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, displayError);
 	};
 
 	return (
@@ -67,8 +72,13 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 						<li><Link to="/picks/view" activeClassName="active">View My Picks</Link></li>
 						{selectedWeek >= currentWeek && tiebreaker && !tiebreaker.submitted ? <li><Link to="/picks/set" activeClassName="active">Make Picks</Link></li> : null}
 						{tiebreaker && (selectedWeek < currentWeek || tiebreaker.submitted) ? <li><Link to="/picks/viewall" activeClassName="active">View All Picks</Link></li> : null}
-						{survivorPicks.length === 17 ? <li><Link to="/survivor/set" activeClassName="active">Make Survivor Picks</Link></li> : null}
-						{nextGame.week > 1 || nextGame.game > 1 ? <li><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null}
+						{currentUser.survivor ? [
+							(survivorPicks.length === 17 ? <li key="make-survivor-picks"><Link to="/survivor/set" activeClassName="active">Make Survivor Picks</Link></li> : null),
+							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null)
+						]
+							:
+							null
+						}
 					</ul>
 					<ul className="nav nav-sidebar">
 						<li>
@@ -91,7 +101,8 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							<li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
 							<li><Link to="/admin/logs" activeClassName="active">View Logs</Link></li>
 							<li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
-							<li><a href="#" onClick={(ev) => testMessage.call(displayError)}>Test Message</a></li>
+							{/* TODO: test if current year (from global func) is greater than last updated year (from system vals), if so, show a menu option to convert pool to new year */}
+							<li><a href="#" onClick={_initPool}>Init Pool for {getCurrentSeasonYear()} Season</a></li>
 						</ul>
 					)
 						:

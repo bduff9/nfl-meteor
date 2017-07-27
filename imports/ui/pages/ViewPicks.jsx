@@ -9,19 +9,18 @@ import Helmet from 'react-helmet';
 import '../../ui/pages/ViewPicksPrint.scss';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError } from '../../api/global';
 import { Loading } from './Loading.jsx';
-import { getGamesForWeek } from '../../api/collections/games';
-import { getTiebreaker } from '../../api/collections/tiebreakers';
-import { getPicksForWeek } from '../../api/collections/picks';
+import { getGamesForWeekSync } from '../../api/collections/games';
+import { getTiebreakerSync } from '../../api/collections/tiebreakers';
+import { getPicksForWeekSync } from '../../api/collections/picks';
 
 class ViewPicks extends Component {
-	constructor(prop) {
+	constructor (prop) {
 		super();
 		this.state = {};
 	}
 
-	render() {
+	render () {
 		const { games, pageReady, picks, selectedWeek, tiebreaker } = this.props,
 				maxPoints = (games.length * (games.length + 1)) / 2,
 				possiblePoints = picks.reduce((prevScore, pick) => {
@@ -118,15 +117,16 @@ export default createContainer(() => {
 			picksReady = picksHandle.ready(),
 			tiebreakersHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
 			tiebreakersReady = tiebreakersHandle.ready(),
-			picks = getPicksForWeek.call({ league: currentLeague, week: selectedWeek }, displayError),
 			gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
 			gamesReady = gamesHandle.ready(),
 			teamsHandle = Meteor.subscribe('allTeams'),
 			teamsReady = teamsHandle.ready();
-	let tiebreaker = {},
-			games = [];
-	if (tiebreakersReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
-	if (gamesReady) games = getGamesForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
+	let games = [],
+			picks = [],
+			tiebreaker = {};
+	if (gamesReady) games = getGamesForWeekSync({ week: selectedWeek });
+	if (picksReady) picks = getPicksForWeekSync({ league: currentLeague, week: selectedWeek });
+	if (tiebreakersReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: selectedWeek });
 	return {
 		games,
 		pageReady: gamesReady && picksReady && teamsReady && tiebreakersReady,

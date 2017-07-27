@@ -13,7 +13,7 @@ import WeekDash from '../components/WeekDash.jsx';
 import { updateSelectedWeek } from '../../api/collections/users';
 
 class Dashboard extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {
 			sortBy: null,
@@ -23,7 +23,7 @@ class Dashboard extends Component {
 		this._toggleOverall = this._toggleOverall.bind(this);
 	}
 
-	_changeSortBy(currSort, col, ev) {
+	_changeSortBy (currSort, col, ev) {
 		const { viewOverall } = this.state,
 				newSort = Object.assign({}, currSort),
 				{ total_games, total_points, games_correct: week_games, points_earned: week_points } = newSort;
@@ -42,7 +42,7 @@ class Dashboard extends Component {
 		}
 		this.setState({ sortBy: newSort });
 	}
-	_nextOrd(num, otherNum) {
+	_nextOrd (num, otherNum) {
 		if (num === 1) {
 			return -1;
 		} else if (num === -1 && otherNum) {
@@ -51,17 +51,17 @@ class Dashboard extends Component {
 			return 1;
 		}
 	}
-	_selectWeek(ev) {
+	_selectWeek (ev) {
 		const newWeek = parseInt(ev.currentTarget.value, 10);
 		ev.preventDefault();
 		updateSelectedWeek.call({ week: newWeek }, displayError);
 	}
-	_toggleOverall(ev) {
+	_toggleOverall (ev) {
 		const viewOverall = ev.currentTarget.value === 'true';
 		this.setState({ sortBy: null, viewOverall });
 	}
 
-	render() {
+	render () {
 		const { sortBy, viewOverall } = this.state,
 				{ currentLeague, pageReady, selectedWeek } = this.props;
 		return (

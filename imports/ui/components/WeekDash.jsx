@@ -4,13 +4,13 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { DashLayout } from '../layouts/DashLayout.jsx';
-import { displayError, sortForDash } from '../../api/global';
-import { getCurrentUser } from '../../api/collections/users';
-import { getTiebreaker, getAllTiebreakersForWeek} from '../../api/collections/tiebreakers';
-import { getAllPicksForWeek } from '../../api/collections/picks';
+import { sortForDash } from '../../api/global';
+import { getCurrentUserSync } from '../../api/collections/users';
+import { getAllTiebreakersForWeekSync, getTiebreakerSync } from '../../api/collections/tiebreakers';
+import { getAllPicksForWeekSync } from '../../api/collections/picks';
 
 export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
-	const myUser = getCurrentUser.call({}, displayError),
+	const myUser = getCurrentUserSync({}),
 			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', week, league),
 			tiebreakerReady = tiebreakerHandle.ready(),
 			picksHandle = Meteor.subscribe('allPicksForWeek', week, league),
@@ -27,13 +27,13 @@ export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
 			highestScore = 0,
 			data = [];
 	if (picksReady && tiebreakerReady && tiebreakersReady && usersReady) {
-		picks = getAllPicksForWeek.call({ league, week }, displayError);
+		picks = getAllPicksForWeekSync({ league, week });
 		myPicks = picks.filter(pick => pick.user_id === myUser._id);
-		myTiebreaker = getTiebreaker.call({ league, week }, displayError);
-		tiebreakers = getAllTiebreakersForWeek.call({ league, week }, displayError);
+		myTiebreaker = getTiebreakerSync({ league, week });
+		tiebreakers = getAllTiebreakersForWeekSync({ league, week });
 		data = tiebreakers.map((tb, i, allTiebreakers) => {
 			const tiebreaker = Object.assign({}, tb),
-					user = tiebreaker.getUser(),
+					user = tb.getUser(),
 					userPicks = picks.filter(pick => pick.user_id === user._id),
 					formattedPlace = (tiebreaker.place_in_week ? (tiebreaker.tied_flag ? `T${tiebreaker.place_in_week}` : tiebreaker.place_in_week) : 'T1'),
 					hasSubmitted = tiebreaker.submitted;

@@ -127,7 +127,6 @@ DashLayout.propTypes = {
 	myUser: PropTypes.object.isRequired,
 	pageReady: PropTypes.bool.isRequired,
 	sort: PropTypes.object.isRequired,
-	user: PropTypes.object.isRequired,
 	week: PropTypes.number,
 	_changeSortBy: PropTypes.func.isRequired
 };

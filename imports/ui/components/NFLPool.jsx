@@ -8,9 +8,7 @@ import Helmet from 'react-helmet';
 import { Routes } from '../../startup/client/Routes.jsx';
 import { Loading } from '../pages/Loading.jsx';
 
-const NFLPool = (props) => {
-	const { userLoaded } = props,
-			appLoaded = userLoaded || (!Meteor.userId() && !Meteor.loggingIn());
+const NFLPool = ({ pageReady }) => {
 	return (
 		<div className="row">
 			<Helmet
@@ -19,20 +17,20 @@ const NFLPool = (props) => {
 				titleTemplate="%s | NFL Confidence Pool"
 				link={[{ rel: 'icon', sizes: '16x16 32x32', href: '/football-icon.png?v=1' }]}
 				meta={[{ 'charset': 'utf-8' }, { 'http-equiv': 'X-UA-Compatible', 'content': 'IE=edge' }, { 'name': 'viewport', 'content': 'width=device-width, initial-scale=1, user-scalable=no' }]} />
-			{appLoaded ? <Routes key={Date.now()} /> : <Loading />}
+			{pageReady ? <Routes /> : <Loading />}
 		</div>
 	);
 };
 
 NFLPool.propTypes = {
-	userLoaded: PropTypes.bool.isRequired
+	pageReady: PropTypes.bool.isRequired
 };
 
 export default createContainer(() => {
 	const userHandle = Meteor.subscribe('userData');
 	let userReady = userHandle.ready();
 	return {
-		userLoaded: userReady,
+		pageReady: !Meteor.loggingIn() && userReady,
 		user: Meteor.user()
 	};
 }, NFLPool);

@@ -148,6 +148,7 @@ if (dbVersion < 2) {
 				return name;
 			},
 			getUser () {
+				console.log(this.user_id);
 				const user = getUserByID.call({ user_id: this.user_id }, displayError);
 				return user;
 			}

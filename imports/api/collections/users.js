@@ -10,79 +10,11 @@ import { Email } from 'meteor/email';
 import { Class } from 'meteor/jagi:astronomy';
 
 import { dbVersion, DEFAULT_LEAGUE } from '../constants';
-import { displayError, logError, overallPlacer, weekPlacer } from '../global';
-import { gameHasStarted, getGameByID } from '../collections/games';
+import { logError, overallPlacer, weekPlacer } from '../global';
 import { Pick } from '../collections/picks';
 import { SurvivorPick } from '../collections/survivorpicks';
 import { Tiebreaker } from '../collections/tiebreakers';
 import { writeLog } from './nfllogs';
-
-export const assignPointsToMissed = new ValidatedMethod({
-	name: 'Users.picks.assignPointsToMissed',
-	validate: new SimpleSchema({
-		gameCount: { type: Number, label: 'Number of Games', min: 13, max: 16 },
-		gameId: { type: String, label: 'Game ID' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
-	}).validator(),
-	run ({ gameCount, gameId, week }) {
-		if (Meteor.isServer) {
-			const allUsers = User.find({ 'done_registering': true, 'picks.game_id': gameId }, { fields: {
-				'_id': 1,
-				'picks.$': 1
-			}}).fetch();
-			let missedUsers = allUsers.filter(user => !user.picks[0].points).map(user => user._id),
-					users = User.find({ _id: { $in: missedUsers }}).fetch(),
-					pointsUsed, maxPointVal;
-			if (users.length) console.log(`${users.length} users missed game ${gameId} in week ${week}`);
-			users.forEach(user => {
-				maxPointVal = gameCount;
-				pointsUsed = user.picks.filter(pick => pick.week === week).map(pick => pick.points);
-				while (pointsUsed.indexOf(maxPointVal) > -1) maxPointVal--;
-				User.update({ _id: user._id, 'picks.game_id': gameId }, { $set: { 'picks.$.points': maxPointVal }});
-				console.log(`Auto assign ${maxPointVal} points to user ${user._id}`);
-			});
-		}
-	}
-});
-export const assignPointsToMissedSync = Meteor.wrapAsync(assignPointsToMissed.call, assignPointsToMissed);
-
-export const autoPick = new ValidatedMethod({
-	name: 'Users.autoPick',
-	validate: new SimpleSchema({
-		available: { type: [Number], label: 'Available Points', minCount: 1, maxCount: 16 },
-		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
-		type: { type: String, label: 'Auto Pick Type', allowedValues: ['home', 'away', 'random'] }
-	}).validator(),
-	run ({ available, selectedWeek, type }) {
-		if (!this.userId) throw new Meteor.Error('Users.autoPick.notLoggedIn', 'Must be logged in to update picks');
-		if (Meteor.isServer) {
-			const user = User.findOne(this.userId),
-					picks = user.picks,
-					pointsLeft = Object.assign([], available);
-			let game, randomTeam, teamId, teamShort, pointIndex, point;
-			picks.forEach(pick => {
-				if (pick.week === selectedWeek && pick.game !== 0 && !pick.hasStarted() && !pick.pick_id) {
-					game = getGameByID.call({ id: pick.game_id }, displayError);
-					randomTeam = Math.random();
-					if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
-						teamId = game.home_id;
-						teamShort = game.home_short;
-					} else if (type === 'away' || type === 'random') {
-						teamId = game.visitor_id;
-						teamShort = game.visitor_short;
-					}
-					pointIndex = Math.floor(Math.random() * pointsLeft.length);
-					point = pointsLeft.splice(pointIndex, 1);
-					pick.pick_id = teamId;
-					pick.pick_short = teamShort;
-					pick.points = point[0];
-				}
-			});
-			user.save();
-		}
-	}
-});
-export const autoPickSync = Meteor.wrapAsync(autoPick.call, autoPick);
 
 export const deleteUser = new ValidatedMethod({
 	name: 'Users.deleteUser',
@@ -200,31 +132,6 @@ export const removeSelectedWeek = new ValidatedMethod({
 	}
 });
 export const removeSelectedWeekSync = Meteor.wrapAsync(removeSelectedWeek.call, removeSelectedWeek);
-
-export const resetPicks = new ValidatedMethod({
-	name: 'Users.resetPicks',
-	validate: new SimpleSchema({
-		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
-	}).validator(),
-	run ({ selectedWeek }) {
-		if (!this.userId) throw new Meteor.Error('Users.resetPicks.notLoggedIn', 'Must be logged in to reset picks');
-		if (Meteor.isServer) {
-			const user = User.findOne(this.userId),
-					picks = user.picks,
-					tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
-			picks.forEach(pick => {
-				if (pick.week === selectedWeek && !pick.hasStarted() && pick.game !== 0) {
-					pick.pick_id = undefined;
-					pick.pick_short = undefined;
-					pick.points = undefined;
-				}
-			});
-			tiebreaker.last_score = undefined;
-			user.save();
-		}
-	}
-});
-export const resetPicksSync = Meteor.wrapAsync(resetPicks.call, resetPicks);
 
 export const sendAllPicksInEmail = new ValidatedMethod({
 	name: 'Users.sendAllPicksInEmail',

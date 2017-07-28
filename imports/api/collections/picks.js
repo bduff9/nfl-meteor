@@ -8,13 +8,77 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 import { displayError } from '../../api/global';
-import { gameHasStarted } from './games';
+import { gameHasStarted, getGameByIDSync } from './games';
 import { getTeamByID } from './teams';
 
 /**
  * All pick logic
  * @since 2017-06-26
  */
+
+export const assignPointsToMissed = new ValidatedMethod({
+	name: 'Picks.assignPointsToMissed',
+	validate: new SimpleSchema({
+		gameCount: { type: Number, label: 'Number of Games', min: 13, max: 16 },
+		gameId: { type: String, label: 'Game ID' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ gameCount, gameId, week }) {
+		if (Meteor.isServer) {
+			const missedPicks = Pick.find({ game_id: gameId, points: null }).fetch();
+			if (missedPicks.length) console.log(`${missedPicks.length} users missed game ${gameId} in week ${week}`);
+			missedPicks.forEach(missedPick => {
+				const { user_id } = missedPick,
+						usersPicks = Pick.find({ user_id, week }).fetch(),
+						pointsUsed = usersPicks.filter(pick => pick.points).map(pick => pick.points);
+				let maxPointVal = gameCount;
+				while (pointsUsed.indexOf(maxPointVal) > -1) maxPointVal--;
+				missedPick.points = maxPointVal;
+				missedPick.save();
+				console.log(`Auto assigned ${maxPointVal} points to user ${user_id}`);
+			});
+		}
+	}
+});
+export const assignPointsToMissedSync = Meteor.wrapAsync(assignPointsToMissed.call, assignPointsToMissed);
+
+export const autoPick = new ValidatedMethod({
+	name: 'Picks.autoPick',
+	validate: new SimpleSchema({
+		available: { type: [Number], label: 'Available Points', minCount: 1, maxCount: 16 },
+		league: { type: String, label: 'League' },
+		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
+		type: { type: String, label: 'Auto Pick Type', allowedValues: ['home', 'away', 'random'] }
+	}).validator(),
+	run ({ available, league, selectedWeek, type }) {
+		if (!this.userId) throw new Meteor.Error('Picks.autoPick.notLoggedIn', 'Must be logged in to update picks');
+		if (Meteor.isServer) {
+			const picks = Pick.find({ league, user_id: this.userId, week: selectedWeek }).fetch(),
+					pointsLeft = Object.assign([], available);
+			let game, randomTeam, teamId, teamShort, pointIndex, point;
+			picks.forEach(pick => {
+				if (!pick.hasStarted() && !pick.pick_id) {
+					game = getGameByIDSync({ id: pick.game_id });
+					randomTeam = Math.random();
+					if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
+						teamId = game.home_id;
+						teamShort = game.home_short;
+					} else if (type === 'away' || type === 'random') {
+						teamId = game.visitor_id;
+						teamShort = game.visitor_short;
+					}
+					pointIndex = Math.floor(Math.random() * pointsLeft.length);
+					point = pointsLeft.splice(pointIndex, 1);
+					pick.pick_id = teamId;
+					pick.pick_short = teamShort;
+					pick.points = point[0];
+					pick.save();
+				}
+			});
+		}
+	}
+});
+export const autoPickSync = Meteor.wrapAsync(autoPick.call, autoPick);
 
 export const getAllPicks = new ValidatedMethod({
 	name: 'Picks.getAllPicks',
@@ -74,6 +138,30 @@ export const migratePicksForUser = new ValidatedMethod({
 	}
 });
 export const migratePicksForUserSync = Meteor.wrapAsync(migratePicksForUser.call, migratePicksForUser);
+
+export const resetPicks = new ValidatedMethod({
+	name: 'Picks.resetPicks',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, selectedWeek }) {
+		if (!this.userId) throw new Meteor.Error('Picks.resetPicks.notLoggedIn', 'Must be logged in to reset picks');
+		if (Meteor.isServer) {
+			const picks = Pick.find({ league, user_id: this.userId, week: selectedWeek }).fetch();
+			picks.forEach(pick => {
+				if (!pick.hasStarted()) {
+					pick.pick_id = undefined;
+					pick.pick_short = undefined;
+					pick.points = undefined;
+					pick.save();
+				}
+			});
+			//TODO: reset tiebreaker for this user/week/league
+		}
+	}
+});
+export const resetPicksSync = Meteor.wrapAsync(resetPicks.call, resetPicks);
 
 export const setPick = new ValidatedMethod({
 	name: 'Picks.add',

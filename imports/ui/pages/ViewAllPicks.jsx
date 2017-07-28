@@ -11,17 +11,17 @@ import '../../ui/pages/ViewAllPicksPrint.scss';
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError, weekPlacer } from '../../api/global';
 import { Loading } from './Loading.jsx';
-import { getGamesForWeek } from '../../api/collections/games';
-import { getCurrentUser } from '../../api/collections/users';
-import { getTiebreaker, getAllTiebreakersForWeek} from '../../api/collections/tiebreakers';
-import { getAllPicksForWeek } from '../../api/collections/picks';
+import { getGamesForWeekSync } from '../../api/collections/games';
+import { getCurrentUserSync } from '../../api/collections/users';
+import { getTiebreakerSync, getAllTiebreakersForWeekSync } from '../../api/collections/tiebreakers';
+import { getAllPicksForWeekSync } from '../../api/collections/picks';
 
 class ViewAllPicks extends Component {
 	constructor(props) {
 		super();
 		this.state = {
 			games: [],
-			tiebreaker: []
+			users: []
 		};
 		this._resetPicks = this._resetPicks.bind(this);
 		this._updateGame = this._updateGame.bind(this);
@@ -48,11 +48,12 @@ class ViewAllPicks extends Component {
 	_updateUsers({ games, picks, selectedWeek, tiebreakers }) {
 		let newTiebreakers = tiebreakers.map(tiebreaker => {
 			let newTiebreaker = Object.assign({}, tiebreaker),
-					picks = picks.filter(pick => pick.user_id === newTiebreaker.user_id),
+					userPicks = picks.filter(pick => pick.user_id === newTiebreaker.user_id),
 					pts = 0,
 					gms = 0,
 					game;
-			picks.forEach((pick, i) => {
+			newTiebreaker.full_name = tiebreaker.getFullName();
+			userPicks.forEach((pick, i) => {
 				game = games[i];
 				if (game.winner_id && pick.pick_id === game.winner_id) {
 					pts += pick.points;
@@ -91,7 +92,7 @@ class ViewAllPicks extends Component {
 	}
 
 	render() {
-		const { games, tiebreakers } = this.state,
+		const { games, users } = this.state,
 				{ currentUser, pageReady, picks, selectedWeek } = this.props;
 		return (
 			<div className="row view-all-picks-wrapper">
@@ -146,10 +147,10 @@ class ViewAllPicks extends Component {
 								</tr>
 							</thead>
 							<tbody>
-								{tiebreakers.map(tiebreaker => {
+								{users.map(tiebreaker => {
 									return (
 										<tr className={tiebreaker.user_id === currentUser._id ? 'my-user' : null} key={'user' + tiebreaker.user_id}>
-											<td className="name-cell">{`${tiebreaker.tied_flag ? 'T' : ''}${tiebreaker.place_in_week}. ${tiebreaker.getFullName()}`}</td>
+											<td className="name-cell">{`${tiebreaker.tied_flag ? 'T' : ''}${tiebreaker.place_in_week}. ${tiebreaker.full_name}`}</td>
 											{picks.filter(pick => pick.user_id === tiebreaker.user_id).map((pick, i) => {
 												const game = games[i];
 												let cells = [];
@@ -200,7 +201,7 @@ ViewAllPicks.contextTypes = {
 };
 
 export default createContainer(() => {
-	const currentUser = getCurrentUser.call({}, displayError),
+	const currentUser = getCurrentUserSync({}),
 			currentWeek = Session.get('currentWeek'),
 			selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
@@ -220,10 +221,10 @@ export default createContainer(() => {
 			tiebreakers = [],
 			picks = [],
 			games = [];
-	if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
-	if (gamesReady) games = getGamesForWeek.call({}, displayError);
-	if (picksReady) picks = getAllPicksForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
-	if (tiebreakersReady) tiebreakers = getAllTiebreakersForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
+	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: selectedWeek });
+	if (gamesReady) games = getGamesForWeekSync({ week: selectedWeek });
+	if (picksReady) picks = getAllPicksForWeekSync({ league: currentLeague, week: selectedWeek });
+	if (tiebreakersReady) tiebreakers = getAllTiebreakersForWeekSync({ league: currentLeague, week: selectedWeek });
 	return {
 		currentUser,
 		currentWeek,

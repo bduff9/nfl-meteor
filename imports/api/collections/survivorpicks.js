@@ -7,9 +7,11 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { displayError, logError } from '../../api/global';
 import { gameHasStarted } from './games';
+import { writeLog } from './nfllogs';
 import { getTeamByID } from './teams';
+import { getUserNameSync } from './users';
 
 /**
  * All survivor logic
@@ -58,6 +60,20 @@ export const getWeekSurvivorPicks = new ValidatedMethod({
 });
 export const getWeekSurvivorPicksSync = Meteor.wrapAsync(getWeekSurvivorPicks.call, getWeekSurvivorPicks);
 
+export const hasSubmittedSurvivorPicks = new ValidatedMethod({
+	name: 'SurvivorPicks.hasSubmittedSurvivorPicks',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, week }) {
+		const pick = SurvivorPick.findOne({ league, user_id: this.userId, week });
+		if (!this.userId) throw new Meteor.Error('SurvivorPicks.hasSubmittedSurvivorPicks.notSignedIn', 'You are not signed in');
+		return !!pick.pick_id;
+	}
+});
+export const hasSubmittedSurvivorPicksSync = Meteor.wrapAsync(hasSubmittedSurvivorPicks.call, hasSubmittedSurvivorPicks);
+
 export const migrateSurvivorPicksForUser = new ValidatedMethod({
 	name: 'SurvivorPicks.migrateSurvivorPicksForUser',
 	validate: new SimpleSchema({
@@ -69,6 +85,34 @@ export const migrateSurvivorPicksForUser = new ValidatedMethod({
 	}
 });
 export const migrateSurvivorPicksForUserSync = Meteor.wrapAsync(migrateSurvivorPicksForUser.call, migrateSurvivorPicksForUser);
+
+export const setSurvivorPick = new ValidatedMethod({
+	name: 'SurvivorPicks.setPick',
+	validate: new SimpleSchema({
+		gameId: { type: String, label: 'Game ID' },
+		league: { type: String, label: 'League' },
+		teamId: { type: String, label: 'Team ID' },
+		teamShort: { type: String, label: 'Team Name' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ gameId, league, teamId, teamShort, week }) {
+		const user_id = this.userId;
+		if (!user_id) throw new Meteor.Error('SurvivorPicks.setPick.notLoggedIn', 'Must be logged in to update survivor pool');
+		const survivorPicks = SurvivorPick.findOne({ league, user_id }),
+				pick = survivorPicks.filter(pick => pick.week === week),
+				usedIndex = survivorPicks.findIndex(pick => pick.pick_id === teamId);
+		if (pick.hasStarted()) throw new Meteor.Error('SurvivorPicks.setPick.gameAlreadyStarted', 'Cannot set survivor pick of a game that has already begun');
+		if (usedIndex > -1) throw new Meteor.Error('SurvivorPicks.setPick.alreadyUsedTeam', 'Cannot use a single team more than once in a survivor pool');
+		if (Meteor.isServer) {
+			pick.game_id = gameId;
+			pick.pick_id = teamId;
+			pick.pick_short = teamShort;
+			pick.save();
+			writeLog.call({ action: 'SURVIVOR_PICK', message: `${getUserNameSync({ user_id })} just picked ${teamShort} for week ${week}`, userId: user_id }, logError);
+		}
+	}
+});
+export const setSurvivorPickSync = Meteor.wrapAsync(setSurvivorPick.call, setSurvivorPick);
 
 let SurvivorPicksConditional = null;
 let SurvivorPickConditional = null;

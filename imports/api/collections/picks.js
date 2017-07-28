@@ -58,7 +58,7 @@ export const autoPick = new ValidatedMethod({
 			let game, randomTeam, teamId, teamShort, pointIndex, point;
 			picks.forEach(pick => {
 				if (!pick.hasStarted() && !pick.pick_id) {
-					game = getGameByIDSync({ id: pick.game_id });
+					game = getGameByIDSync({ gameId: pick.game_id });
 					randomTeam = Math.random();
 					if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
 						teamId = game.home_id;
@@ -72,9 +72,10 @@ export const autoPick = new ValidatedMethod({
 					pick.pick_id = teamId;
 					pick.pick_short = teamShort;
 					pick.points = point[0];
-					pick.save();
+					//pick.save();
 				}
 			});
+			picks.forEach(pick => { pick.save(); });
 		}
 	}
 });
@@ -147,18 +148,7 @@ export const resetPicks = new ValidatedMethod({
 	}).validator(),
 	run ({ league, selectedWeek }) {
 		if (!this.userId) throw new Meteor.Error('Picks.resetPicks.notLoggedIn', 'Must be logged in to reset picks');
-		if (Meteor.isServer) {
-			const picks = Pick.find({ league, user_id: this.userId, week: selectedWeek }).fetch();
-			picks.forEach(pick => {
-				if (!pick.hasStarted()) {
-					pick.pick_id = undefined;
-					pick.pick_short = undefined;
-					pick.points = undefined;
-					pick.save();
-				}
-			});
-			//TODO: reset tiebreaker for this user/week/league
-		}
+		if (Meteor.isServer) Pick.update({ league, user_id: this.userId, week: selectedWeek }, { $set: { pick_id: undefined, pick_short: undefined, points: undefined }}, { multi: true });
 	}
 });
 export const resetPicksSync = Meteor.wrapAsync(resetPicks.call, resetPicks);

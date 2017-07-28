@@ -7,8 +7,10 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../constants';
-import { displayError } from '../global';
-import { getUserByID, getUserName } from './users';
+import { displayError, logError } from '../global';
+import { getPicksForWeek } from './picks';
+import { writeLog } from './nfllogs';
+import { getUserByID, getUserNameSync, sendAllPicksInEmail } from './users';
 
 /**
  * All tiebreaker logic
@@ -49,6 +51,20 @@ export const getTiebreaker = new ValidatedMethod({
 });
 export const getTiebreakerSync = Meteor.wrapAsync(getTiebreaker.call, getTiebreaker);
 
+export const hasAllSubmitted = new ValidatedMethod({
+	name: 'Tiebreakers.hasAllSubmitted',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, week }) {
+		const users = Tiebreaker.find({ league, week }).fetch(),
+				haveNotSubmitted = users.filter(user => !user.submitted);
+		return haveNotSubmitted.length === 0;
+	}
+});
+export const hasAllSubmittedSync = Meteor.wrapAsync(hasAllSubmitted.call, hasAllSubmitted);
+
 export const migrateTiebreakersForUser = new ValidatedMethod({
 	name: 'Tiebreakers.migrateTiebreakersForUser',
 	validate: new SimpleSchema({
@@ -60,6 +76,66 @@ export const migrateTiebreakersForUser = new ValidatedMethod({
 	}
 });
 export const migrateTiebreakersForUserSync = Meteor.wrapAsync(migrateTiebreakersForUser.call, migrateTiebreakersForUser);
+
+export const resetTiebreaker = new ValidatedMethod({
+	name: 'Tiebreakers.resetTiebreaker',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, week }) {
+		if (!this.userId) throw new Meteor.Error('Tiebreakers.resetTiebreaker.notLoggedIn', 'Must be logged in to reset tiebreaker');
+		if (Meteor.isServer) {
+			const tb = Tiebreaker.findOne({ league, user_id: this.userId, week });
+			tb.last_score = undefined;
+			tb.save();
+		}
+	}
+});
+export const resetTiebreakerSync = Meteor.wrapAsync(resetTiebreaker.call, resetTiebreaker);
+
+export const setTiebreaker = new ValidatedMethod({
+	name: 'Tiebreakers.setTiebreaker',
+	validate: new SimpleSchema({
+		lastScore: { type: Number, label: 'Last Score', min: 2 },
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ lastScore, league, week }) {
+		const user_id = this.userId,
+				tb = Tiebreaker.findOne({ league, user_id, week });
+		if (!user_id) throw new Meteor.Error('Tiebreakers.setTiebreaker.notLoggedIn', 'Must be logged in to update tiebreaker');
+		if (Meteor.isServer) {
+			tb.last_score = lastScore;
+			tb.save();
+		}
+	}
+});
+export const setTiebreakerSync = Meteor.wrapAsync(setTiebreaker.call, setTiebreaker);
+
+export const submitPicks = new ValidatedMethod({
+	name: 'Tiebreakers.submitPicks',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, week }) {
+		const user_id = this.userId;
+		if (!user_id) throw new Meteor.Error('Tiebreakers.submitPicks.notLoggedIn', 'Must be logged in to submit picks');
+		const tiebreaker = Tiebreaker.findOne({ league, user_id, week }),
+				picks = getPicksForWeek.call({ league, week }),
+				noPicks = picks.filter(pick => pick.week === week && !pick.hasStarted() && !pick.pick_id && !pick.pick_short && !pick.points);
+		if (noPicks.length > 0) throw new Meteor.Error('Tiebreakers.submitPicks.missingPicks', 'You must complete all picks for the week before submitting');
+		if (!tiebreaker.last_score) throw new Meteor.Error('Tiebreakers.submitPicks.noTiebreakerScore', 'You must submit a tiebreaker score for the last game of the week');
+		if (Meteor.isServer) {
+			tiebreaker.submitted = true;
+			tiebreaker.save();
+			sendAllPicksInEmail.call({ week }, logError);
+		}
+		writeLog.call({ action: 'SUBMIT_PICKS', message: `${getUserNameSync({ user_id })} has just submitted their week ${week} picks`, userId: user_id }, logError);
+	}
+});
+export const submitPicksSync = Meteor.wrapAsync(submitPicks.call, submitPicks);
 
 let TiebreakersConditional = null;
 let TiebreakerConditional = null;
@@ -156,7 +232,7 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			getFullName () {
-				const name = getUserName.call({ user_id: this.user_id }, displayError);
+				const name = getUserNameSync({ user_id: this.user_id });
 				return name;
 			},
 			getUser () {

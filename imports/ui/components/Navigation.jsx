@@ -7,18 +7,20 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError, getCurrentSeasonYear } from '../../api/global';
-import { getNextGame } from '../../api/collections/games';
-import { getUnreadChatCount, getUnreadMessages, testMessage } from '../../api/collections/nfllogs';
-import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
-import { getTiebreaker } from  '../../api/collections/tiebreakers';
+import { getNextGameSync } from '../../api/collections/games';
+import { getUnreadChatCountSync, getUnreadMessagesSync } from '../../api/collections/nfllogs';
+import { getMySurvivorPicksSync } from '../../api/collections/survivorpicks';
+import { getTiebreakerSync } from  '../../api/collections/tiebreakers';
 import { updateSelectedWeek } from '../../api/collections/users';
 
 const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length;
 
-	msgCt += (pageReady && currentUser.paid ? 0 : 1);
-	msgCt += (pageReady && tiebreaker.submitted ? 0 : 1);
-	msgCt += (pageReady && (!survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id) ? 0 : 1);
+	if (pageReady) {
+		msgCt += (currentUser.paid ? 0 : 1);
+		msgCt += (tiebreaker.submitted ? 0 : 1);
+		if (currentUser.survivor) msgCt += (currentUser.survivor && !survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id ? 0 : 1);
+	}
 
 	const _initPool = (ev) => {
 		ev.preventDefault();
@@ -155,16 +157,16 @@ export default createContainer(({ currentUser, currentWeek, rightSlider, ...rest
 			unreadMessages = [],
 			survivorPicks = [],
 			tiebreaker = {};
-	if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({}, displayError);
-	if (nextGameReady) nextGame = getNextGame.call({}, displayError);
-	if (messagesReady) unreadMessages = getUnreadMessages.call({}, displayError);
-	if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague }, displayError);
-	if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek }, displayError);
+	if (unreadChatReady) unreadChatCt = getUnreadChatCountSync({});
+	if (nextGameReady) nextGame = getNextGameSync({});
+	if (messagesReady) unreadMessages = getUnreadMessagesSync({});
+	if (survivorReady) survivorPicks = getMySurvivorPicksSync({ league: currentLeague });
+	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: currentWeek });
 	return {
 		...rest,
 		currentUser,
 		nextGame,
-		pageReady: unreadChatReady && nextGameReady && messagesReady,
+		pageReady: nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
 		survivorPicks,
 		tiebreaker,
 		unreadChatCt,

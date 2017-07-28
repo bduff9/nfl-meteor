@@ -12,10 +12,9 @@ import { displayError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
 import TeamHover from '../components/TeamHover.jsx';
-import { getGamesForWeek } from '../../api/collections/games';
-import { autoPick, resetPicks, setTiebreaker, submitPicks } from '../../api/collections/users';
-import { getPicksForWeek } from '../../api/collections/picks';
-import { getTiebreaker } from '../../api/collections/tiebreakers';
+import { getGamesForWeekSync } from '../../api/collections/games';
+import { autoPick, getPicksForWeekSync, resetPicks } from '../../api/collections/picks';
+import { getTiebreakerSync, resetTiebreaker, setTiebreaker, submitPicks } from '../../api/collections/tiebreakers';
 
 class MakePicks extends Component {
 	constructor (props) {
@@ -42,9 +41,9 @@ class MakePicks extends Component {
 
 	_autopick (type, ev) {
 		const { available } = this.state,
-				{ selectedWeek } = this.props;
+				{ currentLeague, selectedWeek } = this.props;
 		ev.preventDefault();
-		autoPick.call({ selectedWeek, type, available }, displayError);
+		autoPick.call({ available, league: currentLeague, selectedWeek, type }, displayError);
 		Bert.alert({ type: 'success', message: `Your unset picks have been automatically set ${type === 'random' ? 'randomly' : `to the ${type} teams`}!` });
 		return false;
 	}
@@ -64,14 +63,15 @@ class MakePicks extends Component {
 		this.setState({ hoverGame, hoverIsHome, hoverTeam, hoverOn: (hoverTeam ? ev.target : null) });
 	}
 	_setTiebreakerWrapper (ev) {
-		const { selectedWeek } = this.props,
+		const { currentLeague, selectedWeek } = this.props,
 				lastScoreStr = ev.currentTarget.value,
 				lastScore = (lastScoreStr ? parseInt(lastScoreStr, 10) : 0);
-		setTiebreaker.call({ selectedWeek, lastScore }, displayError);
+		setTiebreaker.call({ lastScore, league: currentLeague, week: selectedWeek }, displayError);
 	}
 	_resetPicks (ev) {
-		const { selectedWeek } = this.props;
-		resetPicks.call({ selectedWeek }, displayError);
+		const { currentLeague, selectedWeek } = this.props;
+		resetPicks.call({ league: currentLeague, selectedWeek }, displayError);
+		resetTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
 		Bert.alert({ type: 'success', message: 'Your picks have been reset!' });
 	}
 	_savePicks (ev) {
@@ -79,7 +79,7 @@ class MakePicks extends Component {
 		Bert.alert({ type: 'success', message: 'Your picks have been successfully saved!' });
 	}
 	_submitPicks (picksLeft, noTiebreaker, ev) {
-		const { selectedWeek } = this.props,
+		const { currentLeague, selectedWeek } = this.props,
 				tiebreakerVal = this.tiebreakerRef.value;
 		ev.preventDefault();
 		if (picksLeft) {
@@ -88,7 +88,8 @@ class MakePicks extends Component {
 			Bert.alert({ type: 'warning', message: 'You must fill in a tiebreaker score at the bottom of this page before you can submit' });
 		} else {
 			setTimeout(() => {
-				submitPicks.call({ selectedWeek }, (err) => {
+				submitPicks.call({ league: currentLeague, week: selectedWeek }, (err) => {
+					console.log(err);
 					if (err) {
 						displayError(err);
 					} else {
@@ -280,9 +281,9 @@ export default createContainer(() => {
 	let games = [],
 			picks = [],
 			tiebreaker = {};
-	if (gamesReady) games = getGamesForWeek.call({ week: selectedWeek }, displayError);
-	if (picksReady) picks = getPicksForWeek.call({ league: currentLeague, week: selectedWeek }, displayError);
-	if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
+	if (gamesReady) games = getGamesForWeekSync({ week: selectedWeek });
+	if (picksReady) picks = getPicksForWeekSync({ league: currentLeague, week: selectedWeek });
+	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: selectedWeek });
 	return {
 		currentLeague,
 		currentWeek,

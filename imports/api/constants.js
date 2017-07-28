@@ -50,6 +50,11 @@ export const ACTIONS = [
 export const NO_MISS_WEEK = 3;
 
 /**
+ * Payment due by end of this week
+ */
+export const PAYMENT_DUE_WEEK = 3;
+
+/**
  * The default league
  */
 export const DEFAULT_LEAGUE = 'public';
@@ -68,3 +73,8 @@ export const WEEKS_IN_SEASON = 17;
  * Maximum games in any 1 week
  */
 export const MAX_GAMES_IN_WEEK = 16;
+
+/**
+ * The outgoing email address
+ */
+export const POOL_EMAIL_FROM = 'NFL Pool Admin <info@asitewithnoname.com>';

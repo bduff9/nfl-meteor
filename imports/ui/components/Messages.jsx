@@ -6,46 +6,50 @@ import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 import { Session } from 'meteor/session';
 
+import { DEFAULT_LEAGUE, PAYMENT_DUE_WEEK } from '../../api/constants';
 import { displayError } from '../../api/global';
 import { Message } from './Message.jsx';
-import { getFirstGameOfWeek, getPaymentDue } from '../../api/collections/games';
-import { getAllMessages } from '../../api/collections/nfllogs';
-import { getCurrentUser } from '../../api/collections/users';
+import { getFirstGameOfWeekSync, getPaymentDue } from '../../api/collections/games';
+import { getAllMessagesSync } from '../../api/collections/nfllogs';
+import { hasSubmittedSurvivorPicksSync } from '../../api/collections/survivorpicks';
+import { getTiebreakerSync } from '../../api/collections/tiebreakers';
+import { getCurrentUserSync } from '../../api/collections/users';
 
 class Messages extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {};
 	}
 
-	_formatDate(dt, incTime) {
+	_formatDate (dt, incTime) {
 		const fmt = (incTime ? 'h:mma [on] ddd, MMM Do' : 'ddd, MMM Do');
 		return moment(dt).format(fmt);
 	}
 
-	render() {
-		const { currentUser, currentWeek, firstGame, messages, pageReady, paymentDue } = this.props,
-				paid = pageReady && currentUser.paid,
-				submittedPicks = pageReady && currentUser.tiebreakers.filter(tiebreaker => tiebreaker.week === currentWeek)[0].submitted,
-				submittedSurvivor = pageReady && (!currentUser.survivor.filter(s => s.week === currentWeek)[0] || currentUser.survivor.filter(s => s.week === currentWeek)[0].pick_id);
+	render () {
+		const { currentUser, currentWeek, firstGame, messages, pageReady, paymentDue, submittedSurvivor, tiebreaker } = this.props,
+				{ paid, survivor } = currentUser,
+				submittedPicks = tiebreaker.submitted;
 		return (
 			<div className="messages">
 				<h3 className="text-xs-center">Private Messages</h3>
-				<div className="inner-messages">
-					<div className="message-list">
-						{!paid ? <Message message={`Please pay before ${this._formatDate(paymentDue)}`} unread /> : null}
-						{!submittedPicks ? <Message message={`Your week ${currentWeek} picks are due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
-						{!submittedSurvivor ? <Message message={`Your week ${currentWeek} survivor pick is due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
-						{pageReady ? messages.map(message => <Message from={message.getUser()} msgId={'' + message._id} message={message.message} sent={this._formatDate(message.when, true)} unread={!message.is_read} key={'message' + message._id} />)
-							:
-							(
-								<div className="text-xs-center loading">Loading...
-									<br />
-									<i className="fa fa-spinner fa-pulse" />
-								</div>
-							)}
+				{pageReady ? (
+					<div className="inner-messages">
+						<div className="message-list">
+							{!paid ? <Message message={`Please pay before ${this._formatDate(paymentDue)}`} unread /> : null}
+							{!submittedPicks ? <Message message={`Your week ${currentWeek} picks are due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
+							{survivor && !submittedSurvivor ? <Message message={`Your week ${currentWeek} survivor pick is due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
+							{messages.map(message => <Message from={message.getUser()} msgId={'' + message._id} message={message.message} sent={this._formatDate(message.when, true)} unread={!message.is_read} key={'message' + message._id} />)}
+						</div>
 					</div>
-				</div>
+				)
+					:
+					(
+						<div className="text-xs-center loading">Loading...
+							<br />
+							<i className="fa fa-spinner fa-pulse" />
+						</div>
+					)}
 			</div>
 		);
 	}
@@ -57,36 +61,53 @@ Messages.propTypes = {
 	firstGame: PropTypes.object.isRequired,
 	messages: PropTypes.arrayOf(PropTypes.object).isRequired,
 	pageReady: PropTypes.bool.isRequired,
-	paymentDue: PropTypes.object
+	paymentDue: PropTypes.object,
+	submittedSurvivor: PropTypes.bool.isRequired,
+	tiebreaker: PropTypes.object.isRequired
 };
 
 export default createContainer(() => {
-	const currentUser = getCurrentUser.call({}, displayError),
+	const currentUser = getCurrentUserSync({}),
+			currentWeek = Session.get('currentWeek'),
+			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague),
+			tiebreakerReady = tiebreakerHandle.ready(),
+			survivorPicksHandle = Meteor.subscribe('mySurvivorPicks', currentLeague),
+			survivorPicksReady = survivorPicksHandle.ready(),
 			messagesHandle = Meteor.subscribe('allMessages'),
 			messagesReady = messagesHandle.ready(),
 			usersHandle = Meteor.subscribe('basicUsersInfo'),
 			usersReady = usersHandle.ready(),
-			currentWeek = Session.get('currentWeek'),
 			firstGameHandle = Meteor.subscribe('firstGameOfWeek', currentWeek),
 			firstGameReady = firstGameHandle.ready(),
+			week3GamesHandle = Meteor.subscribe('gamesForWeek', PAYMENT_DUE_WEEK),
+			week3GamesReady = week3GamesHandle.ready(),
 			paymentDue = Session.get('paymentDue');
-	getPaymentDue.call((err, due) => {
-		if (err) {
-			displayError(err);
-		} else {
-			Session.set('paymentDue', due);
-		}
-	});
 	let messages = [],
-			firstGame = {};
-	if (messagesReady) messages = getAllMessages.call({}, displayError);
-	if (firstGameReady) firstGame = getFirstGameOfWeek.call({ week: currentWeek }, displayError);
+			firstGame = {},
+			tiebreaker = {},
+			submittedSurvivor = false;
+	if (firstGameReady) firstGame = getFirstGameOfWeekSync({ week: currentWeek });
+	if (messagesReady) messages = getAllMessagesSync({});
+	if (survivorPicksReady) submittedSurvivor = hasSubmittedSurvivorPicksSync({ league: currentLeague, week: currentWeek });
+	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: currentWeek });
+	if (week3GamesReady) {
+		getPaymentDue.call({}, (err, due) => {
+			if (err) {
+				displayError(err);
+			} else {
+				Session.set('paymentDue', due);
+			}
+		});
+	}
 	return {
 		currentUser,
 		currentWeek,
 		firstGame,
 		messages,
-		pageReady: messagesReady && usersReady && firstGameReady,
-		paymentDue
+		pageReady: firstGameReady && messagesReady && survivorPicksReady && tiebreakerReady && usersReady && week3GamesReady,
+		paymentDue,
+		submittedSurvivor,
+		tiebreaker
 	};
 }, Messages);

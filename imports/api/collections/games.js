@@ -7,7 +7,7 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { MAX_GAMES_IN_WEEK, MIN_WEEK, WEEKS_IN_SEASON } from '../constants';
+import { MAX_GAMES_IN_WEEK, MIN_WEEK, PAYMENT_DUE_WEEK, WEEKS_IN_SEASON } from '../constants';
 import { displayError } from '../global';
 import { getTeamByID } from './teams';
 
@@ -81,8 +81,8 @@ export const getFirstGameOfWeek = new ValidatedMethod({
 	}).validator(),
 	run ({ week }) {
 		const firstGame = Game.findOne({ week, game: 1 });
-		if (firstGame) return firstGame;
-		throw new Meteor.Error(`No game 1 found for week ${week}`);
+		if (!firstGame) throw new Meteor.Error(`No game 1 found for week ${week}`);
+		return firstGame;
 	}
 });
 export const getFirstGameOfWeekSync = Meteor.wrapAsync(getFirstGameOfWeek.call, getFirstGameOfWeek);
@@ -141,8 +141,8 @@ export const getPaymentDue = new ValidatedMethod({
 	name: 'Game.getPaymentDue',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		let week3Games;
-		week3Games = Game.find({ week: 3 }, { sort: { game: -1 }, limit: 1 }).fetch();
+		const week3Games = Game.find({ week: PAYMENT_DUE_WEEK }, { sort: { game: -1 }, limit: 1 }).fetch();
+		if (!week3Games) throw new Meteor.Error('Games.getPaymentDue.noGamesFound', 'No games found for week 3');
 		return week3Games[0].kickoff;
 	}
 });

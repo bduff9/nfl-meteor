@@ -6,8 +6,10 @@ import { displayError } from '../../api/global';
 import { getLogByID } from '../../api/collections/nfllogs';
 
 export const Message = ({ from, msgId, message, sent, unread }) => {
-	const fromStr = from && `${from.first_name} ${from.last_name}`,
-			messageObj = getLogByID.call({ logId: msgId }, displayError);
+	const fromStr = from && `${from.first_name} ${from.last_name}`;
+	let messageObj;
+
+	if (msgId) messageObj = getLogByID.call({ logId: msgId }, displayError);
 
 	const _toggleMsgRead = ev => messageObj.toggleRead(unread, displayError);
 	const _deleteMsg = ev => messageObj.toggleDeleted(true, displayError);

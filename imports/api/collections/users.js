@@ -1,3 +1,4 @@
+/* globals _ */
 /* jshint -W079 */
 'use strict';
 
@@ -9,11 +10,11 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Email } from 'meteor/email';
 import { Class } from 'meteor/jagi:astronomy';
 
-import { dbVersion, DEFAULT_LEAGUE } from '../constants';
+import { dbVersion, DEFAULT_LEAGUE, POOL_EMAIL_FROM } from '../constants';
 import { logError, overallPlacer, weekPlacer } from '../global';
 import { Pick } from '../collections/picks';
 import { SurvivorPick } from '../collections/survivorpicks';
-import { Tiebreaker } from '../collections/tiebreakers';
+import { hasAllSubmittedSync, Tiebreaker } from '../collections/tiebreakers';
 import { writeLog } from './nfllogs';
 
 export const deleteUser = new ValidatedMethod({
@@ -139,26 +140,28 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
 	run ({ selectedWeek }) {
-		const users = User.find({ done_registering: true }).fetch(),
-				notSubmitted = users.filter(user => {
-					let tiebreaker = user.tiebreakers.filter(tb => tb.week === selectedWeek)[0];
-					return !tiebreaker.submitted;
-				});
-		if (Meteor.isServer && notSubmitted.length === 0) {
-			console.log(`All picks have been submitted for week ${selectedWeek}, sending emails...`);
-			users.forEach(user => {
-				Email.send({
-					to: user.email,
-					from: 'Brian Duffey <bduff9@gmail.com>',
-					subject: `[NFL Confidence Pool] All picks for week ${selectedWeek} have been submitted!`,
-					text: `Hello ${user.first_name},
+		if (Meteor.isServer) {
+			const users = User.find({ done_registering: true }, { fields: { leagues: 1 }}).fetch(),
+					leagues = _.chain(users).pluck('leagues').flatten().uniq().value();
+			leagues.forEach(league => {
+				let leagueUsers;
+				if (!hasAllSubmittedSync({ league, week: selectedWeek })) return;
+				console.log(`All picks have been submitted for week ${selectedWeek} in league ${league}, sending emails...`);
+				leagueUsers = User.find({ done_registering: true, leagues: league }).fetch();
+				leagueUsers.forEach(user => {
+					Email.send({
+						to: user.email,
+						from: POOL_EMAIL_FROM,
+						subject: `[NFL Confidence Pool] All picks for week ${selectedWeek} have been submitted!`,
+						text: `Hello ${user.first_name},
 
-					This is just a notice that all picks have now been submitted for week ${selectedWeek}.  You can log into the pool to view everyone's picks here: http://nfl.asitewithnoname.com
+						This is just a notice that all picks have now been submitted for week ${selectedWeek}.  You can log into the pool to view everyone's picks here: http://nfl.asitewithnoname.com
 
-					Good luck!`,
+						Good luck!`,
+					});
 				});
+				console.log('All emails sent!');
 			});
-			console.log('All emails sent!');
 		}
 	}
 });
@@ -176,7 +179,7 @@ export const sendWelcomeEmail = new ValidatedMethod({
 		admins.forEach(admin => {
 			Email.send({
 				to: admin.email,
-				from: 'Brian Duffey <bduff9@gmail.com>',
+				from: POOL_EMAIL_FROM,
 				subject: '[NFL Confidence Pool] New User Registration',
 				text: `Hello ${admin.first_name},
 
@@ -194,72 +197,7 @@ http://nfl.asitewithnoname.com/admin/users`,
 });
 export const sendWelcomeEmailSync = Meteor.wrapAsync(sendWelcomeEmail.call, sendWelcomeEmail);
 
-export const setSurvivorPick = new ValidatedMethod({
-	name: 'Users.survivor.setPick',
-	validate: new SimpleSchema({
-		gameId: { type: String, label: 'Game ID' },
-		teamId: { type: String, label: 'Team ID' },
-		teamShort: { type: String, label: 'Team Name' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
-	}).validator(),
-	run ({ gameId, teamId, teamShort, week }) {
-		if (!this.userId) throw new Meteor.Error('Users.survivor.setPick.notLoggedIn', 'Must be logged in to update survivor pool');
-		const user = User.findOne(this.userId),
-				survivorPicks = user.survivor,
-				pick = survivorPicks[week - 1],
-				usedIndex = survivorPicks.findIndex(pick => pick.pick_id === teamId);
-		if (pick.hasStarted()) throw new Meteor.Error('Users.survivor.setPick.gameAlreadyStarted', 'Cannot set survivor pick of a game that has already begun');
-		if (usedIndex > -1) throw new Meteor.Error('Users.survivor.setPick.alreadyUsedTeam', 'Cannot use a single team more than once in a survivor pool');
-		if (Meteor.isServer) {
-			User.update({ _id: this.userId, 'survivor.week': week }, { $set: { 'survivor.$.game_id': gameId, 'survivor.$.pick_id': teamId, 'survivor.$.pick_short': teamShort }});
-		}
-		writeLog.call({ action: 'SURVIVOR_PICK', message: `${user.first_name} ${user.last_name} just picked ${teamShort} for week ${week}`, userId: this.userId }, logError);
-	}
-});
-export const setSurvivorPickSync = Meteor.wrapAsync(setSurvivorPick.call, setSurvivorPick);
-
-export const setTiebreaker = new ValidatedMethod({
-	name: 'Users.setTiebreaker',
-	validate: new SimpleSchema({
-		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
-		lastScore: { type: Number, label: 'Last Score', min: 0 }
-	}).validator(),
-	run ({ selectedWeek, lastScore }) {
-		if (!this.userId) throw new Meteor.Error('Users.setTiebreaker.notLoggedIn', 'Must be logged in to update tiebreaker');
-		if (Meteor.isServer) {
-			if (lastScore > 0) {
-				User.update({ _id: this.userId, 'tiebreakers.week': selectedWeek }, { $set: { 'tiebreakers.$.last_score': lastScore }});
-			} else {
-				User.update({ _id: this.userId, 'tiebreakers.week': selectedWeek }, { $unset: { 'tiebreakers.$.last_score': 1 }});
-			}
-		}
-	}
-});
-export const setTiebreakerSync = Meteor.wrapAsync(setTiebreaker.call, setTiebreaker);
-
-export const submitPicks = new ValidatedMethod({
-	name: 'Users.submitPicks',
-	validate: new SimpleSchema({
-		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
-	}).validator(),
-	run ({ selectedWeek }) {
-		if (!this.userId) throw new Meteor.Error('Users.submitPicks.notLoggedIn', 'Must be logged in to submit picks');
-		const user = User.findOne(this.userId),
-				picks = user.picks,
-				tiebreaker = user.tiebreakers.filter(tiebreaker => tiebreaker.week === selectedWeek)[0];
-		let noPicks = picks.filter(pick => pick.week === selectedWeek && pick.game !== 0 && !pick.hasStarted() && !pick.pick_id && !pick.pick_short && !pick.points);
-		if (noPicks.length > 0) throw new Meteor.Error('Users.submitPicks.missingPicks', 'You must complete all picks for the week before submitting');
-		if (!tiebreaker.last_score) throw new Meteor.Error('Users.submitPicks.noTiebreakerScore', 'You must submit a tiebreaker score for the last game of the week');
-		if (Meteor.isServer) {
-			tiebreaker.submitted = true;
-			user.save();
-			sendAllPicksInEmail.call({ selectedWeek }, logError);
-		}
-		writeLog.call({ action: 'SUBMIT_PICKS', message: `${user.first_name} ${user.last_name} has just submitted their week ${selectedWeek} picks`, userId: this.userId }, logError);
-	}
-});
-export const submitPicksSync = Meteor.wrapAsync(submitPicks.call, submitPicks);
-
+//TODO: get tiebreaker via method
 export const updatePlaces = new ValidatedMethod({
 	name: 'Users.tiebreakers.updatePlaces',
 	validate: new SimpleSchema({
@@ -318,6 +256,7 @@ export const updatePlaces = new ValidatedMethod({
 });
 export const updatePlacesSync = Meteor.wrapAsync(updatePlaces.call, updatePlaces);
 
+//TODO: get picks and tiebreakers via methods
 export const updatePoints = new ValidatedMethod({
 	name: 'Users.updatePoints',
 	validate: new SimpleSchema({}).validator(),
@@ -369,6 +308,7 @@ export const updateSelectedWeek = new ValidatedMethod({
 });
 export const updateSelectedWeekSync = Meteor.wrapAsync(updateSelectedWeek.call, updateSelectedWeek);
 
+//TODO: move to survivorpicks
 export const updateSurvivor = new ValidatedMethod({
 	name: 'Users.survivor.update',
 	validate: new SimpleSchema({

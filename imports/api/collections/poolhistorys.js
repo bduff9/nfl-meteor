@@ -55,7 +55,7 @@ if (dbVersion > 1) {
 			league: String,
 			type: {
 				type: String,
-				validators: [{ type: 'choice', param: ['O', 'W'] }]
+				validators: [{ type: 'choice', param: ['O', 'S', 'W'] }]
 			},
 			week: {
 				type: Number,

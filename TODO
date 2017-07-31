@@ -1,6 +1,5 @@
 Registration:
-	Go through collections/users.js to remove all refs to picks, survivor, tiebreakers
 	Check survivor pool screens
-	Remove old picks, tiebreakers, survivor on register in case something went wrong
-	Set unique index for picks, tiebreakers, survivor
+		- Cannot make a survivor pick yet
+		- Show bert alert on selection
 	More async v. sync

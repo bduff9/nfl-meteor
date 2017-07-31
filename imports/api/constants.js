@@ -22,10 +22,16 @@ export const POOL_COST = 30;
 export const SURVIVOR_COST = 5;
 
 /**
+ * How many people win survivor payouts
+ */
+export const SURVIVOR_WINNERS = 3;
+
+/**
  * How many to insert into the pool history
  */
 export const TOP_WEEKLY_FOR_HISTORY = 2;
 export const TOP_OVERALL_FOR_HISTORY = 3;
+export const TOP_SURVIVOR_FOR_HISTORY = 1;
 
 /**
  * Actions for logging

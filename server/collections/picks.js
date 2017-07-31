@@ -17,3 +17,15 @@ export const addPick = new ValidatedMethod({
 	}
 });
 export const addPickSync = Meteor.wrapAsync(addPick.call, addPick);
+
+export const removeAllPicksForUser = new ValidatedMethod({
+	name: 'Picks.removeAllPicksForUser',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League', optional: true },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ league, user_id }) {
+		if (Meteor.isServer) Pick.remove({ league, user_id }, { multi: true });
+	}
+});
+export const removeAllPicksForUserSync = Meteor.wrapAsync(removeAllPicksForUser.call, removeAllPicksForUser);

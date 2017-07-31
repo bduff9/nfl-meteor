@@ -12,10 +12,10 @@ import { Class } from 'meteor/jagi:astronomy';
 
 import { dbVersion, DEFAULT_LEAGUE, POOL_EMAIL_FROM } from '../constants';
 import { logError, overallPlacer, weekPlacer } from '../global';
-import { Pick } from '../collections/picks';
-import { SurvivorPick } from '../collections/survivorpicks';
-import { hasAllSubmittedSync, Tiebreaker } from '../collections/tiebreakers';
-import { writeLog } from './nfllogs';
+import { getAllPicksForUserSync, Pick } from './picks';
+import { getMySurvivorPicksSync, markUserDeadSync, SurvivorPick } from './survivorpicks';
+import { getAllTiebreakersForUserSync, getTiebreakerSync, hasAllSubmittedSync, Tiebreaker } from './tiebreakers';
+import { endOfSurvivorMessage, writeLog } from './nfllogs';
 
 export const deleteUser = new ValidatedMethod({
 	name: 'Users.deleteUser',
@@ -41,6 +41,17 @@ export const getAdminUsers = new ValidatedMethod({
 	}
 });
 export const getAdminUsersSync = Meteor.wrapAsync(getAdminUsers.call, getAdminUsers);
+
+export const getAllLeagues = new ValidatedMethod({
+	name: 'Users.getAllLeagues',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		const users = User.find({ done_registering: true }, { fields: { leagues: 1 }}).fetch(),
+				leagues = _.chain(users).pluck('leagues').flatten().uniq().value();
+		return leagues;
+	}
+});
+export const getAllLeaguesSync = Meteor.wrapAsync(getAllLeagues.call, getAllLeagues);
 
 export const getCurrentUser = new ValidatedMethod({
 	name: 'Users.getCurrentUser',
@@ -141,8 +152,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 	}).validator(),
 	run ({ selectedWeek }) {
 		if (Meteor.isServer) {
-			const users = User.find({ done_registering: true }, { fields: { leagues: 1 }}).fetch(),
-					leagues = _.chain(users).pluck('leagues').flatten().uniq().value();
+			const leagues = getAllLeagues.call({}, logError);
 			leagues.forEach(league => {
 				let leagueUsers;
 				if (!hasAllSubmittedSync({ league, week: selectedWeek })) return;
@@ -197,16 +207,16 @@ http://nfl.asitewithnoname.com/admin/users`,
 });
 export const sendWelcomeEmailSync = Meteor.wrapAsync(sendWelcomeEmail.call, sendWelcomeEmail);
 
-//TODO: get tiebreaker via method
 export const updatePlaces = new ValidatedMethod({
 	name: 'Users.tiebreakers.updatePlaces',
 	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
 		week: { type: Number, label: 'Week' }
 	}).validator(),
-	run ({ week }) {
-		let ordUsers = User.find({ 'done_registering': true }).fetch().sort(weekPlacer.bind(null, week));
+	run ({ league, week }) {
+		let ordUsers = User.find({ done_registering: true, leagues: league }).fetch().sort(weekPlacer.bind(null, week));
 		ordUsers.forEach((user, i, allUsers) => {
-			const tiebreaker = user.tiebreakers.filter(t => t.week === week)[0];
+			const tiebreaker = getTiebreakerSync({ league, user_id: user._id, week });
 			let currPlace = i + 1,
 					nextUser, result, nextTiebreaker;
 			if (!tiebreaker.tied_flag || i === 0) {
@@ -217,7 +227,7 @@ export const updatePlaces = new ValidatedMethod({
 			nextUser = allUsers[i + 1];
 			if (nextUser) {
 				result = weekPlacer(week, user, nextUser);
-				nextTiebreaker = nextUser.tiebreakers.filter(t => t.week === week)[0];
+				nextTiebreaker = getTiebreakerSync({ league, user_id: nextUser._id, week });
 				if (result === 0) {
 					tiebreaker.tied_flag = true;
 					nextTiebreaker.place_in_week = currPlace;
@@ -227,6 +237,8 @@ export const updatePlaces = new ValidatedMethod({
 					nextTiebreaker.tied_flag = false;
 				}
 			}
+			tiebreaker.save();
+			nextTiebreaker.save();
 		});
 		ordUsers = ordUsers.sort(overallPlacer);
 		ordUsers.forEach((user, i, allUsers) => {
@@ -256,16 +268,17 @@ export const updatePlaces = new ValidatedMethod({
 });
 export const updatePlacesSync = Meteor.wrapAsync(updatePlaces.call, updatePlaces);
 
-//TODO: get picks and tiebreakers via methods
 export const updatePoints = new ValidatedMethod({
 	name: 'Users.updatePoints',
-	validate: new SimpleSchema({}).validator(),
-	run () {
-		const allUsers = User.find({ 'done_registering': true });
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' }
+	}).validator(),
+	run ({ league }) {
+		const allUsers = User.find({ done_registering: true, leagues: league });
 		let picks, tiebreakers, games, points, weekGames, weekPoints;
 		allUsers.forEach(user => {
-			picks = user.picks;
-			tiebreakers = user.tiebreakers;
+			picks = getAllPicksForUserSync({ league, user_id: user._id });
+			tiebreakers = getAllTiebreakersForUserSync({ league, user_id: user._id });
 			games = 0;
 			points = 0;
 			weekGames = new Array(18).fill(0);
@@ -283,6 +296,7 @@ export const updatePoints = new ValidatedMethod({
 			tiebreakers.forEach(week => {
 				week.games_correct = weekGames[week.week];
 				week.points_earned = weekPoints[week.week];
+				week.save();
 			});
 			user.total_games = games;
 			user.total_points = points;
@@ -308,36 +322,36 @@ export const updateSelectedWeek = new ValidatedMethod({
 });
 export const updateSelectedWeekSync = Meteor.wrapAsync(updateSelectedWeek.call, updateSelectedWeek);
 
-//TODO: move to survivorpicks
 export const updateSurvivor = new ValidatedMethod({
 	name: 'Users.survivor.update',
 	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
 		week: { type: Number, label: 'Week' }
 	}).validator(),
-	run ({ week }) {
-		const allUsers = User.find({ 'done_registering': true }).fetch();
+	run ({ league, week }) {
+		const allUsers = User.find({ done_registering: true, leagues: league }).fetch();
 		let wasAlive = 0,
 				nowAlive = 0;
 		allUsers.forEach(user => {
-			let alive = user.survivor.length === 17;
+			const survivorPicks = getMySurvivorPicksSync({ league, user_id: user._id });
+			let alive = survivorPicks.length === 17;
 			if (!alive) return;
 			wasAlive++;
-			user.survivor.every((pick, i) => {
-				if (!pick.pick_id && pick.week <= week) pick.winner_id = 'MISSED';
+			survivorPicks.every((pick, i) => {
+				if (!pick.pick_id && pick.week <= week) {
+					pick.winner_id = 'MISSED';
+					pick.save();
+				}
 				if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
 				if (!alive) {
-					user.survivor.length = pick.week;
+					markUserDeadSync({ league, user_id: pick.user_id, weekDead: pick.week });
 					return false;
 				}
 				nowAlive++;
 				return true;
 			});
-			user.save();
 		});
-		if (nowAlive === 0 && wasAlive > 0) {
-			//TODO: handle end of survivor pool here with a message to everyone and insert records into pool history
-
-		}
+		if (nowAlive === 0 && wasAlive > 0) endOfSurvivorMessage.call({ league }, logError);
 	}
 });
 export const updateSurvivorSync = Meteor.wrapAsync(updateSurvivor.call, updateSurvivor);

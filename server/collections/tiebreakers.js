@@ -37,6 +37,18 @@ export const getTiebreakerFromServer = new ValidatedMethod({
 });
 export const getTiebreakerFromServerSync = Meteor.wrapAsync(getTiebreakerFromServer.call, getTiebreakerFromServer);
 
+export const removeAllTiebreakersForUser = new ValidatedMethod({
+	name: 'Tiebreakers.removeAllTiebreakersForUser',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ league, user_id }) {
+		if (Meteor.isServer) Tiebreaker.remove({ league, user_id }, { multi: true });
+	}
+});
+export const removeAllTiebreakersForUserSync = Meteor.wrapAsync(removeAllTiebreakersForUser.call, removeAllTiebreakersForUser);
+
 export const updateLastGameOfWeekScore = new ValidatedMethod({
 	name: 'Tiebreakers.updateLastGameOfWeekScore',
 	validate: new SimpleSchema({

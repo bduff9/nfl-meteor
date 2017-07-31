@@ -17,3 +17,15 @@ export const addSurvivorPick = new ValidatedMethod({
 	}
 });
 export const addSurvivorPickSync = Meteor.wrapAsync(addSurvivorPick.call, addSurvivorPick);
+
+export const removeAllSurvivorPicksForUser = new ValidatedMethod({
+	name: 'SurvivorPicks.removeAllSurvivorPicksForUser',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League', optional: true },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ league, user_id }) {
+		if (Meteor.isServer) SurvivorPick.remove({ league, user_id }, { multi: true });
+	}
+});
+export const removeAllSurvivorPicksForUserSync = Meteor.wrapAsync(removeAllSurvivorPicksForUser.call, removeAllSurvivorPicksForUser);

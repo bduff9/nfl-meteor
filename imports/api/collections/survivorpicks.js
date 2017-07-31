@@ -35,16 +35,54 @@ export const getAllSurvivorPicksSync = Meteor.wrapAsync(getAllSurvivorPicks.call
 export const getMySurvivorPicks = new ValidatedMethod({
 	name: 'SurvivorPicks.getMySurvivorPicks',
 	validate: new SimpleSchema({
-		league: { type: String, label: 'League' }
+		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID', optional: true }
 	}).validator(),
-	run ({ league }) {
-		const user_id = this.userId,
-				picks = SurvivorPick.find({ league, user_id }, { sort: { week: 1 } }).fetch();
+	run ({ league, user_id = this.userId }) {
+		const picks = SurvivorPick.find({ league, user_id }, { sort: { week: 1 } }).fetch();
 		if (!user_id) throw new Meteor.Error('You are not signed in');
 		return picks;
 	}
 });
 export const getMySurvivorPicksSync = Meteor.wrapAsync(getMySurvivorPicks.call, getMySurvivorPicks);
+
+export const getSortedSurvivorPicks = new ValidatedMethod({
+	name: 'SurvivorPicks.getSortedSurvivorPicks',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' }
+	}).validator(),
+	run ({ league }) {
+		const picks = SurvivorPick.find({ league }, { sort: { user_id: 1, week: 1 } }).fetch();
+		let pickObjs = [],
+				currPlace = 1;
+		picks.forEach(pick => {
+			const userArr = pickObjs.filter(p => p.user_id === pick.user_id);
+			if (userArr.length) {
+				userArr[0].weeks++;
+			} else {
+				const user = { user_id: pick.user_id, weeks: 1, place: -1, tied: false };
+				pickObjs.push(user);
+			}
+		});
+		pickObjs.sort((pickA, pickB) => {
+			if (pickA.weeks > pickB.weeks) return -1;
+			if (pickA.weeks < pickB.weeks) return 1;
+			return 0;
+		});
+		pickObjs.forEach((pick, i, allPicks) => {
+			const nextPick = allPicks[i + 1];
+			pick.place = currPlace;
+			if (pick.weeks === nextPick.weeks) {
+				pick.tied = true;
+				nextPick.tied = true;
+			} else {
+				currPlace++;
+			}
+		});
+		return pickObjs;
+	}
+});
+export const getSortedSurvivorPicksSync = Meteor.wrapAsync(getSortedSurvivorPicks.call, getSortedSurvivorPicks);
 
 export const getWeekSurvivorPicks = new ValidatedMethod({
 	name: 'SurvivorPicks.getWeekSurvivorPicks',
@@ -73,6 +111,19 @@ export const hasSubmittedSurvivorPicks = new ValidatedMethod({
 	}
 });
 export const hasSubmittedSurvivorPicksSync = Meteor.wrapAsync(hasSubmittedSurvivorPicks.call, hasSubmittedSurvivorPicks);
+
+export const markUserDead = new ValidatedMethod({
+	name: 'SurvivorPicks.markUserDead',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID' },
+		weekDead: { type: Number, label: 'Week', min: 1, max: 17 }
+	}).validator(),
+	run ({ league, user_id, weekDead }) {
+		SurvivorPick.remove({ league, user_id, week: { $gt: weekDead }}, { multi: true });
+	}
+});
+export const markUserDeadSync = Meteor.wrapAsync(markUserDead.sync, markUserDead);
 
 export const migrateSurvivorPicksForUser = new ValidatedMethod({
 	name: 'SurvivorPicks.migrateSurvivorPicksForUser',

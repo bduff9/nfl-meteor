@@ -96,6 +96,20 @@ export const getAllPicks = new ValidatedMethod({
 });
 export const getAllPicksSync = Meteor.wrapAsync(getAllPicks.call, getAllPicks);
 
+export const getAllPicksForUser = new ValidatedMethod({
+	name: 'Picks.getAllPicksForUser',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ league, user_id }) {
+		const picks = Pick.find({ league, user_id }, { sort: { week: 1, game: 1 } }).fetch();
+		if (!picks) throw new Meteor.Error(`No picks found for user ${user_id}`);
+		return picks;
+	}
+});
+export const getAllPicksForUserSync = Meteor.wrapAsync(getAllPicksForUser.call, getAllPicksForUser);
+
 export const getAllPicksForWeek = new ValidatedMethod({
 	name: 'Picks.getAllPicksForWeek',
 	validate: new SimpleSchema({
@@ -116,10 +130,10 @@ export const getPicksForWeek = new ValidatedMethod({
 	name: 'Picks.getPicksForWeek',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID', optional: true },
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run ({ league, week }) {
-		const user_id = this.userId;
+	run ({ league, user_id = this.userId, week }) {
 		const picks = Pick.find({ league, user_id, week }, { sort: { game: 1 } }).fetch();
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
 		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);

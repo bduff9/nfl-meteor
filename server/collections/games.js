@@ -6,9 +6,9 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Game } from '../../imports/api/collections/games';
-import { addPickSync } from './picks';
-import { addSurvivorPickSync } from './survivorpicks';
-import { addTiebreakerSync } from './tiebreakers';
+import { addPickSync, removeAllPicksForUserSync } from './picks';
+import { addSurvivorPickSync, removeAllSurvivorPicksForUserSync } from './survivorpicks';
+import { addTiebreakerSync, removeAllTiebreakersForUserSync } from './tiebreakers';
 
 /**
  * All server side game logic
@@ -31,6 +31,7 @@ export const getEmptyUserPicks = new ValidatedMethod({
 					game: game.game
 				};
 			});
+			removeAllPicksForUserSync({ league, user_id });
 			picks.forEach(pick => {
 				addPickSync({ pick });
 			});
@@ -54,6 +55,7 @@ export const getEmptyUserSurvivorPicks = new ValidatedMethod({
 					week: game.week
 				};
 			});
+			removeAllSurvivorPicksForUserSync({ league, user_id });
 			survivorPicks.forEach(survivorPick => {
 				addSurvivorPickSync({ survivorPick });
 			});
@@ -77,6 +79,7 @@ export const getEmptyUserTiebreakers = new ValidatedMethod({
 					week: game.week
 				};
 			});
+			removeAllTiebreakersForUserSync({ league, user_id });
 			tiebreakers.forEach(tiebreaker => {
 				addTiebreakerSync({ tiebreaker });
 			});

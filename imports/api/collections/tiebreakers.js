@@ -17,6 +17,20 @@ import { getUserByID, getUserNameSync, sendAllPicksInEmail } from './users';
  * @since 2017-06-26
  */
 
+export const getAllTiebreakersForUser = new ValidatedMethod({
+	name: 'Tiebreakers.getAllTiebreakersForUser',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ league, user_id }) {
+		const tbs = Tiebreaker.find({ league, user_id }, { sort: { week: 1 }}).fetch();
+		if (!tbs) throw new Meteor.Error(`No tiebreakers found for user ${user_id}`);
+		return tbs;
+	}
+});
+export const getAllTiebreakersForUserSync = Meteor.wrapAsync(getAllTiebreakersForUser.call, getAllTiebreakersForUser);
+
 export const getAllTiebreakersForWeek = new ValidatedMethod({
 	name: 'Tiebreakers.getAllTiebreakersForWeek',
 	validate: new SimpleSchema({
@@ -39,10 +53,10 @@ export const getTiebreaker = new ValidatedMethod({
 	name: 'Tiebreaker.getTiebreaker',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID', optional: true },
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
-	run ({ league, week }) {
-		const user_id = this.userId;
+	run ({ league, user_id = this.userId, week }) {
 		const tb = Tiebreaker.findOne({ league, user_id, week });
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
 		if (!tb) throw new Meteor.Error('No tiebreaker found');

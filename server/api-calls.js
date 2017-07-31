@@ -8,13 +8,13 @@ import { HTTP } from 'meteor/http';
 
 import { WEEKS_IN_SEASON } from '../imports/api/constants';
 import { convertEpoch, logError } from '../imports/api/global';
-import { findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
+import { currentWeek, findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
+import { endOfWeekMessage } from './collections/nfllogs';
+import { assignPointsToMissed } from '../imports/api/collections/picks';
 import { toggleGamesUpdating } from '../imports/api/collections/systemvals';
 import { getTeamByShortSync } from '../imports/api/collections/teams';
 import { updateLastGameOfWeekScore } from './collections/tiebreakers';
-import { assignPointsToMissed, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
-import { currentWeek } from '../imports/api/collections/games';
-import { endOfWeekMessage } from './collections/nfllogs';
+import { getAllLeaguesSync, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 
 API = {
 	getGamesForWeek (week) {
@@ -232,14 +232,17 @@ API = {
 			// Updated 2016-09-13 to improve update performance
 			if (justCompleted > 0 || gameCount === completeCount) {
 				console.log(`${(gameCount === completeCount ? `All games complete for week ${w}` : `${justCompleted} games newly complete for week ${w}`)}, now updating users...`);
-				updatePoints.call(err => {
-					if (err) console.error('updatePoints', err);
-				});
-				updatePlaces.call({ week: w }, err => {
-					if (err) console.error('updatePlaces', err);
-				});
-				updateSurvivor.call({ week: w }, err => {
-					if (err) console.error('updateSurvivor', err);
+				const leagues = getAllLeaguesSync({});
+				leagues.forEach(league => {
+					updatePoints.call({ league }, err => {
+						if (err) console.error('updatePoints', err);
+					});
+					updatePlaces.call({ league, week: w }, err => {
+						if (err) console.error('updatePlaces', err);
+					});
+					updateSurvivor.call({ league, week: w }, err => {
+						if (err) console.error('updateSurvivor', err);
+					});
 				});
 				if (gameCount === completeCount) endOfWeekMessage.call({ week: w }, logError);
 				console.log(`Finished updating users for week ${w}!`);

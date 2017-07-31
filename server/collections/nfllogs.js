@@ -4,13 +4,51 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { TOP_WEEKLY_FOR_HISTORY } from '../../imports/api/constants';
+import { SURVIVOR_WINNERS, TOP_SURVIVOR_FOR_HISTORY, TOP_WEEKLY_FOR_HISTORY } from '../../imports/api/constants';
 import { formattedPlace, logError } from '../../imports/api/global';
 import { NFLLog } from '../../imports/api/collections/nfllogs';
 import { addPoolHistory } from '../../imports/api/collections/poolhistorys';
+import { getSortedSurvivorPicksSync } from '../../imports/api/collections/survivorpicks';
 import { getSystemValues } from '../../imports/api/collections/systemvals';
 import { getTiebreakerFromServer } from './tiebreakers';
 import { getUsers } from '../../imports/api/collections/users';
+
+export const endOfSurvivorMessage = new ValidatedMethod({
+	name: 'NFLLogs.endOfSurvivorMessage',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' }
+	}).validator(),
+	run ({ league }) {
+		const users = getSortedSurvivorPicksSync({ league });
+		const MESSAGE = 'The survivor pool is now over.';
+		const systemVals = getSystemValues.call({}, logError);
+		const currentYear = systemVals.year_updated;
+		users.forEach(user => {
+			const user_id = user._id;
+			const place = user.place;
+			const tied = user.tied;
+			const message = `${MESSAGE}  You finished ${tied ? 'tied for' : 'in'} ${formattedPlace(place)} place.  ${(place <= SURVIVOR_WINNERS ? 'Congrats!' : '')}`;
+			const logEntry = new NFLLog({
+				action: 'MESSAGE',
+				when: new Date(),
+				message,
+				to_id: user_id
+			});
+			logEntry.save();
+			if (place <= TOP_SURVIVOR_FOR_HISTORY) {
+				const poolHistory = {
+					user_id,
+					year: currentYear,
+					league,
+					type: 'S',
+					place
+				};
+				addPoolHistory.call({ poolHistory }, logError);
+			}
+		});
+	}
+});
+export const endOfSurvivorMessageSync = Meteor.wrapAsync(endOfSurvivorMessage.call, endOfSurvivorMessage);
 
 export const endOfWeekMessage = new ValidatedMethod({
 	name: 'NFLLog.insert.endOfWeekMessage',

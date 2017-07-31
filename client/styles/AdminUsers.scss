@@ -18,6 +18,14 @@
         color: red;
       }
 
+      &.survivor {
+        color: green;
+      }
+
+      &.no-survivor {
+        color: black;
+      }
+
       &.add-bonus {
         color: blue;
       }

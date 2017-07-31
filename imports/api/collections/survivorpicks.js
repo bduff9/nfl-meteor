@@ -7,10 +7,10 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
-import { displayError, logError } from '../../api/global';
-import { gameHasStarted } from './games';
+import { logError } from '../../api/global';
+import { gameHasStartedSync } from './games';
 import { writeLog } from './nfllogs';
-import { getTeamByID } from './teams';
+import { getTeamByIDSync } from './teams';
 import { getUserNameSync } from './users';
 
 /**
@@ -149,10 +149,11 @@ export const setSurvivorPick = new ValidatedMethod({
 	run ({ gameId, league, teamId, teamShort, week }) {
 		const user_id = this.userId;
 		if (!user_id) throw new Meteor.Error('SurvivorPicks.setPick.notLoggedIn', 'Must be logged in to update survivor pool');
-		const survivorPicks = SurvivorPick.findOne({ league, user_id }),
-				pick = survivorPicks.filter(pick => pick.week === week),
+		const survivorPicks = SurvivorPick.find({ league, user_id }).fetch(),
+				pick = survivorPicks.filter(pick => pick.week === week)[0],
 				usedIndex = survivorPicks.findIndex(pick => pick.pick_id === teamId);
-		if (pick.hasStarted()) throw new Meteor.Error('SurvivorPicks.setPick.gameAlreadyStarted', 'Cannot set survivor pick of a game that has already begun');
+		if (pick.game_id && pick.hasStarted()) throw new Meteor.Error('SurvivorPicks.setPick.gameAlreadyStarted', 'Cannot change survivor pick for a game that has already begun');
+		if (gameHasStartedSync({ gameId })) throw new Meteor.Error('SurvivorPicks.setPick.gameAlreadyStarted', 'Cannot set survivor pick of a game that has already begun');
 		if (usedIndex > -1) throw new Meteor.Error('SurvivorPicks.setPick.alreadyUsedTeam', 'Cannot use a single team more than once in a survivor pool');
 		if (Meteor.isServer) {
 			pick.game_id = gameId;
@@ -202,11 +203,11 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			getTeam () {
-				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
+				const team = getTeamByIDSync({ teamId: this.pick_id });
 				return team;
 			},
 			hasStarted () {
-				return gameHasStarted.call({ gameId: this.game_id }, displayError);
+				return gameHasStartedSync({ gameId: this.game_id });
 			}
 		}
 	});
@@ -248,11 +249,11 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			getTeam () {
-				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
+				const team = getTeamByIDSync({ teamId: this.pick_id });
 				return team;
 			},
 			hasStarted () {
-				return gameHasStarted.call({ gameId: this.game_id }, displayError);
+				return gameHasStartedSync({ gameId: this.game_id });
 			}
 		},
 		indexes: {

@@ -12,10 +12,10 @@ import { Class } from 'meteor/jagi:astronomy';
 
 import { dbVersion, DEFAULT_LEAGUE, POOL_EMAIL_FROM } from '../constants';
 import { logError, overallPlacer, weekPlacer } from '../global';
-import { getAllPicksForUserSync, Pick } from './picks';
-import { getMySurvivorPicksSync, markUserDeadSync, SurvivorPick } from './survivorpicks';
-import { getAllTiebreakersForUserSync, getTiebreakerSync, hasAllSubmittedSync, Tiebreaker } from './tiebreakers';
-import { endOfSurvivorMessage, writeLog } from './nfllogs';
+import { writeLog } from './nfllogs';
+import { getAllPicksForUser, Pick } from './picks';
+import { getMySurvivorPicks, markUserDead, SurvivorPick } from './survivorpicks';
+import { getAllTiebreakersForUser, getTiebreaker, hasAllSubmitted, Tiebreaker } from './tiebreakers';
 
 export const deleteUser = new ValidatedMethod({
 	name: 'Users.deleteUser',
@@ -152,10 +152,10 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 	}).validator(),
 	run ({ selectedWeek }) {
 		if (Meteor.isServer) {
-			const leagues = getAllLeagues.call({}, logError);
+			const leagues = getAllLeagues.call({});
 			leagues.forEach(league => {
 				let leagueUsers;
-				if (!hasAllSubmittedSync({ league, week: selectedWeek })) return;
+				if (!hasAllSubmitted.call({ league, week: selectedWeek })) return;
 				console.log(`All picks have been submitted for week ${selectedWeek} in league ${league}, sending emails...`);
 				leagueUsers = User.find({ done_registering: true, leagues: league }).fetch();
 				leagueUsers.forEach(user => {
@@ -216,7 +216,7 @@ export const updatePlaces = new ValidatedMethod({
 	run ({ league, week }) {
 		let ordUsers = User.find({ done_registering: true, leagues: league }).fetch().sort(weekPlacer.bind(null, week));
 		ordUsers.forEach((user, i, allUsers) => {
-			const tiebreaker = getTiebreakerSync({ league, user_id: user._id, week });
+			const tiebreaker = getTiebreaker.call({ league, user_id: user._id, week });
 			let currPlace = i + 1,
 					nextUser, result, nextTiebreaker;
 			if (!tiebreaker.tied_flag || i === 0) {
@@ -227,7 +227,7 @@ export const updatePlaces = new ValidatedMethod({
 			nextUser = allUsers[i + 1];
 			if (nextUser) {
 				result = weekPlacer(week, user, nextUser);
-				nextTiebreaker = getTiebreakerSync({ league, user_id: nextUser._id, week });
+				nextTiebreaker = getTiebreaker.call({ league, user_id: nextUser._id, week });
 				if (result === 0) {
 					tiebreaker.tied_flag = true;
 					nextTiebreaker.place_in_week = currPlace;
@@ -236,9 +236,9 @@ export const updatePlaces = new ValidatedMethod({
 					if (i === 0) tiebreaker.tied_flag = false;
 					nextTiebreaker.tied_flag = false;
 				}
+				nextTiebreaker.save();
 			}
 			tiebreaker.save();
-			nextTiebreaker.save();
 		});
 		ordUsers = ordUsers.sort(overallPlacer);
 		ordUsers.forEach((user, i, allUsers) => {
@@ -277,8 +277,8 @@ export const updatePoints = new ValidatedMethod({
 		const allUsers = User.find({ done_registering: true, leagues: league });
 		let picks, tiebreakers, games, points, weekGames, weekPoints;
 		allUsers.forEach(user => {
-			picks = getAllPicksForUserSync({ league, user_id: user._id });
-			tiebreakers = getAllTiebreakersForUserSync({ league, user_id: user._id });
+			picks = getAllPicksForUser.call({ league, user_id: user._id });
+			tiebreakers = getAllTiebreakersForUser.call({ league, user_id: user._id });
 			games = 0;
 			points = 0;
 			weekGames = new Array(18).fill(0);
@@ -333,7 +333,7 @@ export const updateSurvivor = new ValidatedMethod({
 		let wasAlive = 0,
 				nowAlive = 0;
 		allUsers.forEach(user => {
-			const survivorPicks = getMySurvivorPicksSync({ league, user_id: user._id });
+			const survivorPicks = getMySurvivorPicks.call({ league, user_id: user._id });
 			let alive = survivorPicks.length === 17;
 			if (!alive) return;
 			wasAlive++;
@@ -344,14 +344,14 @@ export const updateSurvivor = new ValidatedMethod({
 				}
 				if (pick.winner_id && pick.pick_id !== pick.winner_id) alive = false;
 				if (!alive) {
-					markUserDeadSync({ league, user_id: pick.user_id, weekDead: pick.week });
+					markUserDead.call({ league, user_id: pick.user_id, weekDead: pick.week });
 					return false;
 				}
 				nowAlive++;
 				return true;
 			});
 		});
-		if (nowAlive === 0 && wasAlive > 0) endOfSurvivorMessage.call({ league }, logError);
+		if (nowAlive === 0 && wasAlive > 0) Meteor.call('NFLLogs.endOfSurvivorMessage', { league }, logError);
 	}
 });
 export const updateSurvivorSync = Meteor.wrapAsync(updateSurvivor.call, updateSurvivor);
@@ -384,17 +384,19 @@ export const updateUserAdmin = new ValidatedMethod({
 	validate: new SimpleSchema({
 		isAdmin: { type: Boolean, label: 'Is Administrator', optional: true },
 		paid: { type: Boolean, label: 'Has Paid', optional: true },
+		survivor: { type: Boolean, label: 'Has Survivor', optional: true },
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
-	run ({ isAdmin, paid, userId }) {
+	run ({ isAdmin, paid, survivor, userId }) {
 		const myUser = User.findOne(this.userId),
 				user = User.findOne(userId);
 		if (!this.userId || !myUser.is_admin) throw new Meteor.Error('Users.update.notLoggedIn', 'Not authorized to admin functions');
-		if (isAdmin !== null) user.is_admin = isAdmin;
-		if (paid !== null) {
+		if (isAdmin != null) user.is_admin = isAdmin;
+		if (paid != null) {
 			user.paid = paid;
 			if (paid) writeLog.call({ action: 'PAID', message: `${user.first_name} ${user.last_name} has paid`, userId }, logError);
 		}
+		if (survivor != null) user.survivor = survivor;
 		user.save();
 	}
 });

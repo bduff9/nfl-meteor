@@ -89,7 +89,6 @@ class MakePicks extends Component {
 		} else {
 			setTimeout(() => {
 				submitPicks.call({ league: currentLeague, week: selectedWeek }, (err) => {
-					console.log(err);
 					if (err) {
 						displayError(err);
 					} else {

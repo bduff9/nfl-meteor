@@ -27,8 +27,8 @@ NFLPool.propTypes = {
 };
 
 export default createContainer(() => {
-	const userHandle = Meteor.subscribe('userData');
-	let userReady = userHandle.ready();
+	const userHandle = Meteor.subscribe('userData'),
+			userReady = userHandle.ready();
 	return {
 		pageReady: !Meteor.loggingIn() && userReady,
 		user: Meteor.user()

@@ -47,13 +47,13 @@ const make2017Changes = function make2017Changes (migration) {
 		const overallHistory = {
 			user_id: user._id,
 			year: lastUpdated,
-			league: user.league,
+			league: user.league || DEFAULT_LEAGUE,
 			type: 'O'
 		};
 		const history = {
 			user_id: user._id,
 			year: lastUpdated,
-			league: user.league,
+			league: user.league || DEFAULT_LEAGUE,
 			type: 'W'
 		};
 		user.tiebreakers.forEach(week => {

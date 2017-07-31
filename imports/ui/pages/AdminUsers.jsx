@@ -11,26 +11,24 @@ import { displayError } from '../../api/global';
 import { deleteUser, getAdminUsers, updateUserAdmin } from '../../api/collections/users';
 
 class AdminUsers extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {};
 	}
 
-	_togglePaid(user, ev) {
+	_togglePaid (user, ev) {
 		const { paid } = user;
 		updateUserAdmin.call({ userId: user._id, paid: !paid }, displayError);
 	}
-	_addBonus(user, ev) {
-		updateUserAdmin.call({ userId: user._id, bonusPoints: 1 }, displayError);
+	_toggleSurvivor (user, ev) {
+		const { survivor } = user;
+		updateUserAdmin.call({ userId: user._id, survivor: !survivor }, displayError);
 	}
-	_removeBonus(user, ev) {
-		updateUserAdmin.call({ userId: user._id, bonusPoints: -1 }, displayError);
-	}
-	_toggleAdmin(user, ev) {
+	_toggleAdmin (user, ev) {
 		const { is_admin } = user;
 		updateUserAdmin.call({ userId: user._id, isAdmin: !is_admin }, displayError);
 	}
-	_resetPassword(user, ev) {
+	_resetPassword (user, ev) {
 		const { email } = user;
 		Accounts.forgotPassword({ email }, err => {
 			if (err) {
@@ -40,16 +38,16 @@ class AdminUsers extends Component {
 			}
 		});
 	}
-	_deleteUser(user, ev) {
+	_deleteUser (user, ev) {
 		const { _id } = user;
 		deleteUser.call({ userId: _id }, displayError);
 	}
-	_boolToString(flg) {
+	_boolToString (flg) {
 		if (flg) return <span className="text-success">Yes</span>;
 		return <span className="text-danger">No</span>;
 	}
 
-	render() {
+	render () {
 		const { pageReady, users } = this.props;
 		return (
 			<div className="row admin-wrapper">
@@ -60,7 +58,7 @@ class AdminUsers extends Component {
 						<table className="table table-hover table-bordered admin-users-table">
 							<thead>
 								<tr>
-									<th colSpan={6}>{`${users.length} Users`}</th>
+									<th colSpan={5}>{`${users.length} Users`}</th>
 									<th>Name</th>
 									<th>Email</th>
 									<th>Team Name</th>
@@ -69,15 +67,14 @@ class AdminUsers extends Component {
 									<th>Finished Registration?</th>
 									<th>Admin?</th>
 									<th>Paid?</th>
-									<th>Bonus Points</th>
+									<th>Survivor?</th>
 								</tr>
 							</thead>
 							<tbody>
 								{users.map(user => (
 									<tr key={'user' + user._id}>
 										<td><i className={`fa fa-fw fa-money ${user.paid ? 'mark-unpaid' : 'mark-paid'}`} title={`Toggle ${user.first_name} ${user.last_name} paid`} onClick={this._togglePaid.bind(null, user)} /></td>
-										<td><i className="fa fa-fw fa-plus add-bonus" title={`Give ${user.first_name} ${user.last_name} 1 bonus point`} onClick={this._addBonus.bind(null, user)} /></td>
-										<td><i className="fa fa-fw fa-minus remove-bonus" title={`Subtract from ${user.first_name} ${user.last_name} 1 bonus point`} onClick={this._removeBonus.bind(null, user)} /></td>
+										<td><i className={`fa fa-fw fa-flag ${user.survivor ? 'survivor' : 'no-survivor'}`} title={`Toggle ${user.first_name} ${user.last_name} survivor game`} onClick={this._toggleSurvivor.bind(null, user)} /></td>
 										<td><i className={`fa fa-fw fa-user-secret ${user.is_admin ? 'is-admin' : 'not-admin'}`} title={`Toggle ${user.first_name} ${user.last_name} as admin`} onClick={this._toggleAdmin.bind(null, user)} /></td>
 										<td><i className="fa fa-fw fa-envelope text-warning" title={`Reset ${user.first_name} ${user.last_name}'s password'`} onClick={this._resetPassword.bind(null, user)} /></td>
 										<td>
@@ -91,7 +88,7 @@ class AdminUsers extends Component {
 										<td>{this._boolToString(user.done_registering)}</td>
 										<td>{this._boolToString(user.is_admin)}</td>
 										<td>{this._boolToString(user.paid)}</td>
-										<td>{user.bonus_points}</td>
+										<td>{this._boolToString(user.survivor)}</td>
 									</tr>
 								))}
 							</tbody>

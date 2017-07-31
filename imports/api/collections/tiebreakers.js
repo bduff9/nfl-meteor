@@ -8,8 +8,9 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../constants';
 import { displayError, logError } from '../global';
-import { getPicksForWeek } from './picks';
+import { gameHasStarted } from './games';
 import { writeLog } from './nfllogs';
+import { getPicksForWeek } from './picks';
 import { getUserByID, getUserNameSync, sendAllPicksInEmail } from './users';
 
 /**
@@ -138,13 +139,13 @@ export const submitPicks = new ValidatedMethod({
 		if (!user_id) throw new Meteor.Error('Tiebreakers.submitPicks.notLoggedIn', 'Must be logged in to submit picks');
 		const tiebreaker = Tiebreaker.findOne({ league, user_id, week }),
 				picks = getPicksForWeek.call({ league, week }),
-				noPicks = picks.filter(pick => pick.week === week && !pick.hasStarted() && !pick.pick_id && !pick.pick_short && !pick.points);
+				noPicks = picks.filter(pick => !gameHasStarted.call({ gameId: pick.game_id }) && (!pick.pick_id || !pick.pick_short || !pick.points));
 		if (noPicks.length > 0) throw new Meteor.Error('Tiebreakers.submitPicks.missingPicks', 'You must complete all picks for the week before submitting');
 		if (!tiebreaker.last_score) throw new Meteor.Error('Tiebreakers.submitPicks.noTiebreakerScore', 'You must submit a tiebreaker score for the last game of the week');
 		if (Meteor.isServer) {
 			tiebreaker.submitted = true;
 			tiebreaker.save();
-			sendAllPicksInEmail.call({ week }, logError);
+			sendAllPicksInEmail.call({ selectedWeek: week }, logError);
 		}
 		writeLog.call({ action: 'SUBMIT_PICKS', message: `${getUserNameSync({ user_id })} has just submitted their week ${week} picks`, userId: user_id }, logError);
 	}

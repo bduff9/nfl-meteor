@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { logError } from '../../imports/api/global';
 import { Tiebreaker } from '../../imports/api/collections/tiebreakers';
 import { getLastGameOfWeek } from '../../imports/api/collections/games';
 
@@ -55,7 +54,7 @@ export const updateLastGameOfWeekScore = new ValidatedMethod({
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
 	run ({ week }) {
-		const lastGame = getLastGameOfWeek.call({ week }, logError),
+		const lastGame = getLastGameOfWeek.call({ week }),
 				totalScore = (lastGame.home_score + lastGame.visitor_score);
 		Tiebreaker.update({ week }, { $set: { last_score_act: totalScore }}, { multi: true });
 	}

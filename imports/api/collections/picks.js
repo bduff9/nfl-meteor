@@ -8,8 +8,8 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 import { displayError } from '../../api/global';
-import { gameHasStarted, getGameByIDSync } from './games';
-import { getTeamByID } from './teams';
+import { gameHasStarted, gameHasStartedSync, getGameByIDSync } from './games';
+import { getTeamByIDSync } from './teams';
 
 /**
  * All pick logic
@@ -252,10 +252,10 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			hasStarted () {
-				return gameHasStarted.call({ gameId: this.game_id }, displayError);
+				return gameHasStartedSync({ gameId: this.game_id });
 			},
 			getTeam () {
-				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
+				const team = getTeamByIDSync({ teamId: this.pick_id });
 				return team;
 			}
 		}
@@ -307,10 +307,10 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			hasStarted () {
-				return gameHasStarted.call({ gameId: this.game_id }, displayError);
+				return gameHasStartedSync({ gameId: this.game_id });
 			},
 			getTeam () {
-				const team = getTeamByID.call({ teamId: this.pick_id }, displayError);
+				const team = getTeamByIDSync({ teamId: this.pick_id });
 				return team;
 			}
 		},

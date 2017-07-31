@@ -29,7 +29,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 	};
 	const _refreshGames = (ev) => {
 		ev.preventDefault();
-		Meteor.call('Game.refreshGameData', displayError);
+		Meteor.call('Game.refreshGameData', {}, displayError);
 		return false;
 	};
 	const _selectWeek = (newWeek, ev) => {

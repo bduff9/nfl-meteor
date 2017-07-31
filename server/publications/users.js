@@ -102,7 +102,8 @@ Meteor.publish('adminUsers', function () {
 			'overall_tied_flag': 1,
 			'picks': 1,
 			'tiebreakers': 1,
-			'survivor': 1
+			'survivor': 1,
+			'payment_type': 1
 		},
 		sort: {
 			'first_name': 1,

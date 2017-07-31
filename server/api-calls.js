@@ -12,13 +12,14 @@ import { currentWeek, findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGam
 import { endOfWeekMessage } from './collections/nfllogs';
 import { assignPointsToMissed } from '../imports/api/collections/picks';
 import { toggleGamesUpdating } from '../imports/api/collections/systemvals';
-import { getTeamByShortSync } from '../imports/api/collections/teams';
+import { getTeamByShort, getTeamByShortSync } from '../imports/api/collections/teams';
 import { updateLastGameOfWeekScore } from './collections/tiebreakers';
-import { getAllLeaguesSync, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
+import { getAllLeagues, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 
 API = {
 	getGamesForWeek (week) {
 		const currDate = new Date(),
+				//TODO: replace this year with year from system vals
 				currMonth = currDate.getMonth(),
 				currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0),
 				data = { TYPE: 'nflSchedule', JSON: 1, W: week };
@@ -116,9 +117,9 @@ API = {
 	},
 
 	refreshGameData () {
-		const weeksToRefresh = getWeeksToRefresh.call({}, logError);
+		const weeksToRefresh = getWeeksToRefresh.call({});
 		let games, gameCount, completeCount, justCompleted, game, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
-		if (weeksToRefresh.length > 0) toggleGamesUpdating.call({ is_updating: true }, logError);
+		if (weeksToRefresh.length > 0) toggleGamesUpdating.call({ is_updating: true });
 		weeksToRefresh.forEach(w => {
 			games = this.getGamesForWeek(w);
 			gameCount = games.length;
@@ -131,7 +132,7 @@ API = {
 					if (team.isHome === '1') hTeamData = team;
 					if (team.isHome === '0') vTeamData = team;
 				});
-				game = findGame.call({ week: w, home_short: hTeamData.id, visitor_short: vTeamData.id }, logError);
+				game = findGame.call({ week: w, home_short: hTeamData.id, visitor_short: vTeamData.id });
 				if (game.status === 'C') {
 					wasComplete = true;
 					console.log(`Week ${w} game ${game.game} already complete, checking for updates...`);
@@ -174,7 +175,7 @@ API = {
 					} else if (game.home_score < game.visitor_score) {
 						winner = vTeam;
 					} else {
-						winner = getTeamByShortSync({ short_name: 'TIE' });
+						winner = getTeamByShort.call({ short_name: 'TIE' });
 					}
 					game.winner_id = winner._id;
 					game.winner_short = winner.short_name;
@@ -225,31 +226,25 @@ API = {
 			});
 			if (gameCount === completeCount) {
 				console.log(`Week ${w} complete, updating tiebreakers...`);
-				updateLastGameOfWeekScore.call({ week: w }, logError);
+				updateLastGameOfWeekScore.call({ week: w });
 				console.log(`Week ${w} tiebreakers successfully updated!`);
 			}
 			console.log(`Finished updating games for week ${w}!`);
 			// Updated 2016-09-13 to improve update performance
 			if (justCompleted > 0 || gameCount === completeCount) {
 				console.log(`${(gameCount === completeCount ? `All games complete for week ${w}` : `${justCompleted} games newly complete for week ${w}`)}, now updating users...`);
-				const leagues = getAllLeaguesSync({});
+				const leagues = getAllLeagues.call({});
 				leagues.forEach(league => {
-					updatePoints.call({ league }, err => {
-						if (err) console.error('updatePoints', err);
-					});
-					updatePlaces.call({ league, week: w }, err => {
-						if (err) console.error('updatePlaces', err);
-					});
-					updateSurvivor.call({ league, week: w }, err => {
-						if (err) console.error('updateSurvivor', err);
-					});
+					updatePoints.call({ league });
+					updatePlaces.call({ league, week: w });
+					updateSurvivor.call({ league, week: w });
 				});
 				if (gameCount === completeCount) endOfWeekMessage.call({ week: w }, logError);
 				console.log(`Finished updating users for week ${w}!`);
 			}
 			console.log(`Week ${w} successfully updated!`);
 		});
-		toggleGamesUpdating.call({ is_updating: false }, logError);
+		toggleGamesUpdating.call({ is_updating: false });
 		return `Successfully updated all weeks in list: ${weeksToRefresh}`;
 	}
 };

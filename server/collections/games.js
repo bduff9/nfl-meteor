@@ -14,6 +14,15 @@ import { addTiebreakerSync, removeAllTiebreakersForUserSync } from './tiebreaker
  * All server side game logic
  */
 
+export const clearGames = new ValidatedMethod({
+	name: 'Games.clearGames',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		Game.remove({}, { multi: true });
+	}
+});
+export const clearGamesSync = Meteor.wrapAsync(clearGames.call, clearGames);
+
 export const getEmptyUserPicks = new ValidatedMethod({
 	name: 'Game.getEmptyUserPicks',
 	validate: new SimpleSchema({

@@ -27,10 +27,12 @@ NFLPool.propTypes = {
 };
 
 export default createContainer(() => {
-	const userHandle = Meteor.subscribe('userData'),
+	const systemValsHandle = Meteor.subscribe('systemValues'),
+			systemValsReady = systemValsHandle.ready(),
+			userHandle = Meteor.subscribe('userData'),
 			userReady = userHandle.ready();
 	return {
-		pageReady: !Meteor.loggingIn() && userReady,
+		pageReady: !Meteor.loggingIn() && systemValsReady && userReady,
 		user: Meteor.user()
 	};
 }, NFLPool);

@@ -11,17 +11,15 @@ import { convertEpoch, logError } from '../imports/api/global';
 import { currentWeek, findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
 import { endOfWeekMessage } from './collections/nfllogs';
 import { assignPointsToMissed } from '../imports/api/collections/picks';
-import { toggleGamesUpdating } from '../imports/api/collections/systemvals';
+import { getSystemValues, toggleGamesUpdating } from '../imports/api/collections/systemvals';
 import { getTeamByShort, getTeamByShortSync } from '../imports/api/collections/teams';
 import { updateLastGameOfWeekScore } from './collections/tiebreakers';
 import { getAllLeagues, updatePlaces, updatePoints, updateSurvivor } from '../imports/api/collections/users';
 
 API = {
 	getGamesForWeek (week) {
-		const currDate = new Date(),
-				//TODO: replace this year with year from system vals
-				currMonth = currDate.getMonth(),
-				currYear = currDate.getFullYear() - (currMonth < 2 ? 1 : 0),
+		const systemVals = getSystemValues.call({}),
+				currYear = systemVals.year_updated,
 				data = { TYPE: 'nflSchedule', JSON: 1, W: week };
 		let url, response;
 		if (Meteor.settings.mode === 'production' || !Meteor.settings.apiHost) {
@@ -30,6 +28,7 @@ API = {
 			url = Meteor.settings.apiHost;
 		}
 		url += `/${currYear}/export`;
+		console.log('api url', url);
 		response = HTTP.get(url, { params: data });
 		return response.data.nflSchedule.matchup;
 	},

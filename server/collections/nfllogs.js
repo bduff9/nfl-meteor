@@ -13,6 +13,15 @@ import { getSystemValues } from '../../imports/api/collections/systemvals';
 import { getTiebreakerFromServer } from './tiebreakers';
 import { getUsers } from '../../imports/api/collections/users';
 
+export const clearNFLLogs = new ValidatedMethod({
+	name: 'NFLLogs.clearNFLLogs',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		NFLLog.remove({}, { multi: true });
+	}
+});
+export const clearNFLLogsSync = Meteor.wrapAsync(clearNFLLogs.call, clearNFLLogs);
+
 export const endOfSurvivorMessage = new ValidatedMethod({
 	name: 'NFLLogs.endOfSurvivorMessage',
 	validate: new SimpleSchema({

@@ -11,6 +11,15 @@ import { Team } from '../../imports/api/collections/teams';
  * Server only code for the teams collection
  */
 
+export const clearTeams = new ValidatedMethod({
+	name: 'Teams.clearTeams',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		Team.remove({}, { multi: true });
+	}
+});
+export const clearTeamsSync = Meteor.wrapAsync(clearTeams.call, clearTeams);
+
 export const initTeams = new ValidatedMethod({
 	name: 'Team.insert',
 	validate: new SimpleSchema({}).validator(),

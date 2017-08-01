@@ -19,6 +19,15 @@ export const addTiebreaker = new ValidatedMethod({
 });
 export const addTiebreakerSync = Meteor.wrapAsync(addTiebreaker.call, addTiebreaker);
 
+export const clearTiebreakers = new ValidatedMethod({
+	name: 'Tiebreakers.clearTiebreakers',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		Tiebreaker.remove({}, { multi: true });
+	}
+});
+export const clearTiebreakersSync = Meteor.wrapAsync(clearTiebreakers.call, clearTiebreakers);
+
 export const getTiebreakerFromServer = new ValidatedMethod({
 	name: 'Tiebreaker.getTiebreakerFromServer',
 	validate: new SimpleSchema({

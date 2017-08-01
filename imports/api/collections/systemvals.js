@@ -162,4 +162,4 @@ if (dbVersion < 2) {
 	});
 }
 
-const SystemVal = SystemValConditional;
+export const SystemVal = SystemValConditional;

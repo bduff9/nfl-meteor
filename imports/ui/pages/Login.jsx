@@ -9,7 +9,8 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
 
-import { displayError, getCurrentSeasonYear } from '../../api/global';
+import { displayError } from '../../api/global';
+import { getSystemValues } from '../../api/collections/systemvals';
 
 export default class Login extends Component {
 
@@ -128,7 +129,8 @@ export default class Login extends Component {
 
 	render () {
 		const { loading, type } = this.state,
-				currYear = getCurrentSeasonYear();
+				systemVals = getSystemValues.call({}),
+				currYear = systemVals.year_updated;
 		return (
 			<div className="row login-stretch">
 				<Helmet title="Login" />

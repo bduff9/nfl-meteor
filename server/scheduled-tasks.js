@@ -2,6 +2,8 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { moment } from 'meteor/momentjs:moment';
 import { SyncedCron } from 'meteor/percolate:synced-cron';
 import { Email } from 'meteor/email';
@@ -11,6 +13,17 @@ import { getSystemValuesSync } from '../imports/api/collections/systemvals';
 import { getUsersSync } from '../imports/api/collections/users';
 import { currentWeekSync } from '../imports/api/collections/games';
 import { refreshGamesSync } from './collections/games';
+
+const CronHistory = SyncedCron._collection;
+
+export const clearCronHistory = new ValidatedMethod({
+	name: 'CronHistory.clearCronHistory',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		CronHistory.remove({}, { multi: true });
+	}
+});
+export const clearCronHistorySync = Meteor.wrapAsync(clearCronHistory.call, clearCronHistory);
 
 // Config synced cron here
 SyncedCron.config({

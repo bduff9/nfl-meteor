@@ -1,8 +1,6 @@
 Registration:
-	Check survivor pool screens
-		- Show bert alert on selection
-		- View survivor not showing anything
-	Update api-calls with system vals year
-	Dashboard shows no points/score
 	Write init season script to go from 2016 to 2017, e.g.
+	Check survivor pool screens
+		- View survivor not showing anything
+	Dashboard shows no points/score
 

@@ -10,10 +10,11 @@ import { displayError, getCurrentSeasonYear } from '../../api/global';
 import { getNextGameSync } from '../../api/collections/games';
 import { getUnreadChatCountSync, getUnreadMessagesSync } from '../../api/collections/nfllogs';
 import { getMySurvivorPicksSync } from '../../api/collections/survivorpicks';
+import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreakerSync } from  '../../api/collections/tiebreakers';
 import { updateSelectedWeek } from '../../api/collections/users';
 
-const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
+const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length;
 
 	if (pageReady) {
@@ -103,8 +104,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							<li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
 							<li><Link to="/admin/logs" activeClassName="active">View Logs</Link></li>
 							<li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
-							{/* TODO: test if current year (from global func) is greater than last updated year (from system vals), if so, show a menu option to convert pool to new year */}
-							<li><a href="#" onClick={_initPool}>Init Pool for {getCurrentSeasonYear()} Season</a></li>
+							{getCurrentSeasonYear() > systemVals.year_updated ? <li><a href="#" onClick={_initPool}>Init Pool for {getCurrentSeasonYear()} Season</a></li> : null}
 						</ul>
 					)
 						:
@@ -133,6 +133,7 @@ Navigation.propTypes = {
 	pageReady: PropTypes.bool.isRequired,
 	selectedWeek: PropTypes.number,
 	survivorPicks: PropTypes.arrayOf(PropTypes.object).isRequired,
+	systemVals: PropTypes.object.isRequired,
 	tiebreaker: PropTypes.object.isRequired,
 	unreadChatCt: PropTypes.number.isRequired,
 	unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -156,6 +157,7 @@ export default createContainer(({ currentUser, currentWeek, rightSlider, ...rest
 			nextGame = {},
 			unreadMessages = [],
 			survivorPicks = [],
+			systemVals = getSystemValues.call({}),
 			tiebreaker = {};
 	if (unreadChatReady) unreadChatCt = getUnreadChatCountSync({});
 	if (nextGameReady) nextGame = getNextGameSync({});
@@ -168,6 +170,7 @@ export default createContainer(({ currentUser, currentWeek, rightSlider, ...rest
 		nextGame,
 		pageReady: nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
 		survivorPicks,
+		systemVals,
 		tiebreaker,
 		unreadChatCt,
 		unreadMessages

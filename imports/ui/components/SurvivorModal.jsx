@@ -4,6 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import $ from 'jquery';
+import { Bert } from 'meteor/themeteorchef:bert';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError } from '../../api/global';
@@ -24,7 +25,14 @@ class SurvivorModal extends Component {
 
 	_setSurvivorPick (gameId, team, ev) {
 		const { currentLeague, week } = this.props;
-		setSurvivorPick.call({ gameId, league: currentLeague, teamId: team._id, teamShort: team.short_name, week }, displayError);
+		setSurvivorPick.call({ gameId, league: currentLeague, teamId: team._id, teamShort: team.short_name, week }, err => {
+			if (err) return displayError(err);
+			Bert.alert({
+				message: `Your week ${week} pick has been saved!`,
+				type: 'success',
+				icon: 'fa-thumbs-up'
+			});
+		});
 	}
 
 	render () {

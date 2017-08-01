@@ -4,16 +4,18 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import { DEFAULT_LEAGUE } from '../imports/api/constants';
 import { getCurrentSeasonYear } from '../imports/api/global';
 import { clearGamesSync, initScheduleSync } from './collections/games';
 import { clearNFLLogsSync } from './collections/nfllogs';
 import { clearPicksSync } from './collections/picks';
-import { clearCronHistorySync } from './scheduled-tasks';
+import { addPoolHistory } from '../imports/api/collections/poolhistorys';
+//import { clearCronHistorySync } from './scheduled-tasks';
 import { clearSurvivorPicksSync } from './collections/survivorpicks';
 import { getSystemValues } from '../imports/api/collections/systemvals';
 import { clearTeamsSync, initTeamsSync } from './collections/teams';
 import { clearTiebreakersSync } from './collections/tiebreakers';
-import { getCurrentUser } from '../imports/api/collections/users';
+import { getCurrentUser, getUsers } from '../imports/api/collections/users';
 
 /**
  * Before new year begins, reset all data i.e. clear out games, teams, picks, etc. and reset users back to empty
@@ -26,19 +28,46 @@ export const initPoolOnServer = new ValidatedMethod({
 		const systemVals = getSystemValues.call({}),
 				poolYear = systemVals.year_updated,
 				currYear = getCurrentSeasonYear(),
-				currUser = getCurrentUser.call({});
+				currUser = getCurrentUser.call({}),
+				users = getUsers.call({ activeOnly: false });
 		if (currYear <= poolYear) throw new Meteor.Error('initPoolOnServer.invalid-years', 'Current year must be greater than the last updated year');
 		if (!currUser || !currUser.is_admin) throw new Meteor.Error('initPoolOnServer.not-authorized', 'You are not authorized to do this');
-		//TODO: grab overall top 3 and insert into poolhistory
+		// Grab overall top 3 and insert into poolhistory
+		users.forEach(user => {
+			const overallPlace = user.overall_place;
+			const overallHistory = {
+				user_id: user._id,
+				year: poolYear,
+				league: user.league || DEFAULT_LEAGUE,
+				type: 'O'
+			};
+			if (overallPlace <= 3) {
+				overallHistory.place = overallPlace;
+				addPoolHistory.call({ poolHistory: overallHistory });
+			}
+		});
 		// Empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers
-		clearCronHistorySync({});
+		//clearCronHistorySync({});
 		clearGamesSync({});
 		clearNFLLogsSync({});
 		clearPicksSync({});
 		clearSurvivorPicksSync({});
 		clearTeamsSync({});
 		clearTiebreakersSync({});
-		//TODO: clear out/default old user info i.e. referred_by, done_registering, leagues, survivor, owe, paid, selected_week, total_points, total_games, overall_place, overall_tied_flag
+		// Clear out/default old user info i.e. referred_by, done_registering, leagues, survivor, owe, paid, selected_week, total_points, total_games, overall_place, overall_tied_flag
+		users.forEach(user => {
+			user.done_registering = false;
+			user.leagues = [];
+			user.survivor = false;
+			user.owe = 0;
+			user.paid = 0;
+			user.selected_week = {};
+			user.total_points = 0;
+			user.total_games = 0;
+			user.overall_place = undefined;
+			user.overall_tied_flag = false;
+			user.save();
+		});
 		// When done, update lastUpdated in systemvals, then refill teams and games
 		systemVals.year_updated = currYear;
 		systemVals.save();

@@ -17,7 +17,7 @@ import { updateSelectedWeek } from '../../api/collections/users';
 const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length;
 
-	if (pageReady) {
+	if (pageReady && !logoutOnly) {
 		msgCt += (currentUser.paid ? 0 : 1);
 		msgCt += (tiebreaker.submitted ? 0 : 1);
 		if (currentUser.survivor) msgCt += (currentUser.survivor && !survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id ? 0 : 1);
@@ -25,12 +25,17 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 
 	const _initPool = (ev) => {
 		ev.preventDefault();
-		Meteor.call('initPoolOnServer', displayError);
+		if (confirm(`Are you sure you want to do this?  All data will be reset for the ${getCurrentSeasonYear()} season`)) {
+			Meteor.call('initPoolOnServer', {}, err => {
+				if (err) return displayError(err);
+				window.location.reload(true);
+			});
+		}
 		return false;
 	};
 	const _refreshGames = (ev) => {
 		ev.preventDefault();
-		Meteor.call('Game.refreshGameData', {}, displayError);
+		Meteor.call('Games.refreshGameData', {}, displayError);
 		return false;
 	};
 	const _selectWeek = (newWeek, ev) => {
@@ -141,7 +146,7 @@ Navigation.propTypes = {
 	_toggleRightSlider: PropTypes.func.isRequired
 };
 
-export default createContainer(({ currentUser, currentWeek, rightSlider, ...rest }) => {
+export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSlider, ...rest }) => {
 	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
 			unreadChatHandle = Meteor.subscribe('unreadChats'),
 			unreadChatReady = unreadChatHandle.ready(),
@@ -159,14 +164,17 @@ export default createContainer(({ currentUser, currentWeek, rightSlider, ...rest
 			survivorPicks = [],
 			systemVals = getSystemValues.call({}),
 			tiebreaker = {};
-	if (unreadChatReady) unreadChatCt = getUnreadChatCountSync({});
-	if (nextGameReady) nextGame = getNextGameSync({});
-	if (messagesReady) unreadMessages = getUnreadMessagesSync({});
-	if (survivorReady) survivorPicks = getMySurvivorPicksSync({ league: currentLeague });
-	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: currentWeek });
+	if (!logoutOnly) {
+		if (unreadChatReady) unreadChatCt = getUnreadChatCountSync({});
+		if (nextGameReady) nextGame = getNextGameSync({});
+		if (messagesReady) unreadMessages = getUnreadMessagesSync({});
+		if (survivorReady) survivorPicks = getMySurvivorPicksSync({ league: currentLeague });
+		if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: currentWeek });
+	}
 	return {
 		...rest,
 		currentUser,
+		logoutOnly,
 		nextGame,
 		pageReady: nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
 		survivorPicks,

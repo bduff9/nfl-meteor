@@ -178,14 +178,12 @@ export const NFLLog = Class.create({
 	},
 	helpers: {
 		getUser () {
-			const user = getUserByID.call({ user_id: this.user_id }, displayError);
-			if (this.user_id) return user;
-			return null;
+			if (!this.user_id) return null;
+			return getUserByID.call({ user_id: this.user_id });
 		},
 		getUserTo () {
-			const user = getUserByID.call({ user_id: this.to_id }, displayError);
-			if (this.to_id) return user;
-			return null;
+			if (!this.to_id) return null;
+			return getUserByID.call({ user_id: this.to_id });
 		}
 	},
 	indexes: {},

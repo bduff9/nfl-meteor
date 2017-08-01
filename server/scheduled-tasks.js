@@ -15,7 +15,7 @@ import { currentWeekSync } from '../imports/api/collections/games';
 import { refreshGamesSync } from './collections/games';
 
 const CronHistory = SyncedCron._collection;
-
+// Currently, this does not work as I cannot get access to the original collection
 export const clearCronHistory = new ValidatedMethod({
 	name: 'CronHistory.clearCronHistory',
 	validate: new SimpleSchema({}).validator(),

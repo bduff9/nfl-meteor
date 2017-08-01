@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError } from '../../api/global';
 import { SurvivorLayout } from '../layouts/SurvivorLayout.jsx';
 import { getSurvivorUsers } from '../../api/collections/users';
 import { getAllSurvivorPicks } from '../../api/collections/survivorpicks';
@@ -22,8 +21,8 @@ export default createContainer(({ weekForSec }) => {
 			dead = [],
 			graphData = [];
 	if (pageReady) {
-		users = getSurvivorUsers.call({ league: currentLeague }, displayError);
-		survivor = getAllSurvivorPicks.call({ league: currentLeague, week: weekForSec }, displayError);
+		users = getSurvivorUsers.call({ league: currentLeague });
+		survivor = getAllSurvivorPicks.call({ league: currentLeague, week: weekForSec });
 		for (let i = 0; i < weekForSec; i++) graphData[i] = { x: `Week ${i + 1}` };
 		users.forEach(user => {
 			const userSurvivor = survivor.filter(s => s.user_id === user._id),

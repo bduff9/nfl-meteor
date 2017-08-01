@@ -107,7 +107,7 @@ export const hasSubmittedSurvivorPicks = new ValidatedMethod({
 	run ({ league, week }) {
 		const pick = SurvivorPick.findOne({ league, user_id: this.userId, week });
 		if (!this.userId) throw new Meteor.Error('SurvivorPicks.hasSubmittedSurvivorPicks.notSignedIn', 'You are not signed in');
-		return !!pick.pick_id;
+		return !pick || !!pick.pick_id;
 	}
 });
 export const hasSubmittedSurvivorPicksSync = Meteor.wrapAsync(hasSubmittedSurvivorPicks.call, hasSubmittedSurvivorPicks);

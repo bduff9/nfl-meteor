@@ -28,7 +28,6 @@ API = {
 			url = Meteor.settings.apiHost;
 		}
 		url += `/${currYear}/export`;
-		console.log('api url', url);
 		response = HTTP.get(url, { params: data });
 		return response.data.nflSchedule.matchup;
 	},

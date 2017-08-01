@@ -23,7 +23,7 @@ export const SurvivorLayout = ({ alive, dead, graphData, isOverall, pageReady, w
 									<ul className="text-success alive">
 										{alive.map(user => (
 											<li key={'survivor' + user._id}>
-												<span>{`${user.first_name} ${user.last_name}${(!isOverall ? ' - ' + user.pick_short : '')}`}</span>
+												<span>{`${user.first_name} ${user.last_name}${(isOverall ? '' : ' - ' + user.pick_short)}`}</span>
 											</li>
 										))}
 									</ul>
@@ -32,7 +32,7 @@ export const SurvivorLayout = ({ alive, dead, graphData, isOverall, pageReady, w
 									<ul className="text-danger dead">
 										{dead.map(user => (
 											<li key={'survivor' + user._id}>
-												<span>{`${user.first_name} ${user.last_name}${(!isOverall ? ' - ' + (user.pick_short || 'N/A') : '')}`}</span>
+												<span>{`${user.first_name} ${user.last_name}${(isOverall ? '' : ' - ' + (user.pick_short || 'N/A'))}`}</span>
 											</li>
 										))}
 									</ul>

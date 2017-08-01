@@ -4,14 +4,14 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError } from '../../api/global';
 import { SurvivorLayout } from '../layouts/SurvivorLayout.jsx';
 import { getSurvivorUsers } from '../../api/collections/users';
 import { getWeekSurvivorPicks } from '../../api/collections/survivorpicks';
 
 export default createContainer(({ week, weekForSec }) => {
 	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
-			survivorHandle = Meteor.subscribe('weekSurvivor', currentLeague, weekForSec),
+			weekForSurvivor = Math.min(week, weekForSec),
+			survivorHandle = Meteor.subscribe('weekSurvivor', currentLeague, weekForSurvivor),
 			survivorReady = survivorHandle.ready(),
 			usersHandle = Meteor.subscribe('basicUsersInfo'),
 			usersReady = usersHandle.ready(),
@@ -22,8 +22,8 @@ export default createContainer(({ week, weekForSec }) => {
 			dead = [],
 			graphData = [];
 	if (pageReady) {
-		users = getSurvivorUsers.call({ league: currentLeague }, displayError);
-		survivor = getWeekSurvivorPicks.call({ league: currentLeague, week: weekForSec }, displayError);
+		users = getSurvivorUsers.call({ league: currentLeague });
+		survivor = getWeekSurvivorPicks.call({ league: currentLeague, week });
 		users.forEach(user => {
 			const userSurvivor = survivor.filter(s => s.user_id === user._id),
 					thisWeek = userSurvivor.filter(s => s.week === week)[0];
@@ -35,6 +35,7 @@ export default createContainer(({ week, weekForSec }) => {
 			}
 			if (!thisWeek || !thisWeek.pick_id) return;
 			teamShort = thisWeek.pick_short;
+			user.pick_short = teamShort;
 			index = graphData.findIndex(team => team.team === teamShort);
 			if (index === -1) {
 				graphData.push({ team: teamShort, count: 1, won: (thisWeek.winner_id && thisWeek.pick_id === thisWeek.winner_id ? true : false), lost: (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id ? true : false)});

@@ -24,7 +24,7 @@ export const clearGames = new ValidatedMethod({
 export const clearGamesSync = Meteor.wrapAsync(clearGames.call, clearGames);
 
 export const getEmptyUserPicks = new ValidatedMethod({
-	name: 'Game.getEmptyUserPicks',
+	name: 'Games.getEmptyUserPicks',
 	validate: new SimpleSchema({
 		leagues: { type: [String], label: 'Leagues' },
 		user_id: { type: String, label: 'User ID' }
@@ -50,7 +50,7 @@ export const getEmptyUserPicks = new ValidatedMethod({
 export const getEmptyUserPicksSync = Meteor.wrapAsync(getEmptyUserPicks.call, getEmptyUserPicks);
 
 export const getEmptyUserSurvivorPicks = new ValidatedMethod({
-	name: 'Game.getEmptyUserSurvivorPicks',
+	name: 'Games.getEmptyUserSurvivorPicks',
 	validate: new SimpleSchema({
 		leagues: { type: [String], label: 'Leagues' },
 		user_id: { type: String, label: 'User ID' }
@@ -74,7 +74,7 @@ export const getEmptyUserSurvivorPicks = new ValidatedMethod({
 export const getEmptyUserSurvivorPicksSync = Meteor.wrapAsync(getEmptyUserSurvivorPicks.call, getEmptyUserSurvivorPicks);
 
 export const getEmptyUserTiebreakers = new ValidatedMethod({
-	name: 'Game.getEmptyUserTiebreakers',
+	name: 'Games.getEmptyUserTiebreakers',
 	validate: new SimpleSchema({
 		leagues: { type: [String], label: 'Leagues' },
 		user_id: { type: String, label: 'User ID' }
@@ -98,7 +98,7 @@ export const getEmptyUserTiebreakers = new ValidatedMethod({
 export const getEmptyUserTiebreakersSync = Meteor.wrapAsync(getEmptyUserTiebreakers.call, getEmptyUserTiebreakers);
 
 export const initSchedule = new ValidatedMethod({
-	name: 'Game.insert',
+	name: 'Games.insert',
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		if (Meteor.isServer) API.populateGames();
@@ -107,7 +107,7 @@ export const initSchedule = new ValidatedMethod({
 export const initScheduleSync = Meteor.wrapAsync(initSchedule.call, initSchedule);
 
 export const refreshGames = new ValidatedMethod({
-	name: 'Game.refreshGameData',
+	name: 'Games.refreshGameData',
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		const gamesInProgress = Game.find({ game: { $ne: 0 }, status: { $ne: 'C' }, kickoff: { $lte: new Date() }}).count();
@@ -116,3 +116,12 @@ export const refreshGames = new ValidatedMethod({
 	}
 });
 export const refreshGamesSync = Meteor.wrapAsync(refreshGames.call, refreshGames);
+
+export const removeBonusPointGames = new ValidatedMethod({
+	name: 'Games.removeBonusPointGames',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		if (Meteor.isServer) Game.remove({ game: 0 }, { multi: true });
+	}
+});
+export const removeBonusPointGamesSync = Meteor.wrapAsync(removeBonusPointGames.call, removeBonusPointGames);

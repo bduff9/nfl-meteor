@@ -71,7 +71,7 @@ export const getSurvivorUsers = new ValidatedMethod({
 		league: { type: String, label: 'League' }
 	}).validator(),
 	run ({ league }) {
-		const users = User.find({ league }, { sort: { first_name: 1 }}).fetch();
+		const users = User.find({ leagues: league }, { sort: { first_name: 1 }}).fetch();
 		if (!this.userId) throw new Meteor.Error('You are not signed in');
 		return users;
 	}
@@ -583,7 +583,8 @@ if (dbVersion < 2) {
 			},
 			payment_type: {
 				type: String,
-				validators: [{ type: 'choice', param: ['Cash', 'PayPal', 'QuickPay', 'Venmo'] }]
+				validators: [{ type: 'choice', param: ['Cash', 'PayPal', 'QuickPay', 'Venmo'] }],
+				default: 'Cash'
 			},
 			payment_account: {
 				type: String,

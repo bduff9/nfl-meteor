@@ -65,15 +65,15 @@ export const endOfWeekMessage = new ValidatedMethod({
 		week: { type: Number, label: 'Week' }
 	}).validator(),
 	run ({ week }) {
-		const users = getUsers.call({ activeOnly: true }, logError);
+		const users = getUsers.call({ activeOnly: true });
 		const MESSAGE = `Week ${week} is now over.`;
-		const systemVals = getSystemValues.call({}, logError);
+		const systemVals = getSystemValues.call({});
 		const currentYear = systemVals.year_updated;
 		users.forEach(user => {
 			const user_id = user._id;
 			const leagues = user.leagues;
 			leagues.forEach(league => {
-				const tiebreaker = getTiebreakerFromServer.call({ league, user_id, week }, logError);
+				const tiebreaker = getTiebreakerFromServer.call({ league, user_id, week });
 				const place = tiebreaker.place_in_week;
 				const message = `${MESSAGE}  You finished in ${formattedPlace(place)} place.  ${(place < 3 ? 'Congrats!' : '')}`;
 				const logEntry = new NFLLog({

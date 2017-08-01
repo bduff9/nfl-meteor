@@ -1,6 +1,5 @@
 Registration:
-	Write init season script to go from 2016 to 2017, e.g.
-	Check survivor pool screens
-		- View survivor not showing anything
-	Dashboard shows no points/score
-
+	- Handle survivor choice
+	- Handle payment type/account
+	- Handle referred validation
+	- Handle messaging props

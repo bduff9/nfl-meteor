@@ -38,3 +38,12 @@ export const removeAllPicksForUser = new ValidatedMethod({
 	}
 });
 export const removeAllPicksForUserSync = Meteor.wrapAsync(removeAllPicksForUser.call, removeAllPicksForUser);
+
+export const removeBonusPointPicks = new ValidatedMethod({
+	name: 'Games.removeBonusPointPicks',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		if (Meteor.isServer) Pick.remove({ game: 0 }, { multi: true });
+	}
+});
+export const removeBonusPointPicksSync = Meteor.wrapAsync(removeBonusPointPicks.call, removeBonusPointPicks);

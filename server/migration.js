@@ -6,11 +6,12 @@ import { Mongo } from 'meteor/mongo';
 import { Migrations } from 'meteor/percolate:migrations';
 
 import { dbVersion, DEFAULT_LEAGUE } from '../imports/api/constants';
-import { addPickSync } from './collections/picks';
-import { addSurvivorPickSync } from './collections/survivorpicks';
-import { addTiebreakerSync } from './collections/tiebreakers';
+import { removeBonusPointGamesSync } from './collections/games';
+import { addPickSync, removeBonusPointPicksSync } from './collections/picks';
 import { addPoolHistorySync } from '../imports/api/collections/poolhistorys';
+import { addSurvivorPickSync } from './collections/survivorpicks';
 import { getSystemValuesSync, removeYearUpdatedSync } from '../imports/api/collections/systemvals';
+import { addTiebreakerSync } from './collections/tiebreakers';
 import { getUsersSync } from '../imports/api/collections/users';
 
 const initialDB = function initialDB (migration) {
@@ -40,16 +41,11 @@ const make2017Changes = function make2017Changes (migration) {
 			addTiebreakerSync({ tiebreaker: tb });
 		});
 	});
+	removeBonusPointGamesSync({});
+	removeBonusPointPicksSync({});
 	// Get rankings by week (top 2) and overall (top 3) for insert into pool history. Should we get last place person as well?
 	users = Meteor.users.find({});
 	users.forEach(user => {
-		const overallPlace = user.overall_place;
-		const overallHistory = {
-			user_id: user._id,
-			year: lastUpdated,
-			league: user.league || DEFAULT_LEAGUE,
-			type: 'O'
-		};
 		const history = {
 			user_id: user._id,
 			year: lastUpdated,
@@ -64,12 +60,8 @@ const make2017Changes = function make2017Changes (migration) {
 				addPoolHistorySync({ poolHistory: history });
 			}
 		});
-		if (overallPlace <= 3) {
-			overallHistory.place = overallPlace;
-			addPoolHistorySync({ poolHistory: overallHistory });
-		}
 	});
-	Meteor.users.update({}, { $unset: { picks: true, tiebreakers: true, survivor: true }}, { multi: true });
+	Meteor.users.update({}, { $set: { leagues: [DEFAULT_LEAGUE], owe: 30, paid: 30, survivor: true }, $unset: { picks: true, tiebreakers: true }}, { multi: true });
 };
 
 const undo2017Changes = function undo2017Changes (migration) {

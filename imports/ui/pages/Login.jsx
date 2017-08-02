@@ -1,15 +1,14 @@
 'use strict';
 
-import $ from 'jquery';
 import 'jquery-validation';
 import React, { Component } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
 
 import { displayError } from '../../api/global';
+import LoginForm from '../components/LoginForm';
 import { getSystemValues } from '../../api/collections/systemvals';
 
 export default class Login extends Component {
@@ -21,14 +20,10 @@ export default class Login extends Component {
 			type: 'login'
 		};
 		this._oauthLogin = this._oauthLogin.bind(this);
-		this._beginValidating = this._beginValidating.bind(this);
-		this._submitEmail = this._submitEmail.bind(this);
+		this._setLoading = this._setLoading.bind(this);
 		this._toggleType = this._toggleType.bind(this);
 	}
 
-	componentDidMount () {
-		this._beginValidating();
-	}
 	_oauthLogin (service, ev) {
 		const options = {
 			requestPermissions: ['email']
@@ -47,79 +42,8 @@ export default class Login extends Component {
 			}
 		});
 	}
-	_emailLogin (ev) {
-		ev.preventDefault();
-	}
-	_beginValidating () {
-		const that = this;
-		$(this.emailFormRef).validate({
-			submitHandler () {
-				that.setState({ loading: 'email' });
-				that._submitEmail();
-			},
-			rules: {
-				email: {
-					required: true,
-					email: true
-				},
-				password: {
-					required: true,
-					minlength: 6
-				},
-				confirm_password: {
-					required: true,
-					equalTo: '#password'
-				}
-			},
-			messages: {
-				email: 'Please enter a valid email address',
-				password: 'Password must be at least six characters',
-				confirm_password: 'Please enter the same password again'
-			}
-		});
-	}
-	_submitEmail () {
-		const { type } = this.state,
-				email = this.emailRef.value.trim(),
-				password = this.passwordRef.value.trim();
-		if (type === 'register') {
-			Accounts.createUser({
-				email: email,
-				password: password
-			}, (err) => {
-				if (err && err.reason !== 'Login forbidden') {
-					this.setState({ loading: null });
-					if (err.error && err.reason) {
-						displayError(err, { title: err.error, message: err.reason, type: 'warning' });
-					} else {
-						displayError(err);
-					}
-				} else {
-					this.setState({ loading: 'verify' });
-					Bert.alert({
-						message: 'Please check your email to verify your account',
-						type: 'success'
-					});
-				}
-			});
-		} else {
-			Meteor.loginWithPassword(email, password, (err) => {
-				if (err) {
-					this.setState({ loading: null });
-					if (err.reason === 'User not found') {
-						displayError(err, { title: 'User not found!  Did you mean to register at the bottom of this page instead?', type: 'warning' });
-					} else {
-						displayError(err, { title: err.reason, type: 'warning' });
-					}
-				} else {
-					Bert.alert({
-						message: 'Welcome!',
-						type: 'success',
-						icon: 'fa-thumbs-up'
-					});
-				}
-			});
-		}
+	_setLoading (loading) {
+		this.setState({ loading });
 	}
 	_toggleType (ev) {
 		let { type } = this.state;
@@ -147,23 +71,7 @@ export default class Login extends Component {
 						</div>
 					</div>
 					<div className="login-form">
-						<form ref={form => { this.emailFormRef = form; }} id="sign-in-with-email" onSubmit={this._emailLogin}>
-							<div className="form-inputs">
-								<input ref={input => { this.emailRef = input; }} type="email" name="email" id="email" className="form-control" placeholder="Email" />
-								<input ref={input => { this.passwordRef = input; }} type="password" name="password" id="password" className="form-control" placeholder="Password" />
-								{type === 'register' ? <input ref={input => { this.confirmPasswordRef = input; }} type="password" name="confirm_password" id="confirm_password" className="form-control" placeholder="Confirm Password" /> : null}
-							</div>
-							<br/>
-							<div className="row">
-								<div className="col-xs-12">
-									<button type="submit" className="btn btn-block btn-success" disabled={loading}>
-										<strong>{type === 'login' ? 'Sign In With Email' : 'Register With Email'}</strong>
-										{loading === 'email' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
-									</button>
-									{loading === 'verify' ? <div className="text-xs-center text-success"><i className="fa fa-fw fa-check" /> <strong>Please check your email to verify your account</strong></div> : null}
-								</div>
-							</div>
-						</form>
+						<LoginForm loading={loading} type={type} setLoading={this._setLoading} />
 					</div>
 					<div className="reg-btns">
 						<br />

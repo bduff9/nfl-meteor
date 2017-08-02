@@ -14,12 +14,6 @@ if (!teamsExistSync()) {
 	console.log('Populating teams completed!');
 }
 
-if (!gamesExistSync()) {
-	console.log('Begin populating schedule...');
-	initScheduleSync();
-	console.log('Populating schedule completed!');
-}
-
 if (!systemValuesExistSync()) {
 	console.log('Initializing system values...');
 	createSystemValuesSync();
@@ -48,4 +42,10 @@ if (!systemValuesExistSync()) {
 	} else {
 		console.log('No connections to clean!');
 	}
+}
+
+if (!gamesExistSync()) {
+	console.log('Begin populating schedule...');
+	initScheduleSync();
+	console.log('Populating schedule completed!');
 }

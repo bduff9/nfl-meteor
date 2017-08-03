@@ -1,8 +1,7 @@
 Registration:
-	- Bring in oauth function and hasfacebook/google
-	- Add error messages to all fields
 	- Add new fields:
 		- Handle survivor choice
 		- Handle payment type/account
-		- Handle referred validation
 		- Handle messaging props
+		- Handle phone
+	- Handle referred validation

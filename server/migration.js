@@ -24,7 +24,8 @@ const make2017Changes = function make2017Changes (migration) {
 	let users = Meteor.users.find({});
 	users.forEach(user => {
 		const id = user._id;
-		const { picks, survivor, tiebreakers } = user;
+		const { picks, referred_by, survivor, tiebreakers } = user;
+		if (!referred_by.match(/\s/)) Meteor.users.update({ _id: id }, { $set: { referred_by: `${referred_by} PLAYER` }});
 		picks.forEach(pick => {
 			pick.user_id = id;
 			pick.league = DEFAULT_LEAGUE;
@@ -95,6 +96,7 @@ const undo2017Changes = function undo2017Changes (migration) {
 			newSurvivorPicks.push(pick);
 		});
 		user.survivor = newSurvivorPicks;
+		user.paid = true;
 		delete user.phone_number;
 		delete user.notifications;
 		delete user.leagues;

@@ -8,7 +8,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 
 import { displayError } from '../../api/global';
-import { deleteUser, getAdminUsers, updateUserAdmin } from '../../api/collections/users';
+import { deleteUser, getAdminUsers, updateUserAdmin, validateReferredBy } from '../../api/collections/users';
 
 class AdminUsers extends Component {
 	constructor (props) {
@@ -16,17 +16,17 @@ class AdminUsers extends Component {
 		this.state = {};
 	}
 
-	_togglePaid (user, ev) {
-		const { paid } = user;
-		updateUserAdmin.call({ userId: user._id, paid: !paid }, displayError);
+	_approveUser (user, ev) {
+		const { _id } = user;
+		updateUserAdmin.call({ userId: _id, done_registering: true }, displayError);
 	}
-	_toggleSurvivor (user, ev) {
-		const { survivor } = user;
-		updateUserAdmin.call({ userId: user._id, survivor: !survivor }, displayError);
+	_boolToString (flg) {
+		if (flg) return <span className="text-success">Yes</span>;
+		return <span className="text-danger">No</span>;
 	}
-	_toggleAdmin (user, ev) {
-		const { is_admin } = user;
-		updateUserAdmin.call({ userId: user._id, isAdmin: !is_admin }, displayError);
+	_deleteUser (user, ev) {
+		const { _id } = user;
+		deleteUser.call({ userId: _id }, displayError);
 	}
 	_resetPassword (user, ev) {
 		const { email } = user;
@@ -38,13 +38,17 @@ class AdminUsers extends Component {
 			}
 		});
 	}
-	_deleteUser (user, ev) {
-		const { _id } = user;
-		deleteUser.call({ userId: _id }, displayError);
+	_toggleAdmin (user, ev) {
+		const { _id, is_admin } = user;
+		updateUserAdmin.call({ userId: _id, isAdmin: !is_admin }, displayError);
 	}
-	_boolToString (flg) {
-		if (flg) return <span className="text-success">Yes</span>;
-		return <span className="text-danger">No</span>;
+	_togglePaid (user, ev) {
+		const { _id, paid } = user;
+		updateUserAdmin.call({ userId: _id, paid: !paid }, displayError);
+	}
+	_toggleSurvivor (user, ev) {
+		const { _id, survivor } = user;
+		updateUserAdmin.call({ userId: _id, survivor: !survivor }, displayError);
 	}
 
 	render () {
@@ -78,12 +82,13 @@ class AdminUsers extends Component {
 										<td><i className={`fa fa-fw fa-user-secret ${user.is_admin ? 'is-admin' : 'not-admin'}`} title={`Toggle ${user.first_name} ${user.last_name} as admin`} onClick={this._toggleAdmin.bind(null, user)} /></td>
 										<td><i className="fa fa-fw fa-envelope text-warning" title={`Reset ${user.first_name} ${user.last_name}'s password'`} onClick={this._resetPassword.bind(null, user)} /></td>
 										<td>
-											{!user.done_registering ? <i className="fa fa-fw fa-times text-danger" title={`Delete ${user.first_name} ${user.last_name}`} onClick={this._deleteUser.bind(null, user)} /> : null}
+											{!user.done_registering && !validateReferredBy.call({ referred_by: user.referred_by, user_id: user._id }) ? <i className="fa fa-fw fa-thumbs-up text-success" title={`Approve ${user.first_name} ${user.last_name}`} onClick={this._approveUser.bind(null, user)} /> : null}
+											{!user.done_registering ? <i className="fa fa-fw fa-thumbs-down text-danger" title={`Delete ${user.first_name} ${user.last_name}`} onClick={this._deleteUser.bind(null, user)} /> : null}
 										</td>
 										<td>{`${user.first_name} ${user.last_name}`}</td>
 										<td>{user.email}</td>
 										<td>{user.team_name}</td>
-										<td>{user.referred_by === 'RETURNING' ? 'N/A' : user.referred_by}</td>
+										<td>{user.referred_by === 'RETURNING PLAYER' ? 'N/A' : user.referred_by}</td>
 										<td>{this._boolToString(user.verified)}</td>
 										<td>{this._boolToString(user.done_registering)}</td>
 										<td>{this._boolToString(user.is_admin)}</td>

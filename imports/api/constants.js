@@ -84,3 +84,13 @@ export const MAX_GAMES_IN_WEEK = 16;
  * The outgoing email address
  */
 export const POOL_EMAIL_FROM = 'NFL Pool Admin <info@asitewithnoname.com>';
+
+/**
+ * All supported account types for payments
+ */
+export const ACCOUNT_TYPES = ['Cash', 'PayPal', 'QuickPay', 'Venmo'];
+
+/**
+ * The account types that require an account name
+ */
+export const DIGITAL_ACCOUNTS = ['QuickPay', 'PayPal', 'Venmo'];

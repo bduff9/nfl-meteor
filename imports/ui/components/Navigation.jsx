@@ -53,6 +53,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							<h5>{`Welcome, ${currentUser.first_name}`}</h5>
 						</li>
 						<li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
+						<li><Link to="/users/payments" activeClassName="active">View Payments</Link></li>
 						<li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
 					</ul>
 					{selectedWeek ? (
@@ -85,7 +86,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null)
 						]
 							:
-							null
+							<li><a href="#" className="disabled">No Survivor Pool</a></li>
 						}
 					</ul>
 					<ul className="nav nav-sidebar">

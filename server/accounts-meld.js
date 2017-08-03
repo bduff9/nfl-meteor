@@ -16,7 +16,7 @@ const meldUserCallback = (origUser, newUser) => {
 };
 
 const meldDBCallback = (origUserId, newUserId) => {
-	const userObj = {  newUserId, oldUserID: origUserId };
+	const userObj = { newUserId, oldUserId: origUserId };
 	migrateLogEntriesForUser.call(userObj, logError);
 	migratePicksForUser.call(userObj, logError);
 	migratePoolHistorysForUser.call(userObj, logError);

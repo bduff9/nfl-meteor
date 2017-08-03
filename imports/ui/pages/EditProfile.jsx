@@ -30,6 +30,11 @@ export default class EditProfile extends Component {
 			if (err && err.errorType !== 'Accounts.LoginCancelledError') {
 				displayError(err, { title: err.message, type: 'danger' });
 			} else {
+				if (service.indexOf('Facebook') > -1) {
+					this.setState({ hasFacebook: true });
+				} else if (service.indexOf('Google') > -1) {
+					this.setState({ hasGoogle: true });
+				}
 				Bert.alert({
 					message: 'Successfully linked!',
 					type: 'success'

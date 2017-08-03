@@ -10,7 +10,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Email } from 'meteor/email';
 import { Class } from 'meteor/jagi:astronomy';
 
-import { dbVersion, DEFAULT_LEAGUE, POOL_EMAIL_FROM } from '../constants';
+import { ACCOUNT_TYPES, dbVersion, DEFAULT_LEAGUE, POOL_EMAIL_FROM } from '../constants';
 import { logError, overallPlacer, weekPlacer } from '../global';
 import { writeLog } from './nfllogs';
 import { getAllPicksForUser, Pick } from './picks';
@@ -357,24 +357,27 @@ export const updateSurvivor = new ValidatedMethod({
 export const updateSurvivorSync = Meteor.wrapAsync(updateSurvivor.call, updateSurvivor);
 
 export const updateUser = new ValidatedMethod({
-	name: 'Users.update',
+	name: 'Users.updateUser',
 	validate: new SimpleSchema({
-		done_registering: { type: Boolean, allowedValues: [true] },
+		done_registering: { type: Boolean, label: 'Done Registering?' },
 		first_name: { type: String, label: 'First Name' },
 		last_name: { type: String, label: 'Last Name' },
 		payment_account: { type: String, label: 'Payment Account' },
 		payment_type: { type: String, label: 'Payment Type' },
+		phone_number: { type: String, label: 'Phone Number' },
 		referred_by: { type: String, label: 'Referred By' },
 		survivor: { type: Boolean, label: 'Has Survivior?' },
 		team_name: { type: String, label: 'Team Name' }
 	}).validator(),
 	run (userObj) {
+		//TODO: when not done_registering and now done_registering, add all picks, etc.
 		let user, isCreate;
-		if (!this.userId) throw new Meteor.Error('Users.update.notLoggedIn', 'Must be logged in to change profile');
+		if (!this.userId) throw new Meteor.Error('Users.updateUser.not-logged-in', 'Must be logged in to change profile');
 		user = User.findOne(this.userId);
 		isCreate = !user.done_registering;
-		User.update(this.userId, { $set: userObj });
-		if (Meteor.isServer && isCreate) sendWelcomeEmail.call({ userId: this.userId }, logError);
+		user = Object.assign(user, userObj);
+		user.save();
+		if (Meteor.isServer && isCreate && userObj.done_registering) sendWelcomeEmail.call({ userId: this.userId }, logError);
 	}
 });
 export const updateUserSync = Meteor.wrapAsync(updateUser.call, updateUser);
@@ -382,15 +385,18 @@ export const updateUserSync = Meteor.wrapAsync(updateUser.call, updateUser);
 export const updateUserAdmin = new ValidatedMethod({
 	name: 'Users.updateAdmin',
 	validate: new SimpleSchema({
+		done_registering: { type: Boolean, label: 'Done Registering?' },
 		isAdmin: { type: Boolean, label: 'Is Administrator', optional: true },
 		paid: { type: Boolean, label: 'Has Paid', optional: true },
 		survivor: { type: Boolean, label: 'Has Survivor', optional: true },
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
-	run ({ isAdmin, paid, survivor, userId }) {
+	run ({ done_registering, isAdmin, paid, survivor, userId }) {
+		//TODO: when done_registering and survivor is removed/added, remove/add survivor picks
 		const myUser = User.findOne(this.userId),
 				user = User.findOne(userId);
 		if (!this.userId || !myUser.is_admin) throw new Meteor.Error('Users.update.notLoggedIn', 'Not authorized to admin functions');
+		if (done_registering != null) user.done_registering = done_registering;
 		if (isAdmin != null) user.is_admin = isAdmin;
 		if (paid != null) {
 			user.paid = paid;
@@ -401,6 +407,29 @@ export const updateUserAdmin = new ValidatedMethod({
 	}
 });
 export const updateUserAdminSync = Meteor.wrapAsync(updateUserAdmin.call, updateUserAdmin);
+
+export const validateReferredBy = new ValidatedMethod({
+	name: 'Users.validateReferredBy',
+	validate: new SimpleSchema({
+		referred_by: { type: String, label: 'Referred By' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ referred_by, user_id = this.userId }) {
+		const currentUser = User.findOne(user_id),
+				allUsers = User.find({});
+		let foundUsers;
+		if (!user_id) throw new Meteor.Error('Users.validateReferredBy.not-signed-in', 'You are not signed in');
+		if (currentUser.referred_by === referred_by) return true;
+		foundUsers = allUsers.filter(user => {
+			const { first_name, last_name } = user,
+					fullName = `${first_name} ${last_name}`.toLowerCase();
+			if (user._id === user_id) return false;
+			return fullName === referred_by.toLowerCase();
+		});
+		return foundUsers.length;
+	}
+});
+export const validateReferredBySync = Meteor.wrapAsync(validateReferredBy.call, validateReferredBy);
 
 /**
  * Notification, sub-schema from User
@@ -583,7 +612,7 @@ if (dbVersion < 2) {
 			},
 			payment_type: {
 				type: String,
-				validators: [{ type: 'choice', param: ['Cash', 'PayPal', 'QuickPay', 'Venmo'] }],
+				validators: [{ type: 'choice', param: ACCOUNT_TYPES }],
 				default: 'Cash'
 			},
 			payment_account: {
@@ -633,7 +662,12 @@ if (dbVersion < 2) {
 				return NO_WEEK_SELECTED;
 			}
 		},
-		indexes: {}
+		indexes: {},
+		events: {
+			beforeUpdate (ev) {
+				console.log('beforeUpdate', ev);
+			}
+		}
 	});
 }
 

@@ -95,10 +95,10 @@ export const getUnreadMessagesSync = Meteor.wrapAsync(getUnreadMessages.call, ge
 export const migrateLogEntriesForUser = new ValidatedMethod({
 	name: 'NFLLog.migrateLogEntriesForUser',
 	validate: new SimpleSchema({
-		oldUserId: { type: String, label: 'Old User ID' },
-		newUserId: { type: String, label: 'New User ID' }
+		newUserId: { type: String, label: 'New User ID' },
+		oldUserId: { type: String, label: 'Old User ID' }
 	}).validator(),
-	run ({ oldUserId, newUserId }) {
+	run ({ newUserId, oldUserId }) {
 		NFLLog.update({ user_id: oldUserId }, { $set: { user_id: newUserId }}, { multi: true });
 	}
 });

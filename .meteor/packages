@@ -40,3 +40,4 @@ tmeasday:publish-counts
 blaze-html-templates
 practicalmeteor:mocha
 percolate:migrations
+lookback:emails

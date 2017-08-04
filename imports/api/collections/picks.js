@@ -72,7 +72,6 @@ export const autoPick = new ValidatedMethod({
 					pick.pick_id = teamId;
 					pick.pick_short = teamShort;
 					pick.points = point[0];
-					//pick.save();
 				}
 			});
 			picks.forEach(pick => { pick.save(); });

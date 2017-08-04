@@ -26,7 +26,12 @@ export const deleteUser = new ValidatedMethod({
 		const myUser = User.findOne(this.userId),
 				user = User.findOne(userId);
 		if (!this.userId || !myUser.is_admin || user.done_registering) throw new Meteor.Error('Users.deleteUser.notAuthorized', 'Not authorized to this function');
-		user.remove();
+		if (Meteor.isServer) {
+			user.remove();
+			Meteor.call('Picks.removeAllPicksForUser', { user_id: user._id }, logError);
+			Meteor.call('Tiebreakers.removeAllTiebreakersForUser', { user_id: user._id }, logError);
+			Meteor.call('SurvivorPicks.removeAllSurvivorPicksForUser', { user_id: user._id }, logError);
+		}
 	}
 });
 export const deleteUserSync = Meteor.wrapAsync(deleteUser.call, deleteUser);
@@ -180,12 +185,13 @@ export const sendAllPicksInEmailSync = Meteor.wrapAsync(sendAllPicksInEmail.call
 export const sendWelcomeEmail = new ValidatedMethod({
 	name: 'Users.sendWelcomeEmail',
 	validate: new SimpleSchema({
+		isNewPlayer: { type: Boolean, label: 'New Player?' },
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
-	run ({ userId }) {
+	run ({ isNewPlayer, userId }) {
 		const user = User.findOne(userId),
 				admins = User.find({ is_admin: true }).fetch();
-		//TODO: send welcome email to user with various infos
+		//TODO: send welcome email to user with various infos, isNewPlayer flag for who is brand new vs returning
 		admins.forEach(admin => {
 			Email.send({
 				to: admin.email,
@@ -362,6 +368,7 @@ export const updateUser = new ValidatedMethod({
 		done_registering: { type: Boolean, label: 'Done Registering?' },
 		first_name: { type: String, label: 'First Name' },
 		last_name: { type: String, label: 'Last Name' },
+		leagues: { type: [String], label: 'Leagues' },
 		payment_account: { type: String, label: 'Payment Account' },
 		payment_type: { type: String, label: 'Payment Type' },
 		phone_number: { type: String, label: 'Phone Number' },
@@ -370,14 +377,20 @@ export const updateUser = new ValidatedMethod({
 		team_name: { type: String, label: 'Team Name' }
 	}).validator(),
 	run (userObj) {
-		//TODO: when not done_registering and now done_registering, add all picks, etc.
-		let user, isCreate;
+		let user, isCreate, isNewPlayer;
 		if (!this.userId) throw new Meteor.Error('Users.updateUser.not-logged-in', 'Must be logged in to change profile');
 		user = User.findOne(this.userId);
+		isNewPlayer = !user.trusted;
 		isCreate = !user.done_registering;
 		user = Object.assign(user, userObj);
+		user.trusted = userObj.done_registering;
+		if (Meteor.isServer && isCreate && userObj.done_registering) {
+			Meteor.call('Games.getEmptyUserTiebreakers', { user_id: user._id, leagues: user.leagues });
+			Meteor.call('Games.getEmptyUserPicks', { user_id: user._id, leagues: user.leagues });
+			if (user.survivor) Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+			sendWelcomeEmail.call({ isNewPlayer, userId: this.userId }, logError);
+		}
 		user.save();
-		if (Meteor.isServer && isCreate && userObj.done_registering) sendWelcomeEmail.call({ userId: this.userId }, logError);
 	}
 });
 export const updateUserSync = Meteor.wrapAsync(updateUser.call, updateUser);
@@ -385,24 +398,47 @@ export const updateUserSync = Meteor.wrapAsync(updateUser.call, updateUser);
 export const updateUserAdmin = new ValidatedMethod({
 	name: 'Users.updateAdmin',
 	validate: new SimpleSchema({
-		done_registering: { type: Boolean, label: 'Done Registering?' },
+		done_registering: { type: Boolean, label: 'Done Registering?', optional: true },
 		isAdmin: { type: Boolean, label: 'Is Administrator', optional: true },
 		paid: { type: Boolean, label: 'Has Paid', optional: true },
 		survivor: { type: Boolean, label: 'Has Survivor', optional: true },
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
 	run ({ done_registering, isAdmin, paid, survivor, userId }) {
-		//TODO: when done_registering and survivor is removed/added, remove/add survivor picks
 		const myUser = User.findOne(this.userId),
 				user = User.findOne(userId);
+		let isNewPlayer;
 		if (!this.userId || !myUser.is_admin) throw new Meteor.Error('Users.update.notLoggedIn', 'Not authorized to admin functions');
-		if (done_registering != null) user.done_registering = done_registering;
+		if (done_registering != null) {
+			isNewPlayer = !user.trusted;
+			user.trusted = true;
+			if (Meteor.isServer) {
+				if (!user.done_registering && done_registering) {
+					Meteor.call('Games.getEmptyUserPicks', { user_id: user._id, leagues: user.leagues });
+					Meteor.call('Games.getEmptyUserTiebreakers', { user_id: user._id, leagues: user.leagues });
+					if (survivor == null && user.survivor) Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+					sendWelcomeEmail.call({ isNewPlayer, userId }, logError);
+				}
+			}
+			user.done_registering = done_registering;
+		}
 		if (isAdmin != null) user.is_admin = isAdmin;
 		if (paid != null) {
 			user.paid = paid;
 			if (paid) writeLog.call({ action: 'PAID', message: `${user.first_name} ${user.last_name} has paid`, userId }, logError);
 		}
-		if (survivor != null) user.survivor = survivor;
+		if (survivor != null) {
+			user.survivor = survivor;
+			if (Meteor.isServer) {
+				if (user.done_registering) {
+					if (survivor) {
+						Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+					} else {
+						Meteor.call('SurvivorPicks.removeAllSurvivorPicksForUser', { user_id: user._id });
+					}
+				}
+			}
+		}
 		user.save();
 	}
 });
@@ -505,6 +541,10 @@ if (dbVersion < 2) {
 				validators: [{ type: 'minLength', param: 1, message: 'Please select whether you have played before or are new' }]
 			},
 			verified: Boolean,
+			trusted: {
+				type: Boolean,
+				optional: true
+			},
 			done_registering: Boolean,
 			is_admin: {
 				type: Boolean,
@@ -597,6 +637,10 @@ if (dbVersion < 2) {
 				validators: [{ type: 'minLength', param: 1, message: 'Please select whether you have played before or are new' }]
 			},
 			verified: Boolean,
+			trusted: {
+				type: Boolean,
+				optional: true
+			},
 			done_registering: Boolean,
 			leagues: {
 				type: [String],
@@ -662,12 +706,7 @@ if (dbVersion < 2) {
 				return NO_WEEK_SELECTED;
 			}
 		},
-		indexes: {},
-		events: {
-			beforeUpdate (ev) {
-				console.log('beforeUpdate', ev);
-			}
-		}
+		indexes: {}
 	});
 }
 

@@ -5,7 +5,7 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import { Formik } from 'formik';
 import Yup from 'yup';
 
-import { ACCOUNT_TYPES, DIGITAL_ACCOUNTS } from '../../api/constants';
+import { ACCOUNT_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
 import { displayError } from '../../api/global';
 import { updateUser, validateReferredBy } from '../../api/collections/users';
 
@@ -31,7 +31,7 @@ class EditProfileForm extends Component {
 	}
 
 	render () {
-		const { errors, hasFacebook, hasGoogle, isCreate, isSubmitting, touched, values, handleBlur, handleChange, handleSubmit, linkFacebook, linkGoogle } = this.props,
+		const { errors, hasFacebook, hasGoogle, isCreate, isSubmitting, touched, user, values, handleBlur, handleChange, handleSubmit, linkFacebook, linkGoogle } = this.props,
 				{ showAccountInput } = this.state;
 		return (
 			<form onSubmit={handleSubmit}>
@@ -100,7 +100,7 @@ class EditProfileForm extends Component {
 						{showAccountInput && errors.payment_account && touched.payment_account && <div className="form-control-feedback">{errors.payment_account}</div>}
 					</div>
 				</div>
-				{isCreate && !values.referred_by ? (
+				{isCreate && !user.trusted ? (
 					<div className={`row form-group ${this._getInputColor(errors.referred_by, touched.referred_by, 'has-')}`}>
 						<label htmlFor="referred_by" className="col-xs-12 col-md-2 col-form-label">Referred By</label>
 						<div className="col-xs-12 col-md-10">
@@ -145,7 +145,7 @@ class EditProfileForm extends Component {
 				</div>
 				<div className="row form-group">
 					<div className="col-xs-12 text-xs-center">
-						<button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+						<button type="submit" className="btn btn-primary" disabled={isSubmitting || user.trusted === false}>
 							<i className="fa fa-fw fa-save"></i>
 							{isCreate ? 'Finish Registration' : 'Save Changes'}
 							{isSubmitting ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
@@ -203,10 +203,10 @@ export default Formik({
 
 	handleSubmit: (values, { props, setErrors, setSubmitting }) => {
 		const { first_name, survivor, last_name, payment_account, payment_type, phone_number, referred_by, team_name } = values,
-				{ isCreate, router } = props,
-				done_registering = validateReferredBy.call({ referred_by });
+				{ isCreate, router, user } = props,
+				done_registering = user.trusted || validateReferredBy.call({ referred_by });
 		try {
-			updateUser.call({ done_registering, first_name, last_name, payment_account, payment_type, phone_number, referred_by, survivor: (survivor === 'Y'), team_name });
+			updateUser.call({ done_registering, first_name, last_name, leagues: [DEFAULT_LEAGUE], payment_account, payment_type, phone_number, referred_by, survivor: (survivor === 'Y'), team_name });
 			if (isCreate) {
 				if (done_registering) {
 					Bert.alert(`Thanks for registering, ${first_name}`, 'success');

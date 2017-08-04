@@ -34,7 +34,11 @@ export const removeAllSurvivorPicksForUser = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' }
 	}).validator(),
 	run ({ league, user_id }) {
-		if (Meteor.isServer) SurvivorPick.remove({ league, user_id }, { multi: true });
+		if (league == null) {
+			SurvivorPick.remove({ user_id }, { multi: true });
+		} else {
+			SurvivorPick.remove({ league, user_id }, { multi: true });
+		}
 	}
 });
 export const removeAllSurvivorPicksForUserSync = Meteor.wrapAsync(removeAllSurvivorPicksForUser.call, removeAllSurvivorPicksForUser);

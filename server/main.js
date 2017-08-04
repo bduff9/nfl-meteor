@@ -6,7 +6,6 @@ import { Accounts } from 'meteor/accounts-base';
 import { DEFAULT_LEAGUE, POOL_COST } from '../imports/api/constants';
 import { displayError } from '../imports/api/global';
 import { currentWeekSync } from '../imports/api/collections/games';
-import { getEmptyUserPicksSync, getEmptyUserSurvivorPicksSync, getEmptyUserTiebreakersSync } from './collections/games';
 import { getSystemValuesSync } from '../imports/api/collections/systemvals';
 import { writeLog } from '../imports/api/collections/nfllogs';
 
@@ -62,7 +61,7 @@ Meteor.startup(() => {
 		user.referred_by = EMPTY_VAL;
 		user.verified = verified;
 		user.done_registering = false;
-		user.leagues = [DEFAULT_LEAGUE];
+		user.leagues = [];
 		user.is_admin = false;
 		user.survivor = null;
 		user.payment_type = '';
@@ -74,9 +73,6 @@ Meteor.startup(() => {
 		user.total_games = 0;
 		user.overall_place = 1;
 		user.overall_tied_flag = true;
-		getEmptyUserPicksSync({ user_id: user._id, leagues: user.leagues });
-		getEmptyUserTiebreakersSync({ user_id: user._id, leagues: user.leagues });
-		getEmptyUserSurvivorPicksSync({ user_id: user._id, leagues: user.leagues });
 		firstName = first_name || 'An unknown';
 		lastName = last_name || 'user';
 		writeLog.call({ userId: user._id, action: 'REGISTER', message: `${firstName} ${lastName} registered with email ${email}` }, displayError);

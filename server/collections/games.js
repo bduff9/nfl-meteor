@@ -6,9 +6,9 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Game } from '../../imports/api/collections/games';
-import { addPickSync, removeAllPicksForUserSync } from './picks';
-import { addSurvivorPickSync, removeAllSurvivorPicksForUserSync } from './survivorpicks';
-import { addTiebreakerSync, removeAllTiebreakersForUserSync } from './tiebreakers';
+import { addPick, removeAllPicksForUser } from './picks';
+import { addSurvivorPick, removeAllSurvivorPicksForUser } from './survivorpicks';
+import { addTiebreaker, removeAllTiebreakersForUser } from './tiebreakers';
 
 /**
  * All server side game logic
@@ -40,9 +40,9 @@ export const getEmptyUserPicks = new ValidatedMethod({
 					game: game.game
 				};
 			});
-			removeAllPicksForUserSync({ league, user_id });
+			removeAllPicksForUser.call({ league, user_id });
 			picks.forEach(pick => {
-				addPickSync({ pick });
+				addPick.call({ pick });
 			});
 		});
 	}
@@ -64,10 +64,8 @@ export const getEmptyUserSurvivorPicks = new ValidatedMethod({
 					week: game.week
 				};
 			});
-			removeAllSurvivorPicksForUserSync({ league, user_id });
-			survivorPicks.forEach(survivorPick => {
-				addSurvivorPickSync({ survivorPick });
-			});
+			removeAllSurvivorPicksForUser.call({ league, user_id });
+			survivorPicks.forEach(survivorPick => addSurvivorPick.call({ survivorPick }));
 		});
 	}
 });
@@ -88,9 +86,9 @@ export const getEmptyUserTiebreakers = new ValidatedMethod({
 					week: game.week
 				};
 			});
-			removeAllTiebreakersForUserSync({ league, user_id });
+			removeAllTiebreakersForUser.call({ league, user_id });
 			tiebreakers.forEach(tiebreaker => {
-				addTiebreakerSync({ tiebreaker });
+				addTiebreaker.call({ tiebreaker });
 			});
 		});
 	}
@@ -101,7 +99,7 @@ export const initSchedule = new ValidatedMethod({
 	name: 'Games.insert',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		if (Meteor.isServer) API.populateGames();
+		API.populateGames();
 	}
 });
 export const initScheduleSync = Meteor.wrapAsync(initSchedule.call, initSchedule);
@@ -112,7 +110,7 @@ export const refreshGames = new ValidatedMethod({
 	run () {
 		const gamesInProgress = Game.find({ game: { $ne: 0 }, status: { $ne: 'C' }, kickoff: { $lte: new Date() }}).count();
 		if (gamesInProgress === 0) throw new Meteor.Error('No games found', 'There are no games currently in progress');
-		if (Meteor.isServer) return API.refreshGameData();
+		return API.refreshGameData();
 	}
 });
 export const refreshGamesSync = Meteor.wrapAsync(refreshGames.call, refreshGames);
@@ -121,7 +119,7 @@ export const removeBonusPointGames = new ValidatedMethod({
 	name: 'Games.removeBonusPointGames',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		if (Meteor.isServer) Game.remove({ game: 0 }, { multi: true });
+		Game.remove({ game: 0 }, { multi: true });
 	}
 });
 export const removeBonusPointGamesSync = Meteor.wrapAsync(removeBonusPointGames.call, removeBonusPointGames);

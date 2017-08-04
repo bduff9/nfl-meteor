@@ -28,7 +28,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 		if (confirm(`Are you sure you want to do this?  All data will be reset for the ${getCurrentSeasonYear()} season`)) {
 			Meteor.call('initPoolOnServer', {}, err => {
 				if (err) return displayError(err);
-				window.location.reload(true);
+				Meteor.logout();
 			});
 		}
 		return false;
@@ -86,7 +86,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null)
 						]
 							:
-							<li><a href="#" className="disabled">No Survivor Pool</a></li>
+							<li><a href="javascript:void(0)" style={{ opacity: 0.5, pointerEvents: 'none', cursor: 'not-allowed' }}>No Survivor Pool</a></li>
 						}
 					</ul>
 					<ul className="nav nav-sidebar">

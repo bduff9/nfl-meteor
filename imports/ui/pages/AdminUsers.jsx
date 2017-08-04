@@ -82,7 +82,7 @@ class AdminUsers extends Component {
 										<td><i className={`fa fa-fw fa-user-secret ${user.is_admin ? 'is-admin' : 'not-admin'}`} title={`Toggle ${user.first_name} ${user.last_name} as admin`} onClick={this._toggleAdmin.bind(null, user)} /></td>
 										<td><i className="fa fa-fw fa-envelope text-warning" title={`Reset ${user.first_name} ${user.last_name}'s password'`} onClick={this._resetPassword.bind(null, user)} /></td>
 										<td>
-											{!user.done_registering && !validateReferredBy.call({ referred_by: user.referred_by, user_id: user._id }) ? <i className="fa fa-fw fa-thumbs-up text-success" title={`Approve ${user.first_name} ${user.last_name}`} onClick={this._approveUser.bind(null, user)} /> : null}
+											{!user.done_registering && user.trusted === false ? <i className="fa fa-fw fa-thumbs-up text-success" title={`Approve ${user.first_name} ${user.last_name}`} onClick={this._approveUser.bind(null, user)} /> : null}
 											{!user.done_registering ? <i className="fa fa-fw fa-thumbs-down text-danger" title={`Delete ${user.first_name} ${user.last_name}`} onClick={this._deleteUser.bind(null, user)} /> : null}
 										</td>
 										<td>{`${user.first_name} ${user.last_name}`}</td>
@@ -117,7 +117,7 @@ export default createContainer(() => {
 	const allUsersHandle = Meteor.subscribe('adminUsers'),
 			allUsersReady = allUsersHandle.ready();
 	let users = [];
-	if (allUsersReady) users = getAdminUsers.call({}, displayError);
+	if (allUsersReady) users = getAdminUsers.call({});
 	return {
 		pageReady: allUsersReady,
 		users

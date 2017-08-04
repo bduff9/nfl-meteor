@@ -34,7 +34,11 @@ export const removeAllPicksForUser = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' }
 	}).validator(),
 	run ({ league, user_id }) {
-		if (Meteor.isServer) Pick.remove({ league, user_id }, { multi: true });
+		if (league == null) {
+			Pick.remove({ user_id }, { multi: true });
+		} else {
+			Pick.remove({ league, user_id }, { multi: true });
+		}
 	}
 });
 export const removeAllPicksForUserSync = Meteor.wrapAsync(removeAllPicksForUser.call, removeAllPicksForUser);
@@ -43,7 +47,7 @@ export const removeBonusPointPicks = new ValidatedMethod({
 	name: 'Games.removeBonusPointPicks',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		if (Meteor.isServer) Pick.remove({ game: 0 }, { multi: true });
+		Pick.remove({ game: 0 }, { multi: true });
 	}
 });
 export const removeBonusPointPicksSync = Meteor.wrapAsync(removeBonusPointPicks.call, removeBonusPointPicks);

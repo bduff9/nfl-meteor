@@ -1,16 +1,7 @@
 Registration:
 	- Add new fields:
 		- Handle messaging props
-	- Move add picks/tiebreakers/survivor process to user.js methods from main.js
-		- Add/delete survivor picks from admin users screen
 	- Send welcome back email to existing users, welcome to new users
 Create payments page
-User admin
-	- Add/delete survivor picks
-	- Mark users who failed referred_by test as done_registering, send welcome email for new users
 Misc.
 	- Admin screen to enter payments?  Or just in constants?
-	- Add new field for trusted
-		- Returning have it set to true, default to false
-		- Validated referred_by have it set to true, admin screen only shows approve when false
-		- Add it to publications

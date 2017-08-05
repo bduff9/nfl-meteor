@@ -72,7 +72,7 @@ export const getSortedSurvivorPicks = new ValidatedMethod({
 		pickObjs.forEach((pick, i, allPicks) => {
 			const nextPick = allPicks[i + 1];
 			pick.place = currPlace;
-			if (pick.weeks === nextPick.weeks) {
+			if (nextPick && pick.weeks === nextPick.weeks) {
 				pick.tied = true;
 				nextPick.tied = true;
 			} else {

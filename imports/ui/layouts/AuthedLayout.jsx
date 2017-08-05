@@ -47,7 +47,7 @@ class AuthedLayout extends Component {
 	render () {
 		const { openMenu, rightSlider, scoreboardWeek } = this.state,
 				{ children, currentWeek, location, ...rest } = this.props,
-				logoutOnly = location.pathname.indexOf('create') > -1;
+				logoutOnly = location.pathname.indexOf('create') > -1;// || location.pathname.indexOf('payment') > -1;
 		return (
 			<div className="col-xs-12 authed-layout-wrapper">
 				<div className="row">

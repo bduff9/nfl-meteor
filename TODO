@@ -2,6 +2,4 @@ Registration:
 	- Add new fields:
 		- Handle messaging props
 	- Send welcome back email to existing users, welcome to new users
-Create payments page
 Misc.
-	- Admin screen to enter payments?  Or just in constants?

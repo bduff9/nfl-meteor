@@ -5,6 +5,34 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { Tiebreaker } from '../../imports/api/collections/tiebreakers';
 
+Meteor.publish('allTiebreakersForUser', function (league) {
+	let tiebreakers;
+	if (!this.userId) return this.ready();
+	new SimpleSchema({
+		league: { type: String, label: 'League' }
+	}).validate({ league });
+	tiebreakers = Tiebreaker.find({ league, user_id: this.userId }, {
+		fields: {
+			'_id': 1,
+			'user_id': 1,
+			'week': 1,
+			'league': 1,
+			'last_score': 1,
+			'submitted': 1,
+			'last_score_act': 1,
+			'points_earned': 1,
+			'games_correct': 1,
+			'place_in_week': 1,
+			'tied_flag': 1
+		},
+		sort: {
+			'week': 1
+		}
+	});
+	if (tiebreakers) return tiebreakers;
+	return this.ready();
+});
+
 Meteor.publish('allTiebreakersForWeek', function (week, league) {
 	let tiebreakers;
 	if (!this.userId) return this.ready();

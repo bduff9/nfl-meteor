@@ -7,19 +7,19 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError, getCurrentSeasonYear } from '../../api/global';
-import { getNextGameSync } from '../../api/collections/games';
-import { getUnreadChatCountSync, getUnreadMessagesSync } from '../../api/collections/nfllogs';
-import { getMySurvivorPicksSync } from '../../api/collections/survivorpicks';
+import { getNextGame } from '../../api/collections/games';
+import { getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
+import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 import { getSystemValues } from '../../api/collections/systemvals';
-import { getTiebreakerSync } from  '../../api/collections/tiebreakers';
+import { getTiebreaker } from  '../../api/collections/tiebreakers';
 import { updateSelectedWeek } from '../../api/collections/users';
 
 const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length;
 
 	if (pageReady && !logoutOnly) {
-		msgCt += (currentUser.paid ? 0 : 1);
-		msgCt += (tiebreaker.submitted ? 0 : 1);
+		if (currentUser) msgCt += (currentUser.paid ? 0 : 1);
+		if (tiebreaker) msgCt += (tiebreaker.submitted ? 0 : 1);
 		if (currentUser.survivor) msgCt += (currentUser.survivor && !survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id ? 0 : 1);
 	}
 
@@ -140,7 +140,7 @@ Navigation.propTypes = {
 	selectedWeek: PropTypes.number,
 	survivorPicks: PropTypes.arrayOf(PropTypes.object).isRequired,
 	systemVals: PropTypes.object.isRequired,
-	tiebreaker: PropTypes.object.isRequired,
+	tiebreaker: PropTypes.object,
 	unreadChatCt: PropTypes.number.isRequired,
 	unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
 	_toggleMenu: PropTypes.func.isRequired,
@@ -166,11 +166,11 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 			systemVals = getSystemValues.call({}),
 			tiebreaker = {};
 	if (!logoutOnly) {
-		if (unreadChatReady) unreadChatCt = getUnreadChatCountSync({});
-		if (nextGameReady) nextGame = getNextGameSync({});
-		if (messagesReady) unreadMessages = getUnreadMessagesSync({});
-		if (survivorReady) survivorPicks = getMySurvivorPicksSync({ league: currentLeague });
-		if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: currentWeek });
+		if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({});
+		if (nextGameReady) nextGame = getNextGame.call({});
+		if (messagesReady) unreadMessages = getUnreadMessages.call({});
+		if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague });
+		if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek });
 	}
 	return {
 		...rest,

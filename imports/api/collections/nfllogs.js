@@ -7,7 +7,6 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { ACTIONS } from '../constants';
-import { displayError } from '../global';
 import { getUserByID } from '../collections/users';
 
 export const getAllChats = new ValidatedMethod({

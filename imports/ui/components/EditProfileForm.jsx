@@ -71,7 +71,7 @@ class EditProfileForm extends Component {
 						<label htmlFor="survivor" className="col-xs-12 col-md-2 col-form-label">Play Survivor Pool?</label>
 						<div className="col-xs-12 col-md-10">
 							<label className="form-check-label col-form-label">
-								<input type="checkbox" className="form-check-input" name="survivor" value="Y" checked={values.survivor} onChange={handleChange} />
+								<input type="checkbox" className="form-check-input" name="survivor" value="true" checked={values.survivor} onChange={handleChange} />
 								&nbsp;Yes
 							</label>
 							{errors.survivor && touched.survivor && <div className="form-control-feedback">{errors.survivor}</div>}
@@ -192,7 +192,7 @@ export default Formik({
 		team_name: Yup.string(),
 		referred_by: (props.isCreate ? Yup.string().matches(/\s/, 'Please input the full name of the person that invited you').required('Please input the full name of the person that invited you') : Yup.string()),
 		phone_number: Yup.string().matches(/^(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?$/, 'Please enter a valid phone number'),
-		survivor: Yup.string(),
+		survivor: Yup.string().nullable(true),
 		payment_type: Yup.string().oneOf(ACCOUNT_TYPES, 'Please select a valid account type').required('Please select an account type'),
 		payment_account: Yup.string().when('payment_type', {
 			is: val => DIGITAL_ACCOUNTS.indexOf(val) > -1,
@@ -206,7 +206,7 @@ export default Formik({
 				{ isCreate, router, user } = props,
 				done_registering = user.trusted || validateReferredBy.call({ referred_by });
 		try {
-			updateUser.call({ done_registering, first_name, last_name, leagues: [DEFAULT_LEAGUE], payment_account, payment_type, phone_number, referred_by, survivor: (survivor === 'Y'), team_name });
+			updateUser.call({ done_registering, first_name, last_name, leagues: [DEFAULT_LEAGUE], payment_account, payment_type, phone_number, referred_by, survivor: survivor || false, team_name });
 			if (isCreate) {
 				if (done_registering) {
 					Bert.alert(`Thanks for registering, ${first_name}`, 'success');
@@ -222,6 +222,7 @@ export default Formik({
 				});
 			}
 		} catch(err) {
+			console.error('Error on register', err);
 			displayError(err);
 		}
 	}

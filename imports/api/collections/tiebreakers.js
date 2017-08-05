@@ -60,7 +60,7 @@ export const getTiebreaker = new ValidatedMethod({
 	run ({ league, user_id = this.userId, week }) {
 		const tb = Tiebreaker.findOne({ league, user_id, week });
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
-		if (!tb) throw new Meteor.Error('No tiebreaker found');
+		//if (!tb) throw new Meteor.Error('No tiebreaker found');
 		return tb;
 	}
 });

@@ -5,12 +5,12 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { DashLayout } from '../layouts/DashLayout.jsx';
 import { sortForDash } from '../../api/global';
-import { getCurrentUserSync } from '../../api/collections/users';
-import { getAllTiebreakersForWeekSync, getTiebreakerSync } from '../../api/collections/tiebreakers';
-import { getAllPicksForWeekSync } from '../../api/collections/picks';
+import { getCurrentUser } from '../../api/collections/users';
+import { getAllTiebreakersForWeek, getTiebreaker } from '../../api/collections/tiebreakers';
+import { getAllPicksForWeek } from '../../api/collections/picks';
 
 export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
-	const myUser = getCurrentUserSync({}),
+	const myUser = getCurrentUser.call({}),
 			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', week, league),
 			tiebreakerReady = tiebreakerHandle.ready(),
 			picksHandle = Meteor.subscribe('allPicksForWeek', week, league),
@@ -27,10 +27,10 @@ export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
 			highestScore = 0,
 			data = [];
 	if (picksReady && tiebreakerReady && tiebreakersReady && usersReady) {
-		picks = getAllPicksForWeekSync({ league, week });
+		picks = getAllPicksForWeek.call({ league, week });
 		myPicks = picks.filter(pick => pick.user_id === myUser._id);
-		myTiebreaker = getTiebreakerSync({ league, week });
-		tiebreakers = getAllTiebreakersForWeekSync({ league, week });
+		myTiebreaker = getTiebreaker.call({ league, week });
+		tiebreakers = getAllTiebreakersForWeek.call({ league, week });
 		data = tiebreakers.map((tb, i, allTiebreakers) => {
 			const tiebreaker = Object.assign({}, tb),
 					user = tb.getUser(),

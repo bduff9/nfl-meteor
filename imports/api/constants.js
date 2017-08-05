@@ -22,16 +22,19 @@ export const POOL_COST = 30;
 export const SURVIVOR_COST = 5;
 
 /**
- * How many people win survivor payouts
+ * Prize levels
  */
-export const SURVIVOR_WINNERS = 3;
+export const WEEKLY_PRIZES = [0, 15, 7];
+export const OVERALL_PRIZES = [0, 200, 150, 100];
+export const LAST_PLACE_PRIZE = POOL_COST;
+export const SURVIVOR_PRIZES = [0, 50, 25];
 
 /**
  * How many to insert into the pool history
  */
-export const TOP_WEEKLY_FOR_HISTORY = 2;
-export const TOP_OVERALL_FOR_HISTORY = 3;
-export const TOP_SURVIVOR_FOR_HISTORY = 1;
+export const TOP_WEEKLY_FOR_HISTORY = WEEKLY_PRIZES.length - 1;
+export const TOP_OVERALL_FOR_HISTORY = OVERALL_PRIZES.length - 1;
+export const TOP_SURVIVOR_FOR_HISTORY = SURVIVOR_PRIZES.length - 1;
 
 /**
  * Actions for logging

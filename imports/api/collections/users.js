@@ -10,7 +10,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Email } from 'meteor/email';
 import { Class } from 'meteor/jagi:astronomy';
 
-import { ACCOUNT_TYPES, dbVersion, DEFAULT_LEAGUE, POOL_EMAIL_FROM } from '../constants';
+import { ACCOUNT_TYPES, dbVersion, DEFAULT_LEAGUE, POOL_COST, POOL_EMAIL_FROM, SURVIVOR_COST } from '../constants';
 import { logError, overallPlacer, weekPlacer } from '../global';
 import { writeLog } from './nfllogs';
 import { getAllPicksForUser, Pick } from './picks';
@@ -384,10 +384,14 @@ export const updateUser = new ValidatedMethod({
 		isCreate = !user.done_registering;
 		user = Object.assign(user, userObj);
 		user.trusted = userObj.done_registering;
-		if (Meteor.isServer && isCreate && userObj.done_registering) {
+		if (isCreate && userObj.done_registering) {
+			user.owe = POOL_COST;
 			Meteor.call('Games.getEmptyUserTiebreakers', { user_id: user._id, leagues: user.leagues });
 			Meteor.call('Games.getEmptyUserPicks', { user_id: user._id, leagues: user.leagues });
-			if (user.survivor) Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+			if (user.survivor) {
+				user.owe += SURVIVOR_COST;
+				Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+			}
 			sendWelcomeEmail.call({ isNewPlayer, userId: this.userId }, logError);
 		}
 		user.save();
@@ -414,9 +418,13 @@ export const updateUserAdmin = new ValidatedMethod({
 			user.trusted = true;
 			if (Meteor.isServer) {
 				if (!user.done_registering && done_registering) {
+					user.owe = POOL_COST;
 					Meteor.call('Games.getEmptyUserPicks', { user_id: user._id, leagues: user.leagues });
 					Meteor.call('Games.getEmptyUserTiebreakers', { user_id: user._id, leagues: user.leagues });
-					if (survivor == null && user.survivor) Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+					if (survivor == null && user.survivor) {
+						user.owe += SURVIVOR_COST;
+						Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+					}
 					sendWelcomeEmail.call({ isNewPlayer, userId }, logError);
 				}
 			}
@@ -432,8 +440,10 @@ export const updateUserAdmin = new ValidatedMethod({
 			if (Meteor.isServer) {
 				if (user.done_registering) {
 					if (survivor) {
+						user.owe += SURVIVOR_COST;
 						Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
 					} else {
+						user.owe -= SURVIVOR_COST;
 						Meteor.call('SurvivorPicks.removeAllSurvivorPicksForUser', { user_id: user._id });
 					}
 				}
@@ -448,21 +458,21 @@ export const validateReferredBy = new ValidatedMethod({
 	name: 'Users.validateReferredBy',
 	validate: new SimpleSchema({
 		referred_by: { type: String, label: 'Referred By' },
-		user_id: { type: String, label: 'User ID' }
+		user_id: { type: String, label: 'User ID', optional: true }
 	}).validator(),
 	run ({ referred_by, user_id = this.userId }) {
 		const currentUser = User.findOne(user_id),
-				allUsers = User.find({});
+				allUsers = User.find({ done_registering: true }).fetch();
 		let foundUsers;
 		if (!user_id) throw new Meteor.Error('Users.validateReferredBy.not-signed-in', 'You are not signed in');
 		if (currentUser.referred_by === referred_by) return true;
 		foundUsers = allUsers.filter(user => {
 			const { first_name, last_name } = user,
-					fullName = `${first_name} ${last_name}`.toLowerCase();
+					fullName = `${first_name.trim()} ${last_name.trim()}`.toLowerCase();
 			if (user._id === user_id) return false;
-			return fullName === referred_by.toLowerCase();
+			return fullName === referred_by.trim().toLowerCase();
 		});
-		return foundUsers.length;
+		return foundUsers.length > 0;
 	}
 });
 export const validateReferredBySync = Meteor.wrapAsync(validateReferredBy.call, validateReferredBy);

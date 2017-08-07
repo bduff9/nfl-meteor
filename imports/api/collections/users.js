@@ -213,6 +213,21 @@ http://nfl.asitewithnoname.com/admin/users`,
 });
 export const sendWelcomeEmailSync = Meteor.wrapAsync(sendWelcomeEmail.call, sendWelcomeEmail);
 
+export const updateNotifications = new ValidatedMethod({
+	name: 'Users.updateNotifications',
+	validate: new SimpleSchema({
+		do_quick_pick: { type: Boolean, label: 'Quick Pick?' },
+		do_reminder: { type: Boolean, label: 'Reminder?' },
+		quick_pick_hours: { type: Number, label: 'When to send quick pick' },
+		reminder_hours: { type: Number, label: 'When to send reminder' },
+		reminder_types: { type: [String], label: 'How to send reminder' }
+	}).validator(),
+	run ({ do_quick_pick, do_reminder, quick_pick_hours, reminder_hours, reminder_types }) {
+		//TODO:
+	}
+});
+export const updateNotificationsSync = Meteor.wrapAsync(updateNotifications.call, updateNotifications);
+
 export const updatePlaces = new ValidatedMethod({
 	name: 'Users.tiebreakers.updatePlaces',
 	validate: new SimpleSchema({
@@ -488,7 +503,7 @@ if (dbVersion > 1) {
 		fields: {
 			type: {
 				type: [String],
-				validators: [{ type: 'choice', param: ['H', 'V'] }]
+				validators: [{ type: 'choice', param: ['Email', 'Text'] }]
 			},
 			hours_before: {
 				type: Number,

@@ -3,7 +3,6 @@
 import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
-import 'jquery-validation';
 import Helmet from 'react-helmet';
 
 import { displayError } from '../../api/global';

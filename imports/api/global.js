@@ -14,6 +14,12 @@ export const displayError = (err, opts = { title: err && err.reason, type: 'dang
 	Bert.alert(opts);
 };
 
+export const formattedPlace = (place) => {
+	const s = ['th', 'st', 'nd', 'rd'],
+			v = place % 100;
+	return place + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
 export const getColor = (point, max) => {
 	const BLUE = 0;
 	let style = {},
@@ -33,10 +39,10 @@ export const getCurrentSeasonYear = () => {
 	return currYear;
 };
 
-export const formattedPlace = (place) => {
-	const s = ['th', 'st', 'nd', 'rd'],
-			v = place % 100;
-	return place + (s[(v - 20) % 10] || s[v] || s[0]);
+export const getInputColor = (error, touched, prefix) => {
+	if (!touched) return '';
+	if (error) return prefix + 'danger';
+	return prefix + 'success';
 };
 
 export const logError = (err) => {

@@ -1,8 +1,8 @@
 'use strict';
 
-import 'jquery-validation';
 import React, { Component } from 'react';
 import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
@@ -24,6 +24,19 @@ export default class Login extends Component {
 		this._toggleType = this._toggleType.bind(this);
 	}
 
+	_forgotPassword (email, ev) {
+		if (!email) {
+			Bert.alert({ type: 'danger', message: 'Please enter the email address you signed up with' });
+			return false;
+		}
+		Accounts.forgotPassword({ email }, err => {
+			if (err) {
+				displayError(err);
+			} else {
+				Bert.alert({ type: 'success', message: 'Password reset email has been sent' });
+			}
+		});
+	}
 	_oauthLogin (service, ev) {
 		const options = {
 			requestPermissions: ['email']
@@ -71,7 +84,7 @@ export default class Login extends Component {
 						</div>
 					</div>
 					<div className="login-form">
-						<LoginForm loading={loading} type={type} setLoading={this._setLoading} />
+						<LoginForm loading={loading} type={type} forgotPassword={this._forgotPassword} setLoading={this._setLoading} />
 					</div>
 					<div className="reg-btns">
 						<br />

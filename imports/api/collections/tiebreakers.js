@@ -7,11 +7,11 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../constants';
-import { displayError, logError } from '../global';
+import { logError } from '../global';
 import { gameHasStarted } from './games';
 import { writeLog } from './nfllogs';
 import { getPicksForWeek } from './picks';
-import { getUserByID, getUserNameSync, sendAllPicksInEmail } from './users';
+import { getUserByID, getUserName, sendAllPicksInEmail } from './users';
 
 /**
  * All tiebreaker logic
@@ -65,6 +65,18 @@ export const getTiebreaker = new ValidatedMethod({
 	}
 });
 export const getTiebreakerSync = Meteor.wrapAsync(getTiebreaker.call, getTiebreaker);
+
+export const getUnsubmittedPicksForWeek = new ValidatedMethod({
+	name: 'Tiebreakers.getUnsubmittedPicksForWeek',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week' }
+	}).validator(),
+	run ({ week }) {
+		const unsubmitted = Tiebreaker.find({ submitted: false, week }).fetch();
+		return unsubmitted;
+	}
+});
+export const getUnsubmittedPicksForWeekSync = Meteor.wrapAsync(getUnsubmittedPicksForWeek.call, getUnsubmittedPicksForWeek);
 
 export const hasAllSubmitted = new ValidatedMethod({
 	name: 'Tiebreakers.hasAllSubmitted',
@@ -147,7 +159,7 @@ export const submitPicks = new ValidatedMethod({
 			tiebreaker.save();
 			sendAllPicksInEmail.call({ selectedWeek: week }, logError);
 		}
-		writeLog.call({ action: 'SUBMIT_PICKS', message: `${getUserNameSync({ user_id })} has just submitted their week ${week} picks`, userId: user_id }, logError);
+		writeLog.call({ action: 'SUBMIT_PICKS', message: `${getUserName.call({ user_id })} has just submitted their week ${week} picks`, userId: user_id }, logError);
 	}
 });
 export const submitPicksSync = Meteor.wrapAsync(submitPicks.call, submitPicks);
@@ -247,11 +259,11 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			getFullName () {
-				const name = getUserNameSync({ user_id: this.user_id });
+				const name = getUserName.call({ user_id: this.user_id });
 				return name;
 			},
 			getUser () {
-				const user = getUserByID.call({ user_id: this.user_id }, displayError);
+				const user = getUserByID.call({ user_id: this.user_id });
 				return user;
 			}
 		},

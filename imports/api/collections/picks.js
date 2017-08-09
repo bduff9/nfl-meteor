@@ -125,6 +125,20 @@ export const getAllPicksForWeek = new ValidatedMethod({
 });
 export const getAllPicksForWeekSync = Meteor.wrapAsync(getAllPicksForWeek.call, getAllPicksForWeek);
 
+export const getPickForFirstGameOfWeek = new ValidatedMethod({
+	name: 'Picks.getPickForFirstGameOfWeek',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID' },
+		week: { type: Number, label: 'Week' }
+	}).validator(),
+	run ({ league, user_id, week }) {
+		const firstGamePick = Pick.findOne({ game: 1, league, user_id, week });
+		return firstGamePick;
+	}
+});
+export const getPickForFirstGameOfWeekSync = Meteor.wrapAsync(getPickForFirstGameOfWeek.call, getPickForFirstGameOfWeek);
+
 export const getPicksForWeek = new ValidatedMethod({
 	name: 'Picks.getPicksForWeek',
 	validate: new SimpleSchema({

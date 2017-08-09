@@ -17,6 +17,7 @@ const LoginForm = ({
 	touched,
 	type,
 	values,
+	forgotPassword,
 	handleBlur,
 	handleChange,
 	handleReset,
@@ -38,6 +39,9 @@ const LoginForm = ({
 					<strong>{type === 'login' ? 'Sign In With Email' : 'Register With Email'}</strong>
 					{isSubmitting ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
 				</button>
+				<button type="button" className="btn btn-block btn-info" onClick={forgotPassword.bind(null, values.email)}>
+					Forgot password?
+				</button>
 				{loading === 'verify' ? <div className="text-xs-center text-success"><i className="fa fa-fw fa-check" /> <strong>Please check your email to verify your account</strong></div> : null}
 			</div>
 		</div>
@@ -53,6 +57,7 @@ LoginForm.propTypes = {
 	touched: PropTypes.object.isRequired,
 	type: PropTypes.oneOf(['login', 'register']).isRequired,
 	values: PropTypes.object.isRequired,
+	forgotPassword: PropTypes.func.isRequired,
 	handleBlur: PropTypes.func.isRequired,
 	handleChange: PropTypes.func.isRequired,
 	handleReset: PropTypes.func.isRequired,

@@ -136,6 +136,17 @@ export const getNextGame = new ValidatedMethod({
 });
 export const getNextGameSync = Meteor.wrapAsync(getNextGame.call, getNextGame);
 
+export const getNextGame1 = new ValidatedMethod({
+	name: 'Games.getNextGame1',
+	validate: new SimpleSchema({}).validator(),
+	run () {
+		const nextGame1 = Game.find({ game: 1, status: 'P' }, { sort: { kickoff: 1 } }).fetch()[0];
+		if (!nextGame1) return { week: WEEKS_IN_SEASON, game: MAX_GAMES_IN_WEEK, notFound: true };
+		return nextGame1;
+	}
+});
+export const getNextGame1Sync = Meteor.wrapAsync(getNextGame1.call, getNextGame1);
+
 export const getPaymentDue = new ValidatedMethod({
 	name: 'Games.getPaymentDue',
 	validate: new SimpleSchema({}).validator(),
@@ -146,6 +157,18 @@ export const getPaymentDue = new ValidatedMethod({
 	}
 });
 export const getPaymentDueSync = Meteor.wrapAsync(getPaymentDue.call, getPaymentDue);
+
+export const getUnstartedGamesForWeek = new ValidatedMethod({
+	name: 'Games.getUnstartedGamesForWeek',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week' }
+	}).validator(),
+	run ({ week }) {
+		const unstartedGames = Game.find({ status: 'P', week }).fetch();
+		return unstartedGames;
+	}
+});
+export const getUnstartedGamesForWeekSync = Meteor.wrapAsync(getUnstartedGamesForWeek.call, getUnstartedGamesForWeek);
 
 export const getWeeksToRefresh = new ValidatedMethod({
 	name: 'Games.getWeeksToRefresh',

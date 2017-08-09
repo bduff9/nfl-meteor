@@ -19,7 +19,6 @@
     "bootstrap": "4.0.0-alpha.3",
     "formik": "^0.8.9",
     "jquery": "^3.1.0",
-    "jquery-validation": "^1.15.1",
     "meteor-node-stubs": "^0.2.3",
     "node-sass": "^4.5.3",
     "react": "15.2.1",

@@ -220,10 +220,34 @@ export const updateNotifications = new ValidatedMethod({
 		do_reminder: { type: Boolean, label: 'Reminder?' },
 		quick_pick_hours: { type: Number, label: 'When to send quick pick' },
 		reminder_hours: { type: Number, label: 'When to send reminder' },
-		reminder_types: { type: [String], label: 'How to send reminder' }
+		reminder_types_email: { type: Boolean, label: 'Send reminder as email?' },
+		reminder_types_text: { type: Boolean, label: 'Send reminder as text?' }
 	}).validator(),
-	run ({ do_quick_pick, do_reminder, quick_pick_hours, reminder_hours, reminder_types }) {
-		//TODO:
+	run ({ do_quick_pick, do_reminder, quick_pick_hours, reminder_hours, reminder_types_email, reminder_types_text }) {
+		const user_id = this.userId,
+				currentUser = User.findOne(user_id);
+		if (!user_id) throw new Meteor.Error('Users.updateNotifications.not-signed-in', 'You are not signed in');
+		currentUser.notifications = [];
+		if (do_reminder) {
+			const type = [];
+			if (reminder_types_email) type.push('email');
+			if (reminder_types_text) type.push('text');
+			const reminder = new Notification({
+				type,
+				hours_before: reminder_hours,
+				is_quick: false
+			});
+			currentUser.notifications.push(reminder);
+		}
+		if (do_quick_pick) {
+			const quickPick = new Notification({
+				type: ['email'],
+				hours_before: quick_pick_hours,
+				is_quick: true
+			});
+			currentUser.notifications.push(quickPick);
+		}
+		currentUser.save();
 	}
 });
 export const updateNotificationsSync = Meteor.wrapAsync(updateNotifications.call, updateNotifications);
@@ -380,15 +404,15 @@ export const updateSurvivorSync = Meteor.wrapAsync(updateSurvivor.call, updateSu
 export const updateUser = new ValidatedMethod({
 	name: 'Users.updateUser',
 	validate: new SimpleSchema({
-		done_registering: { type: Boolean, label: 'Done Registering?' },
+		done_registering: { type: Boolean, label: 'Done Registering?', optional: true },
 		first_name: { type: String, label: 'First Name' },
 		last_name: { type: String, label: 'Last Name' },
-		leagues: { type: [String], label: 'Leagues' },
+		leagues: { type: [String], label: 'Leagues', optional: true },
 		payment_account: { type: String, label: 'Payment Account' },
 		payment_type: { type: String, label: 'Payment Type' },
 		phone_number: { type: String, label: 'Phone Number' },
-		referred_by: { type: String, label: 'Referred By' },
-		survivor: { type: Boolean, label: 'Has Survivior?' },
+		referred_by: { type: String, label: 'Referred By', optional: true },
+		survivor: { type: Boolean, label: 'Has Survivior?', optional: true },
 		team_name: { type: String, label: 'Team Name' }
 	}).validator(),
 	run (userObj) {
@@ -398,7 +422,7 @@ export const updateUser = new ValidatedMethod({
 		isNewPlayer = !user.trusted;
 		isCreate = !user.done_registering;
 		user = Object.assign(user, userObj);
-		user.trusted = userObj.done_registering;
+		if (userObj.done_registering != null) user.trusted = userObj.done_registering;
 		if (isCreate && userObj.done_registering) {
 			user.owe = POOL_COST;
 			Meteor.call('Games.getEmptyUserTiebreakers', { user_id: user._id, leagues: user.leagues });
@@ -503,7 +527,7 @@ if (dbVersion > 1) {
 		fields: {
 			type: {
 				type: [String],
-				validators: [{ type: 'choice', param: ['Email', 'Text'] }]
+				validators: [{ type: 'every', param: [{ type: 'choice', param: ['email', 'text'] }] }]
 			},
 			hours_before: {
 				type: Number,

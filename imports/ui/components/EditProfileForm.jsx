@@ -159,23 +159,24 @@ class EditProfileForm extends Component {
 						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
 						<div className="col-xs-12 col-md-2">
 							<label className="form-check-label col-form-label">
-								<input className="form-check-input" type="checkbox" name="reminder_types_email" value="true" checked={values.reminder_types_email} onChange={handleChange} />
+								<input className="form-check-input" type="checkbox" name="reminder_types_email" value="email" checked={values.reminder_types_email} onBlur={handleBlur} onChange={handleChange} />
 								&nbsp;Email
 							</label>
 							{errors.reminder_types_email && touched.reminder_types_email && <div className="form-control-feedback">{errors.reminder_types_email}</div>}
 							&nbsp; &nbsp;
 							<label className="form-check-label col-form-label">
-								<input className="form-check-input" type="checkbox" name="reminder_types_text" value="true" checked={values.reminder_types_text} onChange={handleChange} />
+								<input className="form-check-input" type="checkbox" name="reminder_types_text" value="text" checked={values.reminder_types_text && !errors.phone_number && values.phone_number} disabled={errors.phone_number || !values.phone_number} onBlur={handleBlur} onChange={handleChange} />
 								&nbsp;Text
 							</label>
 							{errors.reminder_types_text && touched.reminder_types_text && <div className="form-control-feedback">{errors.reminder_types_text}</div>}
 						</div>
 						<label className="col-xs-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
-						<div className="col-xs-12 col-md-4">
-							<select className="form-control" name="reminder_hours" value={values.reminder_hours} onChange={handleChange}>
+						<div className={`col-xs-12 col-md-4 ${this._getInputColor(errors.reminder_hours, true, 'has-')}`}>
+							<select className="form-control" name="reminder_hours" value={values.reminder_hours} onBlur={handleBlur} onChange={handleChange}>
+								<option value="">--Select Hours Before First Game--</option>
 								{this._getHourOptions(72)}
 							</select>
-							{errors.reminder_hours && touched.reminder_hours && <div className="form-control-feedback">{errors.reminder_hours}</div>}
+							{errors.reminder_hours && <div className="form-control-feedback">{errors.reminder_hours}</div>}
 						</div>
 					</div>
 				)
@@ -198,15 +199,16 @@ class EditProfileForm extends Component {
 					null
 				}
 				{showQuickPick ? (
-					<div className="row form-group">
+					<div className={`row form-group ${this._getInputColor(errors.quick_pick_hours, true, 'has-')}`}>
 						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
 						<div className="hidden-sm-down col-md-2">&nbsp;</div>
 						<label className="col-xs-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
 						<div className="col-xs-12 col-md-4">
-							<select className="form-control" name="quick_pick_hours" value={values.quick_pick_hours} onChange={handleChange}>
+							<select className="form-control" name="quick_pick_hours" value={values.quick_pick_hours} onBlur={handleBlur} onChange={handleChange}>
+								<option value="">--Select Hours Before First Game--</option>
 								{this._getHourOptions(6)}
 							</select>
-							{errors.quick_pick_hours && touched.quick_pick_hours && <div className="form-control-feedback">{errors.quick_pick_hours}</div>}
+							{errors.quick_pick_hours && <div className="form-control-feedback">{errors.quick_pick_hours}</div>}
 						</div>
 					</div>
 				)
@@ -273,13 +275,21 @@ export default Formik({
 		const { ...values } = props.user;
 		if (!values.phone_number) values.phone_number = '';
 		if (!values.payment_account) values.payment_account = '';
-		values.do_reminder = false;
 		values.do_quick_pick = false;
+		values.do_reminder = false;
+		values.quick_pick_hours = 0;
+		values.reminder_hours = 0;
+		values.reminder_types_email = false;
+		values.reminder_types_text = false;
 		values.notifications.forEach(notification => {
 			if (!notification.is_quick) {
 				values.do_reminder = true;
+				values.reminder_types_email = notification.type.indexOf('email') > -1;
+				values.reminder_types_text = notification.type.indexOf('text') > -1;
+				values.reminder_hours = notification.hours_before;
 			} else {
 				values.do_quick_pick = true;
+				values.quick_pick_hours = notification.hours_before;
 			}
 		});
 		return values;
@@ -297,15 +307,27 @@ export default Formik({
 			is: val => DIGITAL_ACCOUNTS.indexOf(val) > -1,
 			then: Yup.string().required('Please enter your account name'),
 			otherwise: Yup.string()
-		})
+		}),
+		do_quick_pick: Yup.boolean(),
+		do_reminder: Yup.boolean(),
+		quick_pick_hours: Yup.number().when('do_quick_pick', {
+			is: true,
+			then: Yup.number().min(1, 'Please select between 1 and 6 hours').max(6, 'Please select between 1 and 6 hours').required('You must select how many hours before the first game of the week to send the quick pick email'),
+			otherwise: Yup.number()
+		}),
+		reminder_hours: Yup.number().when('do_reminder', {
+			is: true,
+			then: Yup.number().min(1, 'Please select between 1 and 72 hours').max(72, 'Please select between 1 and 72 hours').required('You must select how many hours before the first game of the week to be sent a reminder'),
+			otherwise: Yup.number()
+		}),
+		reminder_types_email: Yup.boolean(),
+		reminder_types_text: Yup.boolean()
 	}),
 
 	handleSubmit: (values, { props, setErrors, setSubmitting }) => {
-		const { do_quick_pick, do_reminder, first_name, survivor, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types, team_name } = values,
+		const { do_quick_pick, do_reminder, first_name, survivor, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types_email, reminder_types_text, team_name } = values,
 				{ isCreate, router, user } = props,
 				done_registering = user.trusted || validateReferredBy.call({ referred_by });
-		console.log(values);
-		if (1 === 1) return false;
 		try {
 			if (isCreate) {
 				updateUser.call({ done_registering, first_name, last_name, leagues: [DEFAULT_LEAGUE], payment_account, payment_type, phone_number, referred_by, survivor: survivor || false, team_name });
@@ -317,16 +339,18 @@ export default Formik({
 				}
 			} else {
 				updateUser.call({ first_name, last_name, payment_account, payment_type, phone_number, team_name });
-				updateNotifications.call({ do_quick_pick, do_reminder, quick_pick_hours, reminder_hours, reminder_types });
+				updateNotifications.call({ do_quick_pick, do_reminder, quick_pick_hours: parseInt(quick_pick_hours, 10), reminder_hours: parseInt(reminder_hours, 10), reminder_types_email, reminder_types_text });
 				Bert.alert({
 					message: 'Profile saved!',
 					type: 'success',
 					icon: 'fa-save'
 				});
+				setSubmitting(false);
 			}
 		} catch(err) {
 			console.error('Error on register', err);
 			displayError(err);
+			setSubmitting(false);
 		}
 	}
 })(EditProfileForm);

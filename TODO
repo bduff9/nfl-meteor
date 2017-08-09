@@ -1,5 +1,4 @@
 Registration:
-	- Add new fields:
-		- Handle messaging props
 	- Send welcome back email to existing users, welcome to new users
 Misc.
+	- Run scheduler every hour and check for user's notifications when running

@@ -7,13 +7,20 @@ import Helmet from 'react-helmet';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 
+import { EMAIL_SUBJECT_PREFIX } from '../../api/constants';
 import { displayError } from '../../api/global';
-import { deleteUser, getAdminUsers, updateUserAdmin, validateReferredBy } from '../../api/collections/users';
+import { deleteUser, getAdminUsers, updateUserAdmin } from '../../api/collections/users';
 
 class AdminUsers extends Component {
 	constructor (props) {
 		super();
-		this.state = {};
+		this.state = {
+			emailBody: '',
+			emailModal: false,
+			emailSubject: EMAIL_SUBJECT_PREFIX
+		};
+		this._sendEmail = this._sendEmail.bind(this);
+		this._toggleEmail = this._toggleEmail.bind(this);
 	}
 
 	_approveUser (user, ev) {
@@ -38,9 +45,18 @@ class AdminUsers extends Component {
 			}
 		});
 	}
+	_sendEmail (ev) {
+		const { emailBody, emailSubject } = this.state;
+		//TODO: send email
+		this.setState({ emailBody: '', emailModal: false, emailSubject: EMAIL_SUBJECT_PREFIX });
+	}
 	_toggleAdmin (user, ev) {
 		const { _id, is_admin } = user;
 		updateUserAdmin.call({ userId: _id, isAdmin: !is_admin }, displayError);
+	}
+	_toggleEmail (ev) {
+		const { emailModal } = this.state;
+		this.setState({ emailModal: !emailModal });
 	}
 	_togglePaid (user, ev) {
 		const { _id, paid } = user;
@@ -52,13 +68,18 @@ class AdminUsers extends Component {
 	}
 
 	render () {
-		const { pageReady, users } = this.props;
+		const { pageReady, users } = this.props,
+				{ emailModal } = this.state;
 		return (
 			<div className="row admin-wrapper">
 				<Helmet title="User Admin" />
 				{pageReady ? (
 					<div className="col-xs-12">
 						<h3 className="title-text text-xs-center text-md-left hidden-md-up">User Admin</h3>
+						<button type="button" className="btn btn-primary" onClick={this._toggleEmail}>
+							<i className="fa fa-fw fa-envelope"></i>
+							Send Email to All
+						</button>
 						<table className="table table-hover table-bordered admin-users-table">
 							<thead>
 								<tr>
@@ -72,6 +93,7 @@ class AdminUsers extends Component {
 									<th>Admin?</th>
 									<th>Paid?</th>
 									<th>Survivor?</th>
+									<th>Logins</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -94,6 +116,11 @@ class AdminUsers extends Component {
 										<td>{this._boolToString(user.is_admin)}</td>
 										<td>{this._boolToString(user.paid)}</td>
 										<td>{this._boolToString(user.survivor)}</td>
+										<td style={{ whiteSpace: 'nowrap' }}>
+											{user.services.facebook ? <i className="fa fa-fw fa-facebook text-primary"></i> : null}
+											{user.services.google ? <i className="fa fa-fw fa-google text-danger"></i> : null}
+											{user.services.password ? <i className="fa fa-fw fa-lock text-warning"></i> : null}
+										</td>
 									</tr>
 								))}
 							</tbody>
@@ -103,6 +130,26 @@ class AdminUsers extends Component {
 					:
 					null
 				}
+				{/* Email Modal */}
+				<div className={`modal fade ${emailModal ? 'show' : ''}`} id="email-modal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div className="modal-dialog" role="document">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title" id="exampleModalLabel">Send Email</h5>
+								<button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this._toggleEmail}>
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div className="modal-body">
+								TODO:
+							</div>
+							<div className="modal-footer">
+								<button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={this._toggleEmail}>Cancel</button>
+								<button type="button" className="btn btn-primary" onClick={this._sendEmail}>Send</button>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		);
 	}

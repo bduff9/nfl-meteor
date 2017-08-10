@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
-import { DEFAULT_LEAGUE, POOL_COST } from '../imports/api/constants';
+import { POOL_COST } from '../imports/api/constants';
 import { displayError } from '../imports/api/global';
 import { currentWeekSync } from '../imports/api/collections/games';
 import { getSystemValuesSync } from '../imports/api/collections/systemvals';

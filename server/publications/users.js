@@ -12,6 +12,7 @@ Meteor.publish('userData', function () {
 			'_id': 1,
 			'services.facebook.email': 1,
 			'services.google.email': 1,
+			'services.password.email': 1,
 			'profile': 1,
 			'email': 1,
 			'phone_number': 1,
@@ -89,6 +90,9 @@ Meteor.publish('adminUsers', function () {
 	allUsers = User.find({}, {
 		fields: {
 			'_id': 1,
+			'services.facebook': 1,
+			'services.google': 1,
+			'services.password': 1,
 			'email': 1,
 			'leagues': 1,
 			'first_name': 1,

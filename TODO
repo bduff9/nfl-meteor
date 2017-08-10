@@ -13,8 +13,8 @@ Navigation component
 	- Make notifications bigger/animated to draw more attention to them?
 	- When games are not currently going on, replace NFL Scoreboard text with a live countdown to game 1 of the next week
 Admin screen
-	- Show sign up method of each user (i.e. email, facebook, google)
-	- Add email all users option
+	- Set up email modal
+	- Send email on click
 Emails
 	- Verify email
 	- Welcome/welcome back

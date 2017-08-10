@@ -660,6 +660,10 @@ if (dbVersion < 2) {
 		collection: Meteor.users,
 		secured: true,
 		fields: {
+			services: {
+				type: Object,
+				optional: true
+			},
 			email: {
 				type: String,
 				validators: [{ type: 'email' }]

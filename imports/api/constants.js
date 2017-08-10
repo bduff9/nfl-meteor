@@ -89,6 +89,11 @@ export const MAX_GAMES_IN_WEEK = 16;
 export const POOL_EMAIL_FROM = 'NFL Pool Admin <info@asitewithnoname.com>';
 
 /**
+ * The email subject prefix
+ */
+export const EMAIL_SUBJECT_PREFIX = '[NFL Confidence Pool] ';
+
+/**
  * All supported account types for payments
  */
 export const ACCOUNT_TYPES = ['Cash', 'PayPal', 'QuickPay', 'Venmo'];

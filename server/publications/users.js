@@ -35,7 +35,9 @@ Meteor.publish('userData', function () {
 			'total_points': 1,
 			'total_games': 1,
 			'overall_place': 1,
-			'overall_tied_flag': 1
+			'overall_tied_flag': 1,
+			'auto_pick_count': 1,
+			'auto_pick_strategy': 1
 		}
 	});
 	if (myUser) return myUser;
@@ -112,7 +114,9 @@ Meteor.publish('adminUsers', function () {
 			'picks': 1,
 			'tiebreakers': 1,
 			'survivor': 1,
-			'payment_type': 1
+			'payment_type': 1,
+			'auto_pick_count': 1,
+			'auto_pick_strategy': 1
 		},
 		sort: {
 			'first_name': 1,

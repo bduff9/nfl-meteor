@@ -14,12 +14,12 @@ import { getAllTiebreakersForUser } from '../../api/collections/tiebreakers';
 import { getCurrentUser } from '../../api/collections/users';
 
 const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAlive, tiebreakers }) => {
-	let total = -1 * POOL_COST;
+	let total;
 
 	const getPaymentMessage = (amount, type) => {
 		let msg = 'ERROR';
 		switch (type) {
-			case 'CASH':
+			case 'Cash':
 				msg = `Please pay $${amount} to Brian or Billy`;
 				break;
 			case 'PayPal':
@@ -62,13 +62,13 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 									<tr className="table-danger">
 										<td></td>
 										<td>Confidence Pool</td>
-										<td>${POOL_COST}</td>
+										<td data-running-total={total = -1 * POOL_COST}>${POOL_COST}</td>
 									</tr>
 									{currentUser.survivor ? (
 										<tr className="table-danger">
 											<td></td>
-											<td>Confidence Pool</td>
-											<td>${SURVIVOR_COST}{total -= SURVIVOR_COST}</td>
+											<td>Survivor Pool</td>
+											<td data-running-total={total -= SURVIVOR_COST}>${SURVIVOR_COST}</td>
 										</tr>
 									)
 										:
@@ -78,7 +78,7 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 										<tr>
 											<td></td>
 											<td>Paid</td>
-											<td>${currentUser.paid}{total += currentUser.paid}</td>
+											<td data-running-total={total += currentUser.paid}>${currentUser.paid}</td>
 										</tr>
 									)
 										:
@@ -88,14 +88,14 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 										<tr className="table-success" key={`tiebreaker-${tiebreaker._id}`}>
 											<td>{tiebreaker.week}</td>
 											<td>{`Won ${formattedPlace(tiebreaker.place_in_week)} place`}</td>
-											<td>${WEEKLY_PRIZES[tiebreaker.place_in_week]}{total += WEEKLY_PRIZES[tiebreaker.place_in_week]}</td>
+											<td data-running-total={total += WEEKLY_PRIZES[tiebreaker.place_in_week]}>${WEEKLY_PRIZES[tiebreaker.place_in_week]}</td>
 										</tr>
 									))}
 									{nextGame.notFound && currentUser.overall_place <= TOP_OVERALL_FOR_HISTORY ? (
 										<tr className="table-success">
 											<td></td>
 											<td>{`Took ${formattedPlace(currentUser.overall_place)} place overall`}</td>
-											<td>${OVERALL_PRIZES[currentUser.overall_place]}{total += OVERALL_PRIZES[currentUser.overall_place]}</td>
+											<td data-running-total={total += OVERALL_PRIZES[currentUser.overall_place]}>${OVERALL_PRIZES[currentUser.overall_place]}</td>
 										</tr>
 									)
 										:
@@ -105,7 +105,7 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 										<tr className="table-success">
 											<td></td>
 											<td>{`Took ${formattedPlace(survivorPlace)} place in survivor`}</td>
-											<td>${SURVIVOR_PRIZES[survivorPlace]}{total += SURVIVOR_PRIZES[survivorPlace]}</td>
+											<td data-running-total={total += SURVIVOR_PRIZES[survivorPlace]}>${SURVIVOR_PRIZES[survivorPlace]}</td>
 										</tr>
 									)
 										:
@@ -156,7 +156,7 @@ export default createContainer(() => {
 			survivorPlace = 99;
 	if (survivorReady) {
 		sortedUsers = getSortedSurvivorPicks.call({ league: currentLeague });
-		if (currentUser.survivor) survivorPlace = sortedUsers.filter(user => user._id === user_id)[0].place;
+		if (currentUser.survivor) survivorPlace = sortedUsers.filter(user => user.user_id === user_id)[0].place;
 		stillAlive = sortedUsers.filter(user => user.weeks === WEEKS_IN_SEASON);
 	}
 	if (tiebreakersReady) tiebreakers = getAllTiebreakersForUser.call({ league: currentLeague, user_id });

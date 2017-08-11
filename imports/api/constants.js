@@ -102,3 +102,13 @@ export const ACCOUNT_TYPES = ['Cash', 'PayPal', 'QuickPay', 'Venmo'];
  * The account types that require an account name
  */
 export const DIGITAL_ACCOUNTS = ['QuickPay', 'PayPal', 'Venmo'];
+
+/**
+ * Types of auto picking
+ */
+export const AUTO_PICK_TYPES = ['Home', 'Away', 'Random'];
+
+/**
+ * Default auto pick count for users
+ */
+export const DEFAULT_AUTO_PICK_COUNT = 3;

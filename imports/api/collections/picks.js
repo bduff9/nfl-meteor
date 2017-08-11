@@ -8,8 +8,9 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
 import { displayError } from '../../api/global';
-import { gameHasStarted, gameHasStartedSync, getGameByIDSync } from './games';
-import { getTeamByIDSync } from './teams';
+import { gameHasStarted, getGameByID } from './games';
+import { getTeamByID } from './teams';
+import { getUserByID } from './users';
 
 /**
  * All pick logic
@@ -28,14 +29,30 @@ export const assignPointsToMissed = new ValidatedMethod({
 			const missedPicks = Pick.find({ game_id: gameId, points: null }).fetch();
 			if (missedPicks.length) console.log(`${missedPicks.length} users missed game ${gameId} in week ${week}`);
 			missedPicks.forEach(missedPick => {
-				const { user_id } = missedPick,
-						usersPicks = Pick.find({ user_id, week }).fetch(),
+				const { league, user_id } = missedPick,
+						user = missedPick.getUser(),
+						{ auto_pick_count, auto_pick_strategy } = user,
+						game = missedPick.getGame(),
+						usersPicks = Pick.find({ league, user_id, week }).fetch(),
 						pointsUsed = usersPicks.filter(pick => pick.points).map(pick => pick.points);
 				let maxPointVal = gameCount;
 				while (pointsUsed.indexOf(maxPointVal) > -1) maxPointVal--;
 				missedPick.points = maxPointVal;
+				if (auto_pick_strategy && auto_pick_count > 0) {
+					user.auto_pick_count -= 1;
+					user.save();
+					if (auto_pick_strategy === 'Home' || (auto_pick_strategy === 'Random' && Math.random() < 0.5)) {
+						missedPick.pick_id = game.home_id;
+						missedPick.pick_short = game.home_short;
+					} else if (auto_pick_strategy === 'Away' || auto_pick_strategy === 'Random') {
+						missedPick.pick_id = game.visitor_id;
+						missedPick.pick_short = game.visitor_short;
+					}
+					console.log(`Auto picked ${auto_pick_strategy} team for ${maxPointVal} points for user ${user_id}`);
+				} else {
+					console.log(`Auto assigned ${maxPointVal} points to user ${user_id}`);
+				}
 				missedPick.save();
-				console.log(`Auto assigned ${maxPointVal} points to user ${user_id}`);
 			});
 		}
 	}
@@ -58,7 +75,7 @@ export const autoPick = new ValidatedMethod({
 			let game, randomTeam, teamId, teamShort, pointIndex, point;
 			picks.forEach(pick => {
 				if (!pick.hasStarted() && !pick.pick_id) {
-					game = getGameByIDSync({ gameId: pick.game_id });
+					game = getGameByID.call({ gameId: pick.game_id });
 					randomTeam = Math.random();
 					if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
 						teamId = game.home_id;
@@ -265,10 +282,10 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			hasStarted () {
-				return gameHasStartedSync({ gameId: this.game_id });
+				return gameHasStarted.call({ gameId: this.game_id });
 			},
 			getTeam () {
-				const team = getTeamByIDSync({ teamId: this.pick_id });
+				const team = getTeamByID.call({ teamId: this.pick_id });
 				return team;
 			}
 		}
@@ -319,12 +336,20 @@ if (dbVersion < 2) {
 			}
 		},
 		helpers: {
-			hasStarted () {
-				return gameHasStartedSync({ gameId: this.game_id });
+			getGame () {
+				const game = getGameByID.call({ gameId: this.game_id });
+				return game;
 			},
 			getTeam () {
-				const team = getTeamByIDSync({ teamId: this.pick_id });
+				const team = getTeamByID.call({ teamId: this.pick_id });
 				return team;
+			},
+			getUser () {
+				const user = getUserByID.call({ user_id: this.user_id });
+				return user;
+			},
+			hasStarted () {
+				return gameHasStarted.call({ gameId: this.game_id });
 			}
 		},
 		indexes: {

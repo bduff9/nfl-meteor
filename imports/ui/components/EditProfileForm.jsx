@@ -5,7 +5,7 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import { Formik } from 'formik';
 import Yup from 'yup';
 
-import { ACCOUNT_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
+import { ACCOUNT_TYPES, AUTO_PICK_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
 import { displayError, getInputColor } from '../../api/global';
 import { updateNotifications, updateUser, validateReferredBy } from '../../api/collections/users';
 
@@ -134,11 +134,36 @@ class EditProfileForm extends Component {
 					<input type="hidden" name="referred_by" value={values.referred_by} />
 				}
 				{!isCreate ? (
+					<div className={`row form-group ${getInputColor(errors.auto_pick_strategy, touched.auto_pick_strategy, 'has-')}`}>
+						<div className="col-xs-12 text-xs-center h3">
+							Auto Picks&nbsp;
+							<small className="text-muted">({values.auto_pick_count} left)</small>
+						</div>
+						<label className="col-xs-12 col-md-2 col-form-label">Auto Pick?</label>
+						<div className="col-xs-12 col-md-10 form-check form-check-inline">
+							<label className="form-check-label col-form-label">
+								<input className="form-check-input" type="radio" name="auto_pick_strategy" value="" checked={values.auto_pick_strategy === '' || !values.auto_pick_count} onBlur={handleBlur} onChange={handleChange} />
+								&nbsp;Off&nbsp; &nbsp;
+							</label>
+							{!!values.auto_pick_count && AUTO_PICK_TYPES.map(type => (
+								<label className="form-check-label col-form-label" key={`auto-pick-strategy-${type}`}>
+									<input className="form-check-input" type="radio" name="auto_pick_strategy" value={type} checked={values.auto_pick_strategy === type} onBlur={handleBlur} onChange={handleChange} />
+									&nbsp;{`${type} team`}&nbsp; &nbsp;
+								</label>
+							))}
+							{errors.auto_pick_strategy && touched.auto_pick_strategy && <div className="form-control-feedback">{errors.auto_pick_strategy}</div>}
+						</div>
+					</div>
+				)
+					:
+					null
+				}
+				{!isCreate ? (
 					<div className={`row form-group ${getInputColor(errors.do_reminder, touched.do_reminder, 'has-')}`}>
 						<div className="col-xs-12 text-xs-center h3">Notifications</div>
 						<label className="col-xs-12 col-md-2 col-form-label">Submit Pick Reminder</label>
 						<div className="col-xs-12 col-md-10">
-							<label className="form-check-label">
+							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="do_reminder" value="true" checked={values.do_reminder} onChange={this._toggleReminder} />
 								&nbsp;Yes
 							</label>
@@ -276,17 +301,19 @@ export default Formik({
 		values.reminder_hours = 0;
 		values.reminder_types_email = false;
 		values.reminder_types_text = false;
-		values.notifications.forEach(notification => {
-			if (!notification.is_quick) {
-				values.do_reminder = true;
-				values.reminder_types_email = notification.type.indexOf('email') > -1;
-				values.reminder_types_text = notification.type.indexOf('text') > -1;
-				values.reminder_hours = notification.hours_before;
-			} else {
-				values.do_quick_pick = true;
-				values.quick_pick_hours = notification.hours_before;
-			}
-		});
+		if (values.notifications) {
+			values.notifications.forEach(notification => {
+				if (!notification.is_quick) {
+					values.do_reminder = true;
+					values.reminder_types_email = notification.type.indexOf('email') > -1;
+					values.reminder_types_text = notification.type.indexOf('text') > -1;
+					values.reminder_hours = notification.hours_before;
+				} else {
+					values.do_quick_pick = true;
+					values.quick_pick_hours = notification.hours_before;
+				}
+			});
+		}
 		return values;
 	},
 
@@ -303,6 +330,7 @@ export default Formik({
 			then: Yup.string().required('Please enter your account name'),
 			otherwise: Yup.string()
 		}),
+		auto_pick_strategy: Yup.string().oneOf(['', ...AUTO_PICK_TYPES], 'Please pick a valid auto pick strategy'),
 		do_quick_pick: Yup.boolean(),
 		do_reminder: Yup.boolean(),
 		quick_pick_hours: Yup.number().when('do_quick_pick', {
@@ -320,7 +348,7 @@ export default Formik({
 	}),
 
 	handleSubmit: (values, { props, setErrors, setSubmitting }) => {
-		const { do_quick_pick, do_reminder, first_name, survivor, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types_email, reminder_types_text, team_name } = values,
+		const { auto_pick_strategy, do_quick_pick, do_reminder, first_name, survivor, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types_email, reminder_types_text, team_name } = values,
 				{ isCreate, router, user } = props,
 				done_registering = user.trusted || validateReferredBy.call({ referred_by });
 		try {
@@ -333,7 +361,7 @@ export default Formik({
 					Bert.alert(`Thanks for registering, ${first_name}!  An admin will review your application shortly`, 'success');
 				}
 			} else {
-				updateUser.call({ first_name, last_name, payment_account, payment_type, phone_number, team_name });
+				updateUser.call({ auto_pick_strategy, first_name, last_name, payment_account, payment_type, phone_number, team_name });
 				updateNotifications.call({ do_quick_pick, do_reminder, quick_pick_hours: parseInt(quick_pick_hours, 10), reminder_hours: parseInt(reminder_hours, 10), reminder_types_email, reminder_types_text });
 				Bert.alert({
 					message: 'Profile saved!',

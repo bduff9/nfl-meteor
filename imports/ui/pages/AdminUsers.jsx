@@ -130,6 +130,7 @@ class AdminUsers extends Component {
 									<th>Admin?</th>
 									<th>Paid?</th>
 									<th>Survivor?</th>
+									<th>Auto Pick</th>
 									<th>Logins</th>
 								</tr>
 							</thead>
@@ -153,6 +154,7 @@ class AdminUsers extends Component {
 										<td>{this._boolToString(user.is_admin)}</td>
 										<td>{this._boolToString(user.paid)}</td>
 										<td>{this._boolToString(user.survivor)}</td>
+										<td title={user.auto_pick_strategy || 'Off'}>{user.auto_pick_count}</td>
 										<td style={{ whiteSpace: 'nowrap' }}>
 											{user.services.facebook ? <i className="fa fa-fw fa-facebook text-primary"></i> : null}
 											{user.services.google ? <i className="fa fa-fw fa-google text-danger"></i> : null}

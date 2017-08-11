@@ -14,13 +14,11 @@ import { getPickForFirstGameOfWeek } from '../imports/api/collections/picks';
 import { getSystemValues } from '../imports/api/collections/systemvals';
 import { getUnsubmittedPicksForWeek } from '../imports/api/collections/tiebreakers';
 
-const CronHistory = SyncedCron._collection;
-// Currently, this does not work as I cannot get access to the original collection
 export const clearCronHistory = new ValidatedMethod({
 	name: 'CronHistory.clearCronHistory',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		CronHistory.remove({}, { multi: true });
+		SyncedCron._collection.remove({}, { multi: true });
 	}
 });
 export const clearCronHistorySync = Meteor.wrapAsync(clearCronHistory.call, clearCronHistory);

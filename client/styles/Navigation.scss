@@ -32,6 +32,8 @@ div.sidebar {
 
         .tag {
           cursor: pointer;
+          animation: pulsate 2s ease-out;
+          animation-iteration-count: infinite;
         }
 
         & > a {
@@ -60,4 +62,21 @@ div.sidebar {
         }
       }
     }
+}
+
+@keyframes pulsate {
+  0% {
+    transform: scale(1.5, 1.5);
+    opacity: 1.0;
+  }
+
+  50% {
+    transform: scale(0.75, 0.75);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.5, 1.5);
+    opacity: 1.0;
+  }
 }

@@ -28,14 +28,12 @@ export default class Countdown extends Component {
 		const { nextKickoff } = this.props,
 				{ now } = this.state,
 				days = moment(nextKickoff).diff(moment(now), 'days'),
-				hours = moment(nextKickoff).diff(moment(now), 'hours'),
-				minutes = moment(nextKickoff).diff(moment(now), 'minutes'),
-				seconds = moment(nextKickoff).diff(moment(now), 'seconds');
+				diff = moment(nextKickoff - now);
 		let timeString;
 		if (days > 0) {
-			timeString = `${days}d ${hours}h ${minutes}m`;
+			timeString = diff.format('D[d] H[h] m[m]');//`${days}d ${hours}h ${minutes}m`;
 		} else {
-			timeString = `${hours}h ${minutes}m ${seconds}s`;
+			timeString = diff.format('H[h] m[m] s[s]');//`${hours}h ${minutes}m ${seconds}s`;
 		}
 		return (
 			<span>{timeString}</span>

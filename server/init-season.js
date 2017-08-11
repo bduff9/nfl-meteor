@@ -10,7 +10,7 @@ import { clearGamesSync, initScheduleSync } from './collections/games';
 import { clearNFLLogsSync } from './collections/nfllogs';
 import { clearPicksSync } from './collections/picks';
 import { addPoolHistory } from '../imports/api/collections/poolhistorys';
-//import { clearCronHistorySync } from './scheduled-tasks';
+import { clearCronHistorySync } from './scheduled-tasks';
 import { clearSurvivorPicksSync } from './collections/survivorpicks';
 import { getSystemValues } from '../imports/api/collections/systemvals';
 import { clearTeamsSync, initTeamsSync } from './collections/teams';
@@ -47,7 +47,7 @@ export const initPoolOnServer = new ValidatedMethod({
 			}
 		});
 		// Empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers
-		//clearCronHistorySync({});
+		clearCronHistorySync({});
 		clearGamesSync({});
 		clearNFLLogsSync({});
 		clearPicksSync({});

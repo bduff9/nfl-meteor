@@ -12,7 +12,9 @@ import { writeLog } from '../../api/collections/nfllogs';
 import { displayError } from '../../api/global';
 import AuthedLayout from '../../ui/layouts/AuthedLayout';
 import ResetPassword from '../../ui/pages/ResetPassword';
+import QuickPick from '../../ui/pages/QuickPick';
 import Dashboard from '../../ui/pages/Dashboard';
+import Statistics from '../../ui/pages/Statistics';
 import { Loading } from '../../ui/pages/Loading';
 import Login from '../../ui/pages/Login';
 import { Logout } from '../../ui/pages/Logout';
@@ -120,10 +122,12 @@ export const Routes = () => (
 	<Router history={browserHistory}>
 		<Route path="/verify-email/:token" component={Loading} onEnter={verifyEmail} />
 		<Route path="/reset-password/:token" component={ResetPassword} />
+		<Route path="/quick-pick/:user_id/:game_id/:team_id" component={QuickPick} />
 		<Route path="/login" component={Login} onEnter={requireNoAuth} />
 		<Route path="/logout" component={Logout} onEnter={logOut} />
 		<Route path="/" component={AuthedLayout} onEnter={requireAuth}>
 			<IndexRoute component={Dashboard} onEnter={validateUser} />
+			<Route path="/stats" component={Statistics} onEnter={validateUser} />
 			<Route path="/picks" onEnter={validateUser}>
 				<Route path="set" component={MakePicks} />
 				<Route path="view" component={ViewPicks} />
@@ -139,8 +143,8 @@ export const Routes = () => (
 				<Route path="payments" component={ViewPayments} onEnter={validateUser} />
 			</Route>
 			<Route path="/admin" onEnter={verifyAdmin}>
-				<Route path="users" component={AdminUsers} />
-				<Route path="logs" component={AdminLogs} />
+				<Route path="users" component={AdminUsers} onEnter={validateUser} />
+				<Route path="logs" component={AdminLogs} onEnter={validateUser} />
 			</Route>
 		</Route>
 		<Route path="*" component={NotFound} />

@@ -7,10 +7,9 @@ import { Session } from 'meteor/session';
 import { moment } from 'meteor/momentjs:moment';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import { Email } from 'meteor/email';
 import { Class } from 'meteor/jagi:astronomy';
 
-import { ACCOUNT_TYPES, dbVersion, DEFAULT_LEAGUE, POOL_COST, POOL_EMAIL_FROM, SURVIVOR_COST } from '../constants';
+import { ACCOUNT_TYPES, AUTO_PICK_TYPES, dbVersion, DEFAULT_AUTO_PICK_COUNT, DEFAULT_LEAGUE, POOL_COST, POOL_EMAIL_FROM, SURVIVOR_COST } from '../constants';
 import { logError, overallPlacer, weekPlacer } from '../global';
 import { writeLog } from './nfllogs';
 import { getAllPicksForUser, Pick } from './picks';
@@ -164,7 +163,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 				console.log(`All picks have been submitted for week ${selectedWeek} in league ${league}, sending emails...`);
 				leagueUsers = User.find({ done_registering: true, leagues: league }).fetch();
 				leagueUsers.forEach(user => {
-					Email.send({
+					console.log({
 						to: user.email,
 						from: POOL_EMAIL_FROM,
 						subject: `[NFL Confidence Pool] All picks for week ${selectedWeek} have been submitted!`,
@@ -193,7 +192,7 @@ export const sendWelcomeEmail = new ValidatedMethod({
 				admins = User.find({ is_admin: true }).fetch();
 		//TODO: send welcome email to user with various infos, isNewPlayer flag for who is brand new vs returning
 		admins.forEach(admin => {
-			Email.send({
+			console.log({
 				to: admin.email,
 				from: POOL_EMAIL_FROM,
 				subject: '[NFL Confidence Pool] New User Registration',
@@ -404,6 +403,7 @@ export const updateSurvivorSync = Meteor.wrapAsync(updateSurvivor.call, updateSu
 export const updateUser = new ValidatedMethod({
 	name: 'Users.updateUser',
 	validate: new SimpleSchema({
+		auto_pick_strategy: { type: String, label: 'Auto Pick Strategy', optional: true },
 		done_registering: { type: Boolean, label: 'Done Registering?', optional: true },
 		first_name: { type: String, label: 'First Name' },
 		last_name: { type: String, label: 'Last Name' },
@@ -425,6 +425,7 @@ export const updateUser = new ValidatedMethod({
 		if (userObj.done_registering != null) user.trusted = userObj.done_registering;
 		if (isCreate && userObj.done_registering) {
 			user.owe = POOL_COST;
+			user.auto_pick_count = DEFAULT_AUTO_PICK_COUNT;
 			Meteor.call('Games.getEmptyUserTiebreakers', { user_id: user._id, leagues: user.leagues });
 			Meteor.call('Games.getEmptyUserPicks', { user_id: user._id, leagues: user.leagues });
 			if (user.survivor) {
@@ -458,6 +459,7 @@ export const updateUserAdmin = new ValidatedMethod({
 			if (Meteor.isServer) {
 				if (!user.done_registering && done_registering) {
 					user.owe = POOL_COST;
+					user.auto_pick_count = DEFAULT_AUTO_PICK_COUNT;
 					Meteor.call('Games.getEmptyUserPicks', { user_id: user._id, leagues: user.leagues });
 					Meteor.call('Games.getEmptyUserTiebreakers', { user_id: user._id, leagues: user.leagues });
 					if (survivor == null && user.survivor) {
@@ -744,6 +746,16 @@ if (dbVersion < 2) {
 			overall_tied_flag: {
 				type: Boolean,
 				default: false
+			},
+			auto_pick_count: {
+				type: Number,
+				validators: [{ type: 'gte', param: 0 }],
+				default: 0
+			},
+			auto_pick_strategy: {
+				type: String,
+				validators: [{ type: 'choice', param: ['', ...AUTO_PICK_TYPES] }],
+				default: ''
 			}
 		},
 		helpers: {

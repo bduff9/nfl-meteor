@@ -21,6 +21,8 @@ class AdminUsers extends Component {
 		};
 		this._sendEmail = this._sendEmail.bind(this);
 		this._toggleEmail = this._toggleEmail.bind(this);
+		this._updateEmailBody = this._updateEmailBody.bind(this);
+		this._updateEmailSubject = this._updateEmailSubject.bind(this);
 	}
 
 	_approveUser (user, ev) {
@@ -46,8 +48,13 @@ class AdminUsers extends Component {
 		});
 	}
 	_sendEmail (ev) {
-		const { emailBody, emailSubject } = this.state;
-		//TODO: send email
+		const { users } = this.props,
+				{ emailBody, emailSubject } = this.state;
+		const emailList = users.map(user => user.email);
+		//TODO: send email using BA's logic
+		console.log('BCC email to', emailList);
+		console.log('Subject', emailSubject);
+		console.log('Body', emailBody);
 		this.setState({ emailBody: '', emailModal: false, emailSubject: EMAIL_SUBJECT_PREFIX });
 	}
 	_toggleAdmin (user, ev) {
@@ -66,10 +73,18 @@ class AdminUsers extends Component {
 		const { _id, survivor } = user;
 		updateUserAdmin.call({ userId: _id, survivor: !survivor }, displayError);
 	}
+	_updateEmailBody (ev) {
+		const emailBody = ev.target.value;
+		this.setState({ emailBody });
+	}
+	_updateEmailSubject (ev) {
+		const emailSubject = ev.target.value;
+		this.setState({ emailSubject });
+	}
 
 	render () {
 		const { pageReady, users } = this.props,
-				{ emailModal } = this.state;
+				{ emailBody, emailModal, emailSubject } = this.state;
 		return (
 			<div className="row admin-wrapper">
 				<Helmet title="User Admin" />
@@ -80,6 +95,28 @@ class AdminUsers extends Component {
 							<i className="fa fa-fw fa-envelope"></i>
 							Send Email to All
 						</button>
+						{emailModal ? (
+							<div className="col-xs-12 email-all">
+								<div className="row form-group">
+									<label htmlFor="emailSubject" className="col-xs-12 col-md-2 col-form-label">Subject</label>
+									<div className="col-xs-12 col-md-10">
+										<input type="text" className="form-control" id="emailSubject" name="emailSubject" value={emailSubject} onChange={this._updateEmailSubject} />
+									</div>
+								</div>
+								<div className="row form-group">
+									<label htmlFor="emailBody" className="col-xs-12 col-md-2 col-form-label">Message</label>
+									<div className="col-xs-12 col-md-10">
+										<textarea className="form-control" id="emailBody" name="emailBody" value={emailBody} onChange={this._updateEmailBody} />
+									</div>
+								</div>
+								<div>
+									<button type="button" className="btn btn-block btn-primary" onClick={this._sendEmail}>Send</button>
+								</div>
+							</div>
+						)
+							:
+							null
+						}
 						<table className="table table-hover table-bordered admin-users-table">
 							<thead>
 								<tr>
@@ -130,26 +167,6 @@ class AdminUsers extends Component {
 					:
 					null
 				}
-				{/* Email Modal */}
-				<div className={`modal fade ${emailModal ? 'show' : ''}`} id="email-modal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-					<div className="modal-dialog" role="document">
-						<div className="modal-content">
-							<div className="modal-header">
-								<h5 className="modal-title" id="exampleModalLabel">Send Email</h5>
-								<button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this._toggleEmail}>
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div className="modal-body">
-								TODO:
-							</div>
-							<div className="modal-footer">
-								<button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={this._toggleEmail}>Cancel</button>
-								<button type="button" className="btn btn-primary" onClick={this._sendEmail}>Send</button>
-							</div>
-						</div>
-					</div>
-				</div>
 			</div>
 		);
 	}

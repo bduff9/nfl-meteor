@@ -7,6 +7,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError, getCurrentSeasonYear } from '../../api/global';
+import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
 import { getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
@@ -15,7 +16,8 @@ import { getTiebreaker } from  '../../api/collections/tiebreakers';
 import { updateSelectedWeek } from '../../api/collections/users';
 
 const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
-	let msgCt = unreadMessages.length;
+	let msgCt = unreadMessages.length,
+			showCountdown = nextGame && nextGame.game === 1;
 
 	if (pageReady && !logoutOnly) {
 		if (currentUser) msgCt += (currentUser.paid ? 0 : 1);
@@ -97,7 +99,11 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							</a>
 						</li>
 						<li><a href="#" onClick={_toggleRightSlider.bind(null, 'rules')}>Rules</a></li>
-						<li><a href="#" onClick={_toggleRightSlider.bind(null, 'scoreboard')}>NFL Scoreboard</a></li>
+						<li>
+							<a href="#" onClick={_toggleRightSlider.bind(null, 'scoreboard')}>
+								{showCountdown ? <Countdown nextKickoff={nextGame.kickoff} /> : 'NFL Scoreboard'}
+							</a>
+						</li>
 						<li>
 							<a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>
 								{(unreadChatCt > 0 ? <strong>Chat</strong> : 'Chat')}

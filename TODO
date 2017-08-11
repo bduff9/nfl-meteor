@@ -11,10 +11,8 @@ History screen
 Navigation component
 	- Add history/stats link
 	- Make notifications bigger/animated to draw more attention to them?
-	- When games are not currently going on, replace NFL Scoreboard text with a live countdown to game 1 of the next week
 Admin screen
-	- Set up email modal
-	- Send email on click
+	- Call BA's new email logic on send (marked with todo)
 Emails
 	- Verify email
 	- Welcome/welcome back

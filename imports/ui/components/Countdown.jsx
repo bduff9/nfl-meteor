@@ -25,7 +25,7 @@ export default class Countdown extends Component {
 	}
 
 	render () {
-		const { nextKickoff } = this.props,
+		const { nextKickoff, week } = this.props,
 				{ now } = this.state,
 				days = moment(nextKickoff).diff(moment(now), 'days'),
 				diff = moment(nextKickoff - now);
@@ -36,11 +36,12 @@ export default class Countdown extends Component {
 			timeString = diff.format('H[h] m[m] s[s]');//`${hours}h ${minutes}m ${seconds}s`;
 		}
 		return (
-			<span>{timeString}</span>
+			<span title={`Countdown to start of week ${week}`}>{timeString}</span>
 		);
 	}
 }
 
 Countdown.propTypes = {
-	nextKickoff: PropTypes.instanceOf(Date).isRequired
+	nextKickoff: PropTypes.instanceOf(Date).isRequired,
+	week: PropTypes.number.isRequired
 };

@@ -1,3 +1,6 @@
+Create/Edit Profile (and possibly others)
+	- Add and use a new help component to make things clearer
+	- Validate phone number is exactly 10 chars long and is only made up of numbers
 History screen
 	- Show stats for current season
 	- Show history if previous season is picked
@@ -13,8 +16,10 @@ Emails
 	- Reset password
 	- Pool email (uses layout of above but takes in a subject and body for when we need to email everyone)
 Misc.
-	- Add new texting logic with twilio
 	- Finish logic for quick pick (create server method and display success/error based on result)
+	- Move more static values to constants
+	- Add twilio creds to all settings.json
+	- Upgrade Twilio account to paid before season starts
 Questions
 	- Where did we land on picking by spread?
 	- In quick pick email, should we only have 2 buttons (one for home team, one for away)?  Or should we somehow let them pick points as well (maybe with more buttons)?  There's a lot of ways we can handle this so really just want to start with do we only let them pick team (and we auto-assign highest, lowest or random point) or do we let them somehow pick points as well?  Once we decided on that, then if we let them pick points, do we have all available points, only the highest and lowest, etc.?

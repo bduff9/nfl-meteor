@@ -102,7 +102,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 						<li><a href="#" onClick={_toggleRightSlider.bind(null, 'rules')}>Rules</a></li>
 						<li>
 							<a href="#" onClick={_toggleRightSlider.bind(null, 'scoreboard')}>
-								{showCountdown ? <Countdown nextKickoff={nextGame.kickoff} /> : 'NFL Scoreboard'}
+								{showCountdown ? <Countdown nextKickoff={nextGame.kickoff} week={nextGame.week} /> : 'NFL Scoreboard'}
 							</a>
 						</li>
 						<li>

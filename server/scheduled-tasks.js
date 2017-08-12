@@ -6,8 +6,9 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { moment } from 'meteor/momentjs:moment';
 import { SyncedCron } from 'meteor/percolate:synced-cron';
-import { Email } from 'meteor/email';
 
+import { EMAIL_SUBJECT_PREFIX, MAX_SMS_LENGTH, POOL_URL } from '../imports/api/constants';
+import { sendSMS } from './twilio';
 import { getNextGame1, getUnstartedGamesForWeek } from '../imports/api/collections/games';
 import { refreshGames } from './collections/games';
 import { getPickForFirstGameOfWeek } from '../imports/api/collections/picks';
@@ -55,9 +56,21 @@ SyncedCron.add({
 	name: 'Send notifications',
 	schedule: parse => parse.recur().on(30).minute(),
 	job: () => {
-		/**
-		 * TODO:
-		 */
+	/**
+	 * Old email logic
+
+	Email.send({
+		to: user.email,
+		from: 'Brian Duffey <bduff9@gmail.com>',
+		subject: `[NFL Confidence Pool] Hurry up, ${user.first_name}!`,
+		text: `Hello ${user.first_name},
+
+	This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.  You can log in and submit your picks here:
+	https://nfl.asitewithnoname.com
+
+	Good luck!`,
+	});
+	*/
 		const nextGame1 = getNextGame1.call({});
 		const { kickoff, week } = nextGame1;
 		const rawTimeToKickoff = moment(kickoff).diff(moment(), 'hours', true);
@@ -86,8 +99,11 @@ SyncedCron.add({
 						console.log(`Sent reminder email to ${user.first_name} ${user.last_name}!`);
 					}
 					if (type.indexOf('text') > -1) {
-						console.log('TODO: send out text reminder');
-						console.log(`Sent reminder text to ${user.first_name} ${user.last_name}!`);
+						let msg = `${EMAIL_SUBJECT_PREFIX}${user.first_name}, this is your reminder to submit your picks for week ${week} as you now have less than ${hours_before} hours!`;
+						if ((msg.length + POOL_URL.length) < MAX_SMS_LENGTH) msg += ` ${POOL_URL}`;
+						sendSMS(`+1${user.phone_number}`, msg, err => {
+							console.log(`Sent reminder text to ${user.first_name} ${user.last_name}!`);
+						});
 					}
 				}
 			});
@@ -99,20 +115,3 @@ SyncedCron.add({
 Meteor.startup(() => {
 	SyncedCron.start();
 });
-
-
-/**
- * Old email logic
-
-Email.send({
-	to: user.email,
-	from: 'Brian Duffey <bduff9@gmail.com>',
-	subject: `[NFL Confidence Pool] Hurry up, ${user.first_name}!`,
-	text: `Hello ${user.first_name},
-
-This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.  You can log in and submit your picks here:
-http://nfl.asitewithnoname.com
-
-Good luck!`,
-});
-*/

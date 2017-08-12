@@ -5,6 +5,11 @@
  */
 
 /**
+ * The address of the pool
+ */
+export const POOL_URL = '';
+
+/**
  * The current schema version
  * 1 - First schema
  * 2 - New schema for 2017 season
@@ -92,6 +97,11 @@ export const POOL_EMAIL_FROM = 'NFL Pool Admin <info@asitewithnoname.com>';
  * The email subject prefix
  */
 export const EMAIL_SUBJECT_PREFIX = '[NFL Confidence Pool] ';
+
+/**
+ * The maximum length of single SMS message
+ */
+export const MAX_SMS_LENGTH = 160;
 
 /**
  * All supported account types for payments

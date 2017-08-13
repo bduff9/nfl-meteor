@@ -42,7 +42,7 @@ export const getTeamByShort = new ValidatedMethod({
 	}).validator(),
 	run ({ short_name }) {
 		const team = Team.findOne({ short_name });
-		if (!team) throw new Meteor.Error('No team found');
+		if (!team) throw new Meteor.Error('Teams.getTeamByShort.noTeamFound', 'No team found');
 		return team;
 	}
 });

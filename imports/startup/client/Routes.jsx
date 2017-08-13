@@ -92,6 +92,12 @@ function verifyEmail (nextState, replace) {
 	}
 }
 
+function clearOldQuickPick (nextState, replace) {
+	const { params } = nextState,
+			{ team_short, user_id } = params;
+	Session.set(`quick-pick-${user_id}-${team_short}`, null);
+}
+
 function verifyAdmin (nextState, replace) {
 	const user = Meteor.user();
 	if (!user.is_admin) {
@@ -122,7 +128,7 @@ export const Routes = () => (
 	<Router history={browserHistory}>
 		<Route path="/verify-email/:token" component={Loading} onEnter={verifyEmail} />
 		<Route path="/reset-password/:token" component={ResetPassword} />
-		<Route path="/quick-pick/:user_id/:game_id/:team_id" component={QuickPick} />
+		<Route path="/quick-pick/:user_id/:team_short" component={QuickPick} onEnter={clearOldQuickPick} />
 		<Route path="/login" component={Login} onEnter={requireNoAuth} />
 		<Route path="/logout" component={Logout} onEnter={logOut} />
 		<Route path="/" component={AuthedLayout} onEnter={requireAuth}>

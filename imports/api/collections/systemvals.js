@@ -9,7 +9,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { dbVersion } from '../../api/constants';
 
 export const createSystemValues = new ValidatedMethod({
-	name: '',
+	name: 'SystemVals.createSystemValues',
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		const systemVal = new SystemVal({

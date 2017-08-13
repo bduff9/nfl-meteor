@@ -7,6 +7,7 @@ import Yup from 'yup';
 
 import { ACCOUNT_TYPES, AUTO_PICK_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
 import { displayError, getInputColor } from '../../api/global';
+import Tooltip from './Tooltip';
 import { updateNotifications, updateUser, validateReferredBy } from '../../api/collections/users';
 
 class EditProfileForm extends Component {
@@ -81,7 +82,7 @@ class EditProfileForm extends Component {
 					</div>
 				</div>
 				<div className={`row form-group ${getInputColor(errors.phone_number, touched.phone_number, 'has-')}`}>
-					<label htmlFor="phone_number" className="col-xs-12 col-md-2 col-form-label">Phone # (Optional)</label>
+					<label htmlFor="phone_number" className="col-xs-12 col-md-2 col-form-label">Phone # (Optional) <Tooltip message="If you would like to receive text reminders, please enter your SMS-capable phone number in the format 1234567980" /></label>
 					<div className="col-xs-12 col-md-10">
 						<input type="tel" className={`form-control ${getInputColor(errors.phone_number, touched.phone_number, 'form-control-')}`} name="phone_number" placeholder="Phone # (Optional)" value={values.phone_number} onBlur={handleBlur} onChange={handleChange} />
 						{errors.phone_number && touched.phone_number && <div className="form-control-feedback">{errors.phone_number}</div>}
@@ -123,7 +124,7 @@ class EditProfileForm extends Component {
 				</div>
 				{isCreate && !user.trusted ? (
 					<div className={`row form-group ${getInputColor(errors.referred_by, touched.referred_by, 'has-')}`}>
-						<label htmlFor="referred_by" className="col-xs-12 col-md-2 col-form-label">Referred By</label>
+						<label htmlFor="referred_by" className="col-xs-12 col-md-2 col-form-label">Referred By <Tooltip message="Please enter the exact, full name of the person who referred you in order to gain immediate access" /></label>
 						<div className="col-xs-12 col-md-10">
 							<input type="text" className={`form-control ${getInputColor(errors.referred_by, touched.referred_by, 'form-control-')}`} name="referred_by" placeholder="Referred By" value={values.referred_by} required onBlur={handleBlur} onChange={handleChange} />
 							{errors.referred_by && touched.referred_by && <div className="form-control-feedback">{errors.referred_by}</div>}
@@ -139,7 +140,7 @@ class EditProfileForm extends Component {
 							Auto Picks&nbsp;
 							<small className="text-muted">({values.auto_pick_count} left)</small>
 						</div>
-						<label className="col-xs-12 col-md-2 col-form-label">Auto Pick?</label>
+						<label className="col-xs-12 col-md-2 col-form-label">Auto Pick? <Tooltip message="When you have auto picks left, this will pick a game for you so you don't lose any points when a game starts that you have not picked" /></label>
 						<div className="col-xs-12 col-md-10 form-check form-check-inline">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="radio" name="auto_pick_strategy" value="" checked={values.auto_pick_strategy === '' || !values.auto_pick_count} onBlur={handleBlur} onChange={handleChange} />
@@ -161,7 +162,7 @@ class EditProfileForm extends Component {
 				{!isCreate ? (
 					<div className={`row form-group ${getInputColor(errors.do_reminder, touched.do_reminder, 'has-')}`}>
 						<div className="col-xs-12 text-xs-center h3">Notifications</div>
-						<label className="col-xs-12 col-md-2 col-form-label">Submit Pick Reminder</label>
+						<label className="col-xs-12 col-md-2 col-form-label">Submit Pick Reminder <Tooltip message="This option allows you to be sent a reminder (email/SMS) when you have not submitted your picks for a week. Note: SMS requires a valid SMS-capable phone number above." /></label>
 						<div className="col-xs-12 col-md-10">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="do_reminder" value="true" checked={values.do_reminder} onChange={this._toggleReminder} />
@@ -205,7 +206,7 @@ class EditProfileForm extends Component {
 				}
 				{!isCreate ? (
 					<div className={`row form-group ${getInputColor(errors.do_quick_pick, touched.do_quick_pick, 'has-')}`}>
-						<label className="col-xs-12 col-md-2 col-form-label">Send quick pick email?</label>
+						<label className="col-xs-12 col-md-2 col-form-label">Send quick pick email? <Tooltip message="Quick Pick email will let you pick the first game of the week when you have not already made it with one button press" /></label>
 						<div className="col-xs-12 col-md-10">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="do_quick_pick" value="true" checked={values.do_quick_pick} onChange={this._toggleQuickPick} />
@@ -322,7 +323,7 @@ export default Formik({
 		last_name: Yup.string().min(2, 'Please enter your surname').required('Please enter your surname'),
 		team_name: Yup.string(),
 		referred_by: (props.isCreate ? Yup.string().matches(/\s/, 'Please input the full name of the person that invited you').required('Please input the full name of the person that invited you') : Yup.string()),
-		phone_number: Yup.string().matches(/^(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?$/, 'Please enter a valid phone number'),
+		phone_number: Yup.string().matches(/^\d{10}$/, 'Please enter a valid phone number, numbers only'),
 		survivor: Yup.string().nullable(true),
 		payment_type: Yup.string().oneOf(ACCOUNT_TYPES, 'Please select a valid account type').required('Please select an account type'),
 		payment_account: Yup.string().when('payment_type', {

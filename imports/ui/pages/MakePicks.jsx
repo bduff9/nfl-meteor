@@ -6,6 +6,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 import { Bert } from 'meteor/themeteorchef:bert';
+import sweetAlert from '../../../node_modules/sweetalert';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError } from '../../api/global';
@@ -76,23 +77,27 @@ class MakePicks extends Component {
 	}
 	_savePicks (ev) {
 		ev.currentTarget.disabled = true;
-		Bert.alert({ type: 'success', message: 'Your picks have been successfully saved!' });
+		//Bert.alert({ type: 'success', message: 'Your picks have been successfully saved!' });
+		sweetAlert('Saved','Your picks have been successfully saved!', 'success');
 	}
 	_submitPicks (picksLeft, noTiebreaker, ev) {
 		const { currentLeague, selectedWeek } = this.props,
 				tiebreakerVal = this.tiebreakerRef.value;
 		ev.preventDefault();
 		if (picksLeft) {
-			Bert.alert({ type: 'warning', message: 'You must use all available points before you can submit' });
+			//Bert.alert({ type: 'warning', message: 'You must use all available points before you can submit' });
+			sweetAlert('Hold On!','You must use all available points before you can submit','warning');
 		} else if (noTiebreaker && !tiebreakerVal) {
-			Bert.alert({ type: 'warning', message: 'You must fill in a tiebreaker score at the bottom of this page before you can submit' });
+			//Bert.alert({ type: 'warning', message: 'You must fill in a tiebreaker score at the bottom of this page before you can submit' });
+			sweetAlert('Slow down!', 'You must fill in a tiebreaker score at the bottom of this page before you can submit','warning');
 		} else {
 			setTimeout(() => {
 				submitPicks.call({ league: currentLeague, week: selectedWeek }, (err) => {
 					if (err) {
 						displayError(err);
 					} else {
-						Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+						//Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
+						sweetAlert('Your picks have been submitted!','Good luck this week', 'success');
 						this.context.router.push('/picks/view');
 					}
 				});

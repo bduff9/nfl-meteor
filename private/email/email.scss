@@ -1,7 +1,35 @@
-$color: #333;
+@import '../../node_modules/bootstrap/scss/bootstrap.scss';
 
-body, p {
-  font-family: sans-serif;
-  color: $color;
-  text-align: center;
+$text-color: white;
+$background-color: black;
+
+@media (min-width: 675px) {
+  body {
+    background-image: url('../../public/bkgd-pitch.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
+
+@media (max-width: 674px) {
+  body {
+    background-color:$background-color;
+    color: red;
+  }
+}
+
+html, body {
+  height: 100%;
+  background-color: $background-color;
+  padding: 2em;
+  display: inline;
+}
+
+p, h1 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: $text-color;
+}
+
+p {
+  font-size: 1.5rem;
 }

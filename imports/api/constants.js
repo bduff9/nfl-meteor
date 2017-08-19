@@ -7,7 +7,7 @@
 /**
  * The address of the pool
  */
-export const POOL_URL = '';
+export const POOL_URL = 'http://nfl.asitewithnoname.com';
 
 /**
  * The current schema version
@@ -91,12 +91,13 @@ export const MAX_GAMES_IN_WEEK = 16;
 /**
  * The outgoing email address
  */
-export const POOL_EMAIL_FROM = 'NFL Pool Admin <info@asitewithnoname.com>';
+export const POOL_EMAIL_FROM = 'Commissioner <info@asitewithnoname.com>';
 
 /**
  * The email subject prefix
  */
-export const EMAIL_SUBJECT_PREFIX = '[NFL Confidence Pool] ';
+export const POOL_SITE_NAME = 'NFL Confidence Pool';
+export const EMAIL_SUBJECT_PREFIX = `[${POOL_SITE_NAME}] `;
 
 /**
  * The maximum length of single SMS message

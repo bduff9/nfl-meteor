@@ -1,20 +1,25 @@
 'use strict';
 
-import { Bert } from 'meteor/themeteorchef:bert';
+import { Meteor } from 'meteor/meteor';
 
-export const convertEpoch = (epoch) => {
+export const convertEpoch = epoch => {
 	let d = new Date(0);
 	d.setUTCSeconds(epoch);
 	return d;
 };
 
-export const displayError = (err, opts = { title: err && err.reason, type: 'danger' }) => {
+export const displayError = (err, opts = {}, cb = null) => {
 	if (!err) return;
-	if (!opts.title) opts.title = 'Missing error title!';
-	Bert.alert(opts);
+	if (Meteor.isClient) {
+		const sweetAlert = require('sweetalert');
+		opts.title = opts.title || 'Error Occurred';
+		opts.text = opts.text || err.reason || err.message || err.error || 'Something went wrong, please try again';
+		opts.type = opts.type || 'error';
+		sweetAlert(opts, cb);
+	}
 };
 
-export const formattedPlace = (place) => {
+export const formattedPlace = place => {
 	const s = ['th', 'st', 'nd', 'rd'],
 			v = place % 100;
 	return place + (s[(v - 20) % 10] || s[v] || s[0]);
@@ -45,7 +50,7 @@ export const getInputColor = (error, touched, prefix) => {
 	return prefix + 'success';
 };
 
-export const logError = (err) => {
+export const logError = err => {
 	if (!err) return;
 	console.error('Error from logError', err);
 };

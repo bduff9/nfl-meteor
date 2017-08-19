@@ -6,7 +6,7 @@ import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 import { Bert } from 'meteor/themeteorchef:bert';
-import sweetAlert from '../../../node_modules/sweetalert';
+import sweetAlert from 'sweetalert';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError } from '../../api/global';
@@ -23,6 +23,7 @@ class MakePicks extends Component {
 		super();
 		this.state = this._populatePoints(games, picks, pageReady);
 		this._autopick = this._autopick.bind(this);
+		this._handleSubmitPicks = this._handleSubmitPicks.bind(this);
 		this._resetPicks = this._resetPicks.bind(this);
 		this._setHover = this._setHover.bind(this);
 		this._setTiebreakerWrapper = this._setTiebreakerWrapper.bind(this);
@@ -47,6 +48,24 @@ class MakePicks extends Component {
 		autoPick.call({ available, league: currentLeague, selectedWeek, type }, displayError);
 		Bert.alert({ type: 'success', message: `Your unset picks have been automatically set ${type === 'random' ? 'randomly' : `to the ${type} teams`}!` });
 		return false;
+	}
+	_handleSubmitPicks () {
+		const { currentLeague, selectedWeek } = this.props;
+		setTimeout(() => {
+			submitPicks.call({ league: currentLeague, week: selectedWeek }, err => {
+				if (err) {
+					displayError(err);
+				} else {
+					sweetAlert({
+						title: 'Good luck this week!',
+						text: 'Your picks have been submitted and can no longer be changed. You can now close this message to view/print your picks',
+						type: 'success'
+					}, () => {
+						this.context.router.push('/picks/view');
+					});
+				}
+			});
+		}, 500);
 	}
 	_populatePoints (games, picks, gamesReady) {
 		if (!gamesReady) return { available: [], unavailable: [], used: [] };
@@ -77,31 +96,39 @@ class MakePicks extends Component {
 	}
 	_savePicks (ev) {
 		ev.currentTarget.disabled = true;
-		//Bert.alert({ type: 'success', message: 'Your picks have been successfully saved!' });
-		sweetAlert('Saved','Your picks have been successfully saved!', 'success');
+		sweetAlert({
+			title: 'Your picks have been successfully saved!',
+			text: 'Please be sure to submit them as soon as you are ready, as they have only been saved, not submitted',
+			type: 'success',
+			allowOutsideClick: true
+		});
 	}
 	_submitPicks (picksLeft, noTiebreaker, ev) {
-		const { currentLeague, selectedWeek } = this.props,
-				tiebreakerVal = this.tiebreakerRef.value;
+		const tiebreakerVal = this.tiebreakerRef.value;
 		ev.preventDefault();
 		if (picksLeft) {
-			//Bert.alert({ type: 'warning', message: 'You must use all available points before you can submit' });
-			sweetAlert('Hold On!','You must use all available points before you can submit','warning');
+			sweetAlert({
+				title: 'Hold On!',
+				text: 'You must use all available points before you can submit',
+				type: 'warning'
+			});
 		} else if (noTiebreaker && !tiebreakerVal) {
-			//Bert.alert({ type: 'warning', message: 'You must fill in a tiebreaker score at the bottom of this page before you can submit' });
-			sweetAlert('Slow down!', 'You must fill in a tiebreaker score at the bottom of this page before you can submit','warning');
+			sweetAlert({
+				title: 'Slow down!',
+				text: 'You must fill in a tiebreaker score at the bottom of this page before you can submit',
+				type: 'warning'
+			});
 		} else {
-			setTimeout(() => {
-				submitPicks.call({ league: currentLeague, week: selectedWeek }, (err) => {
-					if (err) {
-						displayError(err);
-					} else {
-						//Bert.alert({ type: 'success', message: 'Your picks have been submitted!' });
-						sweetAlert('Your picks have been submitted!','Good luck this week', 'success');
-						this.context.router.push('/picks/view');
-					}
-				});
-			}, 500);
+			sweetAlert({
+				title: 'Are you sure?',
+				text: 'Once you submit your picks, you will be allowed to see everyone else\'s and therefore will be unable to change them',
+				type: 'info',
+				showCancelButton: true,
+				closeOnConfirm: false,
+				showLoaderOnConfirm: true,
+				confirmButtonText: 'Yes, submit',
+				cancelButtonText: 'No, cancel'
+			}, this._handleSubmitPicks);
 		}
 		return false;
 	}

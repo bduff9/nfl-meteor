@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
+import sweetAlert from 'sweetalert';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
 
@@ -26,14 +27,21 @@ export default class Login extends Component {
 
 	_forgotPassword (email, ev) {
 		if (!email) {
-			Bert.alert({ type: 'danger', message: 'Please enter the email address you signed up with' });
+			sweetAlert({
+				title: 'Email not found',
+				text: 'Please enter the email address you signed up with',
+				type: 'warning'
+			});
 			return false;
 		}
 		Accounts.forgotPassword({ email }, err => {
 			if (err) {
 				displayError(err);
 			} else {
-				Bert.alert({ type: 'success', message: 'Password reset email has been sent' });
+				sweetAlert({
+					title: 'Password reset email has been sent',
+					type: 'success'
+				});
 			}
 		});
 	}

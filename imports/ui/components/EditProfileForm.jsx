@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import { Bert } from 'meteor/themeteorchef:bert';
+import sweetAlert from 'sweetalert';
 import { Formik } from 'formik';
 import Yup from 'yup';
 
@@ -359,15 +360,18 @@ export default Formik({
 					Bert.alert(`Thanks for registering, ${first_name}`, 'success');
 					router.push('/users/payments');
 				} else {
-					Bert.alert(`Thanks for registering, ${first_name}!  An admin will review your application shortly`, 'success');
+					sweetAlert({
+						title: `Thanks for registering, ${first_name}!`,
+						text: 'An admin will review your application shortly and you will be notified if approved. You may close this window.',
+						type: 'success'
+					});
 				}
 			} else {
 				updateUser.call({ auto_pick_strategy, first_name, last_name, payment_account, payment_type, phone_number, team_name });
 				updateNotifications.call({ do_quick_pick, do_reminder, quick_pick_hours: parseInt(quick_pick_hours, 10), reminder_hours: parseInt(reminder_hours, 10), reminder_types_email, reminder_types_text });
-				Bert.alert({
-					message: 'Profile saved!',
-					type: 'success',
-					icon: 'fa-save'
+				sweetAlert({
+					title: 'Profile saved!',
+					type: 'success'
 				});
 				setSubmitting(false);
 			}

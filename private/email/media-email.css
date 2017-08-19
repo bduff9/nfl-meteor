@@ -1,15 +1,14 @@
-
 @media (min-width: 675px) {
-  body {
-    background-image: url('/public/bkgd-pitch.png');
+  #email-content {
+    background-image: url('http://nfl.asitewithnoname.com/bkgd-pitch.png');
     background-repeat: no-repeat;
     background-size: cover;
   }
 }
 
 @media (max-width: 674px) {
-  body {
-    background-color:$background-color;
+  #email-content {
+    background-color: black;
     color: red;
   }
 }

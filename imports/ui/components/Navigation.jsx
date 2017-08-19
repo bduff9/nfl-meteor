@@ -80,7 +80,13 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 					}
 					<ul className="nav nav-sidebar">
 						<li><IndexLink to="/" activeClassName="active">Dashboard</IndexLink></li>
-						<li><Link to="/stats" activeClassName="active">Statistics</Link></li>
+						<li>
+							<Link to="/stats" activeClassName="active">
+								Statistics
+								{/* Remove after 2017 */}
+								<span className="tag tag-pill tag-info">New</span>
+							</Link>
+						</li>
 						<li><Link to="/picks/view" activeClassName="active">View My Picks</Link></li>
 						{selectedWeek >= currentWeek && tiebreaker && !tiebreaker.submitted ? <li><Link to="/picks/set" activeClassName="active">Make Picks</Link></li> : null}
 						{tiebreaker && (selectedWeek < currentWeek || tiebreaker.submitted) ? <li><Link to="/picks/viewall" activeClassName="active">View All Picks</Link></li> : null}
@@ -96,7 +102,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 						<li>
 							<a href="#" onClick={_toggleRightSlider.bind(null, 'messages')}>
 								{(msgCt > 0 ? <strong>Messages</strong> : 'Messages')}&nbsp;
-								{(msgCt > 0 ? <span title={`You have ${msgCt} messages`} className="tag tag-pill tag-danger">{msgCt}</span> : null)}
+								{(msgCt > 0 ? <span title={`You have ${msgCt} messages`} className="tag tag-pill tag-pulsate tag-danger">{msgCt}</span> : null)}
 							</a>
 						</li>
 						<li><a href="#" onClick={_toggleRightSlider.bind(null, 'rules')}>Rules</a></li>
@@ -108,7 +114,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 						<li>
 							<a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>
 								{(unreadChatCt > 0 ? <strong>Chat</strong> : 'Chat')}
-								{(unreadChatCt > 0 ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-pill tag-primary">{unreadChatCt}</span> : null)}
+								{(unreadChatCt > 0 ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-pill tag-pulsate tag-primary">{unreadChatCt}</span> : null)}
 							</a>
 						</li>
 					</ul>

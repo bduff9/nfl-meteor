@@ -32,8 +32,11 @@ div.sidebar {
 
         .tag {
           cursor: pointer;
-          animation: pulsate 2s ease-out;
-          animation-iteration-count: infinite;
+
+          &.tag-pulsate {
+            animation: pulsate 2s ease-out;
+            animation-iteration-count: infinite;
+          }
         }
 
         & > a {

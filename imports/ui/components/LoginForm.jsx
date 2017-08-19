@@ -4,6 +4,7 @@ import React, { PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
+import sweetAlert from 'sweetalert';
 import { Formik } from 'formik';
 import Yup, { addMethod, string, ref } from 'yup';
 
@@ -101,8 +102,9 @@ export default Formik({
 					}
 				} else {
 					setLoading('verify');
-					Bert.alert({
-						message: 'Please check your email to verify your account',
+					sweetAlert({
+						title: 'Your account has been created',
+						text: 'Please check your email to verify your account in order to sign in',
 						type: 'success'
 					});
 				}
@@ -112,13 +114,13 @@ export default Formik({
 				if (err) {
 					setSubmitting(false);
 					if (err.reason === 'User not found') {
-						displayError(err, { title: 'User not found!  Did you mean to register at the bottom of this page instead?', type: 'warning' });
+						displayError(err, { title: 'User not found!', text: 'Did you mean to register at the bottom of this page instead?', type: 'warning' });
 					} else {
-						displayError(err, { title: err.reason, type: 'warning' });
+						displayError(err, { type: 'warning' });
 					}
 				} else {
 					Bert.alert({
-						message: 'Welcome!',
+						message: 'Welcome back!',
 						type: 'success',
 						icon: 'fa-thumbs-up'
 					});

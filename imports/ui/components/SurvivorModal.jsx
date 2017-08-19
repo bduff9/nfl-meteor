@@ -5,6 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import $ from 'jquery';
 import { Bert } from 'meteor/themeteorchef:bert';
+import sweetAlert from 'sweetalert';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { displayError } from '../../api/global';
@@ -27,10 +28,10 @@ class SurvivorModal extends Component {
 		const { currentLeague, week } = this.props;
 		setSurvivorPick.call({ gameId, league: currentLeague, teamId: team._id, teamShort: team.short_name, week }, err => {
 			if (err) return displayError(err);
-			Bert.alert({
-				message: `Your week ${week} pick has been saved!`,
-				type: 'success',
-				icon: 'fa-thumbs-up'
+			sweetAlert({
+				title: 'Way to go!',
+				text: `Your week ${week} pick has been successfully saved!`,
+				type: 'success'
 			});
 		});
 	}

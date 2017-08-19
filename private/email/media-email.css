@@ -1,0 +1,15 @@
+
+@media (min-width: 675px) {
+  body {
+    background-image: url('/public/bkgd-pitch.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
+
+@media (max-width: 674px) {
+  body {
+    background-color:$background-color;
+    color: red;
+  }
+}

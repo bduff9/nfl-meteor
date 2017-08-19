@@ -1,84 +1,68 @@
 'use strict';
 
-/*export {
-	interest: {
-		path: 'email/templates/interest-email.html',    // Relative to the 'private' dir.
-		//scss: 'email/email.scss',       // Mail specific SCSS.
-		helpers: {},
-		route: {
-			path: '/interest',
-			data: (params) => ({
-				names: ['Johan', 'John', 'Paul', 'Ringo']
-			})
-		}
-	}
-};
-*/
-
-export default{
+export default {
 	newUserWelcome: {
 		path: 'email/templates/welcome-email.html',    // Relative to the 'private' dir.
 		//scss: 'email/email.scss',       // Mail specific SCSS.
+		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
-			path: '/new-user'
+			path: '/new-user',
+			data: params => ({})
 		}
-	}
-};
+	},
 
-/*export {
+	interest: {
+		path: 'email/templates/interest-email.html',
+		helpers: {},
+		route: {
+			path: '/interest',
+			data: params => ({})
+		}
+	},
+
 	verifyEmail: {
-		path: 'email/templates/verify-email.html',    // Relative to the 'private' dir.
-		//scss: 'email/email.scss',       // Mail specific SCSS.
+		path: 'email/templates/verify-email.html',
 		helpers: {},
 		route: {
-			path: '/verify'
+			path: '/verify',
+			data: params => ({})
 		}
-	}
-};
+	},
 
-export {
 	picksConfirm: {
-		path: 'email/templates/picks-confirmation.html',    // Relative to the 'private' dir.
-		//scss: 'email/email.scss',       // Mail specific SCSS.
+		path: 'email/templates/picks-confirmation.html',
 		helpers: {},
 		route: {
-			path: '/picks-confirmation'
+			path: '/picks-confirmation',
+			data: params => ({})
 		}
-	}
-};
+	},
 
-export {
 	quickPick: {
-		path: 'email/templates/quick-pick.html',    // Relative to the 'private' dir.
-		//scss: 'email/email.scss',       // Mail specific SCSS.
+		path: 'email/templates/quick-pick.html',
 		helpers: {},
 		route: {
-			path: '/quick-pick'
+			path: '/quick-pick',
+			data: params => ({})
 		}
-	}
-};
+	},
 
-
-export {
 	reminder: {
-		path: 'email/templates/reminder.html',    // Relative to the 'private' dir.
-		//scss: 'email/email.scss',       // Mail specific SCSS.
+		path: 'email/templates/reminder.html',
 		helpers: {},
 		route: {
-			path: '/reminder'
+			path: '/reminder',
+			data: params => ({})
 		}
-	}
-};
+	},
 
-export {
-	reminder: {
-		path: 'email/templates/reset-password.html',    // Relative to the 'private' dir.
-		//scss: 'email/email.scss',       // Mail specific SCSS.
+	resetPassword: {
+		path: 'email/templates/reset-password.html',
 		helpers: {},
 		route: {
-			path: '/reset-password'
+			path: '/reset-password',
+			data: params => ({})
 		}
 	}
 };
-*/

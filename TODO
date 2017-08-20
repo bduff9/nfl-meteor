@@ -1,17 +1,15 @@
 History screen
 	- Show stats for current season
 	- Show history if previous season is picked
-Admin screen
-	- Call BA's new email logic on send (marked with todo)
 Emails (BA)
 	- Verify email
-	- Welcome/welcome back
+	- Welcome/welcome back (BA, confirm you are OK with this)
 	- Submit reminder
 	- Quick pick
 	- Confirmation of quick pick
 	- Confirmation of Submit
 	- All users have submitted
-	- Reset password
+	- Reset password (BA, confirm you are OK with this)
 	- Pool email (uses layout of above but takes in a subject and body for when we need to email everyone)
 Misc.
 	- Move more static values to constants
@@ -20,9 +18,9 @@ To Deploy
 	- Update mup file from GoT mup file
 	- Ensure all http URLs are changed to https (emails, css, constants, etc.?)
 For BA
-	- Where did we land on picking by spread?
-	- In quick pick email, should we only have 2 buttons (one for home team, one for away)?  Or should we somehow let them pick points as well (maybe with more buttons)?  There's a lot of ways we can handle this so really just want to start with do we only let them pick team (and we auto-assign highest, lowest or random point) or do we let them somehow pick points as well?  Once we decided on that, then if we let them pick points, do we have all available points, only the highest and lowest, etc.?
-	- New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help
-	- Add twilio creds to all settings.json files if you have not already
-	- Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above please.
+	- (Question) Where did we land on picking by spread?
+	- (Question) I added a new badge to the stats link in nav.  Do you like it or should we remove?  If you like, should we also add to view payments (the other new menu option this year)?  My only issue with it right now is that we will have to manually remove it after like week 3 or something as I don't have any logic currently to show it until a user clicks into it for the first time.  Could get annoying since a user cannot clear it themselves.  We can look at adding some logic to handle this for next year (maybe as a part of the help/tour stuff).
+	- (TODO) New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help
+	- (TODO) Add twilio creds to all settings.json files if you have not already
+	- (TODO) Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above, please.
 

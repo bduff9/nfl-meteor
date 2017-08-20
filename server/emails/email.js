@@ -31,9 +31,12 @@ Accounts.emailTemplates.resetPassword = {
 		return `${EMAIL_SUBJECT_PREFIX}Reset Password Request`;
 	},
 	html (user, url) {
-		//TODO: render template and return
-		let urlWithoutHash = url.replace('#/', '');
-		return `To reset your password, simply click the link below:\n\n${urlWithoutHash}`;
+		const urlWithoutHash = url.replace('#/', '');
+		let body;
+		console.log(`Sending Reset Password email to ${user.email}...`);
+		body = Mailer.render('resetPassword', { firstName: user.first_name, preview: 'We just received a password reset request from your account', url: urlWithoutHash });
+		console.log(`Successfully sent Reset Password email to ${user.email}!`);
+		return body;
 	}
 };
 

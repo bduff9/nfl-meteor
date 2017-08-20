@@ -17,7 +17,7 @@ class AdminUsers extends Component {
 		this.state = {
 			emailBody: '',
 			emailModal: false,
-			emailSubject: EMAIL_SUBJECT_PREFIX
+			emailSubject: ''
 		};
 		this._sendEmail = this._sendEmail.bind(this);
 		this._toggleEmail = this._toggleEmail.bind(this);
@@ -51,11 +51,14 @@ class AdminUsers extends Component {
 		const { users } = this.props,
 				{ emailBody, emailSubject } = this.state;
 		const emailList = users.map(user => user.email);
-		//TODO: send email using BA's logic
-		console.log('BCC email to', emailList);
-		console.log('Subject', emailSubject);
-		console.log('Body', emailBody);
-		this.setState({ emailBody: '', emailModal: false, emailSubject: EMAIL_SUBJECT_PREFIX });
+		Meteor.call('Email.sendEmail', { bcc: emailList, data: { message: emailBody }, subject: emailSubject, template: 'weeklyEmail' }, (err) => {
+			if (err) {
+				displayError(err);
+			} else {
+				Bert.alert({ type: 'success', message: 'Email has been successfully sent!' });
+				this.setState({ emailBody: '', emailModal: false, emailSubject: '' });
+			}
+		});
 	}
 	_toggleAdmin (user, ev) {
 		const { _id, is_admin } = user;

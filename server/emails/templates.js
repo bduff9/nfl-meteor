@@ -75,7 +75,10 @@ export default {
 		helpers: {},
 		route: {
 			path: '/reset-password',
-			data: ({ query }) => ({})
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				url: query.url
+			})
 		}
 	}
 };

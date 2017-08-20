@@ -1,4 +1,7 @@
 @import '{}/node_modules/bootstrap/scss/bootstrap.scss';
+@import '{}/node_modules/sweetalert/dev/sweetalert.scss';
+// BD: If we want theming for sweetalert, we can choose between facebook, google, and twitter themes (I prefer google or twitter)
+//@import '{}/node_modules/sweetalert/themes/twitter/twitter.scss';
 
 /* Global */
 html, body {

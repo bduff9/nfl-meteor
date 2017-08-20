@@ -31,4 +31,6 @@ p {
 
 .preview-text {
   display: none;
+  max-height: 0;
+  overflow: hidden;
 }

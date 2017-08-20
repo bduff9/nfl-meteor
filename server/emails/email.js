@@ -68,7 +68,7 @@ Mailer.init({
  * Subject, template, and one of bcc or to are required
  * Attachments and data are optional (In data, preview is global to all templates (For the email preview), find all possible template specific values in templates.js)
  * Sample call from client:
-		Meteor.call('Email.sendEmail', { data: { email: 'somebody@somewhere.com', facebook: false, firstName: 'Brian', google: true, password: 'Biggunz69', preview: 'Welcome to the NFL Confidence Pool', returning: true, year: 2099 }, subject: 'Testing the pool emails', template: 'newUserWelcome', to: 'bduff9@gmail.com' }, displayError);
+		Meteor.call('Email.sendEmail', { data: { email: 'somebody@somewhere.com', facebook: false, firstName: 'Brian', google: true, password: 'Biggunz69', preview: `Thank you for signing up for the ${year} NFL Confidence Pool!`, returning: true, year: 2099 }, subject: 'Testing the pool emails', template: 'newUserWelcome', to: 'bduff9@gmail.com' }, displayError);
  * From server, simply import sendEmail and then do:
 		sendEmail.call({...SAME VALUES AS ABOVE...}, logError);
  */

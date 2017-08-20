@@ -10,9 +10,21 @@
     </style>
   </head>
   <body>
-    <p class="preview-text">{{#if preview}}{{preview}}{{/if}}</p>
+    {{#if preview}}
+    <!-- Text to show in preview of emails -->
+    <div class="preview-text">
+      {{ preview }}
+    </div>
+
+    <!-- Insert &zwnj;&nbsp; hack after hidden preview text -->
+    <div class="preview-text">
+      {{{ whitespaceAfterPreview preview }}}
+    </div>
+    {{/if}}
 
     <!-- This is where the actual template content will be inserted. -->
-    <div id="email-content">{{{ body }}}</div>
+    <div id="email-content">
+      {{{ body }}}
+    </div>
   </body>
 </html>

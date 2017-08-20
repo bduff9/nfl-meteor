@@ -55,7 +55,13 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							<h5>{`Welcome, ${currentUser.first_name}`}</h5>
 						</li>
 						<li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
-						<li><Link to="/users/payments" activeClassName="active">View Payments</Link></li>
+						<li>
+							<Link to="/users/payments" activeClassName="active">
+								View Payments
+								{/* TODO: Remove after 2017 week 3 */}
+								<span className="tag tag-pill tag-info">New</span>
+							</Link>
+						</li>
 						<li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
 					</ul>
 					{selectedWeek ? (
@@ -83,7 +89,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 						<li>
 							<Link to="/stats" activeClassName="active">
 								Statistics
-								{/* Remove after 2017 */}
+								{/* TODO: Remove after 2017 week 3 */}
 								<span className="tag tag-pill tag-info">New</span>
 							</Link>
 						</li>

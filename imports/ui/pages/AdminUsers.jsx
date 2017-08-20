@@ -7,7 +7,6 @@ import Helmet from 'react-helmet';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 
-import { EMAIL_SUBJECT_PREFIX } from '../../api/constants';
 import { displayError } from '../../api/global';
 import { deleteUser, getAdminUsers, updateUserAdmin } from '../../api/collections/users';
 
@@ -51,7 +50,7 @@ class AdminUsers extends Component {
 		const { users } = this.props,
 				{ emailBody, emailSubject } = this.state;
 		const emailList = users.map(user => user.email);
-		Meteor.call('Email.sendEmail', { bcc: emailList, data: { message: emailBody }, subject: emailSubject, template: 'weeklyEmail' }, (err) => {
+		Meteor.call('Email.sendEmail', { bcc: emailList, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commisioners' }, subject: emailSubject, template: 'weeklyEmail' }, (err) => {
 			if (err) {
 				displayError(err);
 			} else {

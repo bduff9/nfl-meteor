@@ -1,3 +1,5 @@
+Login
+	- Prevent existing users from signing up after week 3
 History screen
 	- Show stats for current season
 	- Show history if previous season is picked
@@ -17,9 +19,8 @@ To Deploy
 	- Upgrade Twilio account to paid before season starts
 	- Update mup file from GoT mup file
 	- Ensure all http URLs are changed to https (emails, css, constants, etc.?)
+	- Remove "new" badges from nav after week 3
 For BA
-	- (Question) Where did we land on picking by spread?
-	- (Question) I added a new badge to the stats link in nav.  Do you like it or should we remove?  If you like, should we also add to view payments (the other new menu option this year)?  My only issue with it right now is that we will have to manually remove it after like week 3 or something as I don't have any logic currently to show it until a user clicks into it for the first time.  Could get annoying since a user cannot clear it themselves.  We can look at adding some logic to handle this for next year (maybe as a part of the help/tour stuff).
 	- (TODO) New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help
 	- (TODO) Add twilio creds to all settings.json files if you have not already
 	- (TODO) Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above, please.

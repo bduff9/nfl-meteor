@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 
 import { writeLog } from '../../api/collections/nfllogs';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 
 export const imgs = ['rivers.jpg', 'bigben.png', 'cutler.jpg', 'goodell.jpg', 'manziel.jpg', 'peterson.jpg', 'ref.jpg', 'rodgers.jpg', 'sherman.jpg'];
 
@@ -17,7 +17,7 @@ export const _get404Image = () => {
 
 export const NotFound = ({ location }) => {
 
-	writeLog.call({ userId: Meteor.userId(), action: '404', message: location.pathname }, displayError);
+	writeLog.call({ userId: Meteor.userId(), action: '404', message: location.pathname }, handleError);
 
 	return (
 		<div className="col-xs not-found-wrapper">

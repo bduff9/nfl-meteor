@@ -5,7 +5,7 @@ import Sortable from 'sortablejs';
 
 import { getColor } from '../../api/global';
 import { setPick } from '../../api/collections/picks';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 
 class PointHolder extends Component {
 	constructor (props) {
@@ -32,7 +32,7 @@ class PointHolder extends Component {
 				pointVal = parseInt(item.innerText, 10),
 				addOnly = (Sortable.utils.is(from, '.pointBank')),
 				removeOnly = (Sortable.utils.is(to, '.pointBank'));
-		setPick.call({ addOnly, fromData: from.dataset, league, pointVal, removeOnly, selectedWeek, toData: to.dataset }, displayError);
+		setPick.call({ addOnly, fromData: from.dataset, league, pointVal, removeOnly, selectedWeek, toData: to.dataset }, handleError);
 		// Fix for removeChild error
 		item.style.display = 'none';
 		from.appendChild(item);

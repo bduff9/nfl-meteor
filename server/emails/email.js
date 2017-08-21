@@ -18,11 +18,13 @@ Accounts.emailTemplates.verifyEmail = {
 		return `${EMAIL_SUBJECT_PREFIX}Verify Your Email Address`;
 	},
 	html (user, url) {
-		//TODO: render template and return
-		let emailAddress = user.email,
-				urlWithoutHash = url.replace('#/', ''),
-				emailBody = `To verify your email address (${emailAddress}) visit the following link:\n\n${urlWithoutHash}\n\n If you did not request this verification, please ignore this email.`;
-		return emailBody;
+		const { email, first_name } = user,
+				urlWithoutHash = url.replace('#/', '');
+		let body;
+		console.log(`Sending Verify Email email to ${email}...`);
+		body = Mailer.render('verifyEmail', { email, firstName: first_name, preview: 'Please confirm your recent registration request for the NFL Confidence Pool', url: urlWithoutHash });
+		console.log(`Successfully sent Verify Email email to ${email}!`);
+		return body;
 	}
 };
 
@@ -31,11 +33,12 @@ Accounts.emailTemplates.resetPassword = {
 		return `${EMAIL_SUBJECT_PREFIX}Reset Password Request`;
 	},
 	html (user, url) {
-		const urlWithoutHash = url.replace('#/', '');
+		const { email, first_name } = user,
+				urlWithoutHash = url.replace('#/', '');
 		let body;
-		console.log(`Sending Reset Password email to ${user.email}...`);
-		body = Mailer.render('resetPassword', { firstName: user.first_name, preview: 'We just received a password reset request from your account', url: urlWithoutHash });
-		console.log(`Successfully sent Reset Password email to ${user.email}!`);
+		console.log(`Sending Reset Password email to ${email}...`);
+		body = Mailer.render('resetPassword', { firstName: first_name, preview: 'We just received a password reset request from your account', url: urlWithoutHash });
+		console.log(`Successfully sent Reset Password email to ${email}!`);
 		return body;
 	}
 };
@@ -68,9 +71,9 @@ Mailer.init({
  * Subject, template, and one of bcc or to are required
  * Attachments and data are optional (In data, preview is global to all templates (For the email preview), find all possible template specific values in templates.js)
  * Sample call from client:
-		Meteor.call('Email.sendEmail', { data: { email: 'somebody@somewhere.com', facebook: false, firstName: 'Brian', google: true, password: 'Biggunz69', preview: `Thank you for signing up for the ${year} NFL Confidence Pool!`, returning: true, year: 2099 }, subject: 'Testing the pool emails', template: 'newUserWelcome', to: 'bduff9@gmail.com' }, displayError);
+		Meteor.call('Email.sendEmail', { data: { email: 'somebody@somewhere.com', facebook: false, firstName: 'Brian', google: true, password: 'Biggunz69', preview: `Thank you for signing up for the ${year} NFL Confidence Pool!`, returning: true, year: 2099 }, subject: 'Testing the pool emails', template: 'newUserWelcome', to: 'bduff9@gmail.com' }, handleError);
  * From server, simply import sendEmail and then do:
-		sendEmail.call({...SAME VALUES AS ABOVE...}, logError);
+		sendEmail.call({...SAME VALUES AS ABOVE...}, handleError);
  */
 export const sendEmail = new ValidatedMethod({
 	name: 'Email.sendEmail',

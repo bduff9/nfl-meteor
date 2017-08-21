@@ -7,7 +7,7 @@ import Helmet from 'react-helmet';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { deleteUser, getAdminUsers, updateUserAdmin } from '../../api/collections/users';
 
 class AdminUsers extends Component {
@@ -26,7 +26,7 @@ class AdminUsers extends Component {
 
 	_approveUser (user, ev) {
 		const { _id } = user;
-		updateUserAdmin.call({ userId: _id, done_registering: true }, displayError);
+		updateUserAdmin.call({ userId: _id, done_registering: true }, handleError);
 	}
 	_boolToString (flg) {
 		if (flg) return <span className="text-success">Yes</span>;
@@ -34,13 +34,13 @@ class AdminUsers extends Component {
 	}
 	_deleteUser (user, ev) {
 		const { _id } = user;
-		deleteUser.call({ userId: _id }, displayError);
+		deleteUser.call({ userId: _id }, handleError);
 	}
 	_resetPassword (user, ev) {
 		const { email } = user;
 		Accounts.forgotPassword({ email }, err => {
 			if (err) {
-				displayError(err);
+				handleError(err);
 			} else {
 				Bert.alert({ type: 'success', message: 'Password reset email has been sent' });
 			}
@@ -52,7 +52,7 @@ class AdminUsers extends Component {
 		const emailList = users.map(user => user.email);
 		Meteor.call('Email.sendEmail', { bcc: emailList, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commisioners' }, subject: emailSubject, template: 'weeklyEmail' }, (err) => {
 			if (err) {
-				displayError(err);
+				handleError(err);
 			} else {
 				Bert.alert({ type: 'success', message: 'Email has been successfully sent!' });
 				this.setState({ emailBody: '', emailModal: false, emailSubject: '' });
@@ -61,7 +61,7 @@ class AdminUsers extends Component {
 	}
 	_toggleAdmin (user, ev) {
 		const { _id, is_admin } = user;
-		updateUserAdmin.call({ userId: _id, isAdmin: !is_admin }, displayError);
+		updateUserAdmin.call({ userId: _id, isAdmin: !is_admin }, handleError);
 	}
 	_toggleEmail (ev) {
 		const { emailModal } = this.state;
@@ -69,11 +69,11 @@ class AdminUsers extends Component {
 	}
 	_togglePaid (user, ev) {
 		const { _id, paid } = user;
-		updateUserAdmin.call({ userId: _id, paid: !paid }, displayError);
+		updateUserAdmin.call({ userId: _id, paid: !paid }, handleError);
 	}
 	_toggleSurvivor (user, ev) {
 		const { _id, survivor } = user;
-		updateUserAdmin.call({ userId: _id, survivor: !survivor }, displayError);
+		updateUserAdmin.call({ userId: _id, survivor: !survivor }, handleError);
 	}
 	_updateEmailBody (ev) {
 		const emailBody = ev.target.value;

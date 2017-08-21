@@ -8,7 +8,7 @@ import { moment } from 'meteor/momentjs:moment';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 
 import { ACTIONS } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import { getLogs } from '../../api/collections/nfllogs';
 import { getUsersForLogs } from '../../api/collections/users';
@@ -293,8 +293,8 @@ export default createContainer(({ location }) => {
 	allLogsHandle = Meteor.subscribe('adminLogs', filters, limit, skip);
 	allLogsReady = allLogsHandle.ready();
 	logCt = Counts.get('adminLogsCt');
-	if (allLogsReady) logs = getLogs.call({ filters }, displayError);
-	if (allUsersReady) users = getUsersForLogs.call({}, displayError);
+	if (allLogsReady) logs = getLogs.call({ filters }, handleError);
+	if (allUsersReady) users = getUsersForLogs.call({}, handleError);
 	return {
 		actions,
 		limit,

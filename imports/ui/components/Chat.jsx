@@ -5,12 +5,12 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { getCurrentUser } from '../../api/collections/users';
 import { getAllChats, writeLog } from '../../api/collections/nfllogs';
 
 class Chat extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {
 			newMessage: ''
@@ -19,26 +19,26 @@ class Chat extends Component {
 		this._updateMessage = this._updateMessage.bind(this);
 	}
 
-	componentWillMount() {
+	componentWillMount () {
 		const user = Meteor.user();
-		writeLog.call({ action: 'CHAT_OPENED', message: `${user.first_name} ${user.last_name} opened the chat`, userId: user._id }, displayError);
+		writeLog.call({ action: 'CHAT_OPENED', message: `${user.first_name} ${user.last_name} opened the chat`, userId: user._id }, handleError);
 	}
-	componentWillUnmount() {
+	componentWillUnmount () {
 		const user = Meteor.user();
-		writeLog.call({ action: 'CHAT_HIDDEN', message: `${user.first_name} ${user.last_name} closed the chat`, userId: user._id }, displayError);
+		writeLog.call({ action: 'CHAT_HIDDEN', message: `${user.first_name} ${user.last_name} closed the chat`, userId: user._id }, handleError);
 	}
 
-	_addChat(ev) {
+	_addChat (ev) {
 		const { newMessage } = this.state;
-		writeLog.call({ action: 'CHAT', message: newMessage, userId: Meteor.userId() }, displayError);
+		writeLog.call({ action: 'CHAT', message: newMessage, userId: Meteor.userId() }, handleError);
 		this.setState({ newMessage: '' });
 	}
-	_updateMessage(ev) {
+	_updateMessage (ev) {
 		const newMessage = ev.target.value;
 		this.setState({ newMessage });
 	}
 
-	render() {
+	render () {
 		const { newMessage } = this.state,
 				{ chats, pageReady } = this.props;
 		let lastDay;
@@ -89,14 +89,14 @@ Chat.propTypes = {
 };
 
 export default createContainer(() => {
-	const currentUser = getCurrentUser.call({}, displayError),
+	const currentUser = getCurrentUser.call({}, handleError),
 			chatsHandle = Meteor.subscribe('allChats'),
 			chatsReady = chatsHandle.ready(),
 			usersHandle = Meteor.subscribe('basicUsersInfo'),
 			usersReady = usersHandle.ready(),
 			pageReady = chatsReady && usersReady;
 	let chats = [];
-	if (pageReady) chats = getAllChats.call({}, displayError);
+	if (pageReady) chats = getAllChats.call({}, handleError);
 	return {
 		chats,
 		currentUser,

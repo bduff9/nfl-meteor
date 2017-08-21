@@ -7,7 +7,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import SurvivorPick from '../components/SurvivorPick.jsx';
 import SurvivorModal from '../components/SurvivorModal.jsx';
@@ -16,7 +16,7 @@ import { getAllNFLTeams } from '../../api/collections/teams.js';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 
 class SetSurvivor extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {
 			modalWeek: false
@@ -24,17 +24,17 @@ class SetSurvivor extends Component {
 		this._setModalWeek = this._setModalWeek.bind(this);
 	}
 
-	componentWillMount() {
+	componentWillMount () {
 		const { survivorPicks = [] } = this.props,
 				notAllowed = survivorPicks.length > 0 && survivorPicks.length < 17;
 		if (notAllowed) this.context.router.push('/survivor/view');
 	}
 
-	_setModalWeek(week, ev) {
+	_setModalWeek (week, ev) {
 		this.setState({ modalWeek: week || false });
 	}
 
-	render() {
+	render () {
 		const { modalWeek } = this.state,
 				{ currentWeek, nextGame, pageReady, survivorPicks, teams } = this.props,
 				weekForSec = nextGame.week - (nextGame.game === 1 ? 1 : 0);
@@ -135,9 +135,9 @@ export default createContainer(() => {
 	let nextGame = {},
 			survivorPicks = [],
 			teams = [];
-	if (nextGameReady) nextGame = getNextGame.call({}, displayError);
-	if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague }, displayError);
-	if (teamsReady) teams = getAllNFLTeams.call({}, displayError);
+	if (nextGameReady) nextGame = getNextGame.call({}, handleError);
+	if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague }, handleError);
+	if (teamsReady) teams = getAllNFLTeams.call({}, handleError);
 	return {
 		currentWeek,
 		nextGame,

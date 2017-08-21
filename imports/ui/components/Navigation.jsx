@@ -6,7 +6,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError, getCurrentSeasonYear } from '../../api/global';
+import { handleError, getCurrentSeasonYear } from '../../api/global';
 import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
 import { getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
@@ -29,7 +29,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 		ev.preventDefault();
 		if (confirm(`Are you sure you want to do this?  All data will be reset for the ${getCurrentSeasonYear()} season`)) {
 			Meteor.call('initPoolOnServer', {}, err => {
-				if (err) return displayError(err);
+				if (err) return handleError(err);
 				Meteor.logout();
 			});
 		}
@@ -37,12 +37,12 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 	};
 	const _refreshGames = (ev) => {
 		ev.preventDefault();
-		Meteor.call('Games.refreshGameData', {}, displayError);
+		Meteor.call('Games.refreshGameData', {}, handleError);
 		return false;
 	};
 	const _selectWeek = (newWeek, ev) => {
 		ev.preventDefault();
-		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, displayError);
+		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, handleError);
 	};
 
 	return (
@@ -94,14 +94,21 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 							</Link>
 						</li>
 						<li><Link to="/picks/view" activeClassName="active">View My Picks</Link></li>
-						{selectedWeek >= currentWeek && tiebreaker && !tiebreaker.submitted ? <li><Link to="/picks/set" activeClassName="active">Make Picks</Link></li> : null}
-						{tiebreaker && (selectedWeek < currentWeek || tiebreaker.submitted) ? <li><Link to="/picks/viewall" activeClassName="active">View All Picks</Link></li> : null}
+						{tiebreaker ?
+							(selectedWeek >= currentWeek && tiebreaker && !tiebreaker.submitted ?
+								<li><Link to="/picks/set" activeClassName="active">Make Picks</Link></li>
+								:
+								<li><Link to="/picks/viewall" activeClassName="active">View All Picks</Link></li>
+							)
+							:
+							null
+						}
 						{currentUser.survivor ? [
 							(survivorPicks.length === 17 ? <li key="make-survivor-picks"><Link to="/survivor/set" activeClassName="active">Make Survivor Picks</Link></li> : null),
 							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null)
 						]
 							:
-							<li><a href="javascript:void(0)" style={{ opacity: 0.5, pointerEvents: 'none', cursor: 'not-allowed' }}>No Survivor Pool</a></li>
+							<li><a href="javascript:void(0)" className="disabled-link">No Survivor Pool</a></li>
 						}
 					</ul>
 					<ul className="nav nav-sidebar">
@@ -166,7 +173,7 @@ Navigation.propTypes = {
 	_toggleRightSlider: PropTypes.func.isRequired
 };
 
-export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSlider, ...rest }) => {
+export default createContainer(({ currentUser, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
 	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
 			unreadChatHandle = Meteor.subscribe('unreadChats'),
 			unreadChatReady = unreadChatHandle.ready(),
@@ -176,7 +183,7 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 			messagesReady = messagesHandle.ready(),
 			survivorHandle = Meteor.subscribe('mySurvivorPicks', currentLeague),
 			survivorReady = survivorHandle.ready(),
-			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague),
+			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
 			tiebreakerReady = tiebreakerHandle.ready();
 	let unreadChatCt = 0,
 			nextGame = {},
@@ -189,7 +196,7 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 		if (nextGameReady) nextGame = getNextGame.call({});
 		if (messagesReady) unreadMessages = getUnreadMessages.call({});
 		if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague });
-		if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek });
+		if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek });
 	}
 	return {
 		...rest,
@@ -197,6 +204,7 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 		logoutOnly,
 		nextGame,
 		pageReady: nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
+		selectedWeek,
 		survivorPicks,
 		systemVals,
 		tiebreaker,

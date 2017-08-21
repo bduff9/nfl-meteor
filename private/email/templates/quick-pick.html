@@ -1,19 +1,17 @@
-<html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
-<head>
-  <meta name="viewport" content="width=device-width" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>New User Welcome Email</title>
-</head>
-<body>
-  <h1>{USER}!</h1>
+<h1>Quick {{ firstName }}!</h1>
 
-  <p>Quick! Make a pick for Thursday Night's game below.</p>
+<p>You have not made your pick for game 1 of week {{ week }} yet and you now have less than {{ hours }} hours.</p>
+
+<p>You can avoid losing points for this game by simply clicking one of the teams below to set your pick.</p>
+
+<p><strong>Note:</strong> This email is only good up until kickoff of this game, so act now to avoid losing points for this week!</p>
+
 <div>
-  <a href="[team1]" class="btn btn-success">[Team 1]</a>
-  <a href="[team2]" class="btn btn-success">[Team 2]</a>
+  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort1 }}" class="btn btn-primary">{{ teamName1 }}</a>
+  <span class="tag tag-success">@</span>
+  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort2 }}" class="btn btn-info">{{ teamName2 }}</a>
 </div>
-</body>
-</html>
+
 
 
 

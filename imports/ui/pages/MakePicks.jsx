@@ -9,7 +9,7 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
 import TeamHover from '../components/TeamHover.jsx';
@@ -45,16 +45,17 @@ class MakePicks extends Component {
 		const { available } = this.state,
 				{ currentLeague, selectedWeek } = this.props;
 		ev.preventDefault();
-		autoPick.call({ available, league: currentLeague, selectedWeek, type }, displayError);
+		autoPick.call({ available, league: currentLeague, selectedWeek, type }, handleError);
 		Bert.alert({ type: 'success', message: `Your unset picks have been automatically set ${type === 'random' ? 'randomly' : `to the ${type} teams`}!` });
 		return false;
 	}
 	_handleSubmitPicks () {
-		const { currentLeague, selectedWeek } = this.props;
+		const { currentLeague, selectedWeek } = this.props,
+				{ email, first_name } = Meteor.user();
 		setTimeout(() => {
 			submitPicks.call({ league: currentLeague, week: selectedWeek }, err => {
 				if (err) {
-					displayError(err);
+					handleError(err);
 				} else {
 					sweetAlert({
 						title: 'Good luck this week!',
@@ -62,6 +63,7 @@ class MakePicks extends Component {
 						type: 'success'
 					}, () => {
 						this.context.router.push('/picks/view');
+						Meteor.call('Email.sendEmail', { data: { firstName: first_name, preview: 'This is an automated notification to let you know that we have successfully received your picks for this week', week: selectedWeek }, subject: `Your week ${selectedWeek} picks have been submitted`, template: 'picksConfirm', to: email }, handleError);
 					});
 				}
 			});
@@ -86,12 +88,12 @@ class MakePicks extends Component {
 		const { currentLeague, selectedWeek } = this.props,
 				lastScoreStr = ev.currentTarget.value,
 				lastScore = (lastScoreStr ? parseInt(lastScoreStr, 10) : 0);
-		setTiebreaker.call({ lastScore, league: currentLeague, week: selectedWeek }, displayError);
+		setTiebreaker.call({ lastScore, league: currentLeague, week: selectedWeek }, handleError);
 	}
 	_resetPicks (ev) {
 		const { currentLeague, selectedWeek } = this.props;
-		resetPicks.call({ league: currentLeague, selectedWeek }, displayError);
-		resetTiebreaker.call({ league: currentLeague, week: selectedWeek }, displayError);
+		resetPicks.call({ league: currentLeague, selectedWeek }, handleError);
+		resetTiebreaker.call({ league: currentLeague, week: selectedWeek }, handleError);
 		Bert.alert({ type: 'success', message: 'Your picks have been reset!' });
 	}
 	_savePicks (ev) {

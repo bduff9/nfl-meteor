@@ -1,16 +1,16 @@
-  <h1>Hi {{firstName}},</h1>
+  <h1>Hi {{ firstName }},</h1>
   {{#if returning}}
-  <p>Welcome back to the {{year}} NFL Confidence Pool. Good luck this season!</p>
+  <p>Welcome back to the {{ year }} NFL Confidence Pool. Good luck this season!</p>
   {{else}}
-  <p>Welcome to the {{year}} NFL Confidence Pool. Thank you for signing up and good luck this season!</p>
+  <p>Welcome to the {{ year }} NFL Confidence Pool. Thank you for signing up and good luck this season!</p>
   {{/if}}
 
   <p>You registered with:</p>
 
   <ul>
+    <li>email: {{ email }}</li>
     {{#if password}}
-    <li>email: {{email}}</li>
-    <li>password: {{password}}</li>
+    <li>Password Sign-in</li>
     {{/if}}
     {{#if facebook}}<li>Facebook Quick Sign-in</li>{{/if}}
     {{#if google}}<li>Google Quick Sign-in</li>{{/if}}

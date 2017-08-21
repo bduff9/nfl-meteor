@@ -9,7 +9,7 @@ div.sidebar {
     overflow-x: hidden;
     overflow-y: auto;
     background-color: #4B4A48;
-    border-right: 0px solid #100C08;
+    border-right: 0 solid #100C08;
     color: #fff;
     box-shadow: 7px -10px 15px -5px #100C08;
 
@@ -51,7 +51,13 @@ div.sidebar {
             pointer-events: none;
             padding-right: 100%;
             font-weight: bolder;
-            box-shadow: inset -5px 0px 15px #100C08;
+            box-shadow: inset -5px 0 15px #100C08;
+          }
+
+          &.disabled-link {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: not-allowed;
           }
         }
 

@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { getGameByID } from '../../api/collections/games';
 
 const SurvivorPick = ({ game, gameReady, pick }) => {
@@ -42,7 +42,7 @@ export default createContainer(({ pick }) => {
 	const gameHandle = Meteor.subscribe('getGame', pick.game_id),
 			gameReady = gameHandle.ready();
 	let game = {};
-	if (gameReady) game = getGameByID.call({ gameId: pick.game_id }, displayError);
+	if (gameReady) game = getGameByID.call({ gameId: pick.game_id }, handleError);
 	return {
 		game,
 		gameReady,

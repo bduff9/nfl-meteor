@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
 import Helmet from 'react-helmet';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import EditProfileForm from '../components/EditProfileForm';
 
 export default class EditProfile extends Component {
@@ -27,7 +27,7 @@ export default class EditProfile extends Component {
 		};
 		Meteor[service](options, (err) => {
 			if (err && err.errorType !== 'Accounts.LoginCancelledError') {
-				displayError(err, { title: err.message, type: 'danger' });
+				handleError(err, { title: err.message, type: 'danger' });
 			} else {
 				if (service.indexOf('Facebook') > -1) {
 					this.setState({ hasFacebook: true });

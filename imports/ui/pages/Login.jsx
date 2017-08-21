@@ -8,7 +8,7 @@ import sweetAlert from 'sweetalert';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import LoginForm from '../components/LoginForm';
 import { getSystemValues } from '../../api/collections/systemvals';
 
@@ -36,7 +36,7 @@ export default class Login extends Component {
 		}
 		Accounts.forgotPassword({ email }, err => {
 			if (err) {
-				displayError(err);
+				handleError(err);
 			} else {
 				sweetAlert({
 					title: 'Password reset email has been sent',
@@ -53,7 +53,7 @@ export default class Login extends Component {
 		Meteor[service](options, (err) => {
 			if (err) {
 				this.setState({ loading: null });
-				displayError(err, { title: err.message, type: 'danger' });
+				handleError(err, { title: err.message, type: 'danger' });
 			} else {
 				Bert.alert({
 					message: 'Welcome!',

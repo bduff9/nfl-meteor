@@ -2,17 +2,17 @@
 
 import React, { PropTypes } from 'react';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { getLogByID } from '../../api/collections/nfllogs';
 
 export const Message = ({ from, msgId, message, sent, unread }) => {
 	const fromStr = from && `${from.first_name} ${from.last_name}`;
 	let messageObj;
 
-	if (msgId) messageObj = getLogByID.call({ logId: msgId }, displayError);
+	if (msgId) messageObj = getLogByID.call({ logId: msgId }, handleError);
 
-	const _toggleMsgRead = ev => messageObj.toggleRead(unread, displayError);
-	const _deleteMsg = ev => messageObj.toggleDeleted(true, displayError);
+	const _toggleMsgRead = ev => messageObj.toggleRead(unread, handleError);
+	const _deleteMsg = ev => messageObj.toggleDeleted(true, handleError);
 
 	return (
 		<div className={'row message' + (unread ? ' unread' : '')}>

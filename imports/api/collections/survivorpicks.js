@@ -7,7 +7,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
-import { logError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { gameHasStartedSync } from './games';
 import { writeLog } from './nfllogs';
 import { getTeamByIDSync } from './teams';
@@ -160,7 +160,7 @@ export const setSurvivorPick = new ValidatedMethod({
 			pick.pick_id = teamId;
 			pick.pick_short = teamShort;
 			pick.save();
-			writeLog.call({ action: 'SURVIVOR_PICK', message: `${getUserNameSync({ user_id })} just picked ${teamShort} for week ${week}`, userId: user_id }, logError);
+			writeLog.call({ action: 'SURVIVOR_PICK', message: `${getUserNameSync({ user_id })} just picked ${teamShort} for week ${week}`, userId: user_id }, handleError);
 		}
 	}
 });

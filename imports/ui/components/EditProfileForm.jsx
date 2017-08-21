@@ -7,7 +7,7 @@ import { Formik } from 'formik';
 import Yup from 'yup';
 
 import { ACCOUNT_TYPES, AUTO_PICK_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
-import { displayError, getInputColor } from '../../api/global';
+import { handleError, getInputColor } from '../../api/global';
 import Tooltip from './Tooltip';
 import { updateNotifications, updateUser, validateReferredBy } from '../../api/collections/users';
 
@@ -377,7 +377,7 @@ export default Formik({
 			}
 		} catch(err) {
 			console.error('Error on register', err);
-			displayError(err);
+			handleError(err);
 			setSubmitting(false);
 		}
 	}

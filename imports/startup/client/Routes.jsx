@@ -9,7 +9,7 @@ import { Bert } from 'meteor/themeteorchef:bert';
 
 import { removeSelectedWeek } from '../../api/collections/users';
 import { writeLog } from '../../api/collections/nfllogs';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import AuthedLayout from '../../ui/layouts/AuthedLayout';
 import ResetPassword from '../../ui/pages/ResetPassword';
 import QuickPick from '../../ui/pages/QuickPick';
@@ -81,7 +81,7 @@ function verifyEmail (nextState, replace) {
 	} else {
 		Accounts.verifyEmail(params.token, (err) => {
 			if (err) {
-				displayError(err);
+				handleError(err);
 			} else {
 				Bert.alert('Your email is now verified!', 'success');
 				replace({
@@ -111,9 +111,9 @@ function logOut (nextState, replace) {
 	const { location } = nextState,
 			user = Meteor.user();
 	if (Meteor.userId()) {
-		removeSelectedWeek.call({ userId: user._id }, displayError);
+		removeSelectedWeek.call({ userId: user._id }, handleError);
 		Meteor.logout((err) => {
-			writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, displayError);
+			writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, handleError);
 			Object.keys(Session.keys).forEach(key => Session.set(key, undefined));
 			Session.keys = {};
 		});

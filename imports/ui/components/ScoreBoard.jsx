@@ -5,26 +5,26 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import { displayError, pad } from '../../api/global';
+import { handleError, pad } from '../../api/global';
 import { getGamesForWeek } from '../../api/collections/games';
 import { toggleScoreboard } from '../../api/collections/systemvals';
 
 class ScoreBoard extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {};
 	}
 
-	componentWillMount() {
+	componentWillMount () {
 		const IS_OPEN = true;
-		toggleScoreboard.call({ isOpen: IS_OPEN }, displayError);
+		toggleScoreboard.call({ isOpen: IS_OPEN }, handleError);
 	}
-	componentWillUnmount() {
+	componentWillUnmount () {
 		const IS_OPEN = false;
-		toggleScoreboard.call({ isOpen: IS_OPEN }, displayError);
+		toggleScoreboard.call({ isOpen: IS_OPEN }, handleError);
 	}
 
-	_getGameStatus({ kickoff, status, time_left }) {
+	_getGameStatus ({ kickoff, status, time_left }) {
 		const SEC_IN_QTR = 900;
 		let secLeftQtr, minLeft, secLeft;
 		switch(status) {
@@ -48,7 +48,7 @@ class ScoreBoard extends Component {
 		}
 	}
 
-	render() {
+	render () {
 		const { games, week, weekGamesReady, _changeScoreboardWeek } = this.props;
 		let lastKickoff;
 		return (
@@ -134,7 +134,7 @@ export default createContainer(({ week, _changeScoreboardWeek }) => {
 	const weekGameHandle = Meteor.subscribe('gamesForWeek', week),
 			weekGamesReady = weekGameHandle.ready();
 	let games = [];
-	if (weekGamesReady) games = getGamesForWeek.call({ week }, displayError);
+	if (weekGamesReady) games = getGamesForWeek.call({ week }, handleError);
 	return {
 		games,
 		week,

@@ -8,17 +8,6 @@ export const convertEpoch = epoch => {
 	return d;
 };
 
-export const displayError = (err, opts = {}, cb = null) => {
-	if (!err) return;
-	if (Meteor.isClient) {
-		const sweetAlert = require('sweetalert');
-		opts.title = opts.title || 'Error Occurred';
-		opts.text = opts.text || err.reason || err.message || err.error || 'Something went wrong, please try again';
-		opts.type = opts.type || 'error';
-		sweetAlert(opts, cb);
-	}
-};
-
 export const formattedPlace = place => {
 	const s = ['th', 'st', 'nd', 'rd'],
 			v = place % 100;
@@ -50,9 +39,18 @@ export const getInputColor = (error, touched, prefix) => {
 	return prefix + 'success';
 };
 
-export const logError = err => {
+export const handleError = (err, opts = {}, cb = null, hide = false) => {
 	if (!err) return;
-	console.error('Error from logError', err);
+	if (Meteor.isClient && !hide) {
+		const sweetAlert = require('sweetalert');
+		opts.title = opts.title || 'Error Occurred';
+		opts.text = opts.text || err.reason || err.message || err.error || 'Something went wrong, please try again';
+		opts.type = opts.type || 'error';
+		sweetAlert(opts, cb);
+	} else {
+		console.error(opts.title || 'Caught error', err);
+		if (cb) cb();
+	}
 };
 
 export const sortForDash = (pointsSort, gamesSort, user1, user2) => {

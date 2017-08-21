@@ -1,24 +1,9 @@
-<html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; padding: 0;">
-<head>
-  <meta name="viewport" content="width=device-width" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>New User Welcome Email</title>
-</head>
-<body>
-  <h1>Hello forgetful {user},</h1>
-  <p>This is a reminder to submit your picks for this week's confidence pool picks.</p>
-  <p>Click the button below to open the page to make your picks.</p>
-  <p>Good luck!</p>
+<h1>Hello forgetful {{ firstName }},</h1>
 
-  <a href="\n\n${urlWithoutHash}\n\n" class="btn btn-success">Make Picks</a>
-</body>
-</html>
+<p>This is just a friendly reminder that you have not submitted your picks yet for week {{ week }} of the NFL confidence pool and you now have less than {{ hours }} hours.</p>
 
+<p>You can click the button below to login and make your picks.</p>
 
+<p>Good luck!</p>
 
-
-
-
-
-
-
+<a href="https://nfl.asitewithnoname.com/picks/set" class="btn btn-primary">Submit Picks</a>

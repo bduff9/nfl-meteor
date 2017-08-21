@@ -7,7 +7,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../constants';
-import { logError } from '../global';
+import { handleError } from '../global';
 import { gameHasStarted } from './games';
 import { writeLog } from './nfllogs';
 import { getPicksForWeek } from './picks';
@@ -157,9 +157,9 @@ export const submitPicks = new ValidatedMethod({
 		if (Meteor.isServer) {
 			tiebreaker.submitted = true;
 			tiebreaker.save();
-			sendAllPicksInEmail.call({ selectedWeek: week }, logError);
+			sendAllPicksInEmail.call({ selectedWeek: week }, handleError);
 		}
-		writeLog.call({ action: 'SUBMIT_PICKS', message: `${getUserName.call({ user_id })} has just submitted their week ${week} picks`, userId: user_id }, logError);
+		writeLog.call({ action: 'SUBMIT_PICKS', message: `${getUserName.call({ user_id })} has just submitted their week ${week} picks`, userId: user_id }, handleError);
 	}
 });
 export const submitPicksSync = Meteor.wrapAsync(submitPicks.call, submitPicks);

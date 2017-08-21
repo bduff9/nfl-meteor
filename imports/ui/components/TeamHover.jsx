@@ -5,16 +5,16 @@ import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { getTeamByID } from '../../api/collections/teams';
 
 class TeamHover extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {};
 	}
 
-	componentDidMount() {
+	componentDidMount () {
 		const { target } = this.props,
 				element = this.hoverWindowRef;
 		this._tether = new Tether({
@@ -30,13 +30,13 @@ class TeamHover extends Component {
 			]
 		});
 	}
-	componentWillUnmount() {
+	componentWillUnmount () {
 		const element = this.hoverWindowRef;
 		this._tether.destroy();
 		document.body.removeChild(element);
 	}
 
-	render() {
+	render () {
 		const { currentGame, isHome, pageReady, teamInfo } = this.props;
 		let won, lost, tied;
 		if (pageReady) {
@@ -137,7 +137,7 @@ export default createContainer(({ game, isHome, teamId }) => {
 	const teamHandle = Meteor.subscribe('getTeamInfo', teamId),
 			teamReady = teamHandle.ready();
 	let teamInfo = {};
-	if (teamReady) teamInfo = getTeamByID.call({ teamId }, displayError);
+	if (teamReady) teamInfo = getTeamByID.call({ teamId }, handleError);
 	return {
 		currentGame: game,
 		isHome,

@@ -7,7 +7,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { gameHasStarted, getGameByID } from './games';
 import { getTeamByID } from './teams';
 import { getUserByID } from './users';
@@ -217,8 +217,8 @@ export const setPick = new ValidatedMethod({
 	run ({ addOnly, fromData, league, pointVal, removeOnly, selectedWeek, toData }) {
 		let pick;
 		if (!this.userId) throw new Meteor.Error('Users.picks.set.notLoggedIn', 'Must be logged in to update picks');
-		if (fromData.gameId && gameHasStarted.call({ gameId: fromData.gameId }, displayError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
-		if (toData.gameId && gameHasStarted.call({ gameId: toData.gameId }, displayError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
+		if (fromData.gameId && gameHasStarted.call({ gameId: fromData.gameId }, handleError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
+		if (toData.gameId && gameHasStarted.call({ gameId: toData.gameId }, handleError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
 		if (Meteor.isServer) {
 			if (!addOnly && fromData.gameId !== toData.gameId) {
 				pick = Pick.findOne({ game_id: fromData.gameId, league: league, user_id: this.userId, week: selectedWeek });

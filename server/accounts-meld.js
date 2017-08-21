@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import { AccountsMeld } from 'meteor/splendido:accounts-meld';
 
-import { logError } from '../imports/api/global';
+import { handleError } from '../imports/api/global';
 import { migrateLogEntriesForUser } from '../imports/api/collections/nfllogs';
 import { migratePicksForUser } from '../imports/api/collections/picks';
 import { migratePoolHistorysForUser } from '../imports/api/collections/poolhistorys';
@@ -17,11 +17,11 @@ const meldUserCallback = (origUser, newUser) => {
 
 const meldDBCallback = (origUserId, newUserId) => {
 	const userObj = { newUserId, oldUserId: origUserId };
-	migrateLogEntriesForUser.call(userObj, logError);
-	migratePicksForUser.call(userObj, logError);
-	migratePoolHistorysForUser.call(userObj, logError);
-	migrateSurvivorPicksForUser.call(userObj, logError);
-	migrateTiebreakersForUser.call(userObj, logError);
+	migrateLogEntriesForUser.call(userObj, handleError);
+	migratePicksForUser.call(userObj, handleError);
+	migratePoolHistorysForUser.call(userObj, handleError);
+	migrateSurvivorPicksForUser.call(userObj, handleError);
+	migrateTiebreakersForUser.call(userObj, handleError);
 };
 
 const serviceAddedCallback = (userId, serviceName) => {

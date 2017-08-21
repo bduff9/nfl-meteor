@@ -7,7 +7,7 @@ import { moment } from 'meteor/momentjs:moment';
 import { Session } from 'meteor/session';
 
 import { DEFAULT_LEAGUE, PAYMENT_DUE_WEEK } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { Message } from './Message.jsx';
 import { getFirstGameOfWeekSync, getPaymentDue } from '../../api/collections/games';
 import { getAllMessagesSync } from '../../api/collections/nfllogs';
@@ -94,7 +94,7 @@ export default createContainer(() => {
 	if (week3GamesReady) {
 		getPaymentDue.call({}, (err, due) => {
 			if (err) {
-				displayError(err);
+				handleError(err);
 			} else {
 				Session.set('paymentDue', due);
 			}

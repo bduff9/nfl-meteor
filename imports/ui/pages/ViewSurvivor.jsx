@@ -6,14 +6,14 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
-import { displayError } from '../../api/global.js';
+import { handleError } from '../../api/global.js';
 import { Loading } from './Loading.jsx';
 import OverallSurvivor from '../components/OverallSurvivor.jsx';
 import WeekSurvivor from '../components/WeekSurvivor.jsx';
 import { getNextGame } from '../../api/collections/games';
 
 class ViewSurvivor extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {
 			viewOverall: true
@@ -21,19 +21,19 @@ class ViewSurvivor extends Component {
 		this._toggleOverall = this._toggleOverall.bind(this);
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps (nextProps) {
 		const { nextGame, pageReady, selectedWeek } = nextProps,
 				notAllowed = pageReady && nextGame.week === 1 && nextGame.game === 1;
 		if (notAllowed) this.context.router.push('/');
 		if (nextGame.week > selectedWeek || (nextGame.week === selectedWeek && nextGame.game > 1)) this.setState({ viewOverall: true });
 	}
 
-	_toggleOverall(ev) {
+	_toggleOverall (ev) {
 		const { viewOverall } = this.state;
 		this.setState({ viewOverall: !viewOverall });
 	}
 
-	render() {
+	render () {
 		const { viewOverall } = this.state,
 				{ nextGame, pageReady, selectedWeek } = this.props,
 				weekForSec = nextGame.week - (nextGame.game === 1 ? 1 : 0);
@@ -74,7 +74,7 @@ export default createContainer(() => {
 			nextGameReady = nextGameHandle.ready(),
 			selectedWeek = Session.get('selectedWeek');
 	let nextGame = {};
-	if (nextGameReady) nextGame = getNextGame.call({}, displayError);
+	if (nextGameReady) nextGame = getNextGame.call({}, handleError);
 	return {
 		nextGame,
 		pageReady: nextGameReady,

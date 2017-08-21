@@ -9,7 +9,7 @@ import Helmet from 'react-helmet';
 import '../../ui/pages/ViewAllPicksPrint.scss';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError, weekPlacer } from '../../api/global';
+import { handleError, weekPlacer } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import { getGamesForWeekSync } from '../../api/collections/games';
 import { getCurrentUserSync } from '../../api/collections/users';
@@ -17,7 +17,7 @@ import { getTiebreakerSync, getAllTiebreakersForWeekSync } from '../../api/colle
 import { getAllPicksForWeekSync } from '../../api/collections/picks';
 
 class ViewAllPicks extends Component {
-	constructor(props) {
+	constructor (props) {
 		super();
 		this.state = {
 			games: [],
@@ -27,25 +27,25 @@ class ViewAllPicks extends Component {
 		this._updateGame = this._updateGame.bind(this);
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps (nextProps) {
 		const { currentWeek, games, pageReady, picks, selectedWeek, tiebreaker = {}, tiebreakers } = nextProps,
 				notAllowed = pageReady && ((selectedWeek >= currentWeek && !tiebreaker.submitted) || selectedWeek < currentWeek);
 		if (notAllowed) this.context.router.push('/picks/set');
 		if (pageReady) this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers({ games, picks, selectedWeek, tiebreakers }) });
 	}
 
-	_resetPicks(ev) {
+	_resetPicks (ev) {
 		const { games, picks, selectedWeek, tiebreakers } = this.props;
 		this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers({ games, picks, selectedWeek, tiebreakers }) });
 	}
-	_updateGame(teamId, teamShort, i, ev) {
+	_updateGame (teamId, teamShort, i, ev) {
 		const { games } = this.state,
 				{ picks, selectedWeek, tiebreakers } = this.props;
 		games[i].winner_id = teamId;
 		games[i].winner_short = teamShort;
 		this.setState({ games, users: this._updateUsers({ games, picks, selectedWeek, tiebreakers }) });
 	}
-	_updateUsers({ games, picks, selectedWeek, tiebreakers }) {
+	_updateUsers ({ games, picks, selectedWeek, tiebreakers }) {
 		let newTiebreakers = tiebreakers.map(tiebreaker => {
 			let newTiebreaker = Object.assign({}, tiebreaker),
 					userPicks = picks.filter(pick => pick.user_id === newTiebreaker.user_id),
@@ -91,7 +91,7 @@ class ViewAllPicks extends Component {
 		return newTiebreakers;
 	}
 
-	render() {
+	render () {
 		const { games, users } = this.state,
 				{ currentUser, pageReady, picks, selectedWeek } = this.props;
 		return (

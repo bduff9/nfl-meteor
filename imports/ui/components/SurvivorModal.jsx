@@ -8,7 +8,7 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { getGamesForWeek } from '../../api/collections/games';
 import { setSurvivorPick } from '../../api/collections/survivorpicks';
 
@@ -27,7 +27,7 @@ class SurvivorModal extends Component {
 	_setSurvivorPick (gameId, team, ev) {
 		const { currentLeague, week } = this.props;
 		setSurvivorPick.call({ gameId, league: currentLeague, teamId: team._id, teamShort: team.short_name, week }, err => {
-			if (err) return displayError(err);
+			if (err) return handleError(err);
 			sweetAlert({
 				title: 'Way to go!',
 				text: `Your week ${week} pick has been successfully saved!`,
@@ -88,7 +88,7 @@ export default createContainer(({ week }) => {
 			gamesReady = gamesHandle.ready(),
 			currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
 	let games = [];
-	if (gamesReady) games = getGamesForWeek.call({ week }, displayError);
+	if (gamesReady) games = getGamesForWeek.call({ week }, handleError);
 	return {
 		currentLeague,
 		games,

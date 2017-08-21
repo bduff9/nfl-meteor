@@ -1,15 +1,14 @@
-Login
-	- Prevent existing users from signing up after week 3
 History screen
 	- Show stats for current season
 	- Show history if previous season is picked
 Emails (BA)
-	- Verify email
+	- Verify email (BA, confirm you are OK with this)
 	- Welcome/welcome back (BA, confirm you are OK with this)
-	- Submit reminder
-	- Quick pick
+	- Admin email when someone signs up
+	- Submit reminder (BA, confirm you are OK with this)
+	- Quick pick (BA, confirm you are OK with this)
 	- Confirmation of quick pick
-	- Confirmation of Submit
+	- Confirmation of Submit (BA, confirm you are OK with this)
 	- All users have submitted
 	- Reset password (BA, confirm you are OK with this)
 	- Pool email (uses layout of above but takes in a subject and body for when we need to email everyone)

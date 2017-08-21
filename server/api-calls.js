@@ -7,7 +7,7 @@ import { moment } from 'meteor/momentjs:moment';
 import { HTTP } from 'meteor/http';
 
 import { WEEKS_IN_SEASON } from '../imports/api/constants';
-import { convertEpoch, logError } from '../imports/api/global';
+import { convertEpoch, handleError } from '../imports/api/global';
 import { currentWeek, findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
 import { endOfWeekMessage } from './collections/nfllogs';
 import { assignPointsToMissed } from '../imports/api/collections/picks';
@@ -61,7 +61,7 @@ API = {
 				kickoff: convertEpoch(parseInt(gameObj.kickoff, 10)),
 				time_left: parseInt(gameObj.gameSecondsRemaining, 10)
 			};
-			insertGame.call({ game }, logError);
+			insertGame.call({ game }, handleError);
 			// Update home team data
 			if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
 			if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
@@ -81,7 +81,7 @@ API = {
 
 	updateGames () {
 		const week = currentWeek.call(),
-				firstGameOfWeek = getFirstGameOfWeek.call({ week }, logError),
+				firstGameOfWeek = getFirstGameOfWeek.call({ week }, handleError),
 				weekHasStarted = moment().isSameOrAfter(firstGameOfWeek.kickoff),
 				weekToUpdate = (weekHasStarted ? week + 1 : week),
 				games = this.getGamesForWeek(weekToUpdate);
@@ -92,7 +92,7 @@ API = {
 				if (team.isHome === '1') hTeamData = team;
 				if (team.isHome === '0') vTeamData = team;
 			});
-			game = findGame.call({ week: weekToUpdate, home_short: hTeamData.id, visitor_short: vTeamData.id }, logError);
+			game = findGame.call({ week: weekToUpdate, home_short: hTeamData.id, visitor_short: vTeamData.id }, handleError);
 			if (hTeamData.spread) game.home_spread = Math.round(parseFloat(hTeamData.spread, 10) * 10) / 10;
 			if (vTeamData.spread) game.visitor_spread = Math.round(parseFloat(vTeamData.spread, 10) * 10) / 10;
 			game.save();
@@ -181,7 +181,7 @@ API = {
 				game.save();
 				if (status !== 'P') {
 					// Game has started, assign highest available point total to missed picks
-					assignPointsToMissed.call({ week: w, gameId: game._id, gameCount }, logError);
+					assignPointsToMissed.call({ week: w, gameId: game._id, gameCount }, handleError);
 				}
 				if (status === 'C') {
 					completeCount++;
@@ -237,7 +237,7 @@ API = {
 					updatePlaces.call({ league, week: w });
 					updateSurvivor.call({ league, week: w });
 				});
-				if (gameCount === completeCount) endOfWeekMessage.call({ week: w }, logError);
+				if (gameCount === completeCount) endOfWeekMessage.call({ week: w }, handleError);
 				console.log(`Finished updating users for week ${w}!`);
 			}
 			console.log(`Week ${w} successfully updated!`);

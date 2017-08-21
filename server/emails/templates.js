@@ -1,6 +1,16 @@
 'use strict';
 
 export default {
+	interest: {
+		path: 'email/templates/interest-email.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/interest',
+			data: ({ query }) => ({})
+		}
+	},
+
 	newUserWelcome: {
 		path: 'email/templates/welcome-email.html',
 		extraCSS: 'email/media-email.css',
@@ -12,30 +22,9 @@ export default {
 				facebook: !!query.facebook,
 				firstName: query.firstName,
 				google: !!query.google,
-				password: query.password,
 				returning: !!query.returning,
 				year: query.year
 			})
-		}
-	},
-
-	interest: {
-		path: 'email/templates/interest-email.html',
-		extraCSS: 'email/media-email.css',
-		helpers: {},
-		route: {
-			path: '/interest',
-			data: ({ query }) => ({})
-		}
-	},
-
-	verifyEmail: {
-		path: 'email/templates/verify-email.html',
-		extraCSS: 'email/media-email.css',
-		helpers: {},
-		route: {
-			path: '/verify',
-			data: ({ query }) => ({})
 		}
 	},
 
@@ -45,7 +34,10 @@ export default {
 		helpers: {},
 		route: {
 			path: '/picks-confirmation',
-			data: ({ query }) => ({})
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				week: query.week
+			})
 		}
 	},
 
@@ -55,7 +47,16 @@ export default {
 		helpers: {},
 		route: {
 			path: '/quick-pick',
-			data: ({ query }) => ({})
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				hours: query.hours,
+				teamName1: query.teamName1,
+				teamName2: query.teamName2,
+				teamShort1: query.teamShort1,
+				teamShort2: query.teamShort2,
+				userId: query.userId,
+				week: query.week
+			})
 		}
 	},
 
@@ -65,7 +66,11 @@ export default {
 		helpers: {},
 		route: {
 			path: '/reminder',
-			data: ({ query }) => ({})
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				hours: query.hours,
+				week: query.week
+			})
 		}
 	},
 
@@ -76,6 +81,20 @@ export default {
 		route: {
 			path: '/reset-password',
 			data: ({ query }) => ({
+				firstName: query.firstName,
+				url: query.url
+			})
+		}
+	},
+
+	verifyEmail: {
+		path: 'email/templates/verify-email.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/verify',
+			data: ({ query }) => ({
+				email: query.email,
 				firstName: query.firstName,
 				url: query.url
 			})

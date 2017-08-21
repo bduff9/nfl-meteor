@@ -10,10 +10,11 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Class } from 'meteor/jagi:astronomy';
 
 import { ACCOUNT_TYPES, AUTO_PICK_TYPES, dbVersion, DEFAULT_AUTO_PICK_COUNT, DEFAULT_LEAGUE, POOL_COST, POOL_EMAIL_FROM, SURVIVOR_COST } from '../constants';
-import { logError, overallPlacer, weekPlacer } from '../global';
+import { handleError, overallPlacer, weekPlacer } from '../global';
 import { writeLog } from './nfllogs';
 import { getAllPicksForUser, Pick } from './picks';
 import { getMySurvivorPicks, markUserDead, SurvivorPick } from './survivorpicks';
+import { getSystemValues } from './systemvals';
 import { getAllTiebreakersForUser, getTiebreaker, hasAllSubmitted, Tiebreaker } from './tiebreakers';
 
 export const deleteUser = new ValidatedMethod({
@@ -27,9 +28,9 @@ export const deleteUser = new ValidatedMethod({
 		if (!this.userId || !myUser.is_admin || user.done_registering) throw new Meteor.Error('Users.deleteUser.notAuthorized', 'Not authorized to this function');
 		if (Meteor.isServer) {
 			user.remove();
-			Meteor.call('Picks.removeAllPicksForUser', { user_id: user._id }, logError);
-			Meteor.call('Tiebreakers.removeAllTiebreakersForUser', { user_id: user._id }, logError);
-			Meteor.call('SurvivorPicks.removeAllSurvivorPicksForUser', { user_id: user._id }, logError);
+			Meteor.call('Picks.removeAllPicksForUser', { user_id: user._id }, handleError);
+			Meteor.call('Tiebreakers.removeAllTiebreakersForUser', { user_id: user._id }, handleError);
+			Meteor.call('SurvivorPicks.removeAllSurvivorPicksForUser', { user_id: user._id }, handleError);
 		}
 	}
 });
@@ -163,6 +164,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 				console.log(`All picks have been submitted for week ${selectedWeek} in league ${league}, sending emails...`);
 				leagueUsers = User.find({ done_registering: true, leagues: league }).fetch();
 				leagueUsers.forEach(user => {
+					//TODO: send email out to everyone
 					console.log({
 						to: user.email,
 						from: POOL_EMAIL_FROM,
@@ -189,8 +191,10 @@ export const sendWelcomeEmail = new ValidatedMethod({
 	}).validator(),
 	run ({ isNewPlayer, userId }) {
 		const user = User.findOne(userId),
-				admins = User.find({ is_admin: true }).fetch();
-		//TODO: send welcome email to user with various infos, isNewPlayer flag for who is brand new vs returning
+				admins = User.find({ is_admin: true }).fetch(),
+				systemVals = getSystemValues.call({});
+		Meteor.call('Email.sendEmail', { data: { email: user.email, facebook: !!user.services.facebook, firstName: user.first_name, google: !!user.services.google, preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, year: systemVals.year_updated }, subject: 'Thanks for registering for the NFL Confidence Pool', template: 'newUserWelcome', to: user.email }, handleError);
+		//TODO: send admin emails
 		admins.forEach(admin => {
 			console.log({
 				to: admin.email,
@@ -395,7 +399,7 @@ export const updateSurvivor = new ValidatedMethod({
 				return true;
 			});
 		});
-		if (nowAlive === 0 && wasAlive > 0) Meteor.call('NFLLogs.endOfSurvivorMessage', { league }, logError);
+		if (nowAlive === 0 && wasAlive > 0) Meteor.call('NFLLogs.endOfSurvivorMessage', { league }, handleError);
 	}
 });
 export const updateSurvivorSync = Meteor.wrapAsync(updateSurvivor.call, updateSurvivor);
@@ -432,7 +436,7 @@ export const updateUser = new ValidatedMethod({
 				user.owe += SURVIVOR_COST;
 				Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
 			}
-			sendWelcomeEmail.call({ isNewPlayer, userId: this.userId }, logError);
+			sendWelcomeEmail.call({ isNewPlayer, userId: this.userId }, handleError);
 		}
 		user.save();
 	}
@@ -466,7 +470,7 @@ export const updateUserAdmin = new ValidatedMethod({
 						user.owe += SURVIVOR_COST;
 						Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
 					}
-					sendWelcomeEmail.call({ isNewPlayer, userId }, logError);
+					sendWelcomeEmail.call({ isNewPlayer, userId }, handleError);
 				}
 			}
 			user.done_registering = done_registering;
@@ -474,7 +478,7 @@ export const updateUserAdmin = new ValidatedMethod({
 		if (isAdmin != null) user.is_admin = isAdmin;
 		if (paid != null) {
 			user.paid = paid;
-			if (paid) writeLog.call({ action: 'PAID', message: `${user.first_name} ${user.last_name} has paid`, userId }, logError);
+			if (paid) writeLog.call({ action: 'PAID', message: `${user.first_name} ${user.last_name} has paid`, userId }, handleError);
 		}
 		if (survivor != null) {
 			user.survivor = survivor;

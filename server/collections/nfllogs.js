@@ -4,8 +4,8 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { SURVIVOR_WINNERS, TOP_SURVIVOR_FOR_HISTORY, TOP_WEEKLY_FOR_HISTORY } from '../../imports/api/constants';
-import { formattedPlace, logError } from '../../imports/api/global';
+import { TOP_SURVIVOR_FOR_HISTORY, TOP_WEEKLY_FOR_HISTORY } from '../../imports/api/constants';
+import { formattedPlace, handleError } from '../../imports/api/global';
 import { NFLLog } from '../../imports/api/collections/nfllogs';
 import { addPoolHistory } from '../../imports/api/collections/poolhistorys';
 import { getSortedSurvivorPicksSync } from '../../imports/api/collections/survivorpicks';
@@ -30,13 +30,13 @@ export const endOfSurvivorMessage = new ValidatedMethod({
 	run ({ league }) {
 		const users = getSortedSurvivorPicksSync({ league });
 		const MESSAGE = 'The survivor pool is now over.';
-		const systemVals = getSystemValues.call({}, logError);
+		const systemVals = getSystemValues.call({}, handleError);
 		const currentYear = systemVals.year_updated;
 		users.forEach(user => {
 			const user_id = user._id;
 			const place = user.place;
 			const tied = user.tied;
-			const message = `${MESSAGE}  You finished ${tied ? 'tied for' : 'in'} ${formattedPlace(place)} place.  ${(place <= SURVIVOR_WINNERS ? 'Congrats!' : '')}`;
+			const message = `${MESSAGE}  You finished ${tied ? 'tied for' : 'in'} ${formattedPlace(place)} place.  ${(place <= TOP_SURVIVOR_FOR_HISTORY ? 'Congrats!' : '')}`;
 			const logEntry = new NFLLog({
 				action: 'MESSAGE',
 				when: new Date(),
@@ -52,7 +52,7 @@ export const endOfSurvivorMessage = new ValidatedMethod({
 					type: 'S',
 					place
 				};
-				addPoolHistory.call({ poolHistory }, logError);
+				addPoolHistory.call({ poolHistory }, handleError);
 			}
 		});
 	}
@@ -92,7 +92,7 @@ export const endOfWeekMessage = new ValidatedMethod({
 						week,
 						place
 					};
-					addPoolHistory.call({ poolHistory }, logError);
+					addPoolHistory.call({ poolHistory }, handleError);
 				}
 			});
 		});

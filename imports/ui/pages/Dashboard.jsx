@@ -6,7 +6,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { DEFAULT_LEAGUE, WEEKS_IN_SEASON } from '../../api/constants';
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import OverallDash from '../components/OverallDash.jsx';
 import WeekDash from '../components/WeekDash.jsx';
@@ -54,7 +54,7 @@ class Dashboard extends Component {
 	_selectWeek (ev) {
 		const newWeek = parseInt(ev.currentTarget.value, 10);
 		ev.preventDefault();
-		updateSelectedWeek.call({ week: newWeek }, displayError);
+		updateSelectedWeek.call({ week: newWeek }, handleError);
 	}
 	_toggleOverall (ev) {
 		const viewOverall = ev.currentTarget.value === 'true';

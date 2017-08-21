@@ -7,7 +7,7 @@ import { Bert } from 'meteor/themeteorchef:bert';
 import { Formik } from 'formik';
 import Yup, { addMethod, string, ref } from 'yup';
 
-import { displayError, getInputColor } from '../../api/global';
+import { handleError, getInputColor } from '../../api/global';
 
 const ResetPasswordForm = ({
 	dirty,
@@ -89,7 +89,7 @@ export default Formik({
 				{ password } = values;
 		Accounts.resetPassword(token, password, err => {
 			if (err) {
-				displayError(err);
+				handleError(err);
 				setSubmitting(false);
 			} else {
 				Bert.alert({ type: 'success', message: 'Your password has been successfully reset' });

@@ -8,7 +8,7 @@ import sweetAlert from 'sweetalert';
 import { Formik } from 'formik';
 import Yup, { addMethod, string, ref } from 'yup';
 
-import { displayError } from '../../api/global';
+import { handleError } from '../../api/global';
 
 const LoginForm = ({
 	dirty,
@@ -96,9 +96,9 @@ export default Formik({
 				if (err && err.reason !== 'Login forbidden') {
 					if (err.error && err.reason) {
 						setSubmitting(false);
-						displayError(err, { title: err.error, message: err.reason, type: 'warning' });
+						handleError(err, { title: err.error, message: err.reason, type: 'warning' });
 					} else {
-						displayError(err);
+						handleError(err);
 					}
 				} else {
 					setLoading('verify');
@@ -114,9 +114,9 @@ export default Formik({
 				if (err) {
 					setSubmitting(false);
 					if (err.reason === 'User not found') {
-						displayError(err, { title: 'User not found!', text: 'Did you mean to register at the bottom of this page instead?', type: 'warning' });
+						handleError(err, { title: 'User not found!', text: 'Did you mean to register at the bottom of this page instead?', type: 'warning' });
 					} else {
-						displayError(err, { type: 'warning' });
+						handleError(err, { type: 'warning' });
 					}
 				} else {
 					Bert.alert({

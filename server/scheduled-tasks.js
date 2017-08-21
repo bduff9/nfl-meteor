@@ -8,7 +8,9 @@ import { moment } from 'meteor/momentjs:moment';
 import { SyncedCron } from 'meteor/percolate:synced-cron';
 
 import { EMAIL_SUBJECT_PREFIX, MAX_SMS_LENGTH, POOL_URL } from '../imports/api/constants';
+import { handleError } from '../imports/api/global';
 import { sendSMS } from './twilio';
+import { sendEmail } from './emails/email';
 import { getNextGame1, getUnstartedGamesForWeek } from '../imports/api/collections/games';
 import { refreshGames } from './collections/games';
 import { getPickForFirstGameOfWeek } from '../imports/api/collections/picks';
@@ -56,23 +58,10 @@ SyncedCron.add({
 	name: 'Send notifications',
 	schedule: parse => parse.recur().on(30).minute(),
 	job: () => {
-	/**
-	 * Old email logic
-
-	Email.send({
-		to: user.email,
-		from: 'Brian Duffey <bduff9@gmail.com>',
-		subject: `[NFL Confidence Pool] Hurry up, ${user.first_name}!`,
-		text: `Hello ${user.first_name},
-
-	This is just a friendly reminder that you have not submitted your picks yet for week ${week} and you now have less than 24 hours.  You can log in and submit your picks here:
-	https://nfl.asitewithnoname.com
-
-	Good luck!`,
-	});
-	*/
 		const nextGame1 = getNextGame1.call({});
 		const { kickoff, week } = nextGame1;
+		const homeTeam = nextGame1.getTeam('home');
+		const visitingTeam = nextGame1.getTeam('visitor');
 		const rawTimeToKickoff = moment(kickoff).diff(moment(), 'hours', true);
 		const upperLimit = (Math.round(rawTimeToKickoff * 2) / 2);
 		const lowerLimit = upperLimit - 1;
@@ -83,26 +72,36 @@ SyncedCron.add({
 		notSubmitted.forEach(tb => {
 			const { league } = tb;
 			const user = tb.getUser();
-			const { notifications } = user;
+			const { _id, email, first_name, last_name, notifications, phone_number } = user;
 			notifications.forEach(notification => {
 				const { hours_before, is_quick, type } = notification;
 				if (hours_before <= lowerLimit || hours_before > upperLimit) return;
 				if (is_quick) {
-					const pick1 = getPickForFirstGameOfWeek.call({ league, user_id: user._id, week });
+					const pick1 = getPickForFirstGameOfWeek.call({ league, user_id: _id, week });
 					if (!pick1.pick_id || !pick1.pick_short || !pick1.points) {
-						console.log('TODO: send out quick pick email to this user');
-						console.log(`Sent quick pick email to ${user.first_name} ${user.last_name}!`);
+						sendEmail.call({ data: { firstName: first_name, hours: hours_before, preview: 'This is an automated email to allow you one-click access to make your pick for the first game of the week', teamName1: `${homeTeam.city} ${homeTeam.name}`, teamName2: `${visitingTeam.city} ${visitingTeam.name}`, teamShort1: homeTeam.short_name, teamShort2: visitingTeam.short_name, userId: _id, week }, subject: `Time's almost up, ${first_name}!`, template: 'quickPick', to: email }, err => {
+							if (err) {
+								handleError(err);
+							} else {
+								console.log(`Sent quick pick email to ${first_name} ${last_name}!`);
+							}
+						});
 					}
 				} else {
 					if (type.indexOf('email') > -1) {
-						console.log('TODO: send out email reminder');
-						console.log(`Sent reminder email to ${user.first_name} ${user.last_name}!`);
+						sendEmail.call({ data: { firstName: first_name, hours: hours_before, preview: 'Don\'t lose out on points this week, act now to submit your picks!', week }, subject: `Hurry up, ${first_name}!`, template: 'reminder', to: email }, err => {
+							if (err) {
+								handleError(err);
+							} else {
+								console.log(`Sent reminder email to ${first_name} ${last_name}!`);
+							}
+						});
 					}
 					if (type.indexOf('text') > -1) {
-						let msg = `${EMAIL_SUBJECT_PREFIX}${user.first_name}, this is your reminder to submit your picks for week ${week} as you now have less than ${hours_before} hours!`;
+						let msg = `${EMAIL_SUBJECT_PREFIX}${first_name}, this is your reminder to submit your picks for week ${week} as you now have less than ${hours_before} hours!`;
 						if ((msg.length + POOL_URL.length) < MAX_SMS_LENGTH) msg += ` ${POOL_URL}`;
-						sendSMS(`+1${user.phone_number}`, msg, err => {
-							console.log(`Sent reminder text to ${user.first_name} ${user.last_name}!`);
+						sendSMS(`+1${phone_number}`, msg, err => {
+							console.log(`Sent reminder text to ${first_name} ${last_name}!`);
 						});
 					}
 				}

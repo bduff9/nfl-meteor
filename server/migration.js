@@ -62,7 +62,7 @@ const make2017Changes = function make2017Changes (migration) {
 			}
 		});
 	});
-	Meteor.users.update({}, { $set: { leagues: [DEFAULT_LEAGUE], owe: 30, paid: 30, survivor: true, trusted: true }, $unset: { picks: true, tiebreakers: true }}, { multi: true });
+	Meteor.users.update({}, { $set: { leagues: [DEFAULT_LEAGUE], owe: 30, paid: 30, survivor: true, trusted: true, years_played: [lastUpdated] }, $unset: { picks: true, tiebreakers: true }}, { multi: true });
 };
 
 const undo2017Changes = function undo2017Changes (migration) {
@@ -104,6 +104,7 @@ const undo2017Changes = function undo2017Changes (migration) {
 		delete user.payment_account;
 		delete user.owe;
 		delete user.trusted;
+		delete user.years_played;
 		user.save();
 	});
 	removeYearUpdatedSync();

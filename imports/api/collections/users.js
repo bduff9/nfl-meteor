@@ -420,6 +420,8 @@ export const updateUser = new ValidatedMethod({
 		team_name: { type: String, label: 'Team Name' }
 	}).validator(),
 	run (userObj) {
+		const systemVals = getSystemValues.call({}),
+				{ year_updated } = systemVals;
 		let user, isCreate, isNewPlayer;
 		if (!this.userId) throw new Meteor.Error('Users.updateUser.not-logged-in', 'Must be logged in to change profile');
 		user = User.findOne(this.userId);
@@ -436,6 +438,8 @@ export const updateUser = new ValidatedMethod({
 				user.owe += SURVIVOR_COST;
 				Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
 			}
+			if (!user.years_played) user.years_played = [];
+			user.years_played.push(year_updated);
 			sendWelcomeEmail.call({ isNewPlayer, userId: this.userId }, handleError);
 		}
 		user.save();
@@ -454,12 +458,15 @@ export const updateUserAdmin = new ValidatedMethod({
 	}).validator(),
 	run ({ done_registering, isAdmin, paid, survivor, userId }) {
 		const myUser = User.findOne(this.userId),
-				user = User.findOne(userId);
+				user = User.findOne(userId),
+				systemVals = getSystemValues.call({}),
+				{ year_updated } = systemVals;
 		let isNewPlayer;
 		if (!this.userId || !myUser.is_admin) throw new Meteor.Error('Users.update.notLoggedIn', 'Not authorized to admin functions');
 		if (done_registering != null) {
 			isNewPlayer = !user.trusted;
 			user.trusted = true;
+			user.years_played = [year_updated];
 			if (Meteor.isServer) {
 				if (!user.done_registering && done_registering) {
 					user.owe = POOL_COST;
@@ -760,6 +767,10 @@ if (dbVersion < 2) {
 				type: String,
 				validators: [{ type: 'choice', param: ['', ...AUTO_PICK_TYPES] }],
 				default: ''
+			},
+			years_played: {
+				type: [Number],
+				default: () => []
 			}
 		},
 		helpers: {

@@ -37,7 +37,8 @@ Meteor.publish('userData', function () {
 			'overall_place': 1,
 			'overall_tied_flag': 1,
 			'auto_pick_count': 1,
-			'auto_pick_strategy': 1
+			'auto_pick_strategy': 1,
+			'years_played': 1
 		}
 	});
 	if (myUser) return myUser;
@@ -54,7 +55,8 @@ Meteor.publish('basicUsersInfo', function () {
 			'first_name': 1,
 			'last_name': 1,
 			'team_name': 1,
-			'done_registering': 1
+			'done_registering': 1,
+			'years_played': 1
 		}
 	});
 	if (allUsers) return allUsers;
@@ -116,7 +118,8 @@ Meteor.publish('adminUsers', function () {
 			'survivor': 1,
 			'payment_type': 1,
 			'auto_pick_count': 1,
-			'auto_pick_strategy': 1
+			'auto_pick_strategy': 1,
+			'years_played': 1
 		},
 		sort: {
 			'first_name': 1,

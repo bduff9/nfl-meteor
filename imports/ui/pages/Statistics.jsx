@@ -40,6 +40,7 @@ Statistics.propTypes = {
 export default createContainer(() => {
 	const selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
+			//TODO: subscribe to all users and pool history years
 	return {
 		currentLeague,
 		pageReady: !!selectedWeek,

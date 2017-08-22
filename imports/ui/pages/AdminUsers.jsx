@@ -16,7 +16,8 @@ class AdminUsers extends Component {
 		this.state = {
 			emailBody: '',
 			emailModal: false,
-			emailSubject: ''
+			emailSubject: '',
+			show: 'Registered'
 		};
 		this._sendEmail = this._sendEmail.bind(this);
 		this._toggleEmail = this._toggleEmail.bind(this);
@@ -49,8 +50,8 @@ class AdminUsers extends Component {
 	_sendEmail (ev) {
 		const { users } = this.props,
 				{ emailBody, emailSubject } = this.state;
-		const emailList = users.map(user => user.email);
-		Meteor.call('Email.sendEmail', { bcc: emailList, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commisioners' }, subject: emailSubject, template: 'weeklyEmail' }, (err) => {
+		const emailList = users.filter(user => user.done_registering).map(user => user.email);
+		Meteor.call('Email.sendEmail', { bcc: emailList, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commissioners' }, subject: emailSubject, template: 'weeklyEmail' }, (err) => {
 			if (err) {
 				handleError(err);
 			} else {
@@ -86,7 +87,7 @@ class AdminUsers extends Component {
 
 	render () {
 		const { pageReady, users } = this.props,
-				{ emailBody, emailModal, emailSubject } = this.state;
+				{ emailBody, emailModal, emailSubject, show } = this.state;
 		return (
 			<div className="row admin-wrapper">
 				<Helmet title="User Admin" />
@@ -97,6 +98,13 @@ class AdminUsers extends Component {
 							<i className="fa fa-fw fa-envelope"></i>
 							Send Email to All
 						</button>
+						&nbsp; &nbsp;Filter:&nbsp;
+						<div className="btn-group" role="group" aria-label="Filter Users">
+							<button type="button" className="btn btn-info" disabled={show === 'Registered'} onClick={() => this.setState({ show: 'Registered' })}>Registered</button>
+							<button type="button" className="btn btn-info" disabled={show === 'Rookies'} onClick={() => this.setState({ show: 'Rookies' })}>Rookies</button>
+							<button type="button" className="btn btn-info" disabled={show === 'Veterans'} onClick={() => this.setState({ show: 'Veterans' })}>Veterans</button>
+							<button type="button" className="btn btn-info" disabled={show === 'All'} onClick={() => this.setState({ show: 'All' })}>All</button>
+						</div>
 						{emailModal ? (
 							<div className="col-xs-12 email-all">
 								<div className="row form-group">
@@ -137,7 +145,7 @@ class AdminUsers extends Component {
 								</tr>
 							</thead>
 							<tbody>
-								{users.map(user => (
+								{users.filter(user => (show === 'Registered' && user.done_registering) || (show === 'Rookies' && user.years_played.length === 0) || (show === 'Veterans' && user.years_played.length > 0) || show === 'All').map(user => (
 									<tr key={'user' + user._id}>
 										<td><i className={`fa fa-fw fa-money ${user.paid ? 'mark-unpaid' : 'mark-paid'}`} title={`Toggle ${user.first_name} ${user.last_name} paid`} onClick={this._togglePaid.bind(null, user)} /></td>
 										<td><i className={`fa fa-fw fa-flag ${user.survivor ? 'survivor' : 'no-survivor'}`} title={`Toggle ${user.first_name} ${user.last_name} survivor game`} onClick={this._toggleSurvivor.bind(null, user)} /></td>
@@ -147,7 +155,7 @@ class AdminUsers extends Component {
 											{!user.done_registering && user.trusted === false ? <i className="fa fa-fw fa-thumbs-up text-success" title={`Approve ${user.first_name} ${user.last_name}`} onClick={this._approveUser.bind(null, user)} /> : null}
 											{!user.done_registering ? <i className="fa fa-fw fa-thumbs-down text-danger" title={`Delete ${user.first_name} ${user.last_name}`} onClick={this._deleteUser.bind(null, user)} /> : null}
 										</td>
-										<td>{`${user.first_name} ${user.last_name}`}</td>
+										<td title={user.years_played && user.years_played.length ? `Years played ${user.years_played.join(', ')}` : 'Never played previously'}>{`${user.first_name} ${user.last_name}`}</td>
 										<td>{user.email}</td>
 										<td>{user.team_name}</td>
 										<td>{user.referred_by === 'RETURNING PLAYER' ? 'N/A' : user.referred_by}</td>

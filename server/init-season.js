@@ -25,14 +25,16 @@ export const initPoolOnServer = new ValidatedMethod({
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		// Validate that current year and system vals year are different, also that current user is an admin
+		console.log('Validate that the current year and...');
 		const systemVals = getSystemValues.call({}),
 				poolYear = systemVals.year_updated,
 				currYear = getCurrentSeasonYear(),
 				currUser = getCurrentUser.call({}),
 				users = getUsers.call({ activeOnly: false });
-		if (currYear <= poolYear) throw new Meteor.Error('initPoolOnServer.invalid-years', 'Current year must be greater than the last updated year');
-		if (!currUser || !currUser.is_admin) throw new Meteor.Error('initPoolOnServer.not-authorized', 'You are not authorized to do this');
+		if (currYear <= poolYear) throw new Meteor.Error('Invalid Year Passed', 'Current year must be greater than the last updated year');
+		if (!currUser || !currUser.is_admin) throw new Meteor.Error('Not Authorized', 'You are not authorized to do this');
 		// Grab overall top 3 and insert into poolhistory
+		console.log('Grab overall top 3 and insert...');
 		users.forEach(user => {
 			const overallPlace = user.overall_place;
 			const overallHistory = {
@@ -47,6 +49,7 @@ export const initPoolOnServer = new ValidatedMethod({
 			}
 		});
 		// Empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers
+		console.log('Empty all collections we are going to refill...');
 		clearCronHistorySync({});
 		clearGamesSync({});
 		clearNFLLogsSync({});
@@ -55,6 +58,7 @@ export const initPoolOnServer = new ValidatedMethod({
 		clearTeamsSync({});
 		clearTiebreakersSync({});
 		// Clear out/default old user info i.e. referred_by, done_registering, leagues, survivor, owe, paid, selected_week, total_points, total_games, overall_place, overall_tied_flag
+		console.log('Clear out/default old user info...');
 		users.forEach(user => {
 			user.done_registering = false;
 			user.leagues = [];
@@ -69,6 +73,7 @@ export const initPoolOnServer = new ValidatedMethod({
 			user.save();
 		});
 		// When done, update lastUpdated in systemvals, then refill teams and games
+		console.log('When done, update lastUpdated...');
 		systemVals.year_updated = currYear;
 		systemVals.save();
 		initTeamsSync({});

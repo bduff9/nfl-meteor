@@ -1,3 +1,6 @@
+Init Pool function
+	- Troubleshoot error that randomly happens on the server during this process:
+		- Exception in callback of async function: TypeError: object is not a function
 History screen
 	- Show stats for current season
 	- Show history if previous season is picked

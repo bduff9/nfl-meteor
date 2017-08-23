@@ -89,9 +89,7 @@ export const getUserByID = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' }
 	}).validator(),
 	run ({ user_id }) {
-		const user = User.findOne(user_id);
-		if (!user) throw new Meteor.Error('No user found!');
-		return user;
+		return User.findOne(user_id);
 	}
 });
 export const getUserByIDSync = Meteor.wrapAsync(getUserByID.call, getUserByID);
@@ -113,7 +111,7 @@ export const getUserNameSync = Meteor.wrapAsync(getUserName.call, getUserName);
 export const getUsers = new ValidatedMethod({
 	name: 'Users.getUsers',
 	validate: new SimpleSchema({
-		activeOnly: { type: Boolean, label: 'Get Active Only' },
+		activeOnly: { type: Boolean, label: 'Get Active Only', optional: true },
 		league: { type: String, label: 'League', optional: true }
 	}).validator(),
 	run ({ activeOnly, league }) {
@@ -193,7 +191,7 @@ export const sendWelcomeEmail = new ValidatedMethod({
 		const user = User.findOne(userId),
 				admins = User.find({ is_admin: true }).fetch(),
 				systemVals = getSystemValues.call({});
-		Meteor.call('Email.sendEmail', { data: { email: user.email, facebook: !!user.services.facebook, firstName: user.first_name, google: !!user.services.google, preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, year: systemVals.year_updated }, subject: 'Thanks for registering for the NFL Confidence Pool', template: 'newUserWelcome', to: user.email }, handleError);
+		Meteor.call('Email.sendEmail', { data: { email: user.email, facebook: !!user.services.facebook, firstName: user.first_name, google: !!user.services.google, preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, year: systemVals.year_updated }, subject: `Thanks for registering, ${user.first_name}!`, template: 'newUserWelcome', to: user.email }, handleError);
 		//TODO: send admin emails
 		admins.forEach(admin => {
 			console.log({

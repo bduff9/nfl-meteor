@@ -20,16 +20,16 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 		let msg = 'ERROR';
 		switch (type) {
 			case 'Cash':
-				msg = `Please pay $${amount} to Brian or Billy`;
+				msg = <span className="amount-message">Please pay ${amount} to Brian or Billy</span>;
 				break;
 			case 'PayPal':
-				msg = `Please pay $${amount} using PayPal: paypal.me/brianduffey/${amount}`;
+				msg = <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a></span>;
 				break;
 			case 'QuickPay':
-				msg = `Please pay $${amount} using Chase QuickPay to account bduff9@gmail.com`;
+				msg = <span className="amount-message">Please pay ${amount} using Chase QuickPay to account bduff9@gmail.com</span>;
 				break;
 			case 'Venmo':
-				msg = `Please pay $${amount} using Venmo to account bduff9@gmail.com`;
+				msg = <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com</span>;
 				break;
 			default:
 				console.error('Unknown account type', type);
@@ -101,7 +101,7 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 										:
 										null
 									}
-									{(nextGame.notFound || stillAlive.length < 2) && survivorPlace <= TOP_SURVIVOR_FOR_HISTORY ? (
+									{(nextGame.notFound || (nextGame.week > 1 && stillAlive.length < 2)) && survivorPlace <= TOP_SURVIVOR_FOR_HISTORY ? (
 										<tr className="table-success">
 											<td></td>
 											<td>{`Took ${formattedPlace(survivorPlace)} place in survivor`}</td>

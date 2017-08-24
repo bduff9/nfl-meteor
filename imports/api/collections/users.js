@@ -191,14 +191,15 @@ export const sendWelcomeEmail = new ValidatedMethod({
 		const user = User.findOne(userId),
 				admins = User.find({ is_admin: true }).fetch(),
 				systemVals = getSystemValues.call({});
-		Meteor.call('Email.sendEmail', { data: { email: user.email, facebook: !!user.services.facebook, firstName: user.first_name, google: !!user.services.google, preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, year: systemVals.year_updated }, subject: `Thanks for registering, ${user.first_name}!`, template: 'newUserWelcome', to: user.email }, handleError);
-		//TODO: send admin emails
-		admins.forEach(admin => {
-			console.log({
-				to: admin.email,
-				from: POOL_EMAIL_FROM,
-				subject: '[NFL Confidence Pool] New User Registration',
-				text: `Hello ${admin.first_name},
+		if (Meteor.isServer) {
+			Meteor.call('Email.sendEmail', { data: { email: user.email, facebook: !!user.services.facebook, firstName: user.first_name, google: !!user.services.google, preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, year: systemVals.year_updated }, subject: `Thanks for registering, ${user.first_name}!`, template: 'newUserWelcome', to: user.email }, handleError);
+			//TODO: send admin emails
+			admins.forEach(admin => {
+				console.log({
+					to: admin.email,
+					from: POOL_EMAIL_FROM,
+					subject: '[NFL Confidence Pool] New User Registration',
+					text: `Hello ${admin.first_name},
 
 This is just a notice that a new user has registered at ${moment().format('h:mma [on] ddd, MMM Do YYYY')} with the following information:
 -Name: ${user.first_name} ${user.last_name}
@@ -208,8 +209,9 @@ This is just a notice that a new user has registered at ${moment().format('h:mma
 
 You can maintain this user here:
 http://nfl.asitewithnoname.com/admin/users`,
+				});
 			});
-		});
+		}
 	}
 });
 export const sendWelcomeEmailSync = Meteor.wrapAsync(sendWelcomeEmail.call, sendWelcomeEmail);

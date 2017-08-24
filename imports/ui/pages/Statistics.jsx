@@ -7,6 +7,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
+import { Loading } from '../pages/Loading';
 import ViewHistory from '../components/ViewHistory';
 import WeeklyStats from '../components/WeeklyStats';
 import { getUsers } from '../../api/collections/users';
@@ -37,7 +38,7 @@ class Statistics extends Component {
 					</div>
 				)
 					:
-					null
+					<Loading />
 				}
 			</div>
 		);
@@ -54,7 +55,7 @@ Statistics.propTypes = {
 export default createContainer(() => {
 	const selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
-			usersHandle = Meteor.subscribe('basicUsersInfo'),
+			usersHandle = Meteor.subscribe('usersForHistory'),
 			usersReady = usersHandle.ready();
 	let poolYears = [];
 	if (usersReady) {

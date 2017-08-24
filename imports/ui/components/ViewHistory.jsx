@@ -1,9 +1,11 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { getUsers } from '../../api/collections/users';
+import { Loading } from '../pages/Loading';
+import { getPoolHistoryForYear } from '../../api/collections/poolhistorys';
 
 class ViewHistory extends Component {
 	constructor (props) {
@@ -11,17 +13,43 @@ class ViewHistory extends Component {
 		this.state = {};
 	}
 
+	_getLabel ({ type, week }) {
+		if (type === 'S') return 'Survivor';
+		if (type === 'O') return 'Overall';
+		return week;
+	}
+
 	render () {
-		const { pageReady, year } = this.props;
+		const { history, pageReady } = this.props;
 		return (
 			<div className="row">
 				{pageReady ? (
 					<div className="col-xs-12">
-						TODO: History for {year}
+						<table className="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Week</th>
+									<th>Place</th>
+									<th>Player</th>
+								</tr>
+							</thead>
+							<tbody>
+								{history.map(row => {
+									const user = row.getUser();
+									return (
+										<tr key={`history-${row._id}`}>
+											<td>{row.place === 1 ? this._getLabel(row) : null}</td>
+											<td>{row.place}</td>
+											<td>{`${user.first_name} ${user.last_name}`}</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
 					</div>
 				)
 					:
-					null
+					<Loading />
 				}
 			</div>
 		);
@@ -29,19 +57,19 @@ class ViewHistory extends Component {
 }
 
 ViewHistory.propTypes = {
-	currentLeague: PropTypes.string.isRequired,
-	pageReady: PropTypes.bool.isRequired,
-	users: PropTypes.array.isRequired,
-	year: PropTypes.number.isRequired
+	history: PropTypes.arrayOf(PropTypes.object).isRequired,
+	pageReady: PropTypes.bool.isRequired
 };
 
 export default createContainer(({ currentLeague, year }) => {
-	const users = getUsers.call({ league: currentLeague });
-	//TODO: subscribe to data for pool history
+	const historyHandle = Meteor.subscribe('historyForYear', currentLeague, year),
+			historyReady = historyHandle.ready();
+	let history = [];
+	if (historyReady) {
+		history = getPoolHistoryForYear.call({ league: currentLeague, year });
+	}
 	return {
-		currentLeague,
-		pageReady: true,
-		users,
-		year
+		history,
+		pageReady: historyReady
 	};
 }, ViewHistory);

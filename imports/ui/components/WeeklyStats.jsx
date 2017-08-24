@@ -3,6 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
+import { Loading } from '../pages/Loading';
 import { getUsers } from '../../api/collections/users';
 
 class WeeklyStats extends Component {
@@ -37,7 +38,8 @@ WeeklyStats.propTypes = {
 
 export default createContainer(({ currentLeague, selectedWeek }) => {
 	const users = getUsers.call({ activeOnly: true, league: currentLeague });
-	//TODO: subscribe to data for current week stats
+	//TODO: subscribe to games, picks and tiebreakers for selectedWeek
+	//TODO: get if submitted or if this week has passed for security
 	return {
 		currentLeague,
 		pageReady: true,

@@ -63,6 +63,22 @@ Meteor.publish('basicUsersInfo', function () {
 	return this.ready();
 });
 
+Meteor.publish('usersForHistory', function () {
+	let allUsers;
+	if (!this.userId) return this.ready();
+	allUsers = User.find({}, {
+		fields: {
+			'_id': 1,
+			'first_name': 1,
+			'last_name': 1,
+			'team_name': 1,
+			'years_played': 1
+		}
+	});
+	if (allUsers) return allUsers;
+	return this.ready();
+});
+
 Meteor.publish('overallPlaces', function () {
 	let overallUsers;
 	if (!this.userId) return this.ready();

@@ -6,7 +6,8 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { dbVersion } from '../../api/constants';
+import { dbVersion } from '../constants';
+import { getUserByID } from './users';
 
 /**
  * All pool history logic
@@ -24,6 +25,20 @@ export const addPoolHistory = new ValidatedMethod({
 	}
 });
 export const addPoolHistorySync = Meteor.wrapAsync(addPoolHistory.call, addPoolHistory);
+
+export const getPoolHistoryForYear = new ValidatedMethod({
+	name: 'PoolHistorys.getPoolHistoryForYear',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		year: { type: Number, label: 'History Year' }
+	}).validator(),
+	run ({ league, year }) {
+		const history = PoolHistory.find({ league, year }, { sort: { week: 1, place: 1 }}).fetch();
+		if (!this.userId) throw new Meteor.Error('Not Authorized', 'You are not currently signed in.  Please sign in and then try again.');
+		return history;
+	}
+});
+export const getPoolHistoryForYearSync = Meteor.wrapAsync(getPoolHistoryForYear.call, getPoolHistoryForYear);
 
 export const migratePoolHistorysForUser = new ValidatedMethod({
 	name: 'PoolHistorys.migratePoolHistorysForUser',
@@ -65,9 +80,14 @@ if (dbVersion > 1) {
 				type: Number,
 				validators: [{ type: 'gt', param: 0 }]
 			}
+		},
+		helpers: {
+			getUser () {
+				return getUserByID.call({ user_id: this.user_id });
+			}
 		}
 	});
 }
 
 //const PoolHistorys = PoolHistorysConditional;
-const PoolHistory = PoolHistoryConditional;
+export const PoolHistory = PoolHistoryConditional;

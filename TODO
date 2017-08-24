@@ -1,7 +1,7 @@
-Init Pool function
-	- Troubleshoot error fromc clearing games (does non-sync fun work? if so, change others too):
-		- Exception in callback of async function: TypeError: object is not a function
+Migration
+	- Migrate survivor winner
 History screen
+	- Sort history by type (in sub and method)
 	- Show stats for current season
 Emails (BA)
 	- Verify email (BA, confirm you are OK with this)

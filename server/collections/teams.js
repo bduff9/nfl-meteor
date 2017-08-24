@@ -15,7 +15,7 @@ export const clearTeams = new ValidatedMethod({
 	name: 'Teams.clearTeams',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		Team.remove({}, { multi: true });
+		Team.remove({});
 	}
 });
 export const clearTeamsSync = Meteor.wrapAsync(clearTeams.call, clearTeams);

@@ -1,49 +1,106 @@
 'use strict';
 
-import React, { Component, PropTypes } from 'react';
+import { Meteor } from 'meteor/meteor';
+import React, { PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { Loading } from '../pages/Loading';
-import { getUsers } from '../../api/collections/users';
+import { currentWeek, getGamesForWeek } from '../../api/collections/games';
+import { getAllPicksForWeek } from '../../api/collections/picks';
+import { getAllTiebreakersForWeek, getTiebreaker } from '../../api/collections/tiebreakers';
 
-class WeeklyStats extends Component {
-	constructor (props) {
-		super();
-		this.state = {};
-	}
+const WeeklyStats = ({ canView, games, pageReady, picks, selectedWeek, tiebreakers }) => {
+	const gamesForWeek = [];
 
-	render () {
-		const { pageReady, selectedWeek } = this.props;
-		return (
-			<div className="row">
-				{pageReady ? (
-					<div className="col-xs-12">
-						TODO: Weekly stats for week {selectedWeek}
-					</div>
-				)
-					:
-					null
-				}
-			</div>
-		);
-	}
-}
+	games.forEach(game => {
+		gamesForWeek[game.game] = {
+			home: game.home_short,
+			visitor: game.visitor_short,
+			[`${game.home_short}-picks`]: 0,
+			[`${game.visitor_short}-picks`]: 0,
+			[`${game.home_short}-points`]: 0,
+			[`${game.visitor_short}-points`]: 0
+		};
+	});
+	picks.forEach(pick => {
+		if (pick.pick_short && pick.points) {
+			let gameObj = gamesForWeek[pick.game];
+			gameObj[`${pick.pick_short}-picks`] += 1;
+			gameObj[`${pick.pick_short}-points`] += pick.points;
+		}
+	});
+
+	return (
+		<div className="row">
+			{pageReady ? (
+				<div className="col-xs-12">
+					{canView ? (
+						<table className="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Home</th>
+									<th>Away</th>
+								</tr>
+							</thead>
+							<tbody>
+								{gamesForWeek.map((game, i) => (
+									<tr key={`game-${i}`}>
+										<td>{game.home}</td>
+										<td>{game.visitor}</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					)
+						:
+						<div>You are not authorized to view this yet!  Please submit your picks for week {selectedWeek} and then try again</div>
+					}
+				</div>
+			)
+				:
+				<Loading />
+			}
+		</div>
+	);
+};
 
 WeeklyStats.propTypes = {
-	currentLeague: PropTypes.string.isRequired,
+	canView: PropTypes.bool.isRequired,
+	games: PropTypes.arrayOf(PropTypes.object).isRequired,
 	pageReady: PropTypes.bool.isRequired,
+	picks: PropTypes.arrayOf(PropTypes.object).isRequired,
 	selectedWeek: PropTypes.number,
-	users: PropTypes.array.isRequired
+	tiebreakers: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default createContainer(({ currentLeague, selectedWeek }) => {
-	const users = getUsers.call({ activeOnly: true, league: currentLeague });
-	//TODO: subscribe to games, picks and tiebreakers for selectedWeek
-	//TODO: get if submitted or if this week has passed for security
+	const gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
+			gamesReady = gamesHandle.ready(),
+			picksHandle = Meteor.subscribe('allPicksForWeek', selectedWeek, currentLeague),
+			picksReady = picksHandle.ready(),
+			tiebreakersHandle = Meteor.subscribe('allTiebreakersForWeek', selectedWeek, currentLeague),
+			tiebreakersReady = tiebreakersHandle.ready(),
+			nflWeek = currentWeek.call({});
+	let games = [],
+			picks = [],
+			tiebreakers = [],
+			myTiebreaker = {};
+	if (gamesReady) {
+		games = getGamesForWeek.call({ week: selectedWeek });
+	}
+	if (picksReady) {
+		picks = getAllPicksForWeek.call({ league: currentLeague, week: selectedWeek });
+	}
+	if (tiebreakersReady) {
+		tiebreakers = getAllTiebreakersForWeek.call({ league: currentLeague, week: selectedWeek });
+		myTiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek });
+	}
 	return {
-		currentLeague,
-		pageReady: true,
+		canView: myTiebreaker.submitted || selectedWeek < nflWeek,
+		games,
+		pageReady: gamesReady && picksReady && tiebreakersReady,
+		picks,
 		selectedWeek,
-		users
+		tiebreakers
 	};
 }, WeeklyStats);

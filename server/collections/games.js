@@ -18,7 +18,7 @@ export const clearGames = new ValidatedMethod({
 	name: 'Games.clearGames',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		Game.remove({}, { multi: true });
+		Game.remove({});
 	}
 });
 export const clearGamesSync = Meteor.wrapAsync(clearGames.call, clearGames);

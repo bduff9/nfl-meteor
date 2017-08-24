@@ -23,7 +23,7 @@ export const clearTiebreakers = new ValidatedMethod({
 	name: 'Tiebreakers.clearTiebreakers',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		Tiebreaker.remove({}, { multi: true });
+		Tiebreaker.remove({});
 	}
 });
 export const clearTiebreakersSync = Meteor.wrapAsync(clearTiebreakers.call, clearTiebreakers);

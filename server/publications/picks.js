@@ -42,7 +42,7 @@ Meteor.publish('allPicksForWeek', function (week, league) {
 		league: { type: String, label: 'League' },
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validate({ league, week });
-	picks = Pick.find({ week, league}, {
+	picks = Pick.find({ week, league }, {
 		fields: {
 			'_id': 1,
 			'user_id': 1,

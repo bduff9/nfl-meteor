@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { Loading } from '../pages/Loading';
+import StatsTeam from './StatsTeam';
 import { currentWeek, getGamesForWeek } from '../../api/collections/games';
 import { getAllPicksForWeek } from '../../api/collections/picks';
 import { getAllTiebreakersForWeek, getTiebreaker } from '../../api/collections/tiebreakers';
@@ -15,7 +16,13 @@ const WeeklyStats = ({ canView, games, pageReady, picks, selectedWeek, tiebreake
 	games.forEach(game => {
 		gamesForWeek[game.game] = {
 			home: game.home_short,
+			homeTeam: game.getTeam('home'),
 			visitor: game.visitor_short,
+			visitorTeam: game.getTeam('visitor'),
+			winner: game.winner_short,
+			winnerTeam: game.getTeam('winner'),
+			totalPicks: 0,
+			totalPoints: 0,
 			[`${game.home_short}-picks`]: 0,
 			[`${game.visitor_short}-picks`]: 0,
 			[`${game.home_short}-points`]: 0,
@@ -26,7 +33,9 @@ const WeeklyStats = ({ canView, games, pageReady, picks, selectedWeek, tiebreake
 		if (pick.pick_short && pick.points) {
 			let gameObj = gamesForWeek[pick.game];
 			gameObj[`${pick.pick_short}-picks`] += 1;
+			gameObj.totalPicks += 1;
 			gameObj[`${pick.pick_short}-points`] += pick.points;
+			gameObj.totalPoints += pick.points;
 		}
 	});
 
@@ -45,8 +54,8 @@ const WeeklyStats = ({ canView, games, pageReady, picks, selectedWeek, tiebreake
 							<tbody>
 								{gamesForWeek.map((game, i) => (
 									<tr key={`game-${i}`}>
-										<td>{game.home}</td>
-										<td>{game.visitor}</td>
+										<td><StatsTeam gameStats={game} which="home" /></td>
+										<td><StatsTeam gameStats={game} which="visitor" /></td>
 									</tr>
 								))}
 							</tbody>
@@ -78,6 +87,8 @@ export default createContainer(({ currentLeague, selectedWeek }) => {
 			gamesReady = gamesHandle.ready(),
 			picksHandle = Meteor.subscribe('allPicksForWeek', selectedWeek, currentLeague),
 			picksReady = picksHandle.ready(),
+			teamsHandle = Meteor.subscribe('allTeams'),
+			teamsReady = teamsHandle.ready(),
 			tiebreakersHandle = Meteor.subscribe('allTiebreakersForWeek', selectedWeek, currentLeague),
 			tiebreakersReady = tiebreakersHandle.ready(),
 			nflWeek = currentWeek.call({});
@@ -98,7 +109,7 @@ export default createContainer(({ currentLeague, selectedWeek }) => {
 	return {
 		canView: myTiebreaker.submitted || selectedWeek < nflWeek,
 		games,
-		pageReady: gamesReady && picksReady && tiebreakersReady,
+		pageReady: gamesReady && picksReady && teamsReady && tiebreakersReady,
 		picks,
 		selectedWeek,
 		tiebreakers

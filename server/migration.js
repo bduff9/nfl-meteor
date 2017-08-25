@@ -46,6 +46,8 @@ const make2017Changes = function make2017Changes (migration) {
 	removeBonusPointPicksSync({});
 	// Get rankings by week (top 2) and overall (top 3) for insert into pool history. Should we get last place person as well?
 	users = Meteor.users.find({});
+	let mostSurvivorWeeks = 0;
+	let survivorWinner;
 	users.forEach(user => {
 		const history = {
 			user_id: user._id,
@@ -53,6 +55,10 @@ const make2017Changes = function make2017Changes (migration) {
 			league: user.league || DEFAULT_LEAGUE,
 			type: 'W'
 		};
+		if (user.survivor.length > mostSurvivorWeeks) {
+			mostSurvivorWeeks = user.survivor.length;
+			survivorWinner = user;
+		}
 		user.tiebreakers.forEach(week => {
 			const place = week.place_in_week;
 			if (place <= 2) {
@@ -62,6 +68,16 @@ const make2017Changes = function make2017Changes (migration) {
 			}
 		});
 	});
+	if (survivorWinner) {
+		const poolHistory = {
+			user_id: survivorWinner._id,
+			year: lastUpdated,
+			league: survivorWinner.league || DEFAULT_LEAGUE,
+			type: 'S',
+			place: 1
+		};
+		addPoolHistorySync({ poolHistory });
+	}
 	Meteor.users.update({}, { $set: { leagues: [DEFAULT_LEAGUE], owe: 30, paid: 30, survivor: true, trusted: true, years_played: [lastUpdated] }, $unset: { picks: true, tiebreakers: true }}, { multi: true });
 };
 

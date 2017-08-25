@@ -23,6 +23,7 @@ Meteor.publish('historyForYear', function (league, year) {
 			'place': 1
 		},
 		sort: {
+			type: 1,
 			week: 1,
 			place: 1
 		}

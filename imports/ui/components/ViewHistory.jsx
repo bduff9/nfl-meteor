@@ -55,7 +55,7 @@ ViewHistory.propTypes = {
 };
 
 export default createContainer(({ currentLeague, year }) => {
-	const historyHandle = Meteor.subscribe('historyForYear', currentLeague, year),
+	const historyHandle = Meteor.subscribe('poolHistoryForYear', currentLeague, year),
 			historyReady = historyHandle.ready();
 	let history = [];
 	if (historyReady) {

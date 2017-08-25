@@ -360,11 +360,13 @@ export default Formik({
 					Bert.alert(`Thanks for registering, ${first_name}`, 'success');
 					router.push('/users/payments');
 				} else {
+					//TODO: send email to admins to approve new user
 					sweetAlert({
 						title: `Thanks for registering, ${first_name}!`,
 						text: 'An admin will review your application shortly and you will be notified if approved. You may close this window.',
 						type: 'success'
 					});
+					setSubmitting(false);
 				}
 			} else {
 				updateUser.call({ auto_pick_strategy, first_name, last_name, payment_account, payment_type, phone_number, team_name });

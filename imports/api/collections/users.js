@@ -522,6 +522,7 @@ export const validateReferredBy = new ValidatedMethod({
 			const { first_name, last_name } = user,
 					fullName = `${first_name.trim()} ${last_name.trim()}`.toLowerCase();
 			if (user._id === user_id) return false;
+			if (!user.trusted) return false;
 			return fullName === referred_by.trim().toLowerCase();
 		});
 		return foundUsers.length > 0;

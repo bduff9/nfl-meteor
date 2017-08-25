@@ -79,6 +79,21 @@ Meteor.publish('usersForHistory', function () {
 	return this.ready();
 });
 
+Meteor.publish('usersForRegistration', function () {
+	let allUsers;
+	if (!this.userId) return this.ready();
+	allUsers = User.find({}, {
+		fields: {
+			'_id': 1,
+			'first_name': 1,
+			'last_name': 1,
+			'trusted': 1
+		}
+	});
+	if (allUsers) return allUsers;
+	return this.ready();
+});
+
 Meteor.publish('overallPlaces', function () {
 	let overallUsers;
 	if (!this.userId) return this.ready();

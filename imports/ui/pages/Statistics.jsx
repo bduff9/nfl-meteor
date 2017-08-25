@@ -34,7 +34,7 @@ class Statistics extends Component {
 							<option value="">Current Year (Week {selectedWeek})</option>
 							{poolYears.map(year => <option value={year} key={`year-${year}`}>{year}</option>)}
 						</select>
-						{display === '' ? <WeeklyStats currentLeague={currentLeague} selectedWeek={selectedWeek} /> : <ViewHistory year={parseInt(display, 10)} />}
+						{display === '' ? <WeeklyStats currentLeague={currentLeague} selectedWeek={selectedWeek} /> : <ViewHistory currentLeague={currentLeague} year={parseInt(display, 10)} />}
 					</div>
 				)
 					:

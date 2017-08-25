@@ -20,7 +20,7 @@ const WeeklyStats = ({ canView, games, pageReady, picks, selectedWeek, tiebreake
 			visitor: game.visitor_short,
 			visitorTeam: game.getTeam('visitor'),
 			winner: game.winner_short,
-			winnerTeam: game.getTeam('winner'),
+			winnerTeam: game.winner_short ? game.getTeam('winner') : null,
 			totalPicks: 0,
 			totalPoints: 0,
 			[`${game.home_short}-picks`]: 0,

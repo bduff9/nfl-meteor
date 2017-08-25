@@ -9,7 +9,7 @@ import Helmet from 'react-helmet';
 import '../../ui/pages/ViewAllPicksPrint.scss';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { handleError, weekPlacer } from '../../api/global';
+import { weekPlacer } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import { getGamesForWeekSync } from '../../api/collections/games';
 import { getCurrentUserSync } from '../../api/collections/users';

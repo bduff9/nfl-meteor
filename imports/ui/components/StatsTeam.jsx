@@ -15,11 +15,21 @@ const StatsTeam = ({ gameStats, which }) => {
 			teamWonPoints = points > totalPoints - points;
 
 	return (
-		<div style={{ maxWidth: '250px' }}>
-			<div className={`pull-left ${which}Logo`}><img src={`/NFLLogos/${team.logo}`} /></div>
-			<div className="pull-right">
-				<div className={winner ? (thisTeamWon === teamWonPicks && winner !== 'TIE' ? 'text-success' : 'text-danger') : ''} title={`${picks / totalPicks * 100}%`}>Picked by: {picks} / {totalPicks}</div>
-				<div className={winner ? (thisTeamWon === teamWonPoints && winner !== 'TIE' ? 'text-success' : 'text-danger') : ''} title={`${points / totalPoints * 100}%`}>Points for: {points} / {totalPoints}</div>
+		<div style={{ height: '100%' }}>
+			<div className={`stat-logo ${which}Logo`}>
+				<img src={`/NFLLogos/${team.logo}`} />
+			</div>
+			<div className="stat-text">
+				<div className={winner ? (thisTeamWon === teamWonPicks && winner !== 'TIE' ? 'text-success' : 'text-danger') : ''} title={`${picks / totalPicks * 100}%`}>
+					<span className="no-wrap">Picked by: </span>
+					<br className="hidden-md-up" />
+					<span className="no-wrap">{picks} / {totalPicks}</span>
+				</div>
+				<div className={winner ? (thisTeamWon === teamWonPoints && winner !== 'TIE' ? 'text-success' : 'text-danger') : ''} title={`${points / totalPoints * 100}%`}>
+					<span className="no-wrap">Points for: </span>
+					<br className="hidden-md-up" />
+					<span className="no-wrap">{points} / {totalPoints}</span>
+				</div>
 			</div>
 		</div>
 	);

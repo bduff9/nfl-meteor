@@ -2,5 +2,32 @@
 
 	.statistics {
 		background-color: rgba(255, 255, 255, 0.85);
+
+		.stat-logo,
+		.stat-text {
+			display: inline-block;
+		}
+
+		.stat-logo {
+			width: 60px;
+		}
+
+		.stat-text {
+
+			.no-wrap {
+				white-space: nowrap;
+			}
+		}
+	}
+}
+
+@media (min-width: 675px) {
+	.statistics-wrapper {
+
+		.stat-text {
+			position: relative;
+			top: 50%;
+			transform: translateY(-50%);
+		}
 	}
 }

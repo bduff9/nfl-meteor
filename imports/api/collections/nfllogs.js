@@ -59,21 +59,33 @@ export const getLogs = new ValidatedMethod({
 });
 export const getLogsSync = Meteor.wrapAsync(getLogs.call, getLogs);
 
-export const getUnreadChatCount = new ValidatedMethod({
-	name: 'NFLLogs.getUnreadChatCount',
+export const getLastChatAction = new ValidatedMethod({
+	name: 'NFLLogs.getLastChatAction',
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		const user_id = this.userId,
 				lastAction = NFLLog.findOne({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED'] }, user_id }, { sort: { when: -1 }});
-		let unreadChatCt = 0,
-				chatHidden;
 		if (!user_id) throw new Meteor.Error('You are not signed in');
-		if (lastAction) {
-			chatHidden = (lastAction.action === 'CHAT_HIDDEN' ? lastAction.when : null);
-			if (chatHidden) unreadChatCt = NFLLog.find({ action: 'CHAT', when: { $gt: chatHidden }}).count();
-		} else {
-			unreadChatCt = NFLLog.find({ action: 'CHAT' }).count();
-		}
+		return lastAction;
+	}
+});
+export const getLastChatActionSync = Meteor.wrapAsync(getLastChatAction.call, getLastChatAction);
+
+export const getUnreadChatCount = new ValidatedMethod({
+	name: 'NFLLogs.getUnreadChatCount',
+	validate: new SimpleSchema({
+		lastAction: { type: Object, label: 'Last Chat Action Object', optional: true },
+		'lastAction.action': { type: String, label: 'Last Chat Action String', allowedValues: ['CHAT_HIDDEN', 'CHAT_OPENED'] },
+		'lastAction.when': { type: Date, label: 'Last Chat Action When' }
+	}).validator(),
+	run ({ lastAction }) {
+		const user_id = this.userId,
+				filter = { action: 'CHAT', user_id: { $ne: user_id }};
+		let unreadChatCt;
+		if (!user_id) throw new Meteor.Error('You are not signed in');
+		if (lastAction && lastAction.action === 'CHAT_OPENED') return 0;
+		if (lastAction && lastAction.action === 'CHAT_HIDDEN') filter.when = { $gt: lastAction.when };
+		unreadChatCt = NFLLog.find(filter).count();
 		return unreadChatCt;
 	}
 });

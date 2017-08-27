@@ -29,6 +29,4 @@ For BA
 	- (TODO) Please check the emails listed above so we can remove them from the list
 Bugs
 	- Test migration for last_updated 2016
-	- Not signed in error during game Update
-		- Made change, retest
-	- Ensure reminder emails/texts are going out
+	- Ensure reminder emails/texts are going out, set kickoffs 1 hour apart to test

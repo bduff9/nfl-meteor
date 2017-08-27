@@ -9,7 +9,7 @@ import { DEFAULT_LEAGUE } from '../../api/constants';
 import { handleError, getCurrentSeasonYear } from '../../api/global';
 import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
-import { getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
+import { getLastChatAction, getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
@@ -175,8 +175,8 @@ Navigation.propTypes = {
 
 export default createContainer(({ currentUser, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
 	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
-			unreadChatHandle = Meteor.subscribe('unreadChats'),
-			unreadChatReady = unreadChatHandle.ready(),
+			lastChatActionHandle = Meteor.subscribe('lastChatAction'),
+			lastChatActionReady = lastChatActionHandle.ready(),
 			nextGameHandle = Meteor.subscribe('nextGameToStart'),
 			nextGameReady = nextGameHandle.ready(),
 			messagesHandle = Meteor.subscribe('unreadMessages'),
@@ -190,9 +190,20 @@ export default createContainer(({ currentUser, logoutOnly, rightSlider, selected
 			unreadMessages = [],
 			survivorPicks = [],
 			systemVals = getSystemValues.call({}),
-			tiebreaker = {};
+			tiebreaker = {},
+			lastChatAction, unreadChatHandle, unreadChatReady;
 	if (!logoutOnly) {
-		if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({});
+		if (lastChatActionReady) {
+			lastChatAction = getLastChatAction.call({});
+			let lastAction;
+			if (lastChatAction) {
+				const { action, when } = lastChatAction;
+				lastAction = { action, when };
+			}
+			unreadChatHandle = Meteor.subscribe('unreadChats', lastChatAction);
+			unreadChatReady = unreadChatHandle.ready();
+			if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({ lastAction });
+		}
 		if (nextGameReady) nextGame = getNextGame.call({});
 		if (messagesReady) unreadMessages = getUnreadMessages.call({});
 		if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague });
@@ -203,7 +214,7 @@ export default createContainer(({ currentUser, logoutOnly, rightSlider, selected
 		currentUser,
 		logoutOnly,
 		nextGame,
-		pageReady: nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
+		pageReady: lastChatActionReady && nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
 		selectedWeek,
 		survivorPicks,
 		systemVals,

@@ -33,23 +33,25 @@ class Messages extends Component {
 		return (
 			<div className="messages">
 				<h3 className="text-xs-center">Private Messages</h3>
-				{pageReady ? (
-					<div className="inner-messages">
-						<div className="message-list">
-							{!paid ? <Message message={`Please pay before ${this._formatDate(paymentDue)}`} unread /> : null}
-							{!submittedPicks ? <Message message={`Your week ${currentWeek} picks are due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
-							{survivor && !submittedSurvivor ? <Message message={`Your week ${currentWeek} survivor pick is due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
-							{messages.map(message => <Message from={message.getUser()} msgId={'' + message._id} message={message.message} sent={this._formatDate(message.when, true)} unread={!message.is_read} key={'message' + message._id} />)}
-						</div>
+				<div className="inner-messages">
+					<div className="message-list">
+						{pageReady ? (
+							<div className="all-message-wrapper">
+								{!paid ? <Message message={`Please pay before ${this._formatDate(paymentDue)}`} unread /> : null}
+								{!submittedPicks ? <Message message={`Your week ${currentWeek} picks are due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
+								{survivor && !submittedSurvivor ? <Message message={`Your week ${currentWeek} survivor pick is due by ${this._formatDate(firstGame.kickoff, true)}`} unread /> : null}
+								{messages.map(message => <Message from={message.getUser()} msgId={'' + message._id} message={message.message} sent={this._formatDate(message.when, true)} unread={!message.is_read} key={'message' + message._id} />)}
+							</div>
+						)
+							:
+							(
+								<div className="text-xs-center loading">Loading...
+									<br />
+									<i className="fa fa-spinner fa-pulse" />
+								</div>
+							)}
 					</div>
-				)
-					:
-					(
-						<div className="text-xs-center loading">Loading...
-							<br />
-							<i className="fa fa-spinner fa-pulse" />
-						</div>
-					)}
+				</div>
 			</div>
 		);
 	}

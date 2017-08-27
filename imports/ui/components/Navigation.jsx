@@ -15,13 +15,13 @@ import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
 import { updateSelectedWeek } from '../../api/collections/users';
 
-const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
+const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length,
 			showCountdown = nextGame && nextGame.game === 1;
 
 	if (pageReady && !logoutOnly) {
 		if (currentUser) msgCt += (currentUser.paid ? 0 : 1);
-		if (tiebreaker) msgCt += (tiebreaker.submitted ? 0 : 1);
+		if (currentWeekTiebreaker) msgCt += (currentWeekTiebreaker.submitted ? 0 : 1);
 		if (currentUser.survivor) msgCt += (currentUser.survivor && !survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id ? 0 : 1);
 	}
 
@@ -159,6 +159,7 @@ const Navigation = ({ currentUser, currentWeek, logoutOnly, nextGame, openMenu, 
 Navigation.propTypes = {
 	currentUser: PropTypes.object.isRequired,
 	currentWeek: PropTypes.number,
+	currentWeekTiebreaker: PropTypes.object.isRequired,
 	logoutOnly: PropTypes.bool.isRequired,
 	nextGame: PropTypes.object,
 	openMenu: PropTypes.bool.isRequired,
@@ -166,14 +167,14 @@ Navigation.propTypes = {
 	selectedWeek: PropTypes.number,
 	survivorPicks: PropTypes.arrayOf(PropTypes.object).isRequired,
 	systemVals: PropTypes.object.isRequired,
-	tiebreaker: PropTypes.object,
+	tiebreaker: PropTypes.object.isRequired,
 	unreadChatCt: PropTypes.number.isRequired,
 	unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
 	_toggleMenu: PropTypes.func.isRequired,
 	_toggleRightSlider: PropTypes.func.isRequired
 };
 
-export default createContainer(({ currentUser, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
+export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
 	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
 			lastChatActionHandle = Meteor.subscribe('lastChatAction'),
 			lastChatActionReady = lastChatActionHandle.ready(),
@@ -184,14 +185,18 @@ export default createContainer(({ currentUser, logoutOnly, rightSlider, selected
 			survivorHandle = Meteor.subscribe('mySurvivorPicks', currentLeague),
 			survivorReady = survivorHandle.ready(),
 			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
-			tiebreakerReady = tiebreakerHandle.ready();
+			tiebreakerReady = tiebreakerHandle.ready(),
+			currentWeekTiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague),
+			currentWeekTiebreakerReady = currentWeekTiebreakerHandle.ready();
 	let unreadChatCt = 0,
 			nextGame = {},
 			unreadMessages = [],
 			survivorPicks = [],
 			systemVals = getSystemValues.call({}),
 			tiebreaker = {},
-			lastChatAction, unreadChatHandle, unreadChatReady;
+			currentWeekTiebreaker = {},
+			unreadChatReady = false,
+			lastChatAction, unreadChatHandle;
 	if (!logoutOnly) {
 		if (lastChatActionReady) {
 			lastChatAction = getLastChatAction.call({});
@@ -208,13 +213,16 @@ export default createContainer(({ currentUser, logoutOnly, rightSlider, selected
 		if (messagesReady) unreadMessages = getUnreadMessages.call({});
 		if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague });
 		if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek });
+		if (currentWeekTiebreakerReady) currentWeekTiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek });
 	}
 	return {
 		...rest,
 		currentUser,
+		currentWeek,
+		currentWeekTiebreaker,
 		logoutOnly,
 		nextGame,
-		pageReady: lastChatActionReady && nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
+		pageReady: currentWeekTiebreakerReady && lastChatActionReady && nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
 		selectedWeek,
 		survivorPicks,
 		systemVals,

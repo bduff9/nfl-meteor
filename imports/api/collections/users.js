@@ -338,10 +338,13 @@ export const updatePoints = new ValidatedMethod({
 	}).validator(),
 	run ({ league }) {
 		const allUsers = User.find({ done_registering: true, leagues: league });
+		console.log('allUsers', allUsers);
 		let picks, tiebreakers, games, points, weekGames, weekPoints;
 		allUsers.forEach(user => {
 			picks = getAllPicksForUser.call({ league, user_id: user._id });
+			console.log('picks', picks);
 			tiebreakers = getAllTiebreakersForUser.call({ league, user_id: user._id });
+			console.log('tiebreakers', tiebreakers);
 			games = 0;
 			points = 0;
 			weekGames = new Array(18).fill(0);

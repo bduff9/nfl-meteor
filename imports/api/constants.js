@@ -17,6 +17,11 @@ export const POOL_URL = 'http://nfl.asitewithnoname.com';
 export const dbVersion = '2';
 
 /**
+ * First year of tracking for system values
+ */
+export const FIRST_YEAR_FOR_SYSTEM_VALS = 2016;
+
+/**
  * The cost of the pool
  */
 export const POOL_COST = 30;

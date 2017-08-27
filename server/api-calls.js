@@ -232,6 +232,7 @@ API = {
 			if (justCompleted > 0 || gameCount === completeCount) {
 				console.log(`${(gameCount === completeCount ? `All games complete for week ${w}` : `${justCompleted} games newly complete for week ${w}`)}, now updating users...`);
 				const leagues = getAllLeagues.call({});
+				console.log('leagues', leagues);
 				leagues.forEach(league => {
 					updatePoints.call({ league });
 					updatePlaces.call({ league, week: w });

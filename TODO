@@ -28,5 +28,5 @@ For BA
 	- (TODO) Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above, please.
 	- (TODO) Please check the emails listed above so we can remove them from the list
 Bugs
-	- Test migration for last_updated 2016
 	- Ensure reminder emails/texts are going out, set kickoffs 1 hour apart to test
+	- Looks like points are not being awarded properly, looking into users.js for this...

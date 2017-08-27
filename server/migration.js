@@ -5,12 +5,12 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Migrations } from 'meteor/percolate:migrations';
 
-import { dbVersion, DEFAULT_LEAGUE } from '../imports/api/constants';
+import { dbVersion, DEFAULT_LEAGUE, FIRST_YEAR_FOR_SYSTEM_VALS } from '../imports/api/constants';
 import { removeBonusPointGamesSync } from './collections/games';
 import { addPickSync, removeBonusPointPicksSync } from './collections/picks';
 import { addPoolHistorySync } from '../imports/api/collections/poolhistorys';
 import { addSurvivorPickSync } from './collections/survivorpicks';
-import { getSystemValuesSync, removeYearUpdatedSync } from '../imports/api/collections/systemvals';
+import { getSystemValues, removeYearUpdatedSync } from '../imports/api/collections/systemvals';
 import { addTiebreakerSync } from './collections/tiebreakers';
 import { getUsersSync } from '../imports/api/collections/users';
 
@@ -19,10 +19,8 @@ const initialDB = function initialDB (migration) {
 };
 
 const make2017Changes = function make2017Changes (migration) {
-	const systemVals = getSystemValuesSync();
-	const lastUpdated = 2016;
-	systemVals.year_updated = lastUpdated;
-	systemVals.save();
+	const systemVals = getSystemValues.call({});
+	const lastUpdated = systemVals.year_updated || FIRST_YEAR_FOR_SYSTEM_VALS;
 	let users = Meteor.users.find({});
 	users.forEach(user => {
 		const id = user._id;

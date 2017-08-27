@@ -4,7 +4,7 @@ Emails (BA)
 	- Admin email when someone signs up
 		- users.js
 	- Admin email when someone signs up and needs to be approved
-		- EditProfileForm.jsx
+		- users.js
 	- Submit reminder (BA, confirm you are OK with this)
 	- Quick pick (BA, confirm you are OK with this)
 	- Confirmation of quick pick
@@ -14,7 +14,7 @@ Emails (BA)
 		- users.js
 	- Reset password (BA, confirm you are OK with this)
 	- Pool email (uses layout of above but takes in a subject and body for when we need to email everyone)
-		- AdminUsers.jsx
+		- Done but needs template of weeklyEmail with value message
 Misc.
 	- Move more static values to constants
 To Deploy
@@ -28,9 +28,7 @@ For BA
 	- (TODO) Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above, please.
 	- (TODO) Please check the emails listed above so we can remove them from the list
 Bugs
-	- Year_updated keeps getting set to 2016, maybe registration issue?
-	- Referred by logic not working
-		- Added user names, retest
-	- NFL Scoreboard countdown was off by 18 hours
-		- Fixed formatting, retest
-	- Being pushed from view all picks to make picks cause unrecoverable error about thisPick being undefined (go to view all picks for a week you submitted, then change weeks to the next unsubmitted week to see)
+	- Test migration for last_updated 2016
+	- Not signed in error during game Update
+		- Made change, retest
+	- Ensure reminder emails/texts are going out

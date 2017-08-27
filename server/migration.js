@@ -20,7 +20,9 @@ const initialDB = function initialDB (migration) {
 
 const make2017Changes = function make2017Changes (migration) {
 	const systemVals = getSystemValuesSync();
-	const lastUpdated = systemVals.year_updated;
+	const lastUpdated = 2016;
+	systemVals.year_updated = lastUpdated;
+	systemVals.save();
 	let users = Meteor.users.find({});
 	users.forEach(user => {
 		const id = user._id;

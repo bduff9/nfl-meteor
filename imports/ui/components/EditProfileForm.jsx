@@ -9,7 +9,7 @@ import Yup from 'yup';
 import { ACCOUNT_TYPES, AUTO_PICK_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
 import { handleError, getInputColor } from '../../api/global';
 import Tooltip from './Tooltip';
-import { updateNotifications, updateUser, validateReferredBy } from '../../api/collections/users';
+import { notifyAdminsOfUntrusted, updateNotifications, updateUser, validateReferredBy } from '../../api/collections/users';
 
 class EditProfileForm extends Component {
 	constructor (props) {
@@ -360,7 +360,7 @@ export default Formik({
 					Bert.alert(`Thanks for registering, ${first_name}`, 'success');
 					router.push('/users/payments');
 				} else {
-					//TODO: send email to admins to approve new user
+					notifyAdminsOfUntrusted.call({ user }, handleError);
 					sweetAlert({
 						title: `Thanks for registering, ${first_name}!`,
 						text: 'An admin will review your application shortly and you will be notified if approved. You may close this window.',

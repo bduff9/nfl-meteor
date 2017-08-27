@@ -132,8 +132,8 @@ if (dbVersion < 2) {
 		fields: {
 			year_updated: {
 				type: Number,
-				validators: [{ type: 'gte', param: 2016 }], // BD: First year we added this attribute
-				default: new Date().getFullYear() - 1
+				validators: [{ type: 'gte', param: 2016 }]//, // BD: First year we added this attribute
+				//default: new Date().getFullYear() - 1
 			},
 			games_updating: {
 				type: Boolean,

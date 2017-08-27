@@ -73,5 +73,6 @@ export const initPoolOnServer = new ValidatedMethod({
 		systemVals.save();
 		initTeams.call({});
 		initSchedule.call({});
+		console.log(`Finished updating pool from ${poolYear} to ${currYear}!`);
 	}
 });

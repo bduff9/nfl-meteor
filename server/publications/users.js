@@ -82,7 +82,7 @@ Meteor.publish('usersForHistory', function () {
 Meteor.publish('usersForRegistration', function () {
 	let allUsers;
 	if (!this.userId) return this.ready();
-	allUsers = User.find({}, {
+	allUsers = User.find({ trusted: true }, {
 		fields: {
 			'_id': 1,
 			'first_name': 1,
@@ -139,6 +139,7 @@ Meteor.publish('adminUsers', function () {
 			'done_registering': 1,
 			'is_admin': 1,
 			'paid': 1,
+			'owe': 1,
 			'selected_week': 1,
 			'total_points': 1,
 			'total_games': 1,

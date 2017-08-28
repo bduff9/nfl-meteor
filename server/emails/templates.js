@@ -73,7 +73,7 @@ export default {
 		}
 	},
 
-	quickPickconfirm: {
+	quickPickConfirm: {
 		path: 'email/templates/quick-pick-confirm.html',
 		extraCSS: 'email/media-email.css',
 		helpers: {},

@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import { handleError } from '../../imports/api/global';
 import { getNextGame1 } from '../../imports/api/collections/games';
 import { Pick } from '../../imports/api/collections/picks';
 import { getTeamByShort } from '../../imports/api/collections/teams';
@@ -67,7 +68,7 @@ export const doQuickPick = new ValidatedMethod({
 			thisPick.save();
 		});
 		if (setPick) {
-			//TODO: send email confirming quick pick was successful
+			Meteor.call('Email.sendEmail', { data: { firstName: user.first_name, preview: 'Congrats!  Your quick pick was successfully saved!', week }, subject: `Your pick for week ${week} has been saved`, template: 'quickPickConfirm' }, handleError);
 		} else {
 			throw new Meteor.Error('Picks.doQuickPick.pickAlreadySet', `Quick Pick failed!  Your game 1 picks for week ${week} have already been set`);
 		}

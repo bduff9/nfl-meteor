@@ -107,7 +107,7 @@ export default {
 		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
-			path: '/pool-email',
+			path: '/quick-pick-confirm',
 			data: ({ query }) => ({
 				firstName: query.firstName
 			})
@@ -155,17 +155,15 @@ export default {
 		}
 	},
 
-	poolEmail: {
+	weeklyEmail: {
 		path: 'email/templates/pool-email.html',
 		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/pool-email',
-			data: ({ query }) => ({})
+			data: ({ query }) => ({
+				message: query.message
+			})
 		}
-	},
-
-
-
-
+	}
 };

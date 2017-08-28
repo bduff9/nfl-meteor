@@ -75,8 +75,6 @@ SyncedCron.add({
 			const { _id, email, first_name, last_name, notifications, phone_number } = user;
 			notifications.forEach(notification => {
 				const { hours_before, is_quick, type } = notification;
-				console.log('hours before', hours_before);
-				console.log('hours', lowerLimit, upperLimit);
 				if (hours_before <= lowerLimit || hours_before > upperLimit) return;
 				if (is_quick) {
 					const pick1 = getPickForFirstGameOfWeek.call({ league, user_id: _id, week });

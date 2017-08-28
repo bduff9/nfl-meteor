@@ -68,7 +68,7 @@ export const doQuickPick = new ValidatedMethod({
 			thisPick.save();
 		});
 		if (setPick) {
-			Meteor.call('Email.sendEmail', { data: { firstName: user.first_name, preview: 'Congrats!  Your quick pick was successfully saved!', week }, subject: `Your pick for week ${week} has been saved`, template: 'quickPickConfirm' }, handleError);
+			Meteor.call('Email.sendEmail', { data: { firstName: user.first_name, preview: 'Congrats!  Your quick pick was successfully saved!', week }, subject: `Your pick for week ${week} has been saved`, template: 'quickPickConfirm', to: user.email }, handleError);
 		} else {
 			throw new Meteor.Error('Picks.doQuickPick.pickAlreadySet', `Quick Pick failed!  Your game 1 picks for week ${week} have already been set`);
 		}

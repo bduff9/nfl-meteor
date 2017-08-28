@@ -1,6 +1,3 @@
-Emails
-	- Confirmation of quick pick
-		- picks.js, test
 Misc.
 	- Move more static values to constants
 To Deploy
@@ -9,10 +6,8 @@ To Deploy
 	- Ensure all http URLs are changed to https (emails, css, constants, etc.?)
 	- Remove "new" badges from nav after week 3
 For BA
-	- (TODO) New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help
-	- (TODO) Add twilio creds to all settings.json files if you have not already
-	- (TODO) Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above, please.
+	- TODO: New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help (ongoing)
+	- TODO: Add twilio creds to all settings.json files if you have not already.  If you have, delete this
+	- TODO: Ensure all emails look nice on PC and mobile, then delete this
 Bugs
-	- Ensure reminder emails/texts are going out, set kickoffs 1 hour apart to test
-	- Fix weekplacer in global.js for api calls
-		- Retest
+	- None currently

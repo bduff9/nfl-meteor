@@ -11,6 +11,19 @@ export default {
 		}
 	},
 
+	allSubmit: {
+		path: 'email/templates/all-submit.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/allsubmit',
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				week: query.week
+			})
+		}
+	},
+
 	newUserWelcome: {
 		path: 'email/templates/welcome-email.html',
 		extraCSS: 'email/media-email.css',
@@ -60,6 +73,18 @@ export default {
 		}
 	},
 
+	quickPickconfirm: {
+		path: 'email/templates/quick-pick-confirm.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/pool-email',
+			data: ({ query }) => ({
+				firstName: query.firstName
+			})
+		}
+	},
+
 	reminder: {
 		path: 'email/templates/reminder.html',
 		extraCSS: 'email/media-email.css',
@@ -99,5 +124,19 @@ export default {
 				url: query.url
 			})
 		}
-	}
+	},
+
+	poolEmail: {
+		path: 'email/templates/pool-email.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/pool-email',
+			data: ({ query }) => ({})
+		}
+	},
+
+
+
+
 };

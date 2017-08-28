@@ -29,4 +29,4 @@ For BA
 	- (TODO) Please check the emails listed above so we can remove them from the list
 Bugs
 	- Ensure reminder emails/texts are going out, set kickoffs 1 hour apart to test
-	- Looks like points are not being awarded properly, looking into users.js for this...
+	- Fix weekplacer in global.js

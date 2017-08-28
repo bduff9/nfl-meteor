@@ -10,7 +10,8 @@ import { WEEKS_IN_SEASON } from '../imports/api/constants';
 import { convertEpoch, handleError } from '../imports/api/global';
 import { currentWeek, findGame, getFirstGameOfWeek, getWeeksToRefresh, insertGame } from '../imports/api/collections/games';
 import { endOfWeekMessage } from './collections/nfllogs';
-import { assignPointsToMissed } from '../imports/api/collections/picks';
+import { assignPointsToMissed, Picks } from '../imports/api/collections/picks';
+import { SurvivorPicks } from '../imports/api/collections/survivorpicks';
 import { getSystemValues, toggleGamesUpdating } from '../imports/api/collections/systemvals';
 import { getTeamByShort, getTeamByShortSync } from '../imports/api/collections/teams';
 import { updateLastGameOfWeekScore } from './collections/tiebreakers';
@@ -199,12 +200,12 @@ API = {
 					// Update the picks for each user
 					console.log(`Game ${game.game} complete, updating picks...`);
 					// Changed the below to use the raw collection for performance (8 sec -> 5ms)
-					Meteor.users.update({ 'done_registering': true, 'picks.game_id': game._id }, { $set: { 'picks.$.winner_id': game.winner_id, 'picks.$.winner_short': game.winner_short }}, { multi: true });
+					Picks.update({ game_id: game._id }, { $set: { winner_id: game.winner_id, winner_short: game.winner_short }}, { multi: true });
 					console.log(`Game ${game.game} picks updated!`);
 					// Update the survivor pool
 					console.log(`Game ${game.game} complete, updating survivor...`);
 					// Changed the below to the raw collection for performance
-					Meteor.users.update({ 'done_registering': true, 'survivor.game_id': game._id }, { $set: { 'survivor.$.winner_id': game.winner_id, 'survivor.$.winner_short': game.winner_short }}, { multi: true });
+					SurvivorPicks.update({ game_id: game._id }, { $set: { winner_id: game.winner_id, winner_short: game.winner_short }}, { multi: true });
 					console.log(`Game ${game.game} survivor updated!`);
 				}
 				// Update home team data
@@ -232,7 +233,6 @@ API = {
 			if (justCompleted > 0 || gameCount === completeCount) {
 				console.log(`${(gameCount === completeCount ? `All games complete for week ${w}` : `${justCompleted} games newly complete for week ${w}`)}, now updating users...`);
 				const leagues = getAllLeagues.call({});
-				console.log('leagues', leagues);
 				leagues.forEach(league => {
 					updatePoints.call({ league });
 					updatePlaces.call({ league, week: w });

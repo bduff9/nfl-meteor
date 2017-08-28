@@ -378,4 +378,5 @@ if (dbVersion < 2) {
 	});
 }
 
+export const Picks = PicksConditional;
 export const Pick = PickConditional;

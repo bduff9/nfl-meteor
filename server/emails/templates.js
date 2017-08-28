@@ -11,6 +11,35 @@ export default {
 		}
 	},
 
+	newUser: {
+		path: 'email/templates/new-user.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/newUser',
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				lastName: query.lastName,
+				referredBy: query.referredBy
+			})
+		}
+	},
+
+	approveUser: {
+		path: 'email/templates/approve-user.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/approveUser',
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				lastName: query.lastName,
+				referredBy: query.referredBy,
+				email: query.email
+			})
+		}
+	},
+
 	allSubmit: {
 		path: 'email/templates/all-submit.html',
 		extraCSS: 'email/media-email.css',

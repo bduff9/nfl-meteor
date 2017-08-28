@@ -15,7 +15,7 @@ import { writeLog } from './nfllogs';
 import { getAllPicksForUser, Pick } from './picks';
 import { getMySurvivorPicks, markUserDead, SurvivorPick } from './survivorpicks';
 import { getSystemValues } from './systemvals';
-import { getAllTiebreakersForUser, getTiebreaker, hasAllSubmitted, Tiebreaker } from './tiebreakers';
+import { getAllTiebreakersForUser, getAllTiebreakersForWeek, hasAllSubmitted, Tiebreaker } from './tiebreakers';
 
 export const deleteUser = new ValidatedMethod({
 	name: 'Users.deleteUser',
@@ -177,17 +177,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 				console.log(`All picks have been submitted for week ${selectedWeek} in league ${league}, sending emails...`);
 				leagueUsers = User.find({ done_registering: true, leagues: league }).fetch();
 				leagueUsers.forEach(user => {
-					//TODO: send email out to everyone
-					console.log({
-						to: user.email,
-						from: POOL_EMAIL_FROM,
-						subject: `[NFL Confidence Pool] All picks for week ${selectedWeek} have been submitted!`,
-						text: `Hello ${user.first_name},
-
-						This is just a notice that all picks have now been submitted for week ${selectedWeek}.  You can log into the pool to view everyone's picks here: http://nfl.asitewithnoname.com
-
-						Good luck!`,
-					});
+					Meteor.call('Email.sendEmail', { data: { firstName: user.first_name, preview: `This is your notice that all users in your league have now submitted their picks for week ${selectedWeek}`, week: selectedWeek }, subject: `All picks for week ${selectedWeek} have been submitted!`, template: 'allSubmit', to: user.email }, handleError);
 				});
 				console.log('All emails sent!');
 			});
@@ -277,20 +267,18 @@ export const updatePlaces = new ValidatedMethod({
 		week: { type: Number, label: 'Week' }
 	}).validator(),
 	run ({ league, week }) {
-		let ordUsers = User.find({ done_registering: true, leagues: league }).fetch().sort(weekPlacer.bind(null, week));
-		ordUsers.forEach((user, i, allUsers) => {
-			const tiebreaker = getTiebreaker.call({ league, user_id: user._id, week });
+		let ordUsers = getAllTiebreakersForWeek.call({ league, week }).sort(weekPlacer.bind(null, week));
+		ordUsers.forEach((tiebreaker, i, allTiebreakers) => {
 			let currPlace = i + 1,
-					nextUser, result, nextTiebreaker;
+					nextTiebreaker, result;
 			if (!tiebreaker.tied_flag || i === 0) {
 				tiebreaker.place_in_week = currPlace;
 			} else {
 				currPlace = tiebreaker.place_in_week;
 			}
-			nextUser = allUsers[i + 1];
-			if (nextUser) {
-				result = weekPlacer(week, user, nextUser);
-				nextTiebreaker = getTiebreaker.call({ league, user_id: nextUser._id, week });
+			nextTiebreaker = allTiebreakers[i + 1];
+			if (nextTiebreaker) {
+				result = weekPlacer(week, tiebreaker, nextTiebreaker);
 				if (result === 0) {
 					tiebreaker.tied_flag = true;
 					nextTiebreaker.place_in_week = currPlace;
@@ -303,7 +291,8 @@ export const updatePlaces = new ValidatedMethod({
 			}
 			tiebreaker.save();
 		});
-		ordUsers = ordUsers.sort(overallPlacer);
+		// Now, get and sort users for overall placing
+		ordUsers = User.find({ done_registering: true, leagues: league }).fetch().sort(overallPlacer);
 		ordUsers.forEach((user, i, allUsers) => {
 			let currPlace = i + 1,
 					nextUser, result;

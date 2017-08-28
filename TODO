@@ -1,4 +1,4 @@
-Emails (BA)
+Emails
 	- Admin email when someone signs up
 		- users.js
 	- Admin email when someone signs up and needs to be approved
@@ -6,7 +6,7 @@ Emails (BA)
 	- Confirmation of quick pick
 		- picks.js
 	- All users have submitted
-		- users.js
+		- users.js, test
 	- Pool email (uses layout of above but takes in a subject and body for when we need to email everyone)
 		- Done but needs template of weeklyEmail with value message
 Misc.
@@ -22,4 +22,5 @@ For BA
 	- (TODO) Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above, please.
 Bugs
 	- Ensure reminder emails/texts are going out, set kickoffs 1 hour apart to test
-	- Fix weekplacer in global.js
+	- Fix weekplacer in global.js for api calls
+		- Retest

@@ -6,7 +6,9 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
+import sweetAlert from 'sweetalert';
 
+import { POOL_COST, SURVIVOR_COST } from '../../api/constants';
 import { handleError } from '../../api/global';
 import { deleteUser, getAdminUsers, updateUserAdmin } from '../../api/collections/users';
 
@@ -69,8 +71,41 @@ class AdminUsers extends Component {
 		this.setState({ emailModal: !emailModal });
 	}
 	_togglePaid (user, ev) {
-		const { _id, paid } = user;
-		updateUserAdmin.call({ userId: _id, paid: !paid }, handleError);
+		const { _id, paid, survivor } = user,
+				maxPaid = POOL_COST + (survivor ? SURVIVOR_COST : 0);
+		sweetAlert({
+			title: `How much did they pay? ($${paid})`,
+			type: 'input',
+			inputType: 'number',
+			inputValue: maxPaid,
+			showCancelButton: true,
+			closeOnConfirm: false
+		}, value => {
+			let amount, newValue;
+			if (value === false) return false;
+			amount = parseInt(value, 10);
+			newValue = paid + amount;
+			if (value === '' || isNaN(amount)) {
+				sweetAlert.showInputError(`Please enter a valid integer (${value})`);
+				return false;
+			} else if (amount === 0) {
+				sweetAlert.showInputError('Please enter a value greater than 0');
+				return false;
+			} else if (newValue < 0) {
+				sweetAlert.showInputError(`New value must be 0 or greater (${newValue})`);
+				return false;
+			} else if (newValue > maxPaid) {
+				sweetAlert.showInputError(`New value must be ${maxPaid} or less (${newValue})`);
+				return false;
+			}
+			updateUserAdmin.call({ userId: _id, paid: newValue }, err => {
+				if (err) {
+					handleError(err);
+				} else {
+					sweetAlert.close();
+				}
+			});
+		});
 	}
 	_toggleSurvivor (user, ev) {
 		const { _id, survivor } = user;
@@ -147,10 +182,10 @@ class AdminUsers extends Component {
 							<tbody>
 								{users.filter(user => (show === 'Registered' && user.done_registering) || (show === 'Rookies' && user.years_played.length === 0) || (show === 'Veterans' && user.years_played.length > 0) || show === 'All').map(user => (
 									<tr key={'user' + user._id}>
-										<td><i className={`fa fa-fw fa-money ${user.paid ? 'mark-unpaid' : 'mark-paid'}`} title={`Toggle ${user.first_name} ${user.last_name} paid`} onClick={this._togglePaid.bind(null, user)} /></td>
+										<td><i className={`fa fa-fw fa-money ${user.paid === 0 ? 'mark-paid' : (user.paid === user.owe ? 'mark-unpaid' : 'text-warning')}`} title={`${user.first_name} ${user.last_name} has paid $${user.paid} / $${user.owe}`} onClick={this._togglePaid.bind(null, user)} /></td>
 										<td><i className={`fa fa-fw fa-flag ${user.survivor ? 'survivor' : 'no-survivor'}`} title={`Toggle ${user.first_name} ${user.last_name} survivor game`} onClick={this._toggleSurvivor.bind(null, user)} /></td>
 										<td><i className={`fa fa-fw fa-user-secret ${user.is_admin ? 'is-admin' : 'not-admin'}`} title={`Toggle ${user.first_name} ${user.last_name} as admin`} onClick={this._toggleAdmin.bind(null, user)} /></td>
-										<td><i className="fa fa-fw fa-envelope text-warning" title={`Reset ${user.first_name} ${user.last_name}'s password'`} onClick={this._resetPassword.bind(null, user)} /></td>
+										<td><i className="fa fa-fw fa-envelope text-warning" title={`Reset ${user.first_name} ${user.last_name}'s password`} onClick={this._resetPassword.bind(null, user)} /></td>
 										<td>
 											{!user.done_registering && user.trusted === false ? <i className="fa fa-fw fa-thumbs-up text-success" title={`Approve ${user.first_name} ${user.last_name}`} onClick={this._approveUser.bind(null, user)} /> : null}
 											{!user.done_registering ? <i className="fa fa-fw fa-thumbs-down text-danger" title={`Delete ${user.first_name} ${user.last_name}`} onClick={this._deleteUser.bind(null, user)} /> : null}

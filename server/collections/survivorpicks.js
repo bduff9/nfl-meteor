@@ -22,7 +22,7 @@ export const clearSurvivorPicks = new ValidatedMethod({
 	name: 'SurvivorPicks.clearSurvivorPicks',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		SurvivorPick.remove({}, { multi: true });
+		SurvivorPick.remove({});
 	}
 });
 export const clearSurvivorPicksSync = Meteor.wrapAsync(clearSurvivorPicks.call, clearSurvivorPicks);

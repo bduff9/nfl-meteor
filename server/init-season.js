@@ -6,15 +6,15 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { DEFAULT_LEAGUE } from '../imports/api/constants';
 import { getCurrentSeasonYear } from '../imports/api/global';
-import { clearGames, initScheduleSync } from './collections/games';
-import { clearNFLLogsSync } from './collections/nfllogs';
-import { clearPicksSync } from './collections/picks';
+import { clearGames, initSchedule } from './collections/games';
+import { clearNFLLogs } from './collections/nfllogs';
+import { clearPicks } from './collections/picks';
 import { addPoolHistory } from '../imports/api/collections/poolhistorys';
-import { clearCronHistorySync } from './scheduled-tasks';
-import { clearSurvivorPicksSync } from './collections/survivorpicks';
+import { clearCronHistory } from './scheduled-tasks';
+import { clearSurvivorPicks } from './collections/survivorpicks';
 import { getSystemValues } from '../imports/api/collections/systemvals';
-import { clearTeamsSync, initTeamsSync } from './collections/teams';
-import { clearTiebreakersSync } from './collections/tiebreakers';
+import { clearTeams, initTeams } from './collections/teams';
+import { clearTiebreakers } from './collections/tiebreakers';
 import { getCurrentUser, getUsers } from '../imports/api/collections/users';
 
 /**
@@ -47,15 +47,13 @@ export const initPoolOnServer = new ValidatedMethod({
 			}
 		});
 		// Empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers
-		clearCronHistorySync({});
-		console.log('clearGames start');
+		clearCronHistory.call({});
 		clearGames.call({});
-		console.log('clearGames end');
-		clearNFLLogsSync({});
-		clearPicksSync({});
-		clearSurvivorPicksSync({});
-		clearTeamsSync({});
-		clearTiebreakersSync({});
+		clearNFLLogs.call({});
+		clearPicks.call({});
+		clearSurvivorPicks.call({});
+		clearTeams.call({});
+		clearTiebreakers.call({});
 		// Clear out/default old user info i.e. referred_by, done_registering, leagues, survivor, owe, paid, selected_week, total_points, total_games, overall_place, overall_tied_flag
 		users.forEach(user => {
 			user.done_registering = false;
@@ -73,7 +71,8 @@ export const initPoolOnServer = new ValidatedMethod({
 		// When done, update lastUpdated in systemvals, then refill teams and games
 		systemVals.year_updated = currYear;
 		systemVals.save();
-		initTeamsSync({});
-		initScheduleSync({});
+		initTeams.call({});
+		initSchedule.call({});
+		console.log(`Finished updating pool from ${poolYear} to ${currYear}!`);
 	}
 });

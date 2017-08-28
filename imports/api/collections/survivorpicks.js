@@ -271,4 +271,5 @@ if (dbVersion < 2) {
 	});
 }
 
+export const SurvivorPicks = SurvivorPicksConditional;
 export const SurvivorPick = SurvivorPickConditional;

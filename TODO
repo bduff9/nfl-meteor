@@ -1,19 +1,20 @@
-Init Pool function
-	- Troubleshoot error fromc clearing games (does non-sync fun work? if so, change others too):
-		- Exception in callback of async function: TypeError: object is not a function
-History screen
-	- Show stats for current season
 Emails (BA)
 	- Verify email (BA, confirm you are OK with this)
 	- Welcome/welcome back (BA, confirm you are OK with this)
 	- Admin email when someone signs up
+		- users.js
+	- Admin email when someone signs up and needs to be approved
+		- users.js
 	- Submit reminder (BA, confirm you are OK with this)
 	- Quick pick (BA, confirm you are OK with this)
 	- Confirmation of quick pick
+		- picks.js
 	- Confirmation of Submit (BA, confirm you are OK with this)
 	- All users have submitted
+		- users.js
 	- Reset password (BA, confirm you are OK with this)
 	- Pool email (uses layout of above but takes in a subject and body for when we need to email everyone)
+		- Done but needs template of weeklyEmail with value message
 Misc.
 	- Move more static values to constants
 To Deploy
@@ -25,4 +26,7 @@ For BA
 	- (TODO) New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help
 	- (TODO) Add twilio creds to all settings.json files if you have not already
 	- (TODO) Ensure all emails listed above in Emails are done, have the proper data substitutions, and look nice.  Also, if I forgot an email above, please add it.  When done, remove from the list above, please.
-
+	- (TODO) Please check the emails listed above so we can remove them from the list
+Bugs
+	- Ensure reminder emails/texts are going out, set kickoffs 1 hour apart to test
+	- Fix weekplacer in global.js

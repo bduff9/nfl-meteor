@@ -23,7 +23,7 @@ export const clearTiebreakers = new ValidatedMethod({
 	name: 'Tiebreakers.clearTiebreakers',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		Tiebreaker.remove({}, { multi: true });
+		Tiebreaker.remove({});
 	}
 });
 export const clearTiebreakersSync = Meteor.wrapAsync(clearTiebreakers.call, clearTiebreakers);
@@ -38,7 +38,6 @@ export const getTiebreakerFromServer = new ValidatedMethod({
 	run ({ league, week }) {
 		const user_id = this.userId;
 		const tb = Tiebreaker.findOne({ user_id, week, league });
-		if (!user_id) throw new Meteor.Error('You are not signed in!');
 		if (!tb) throw new Meteor.Error('No tiebreaker found');
 		return tb;
 	}

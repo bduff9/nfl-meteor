@@ -17,7 +17,7 @@ export const clearNFLLogs = new ValidatedMethod({
 	name: 'NFLLogs.clearNFLLogs',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		NFLLog.remove({}, { multi: true });
+		NFLLog.remove({});
 	}
 });
 export const clearNFLLogsSync = Meteor.wrapAsync(clearNFLLogs.call, clearNFLLogs);

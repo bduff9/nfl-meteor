@@ -19,6 +19,7 @@ export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
 			tiebreakersReady = tiebreakersHandle.ready(),
 			usersHandle = Meteor.subscribe('basicUsersInfo'),
 			usersReady = usersHandle.ready(),
+			pageReady = picksReady && tiebreakerReady && tiebreakersReady && usersReady,
 			sort = sortBy || { points_earned: -1, games_correct: -1 };
 	let myTiebreaker = {},
 			tiebreakers = [],
@@ -26,7 +27,7 @@ export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
 			myPicks = [],
 			highestScore = 0,
 			data = [];
-	if (picksReady && tiebreakerReady && tiebreakersReady && usersReady) {
+	if (pageReady) {
 		picks = getAllPicksForWeek.call({ league, week });
 		myPicks = picks.filter(pick => pick.user_id === myUser._id);
 		myTiebreaker = getTiebreaker.call({ league, week });
@@ -36,7 +37,7 @@ export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
 					user = tb.getUser(),
 					userPicks = picks.filter(pick => pick.user_id === user._id),
 					formattedPlace = (tiebreaker.place_in_week ? (tiebreaker.tied_flag ? `T${tiebreaker.place_in_week}` : tiebreaker.place_in_week) : 'T1'),
-					hasSubmitted = tiebreaker.submitted;
+					hasSubmitted = myTiebreaker.submitted;
 			highestScore = Math.max(highestScore, tiebreaker.points_earned);
 			if (!hasSubmitted) tiebreaker.last_score = null;
 			return {
@@ -96,7 +97,7 @@ export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
 		isOverall: false,
 		myTiebreaker,
 		myUser,
-		pageReady: picksReady && tiebreakerReady && tiebreakersReady && usersReady,
+		pageReady,
 		sort,
 		week,
 		_changeSortBy

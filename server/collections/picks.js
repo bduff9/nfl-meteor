@@ -25,7 +25,7 @@ export const clearPicks = new ValidatedMethod({
 	name: 'Picks.clearPicks',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		Pick.remove({}, { multi: true });
+		Pick.remove({});
 	}
 });
 export const clearPicksSync = Meteor.wrapAsync(clearPicks.call, clearPicks);

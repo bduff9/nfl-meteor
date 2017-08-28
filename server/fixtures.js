@@ -2,8 +2,9 @@
 
 import { moment } from 'meteor/momentjs:moment';
 
+import { FIRST_YEAR_FOR_SYSTEM_VALS } from '../imports/api/constants';
 import { gamesExistSync } from '../imports/api/collections/games';
-import { createSystemValuesSync, getSystemValuesSync, systemValuesExistSync } from '../imports/api/collections/systemvals';
+import { createSystemValuesSync, getSystemValues, systemValuesExistSync } from '../imports/api/collections/systemvals';
 import { teamsExistSync } from '../imports/api/collections/teams';
 import { initScheduleSync } from './collections/games';
 import { initTeamsSync } from './collections/teams';
@@ -19,7 +20,7 @@ if (!systemValuesExistSync()) {
 	createSystemValuesSync();
 	console.log('System values initialized!');
 } else {
-	const systemVal = getSystemValuesSync();
+	const systemVal = getSystemValues.call({});
 	let oldCt = 0,
 			conns;
 	console.log('Cleaning up old connections...');
@@ -36,6 +37,7 @@ if (!systemValuesExistSync()) {
 			console.log(`Connection ${connId} deleted!`);
 		}
 	});
+	if (!systemVal.year_updated) systemVal.year_updated = FIRST_YEAR_FOR_SYSTEM_VALS;
 	systemVal.save();
 	if (oldCt > 0) {
 		console.log(`${oldCt} old connections cleaned!`);

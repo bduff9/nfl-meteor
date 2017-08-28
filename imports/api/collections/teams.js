@@ -28,9 +28,7 @@ export const getTeamByID = new ValidatedMethod({
 		teamId: { type: String, label: 'Team ID' }
 	}).validator(),
 	run ({ teamId }) {
-		const team = Team.findOne(teamId);
-		if (!team) throw new Meteor.Error('No team found');
-		return team;
+		return Team.findOne(teamId);
 	}
 });
 export const getTeamByIDSync = Meteor.wrapAsync(getTeamByID.call, getTeamByID);

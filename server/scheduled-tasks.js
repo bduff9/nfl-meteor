@@ -21,7 +21,7 @@ export const clearCronHistory = new ValidatedMethod({
 	name: 'CronHistory.clearCronHistory',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		SyncedCron._collection.remove({}, { multi: true });
+		SyncedCron._collection.remove({});
 	}
 });
 export const clearCronHistorySync = Meteor.wrapAsync(clearCronHistory.call, clearCronHistory);

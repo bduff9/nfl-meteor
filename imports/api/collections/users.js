@@ -136,6 +136,21 @@ export const getUsersForLogs = new ValidatedMethod({
 });
 export const getUsersForLogsSync = Meteor.wrapAsync(getUsersForLogs.call, getUsersForLogs);
 
+export const notifyAdminsOfUntrusted = new ValidatedMethod({
+	name: 'Users.notifyAdminsOfUntrusted',
+	validate: new SimpleSchema({
+		user: { type: Object, label: 'User Object', blackbox: true }
+	}).validator(),
+	run ({ user }) {
+		if (Meteor.isServer) {
+			const admins = User.find({ is_admin: true }).fetch();
+			//TODO: send email to admins to approve new user
+			console.log('Send email to admins notifying them that a new player needs to be confirmed', { admins, user });
+		}
+	}
+});
+export const notifyAdminsOfUntrustedSync = Meteor.wrapAsync(notifyAdminsOfUntrusted.call, notifyAdminsOfUntrusted);
+
 export const removeSelectedWeek = new ValidatedMethod({
 	name: 'Users.selected_week.delete',
 	validate: new SimpleSchema({
@@ -440,6 +455,7 @@ export const updateUser = new ValidatedMethod({
 			}
 			if (!user.years_played) user.years_played = [];
 			user.years_played.push(year_updated);
+			user.save();
 			sendWelcomeEmail.call({ isNewPlayer, userId: this.userId }, handleError);
 		}
 		user.save();
@@ -452,7 +468,7 @@ export const updateUserAdmin = new ValidatedMethod({
 	validate: new SimpleSchema({
 		done_registering: { type: Boolean, label: 'Done Registering?', optional: true },
 		isAdmin: { type: Boolean, label: 'Is Administrator', optional: true },
-		paid: { type: Boolean, label: 'Has Paid', optional: true },
+		paid: { type: Number, label: 'Amount Paid', optional: true },
 		survivor: { type: Boolean, label: 'Has Survivor', optional: true },
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
@@ -514,7 +530,7 @@ export const validateReferredBy = new ValidatedMethod({
 	}).validator(),
 	run ({ referred_by, user_id = this.userId }) {
 		const currentUser = User.findOne(user_id),
-				allUsers = User.find({ done_registering: true }).fetch();
+				allUsers = User.find({ trusted: true }).fetch();
 		let foundUsers;
 		if (!user_id) throw new Meteor.Error('Users.validateReferredBy.not-signed-in', 'You are not signed in');
 		if (currentUser.referred_by === referred_by) return true;
@@ -522,6 +538,7 @@ export const validateReferredBy = new ValidatedMethod({
 			const { first_name, last_name } = user,
 					fullName = `${first_name.trim()} ${last_name.trim()}`.toLowerCase();
 			if (user._id === user_id) return false;
+			if (!user.trusted) return false;
 			return fullName === referred_by.trim().toLowerCase();
 		});
 		return foundUsers.length > 0;

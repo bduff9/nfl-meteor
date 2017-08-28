@@ -33,7 +33,7 @@ export const getPoolHistoryForYear = new ValidatedMethod({
 		year: { type: Number, label: 'History Year' }
 	}).validator(),
 	run ({ league, year }) {
-		const history = PoolHistory.find({ league, year }, { sort: { week: 1, place: 1 }}).fetch();
+		const history = PoolHistory.find({ league, year }, { sort: { type: 1, week: 1, place: 1 }}).fetch();
 		if (!this.userId) throw new Meteor.Error('Not Authorized', 'You are not currently signed in.  Please sign in and then try again.');
 		return history;
 	}

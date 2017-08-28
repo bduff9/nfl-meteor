@@ -21,7 +21,7 @@ class Statistics extends Component {
 	}
 
 	render () {
-		const { pageReady, poolYears, ...rest } = this.props,
+		const { currentLeague, pageReady, poolYears, selectedWeek } = this.props,
 				{ display } = this.state,
 				pageTitle = 'Pool Stats';
 		return (
@@ -31,10 +31,10 @@ class Statistics extends Component {
 				{pageReady ? (
 					<div className="col-xs-12 statistics">
 						<select className="form-control" value={display} onChange={(ev) => this.setState({ display: ev.currentTarget.value })}>
-							<option value="">Current Year</option>
+							<option value="">Current Year (Week {selectedWeek})</option>
 							{poolYears.map(year => <option value={year} key={`year-${year}`}>{year}</option>)}
 						</select>
-						{display === '' ? <WeeklyStats {...rest} /> : <ViewHistory year={parseInt(display, 10)} {...rest} />}
+						{display === '' ? <WeeklyStats currentLeague={currentLeague} selectedWeek={selectedWeek} /> : <ViewHistory currentLeague={currentLeague} year={parseInt(display, 10)} />}
 					</div>
 				)
 					:

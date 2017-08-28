@@ -16,7 +16,7 @@ export default class Countdown extends Component {
 	}
 
 	componentWillUnmount () {
-		clearInterval(this.timerID);
+		if (this.timerID) clearInterval(this.timerID);
 	}
 
 	tick () {
@@ -27,17 +27,21 @@ export default class Countdown extends Component {
 	render () {
 		const { nextKickoff, week } = this.props,
 				{ now } = this.state,
-				days = moment(nextKickoff).diff(moment(now), 'days'),
-				diff = moment(nextKickoff - now);
+				diff = moment(nextKickoff).diff(now),
+				duration = moment.duration(diff),
+				{ days, hours, minutes, seconds } = duration._data;
 		let timeString;
+
 		if (days > 0) {
-			timeString = diff.format('D[d] H[h] m[m]');//`${days}d ${hours}h ${minutes}m`;
+			timeString = `${days}d ${hours}h ${minutes}m`;
+		} else if (hours + minutes + seconds > 0) {
+			timeString = `${hours}h ${minutes}m ${seconds}s`;
 		} else {
-			timeString = diff.format('H[h] m[m] s[s]');//`${hours}h ${minutes}m ${seconds}s`;
+			timeString = 'NFL Scoreboard';
+			if (this.timerID) clearInterval(this.timerID);
 		}
-		return (
-			<span title={`Countdown to start of week ${week}`}>{timeString}</span>
-		);
+
+		return <span title={`Countdown to start of week ${week}`}>{timeString}</span>;
 	}
 }
 

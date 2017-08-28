@@ -321,7 +321,7 @@ export default createContainer(() => {
 		currentLeague,
 		currentWeek,
 		games,
-		pageReady: gamesReady && teamsReady,
+		pageReady: gamesReady && picksReady && teamsReady && tiebreakerReady,
 		picks,
 		selectedWeek,
 		tiebreaker

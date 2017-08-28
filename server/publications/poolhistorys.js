@@ -5,7 +5,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { PoolHistory } from '../../imports/api/collections/poolhistorys';
 
-Meteor.publish('historyForYear', function (league, year) {
+Meteor.publish('poolHistoryForYear', function (league, year) {
 	let history;
 	if (!this.userId) return this.ready();
 	new SimpleSchema({
@@ -23,6 +23,7 @@ Meteor.publish('historyForYear', function (league, year) {
 			'place': 1
 		},
 		sort: {
+			type: 1,
 			week: 1,
 			place: 1
 		}

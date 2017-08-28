@@ -25,39 +25,42 @@ Meteor.publish('allChats', function () {
 	return this.ready();
 });
 
-Meteor.publishComposite('unreadChats', {
-	find: function () {
-		return NFLLog.find({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED']}, user_id: this.userId }, {
-			fields: {
-				'_id': 1,
-				'action': 1,
-				'when': 1,
-				'user_id': 1
-			},
-			sort: {
-				when: -1
-			},
-			limit: 1
-		});
-	},
-	children: [
-		{
-			find: function (lastAction) {
-				return NFLLog.find({ action: 'CHAT', when: { $gt: lastAction.when }}, {
-					fields: {
-						'_id': 1,
-						'action': 1,
-						'when': 1,
-						'message': 1,
-						'user_id': 1
-					},
-					sort: {
-						when: -1
-					}
-				});
-			}
+Meteor.publish('lastChatAction', function () {
+	let lastChat;
+	if (!this.userId) return this.ready();
+	lastChat = NFLLog.find({ action: { $in: ['CHAT_HIDDEN', 'CHAT_OPENED']}, user_id: this.userId }, {
+		fields: {
+			'_id': 1,
+			'action': 1,
+			'when': 1,
+			'user_id': 1
+		},
+		sort: {
+			when: -1
+		},
+		limit: 1
+	});
+	if (lastChat) return lastChat;
+	return this.ready();
+});
+
+Meteor.publish('unreadChats', function (lastAction) {
+	const filter = { action: 'CHAT', user_id: { $ne: this.userId }};
+	let unreadChats;
+	if (!this.userId) return this.ready();
+	if (lastAction && lastAction.action === 'CHAT_OPENED') return this.ready();
+	if (lastAction && lastAction.action === 'CHAT_HIDDEN') filter.when = { $gt: lastAction.when };
+	unreadChats = NFLLog.find(filter, {
+		fields: {
+			'_id': 1,
+			'action': 1,
+			'when': 1,
+			'message': 1,
+			'user_id': 1
 		}
-	]
+	});
+	if (unreadChats) return unreadChats;
+	return this.ready();
 });
 
 Meteor.publish('allMessages', function () {

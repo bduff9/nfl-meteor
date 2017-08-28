@@ -360,7 +360,7 @@ export default Formik({
 					Bert.alert(`Thanks for registering, ${first_name}`, 'success');
 					router.push('/users/payments');
 				} else {
-					notifyAdminsOfUntrusted.call({ user }, handleError);
+					notifyAdminsOfUntrusted.call({ user_id: user._id }, handleError);
 					sweetAlert({
 						title: `Thanks for registering, ${first_name}!`,
 						text: 'An admin will review your application shortly and you will be notified if approved. You may close this window.',

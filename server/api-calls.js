@@ -118,7 +118,7 @@ API = {
 	refreshGameData () {
 		const weeksToRefresh = getWeeksToRefresh.call({});
 		let games, gameCount, completeCount, justCompleted, game, hTeamData, vTeamData, hTeam, vTeam, winner, timeLeft, status;
-		if (weeksToRefresh.length > 0) toggleGamesUpdating.call({ is_updating: true });
+		toggleGamesUpdating.call({ is_updating: weeksToRefresh.length > 0 });
 		weeksToRefresh.forEach(w => {
 			games = this.getGamesForWeek(w);
 			gameCount = games.length;

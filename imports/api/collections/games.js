@@ -175,7 +175,6 @@ export const getWeeksToRefresh = new ValidatedMethod({
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		const weeks = _.uniq(Game.find({
-			game: { $ne: 0 },
 			status: { $ne: 'C' },
 			kickoff: { $lte: new Date() }
 		}, {

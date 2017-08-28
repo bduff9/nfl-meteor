@@ -95,7 +95,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						</li>
 						<li><Link to="/picks/view" activeClassName="active">View My Picks</Link></li>
 						{tiebreaker ?
-							(selectedWeek >= currentWeek && tiebreaker && !tiebreaker.submitted ?
+							(selectedWeek >= currentWeek && !tiebreaker.submitted ?
 								<li><Link to="/picks/set" activeClassName="active">Make Picks</Link></li>
 								:
 								<li><Link to="/picks/viewall" activeClassName="active">View All Picks</Link></li>

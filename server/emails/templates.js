@@ -1,6 +1,32 @@
 'use strict';
 
 export default {
+	allSubmit: {
+		path: 'email/templates/all-submit.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/all-submit',
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				week: query.week
+			})
+		}
+	},
+
+	approveUser: {
+		path: 'email/templates/approve-user.html',
+		extraCSS: 'email/media-email.css',
+		helpers: {},
+		route: {
+			path: '/approve-user',
+			data: ({ query }) => ({
+				firstName: query.firstName,
+				newUser: query.newUser
+			})
+		}
+	},
+
 	interest: {
 		path: 'email/templates/interest-email.html',
 		extraCSS: 'email/media-email.css',
@@ -16,39 +42,11 @@ export default {
 		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
-			path: '/newUser',
+			path: '/new-user',
 			data: ({ query }) => ({
 				firstName: query.firstName,
-				lastName: query.lastName,
-				referredBy: query.referredBy
-			})
-		}
-	},
-
-	approveUser: {
-		path: 'email/templates/approve-user.html',
-		extraCSS: 'email/media-email.css',
-		helpers: {},
-		route: {
-			path: '/approveUser',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				lastName: query.lastName,
-				referredBy: query.referredBy,
-				email: query.email
-			})
-		}
-	},
-
-	allSubmit: {
-		path: 'email/templates/all-submit.html',
-		extraCSS: 'email/media-email.css',
-		helpers: {},
-		route: {
-			path: '/allsubmit',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				week: query.week
+				newUser: query.newUser,
+				now: query.now
 			})
 		}
 	},
@@ -58,7 +56,7 @@ export default {
 		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
-			path: '/new-user',
+			path: '/welcome-email',
 			data: ({ query }) => ({
 				email: query.email,
 				facebook: !!query.facebook,
@@ -109,7 +107,8 @@ export default {
 		route: {
 			path: '/quick-pick-confirm',
 			data: ({ query }) => ({
-				firstName: query.firstName
+				firstName: query.firstName,
+				week: query.week
 			})
 		}
 	},

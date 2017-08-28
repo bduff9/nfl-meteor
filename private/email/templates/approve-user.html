@@ -1,8 +1,11 @@
+<h1>Hello {{ firstName }},</h1>
+
 <p>A new user needs your approval:</p>
 
-<p>{{ firstName }} {{ lastName }} <br/>
-	 {{ email }} <br/>
-	 {{ referredBy }}</p>
+<p>{{ newUser.first_name }} {{ newUser.last_name }} just registered with {{ newUser.email }}</p>
 
+<p>They claim to be referred by {{ newUser.referred_by }}.</p>
+
+<p>You can approve/delete them from the below link.</p>
 
 <a href="https://nfl.asitewithnoname.com/admin/users" class="btn btn-primary">Manage Users</a>

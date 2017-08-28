@@ -139,13 +139,15 @@ export const getUsersForLogsSync = Meteor.wrapAsync(getUsersForLogs.call, getUse
 export const notifyAdminsOfUntrusted = new ValidatedMethod({
 	name: 'Users.notifyAdminsOfUntrusted',
 	validate: new SimpleSchema({
-		user: { type: Object, label: 'User Object', blackbox: true }
+		user_id: { type: String, label: 'User ID' }
 	}).validator(),
-	run ({ user }) {
+	run ({ user_id }) {
 		if (Meteor.isServer) {
-			const admins = User.find({ is_admin: true }).fetch();
-			//TODO: send email to admins to approve new user
-			console.log('Send email to admins notifying them that a new player needs to be confirmed', { admins, user });
+			const admins = User.find({ is_admin: true }).fetch(),
+					user = User.findOne(user_id);
+			admins.forEach(admin => {
+				Meteor.call('Email.sendEmail', { data: { firstName: admin.first_name, newUser: user, preview: 'A new user requires confirmation to be able to participate' }, subject: 'New User Requires Admin Approval', template: 'approveUser', to: admin.email }, handleError);
+			});
 		}
 	}
 });
@@ -198,23 +200,8 @@ export const sendWelcomeEmail = new ValidatedMethod({
 				systemVals = getSystemValues.call({});
 		if (Meteor.isServer) {
 			Meteor.call('Email.sendEmail', { data: { email: user.email, facebook: !!user.services.facebook, firstName: user.first_name, google: !!user.services.google, preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, year: systemVals.year_updated }, subject: `Thanks for registering, ${user.first_name}!`, template: 'newUserWelcome', to: user.email }, handleError);
-			//TODO: send admin emails
 			admins.forEach(admin => {
-				console.log({
-					to: admin.email,
-					from: POOL_EMAIL_FROM,
-					subject: '[NFL Confidence Pool] New User Registration',
-					text: `Hello ${admin.first_name},
-
-This is just a notice that a new user has registered at ${moment().format('h:mma [on] ddd, MMM Do YYYY')} with the following information:
--Name: ${user.first_name} ${user.last_name}
--Team Name: ${user.team_name}
--Email: ${user.email}
--Referred By: ${user.referred_by}
-
-You can maintain this user here:
-http://nfl.asitewithnoname.com/admin/users`,
-				});
+				Meteor.call('Email.sendEmail', { data: { firstName: admin.first_name, newUser: user, now: moment().format('h:mma [on] ddd, MMM Do YYYY'), preview: 'This is an auto generated notice that a new user has just finished registering' }, subject: 'New User Registration', template: 'newUser', to: admin.email }, handleError);
 			});
 		}
 	}
@@ -268,6 +255,7 @@ export const updatePlaces = new ValidatedMethod({
 	}).validator(),
 	run ({ league, week }) {
 		let ordUsers = getAllTiebreakersForWeek.call({ league, week }).sort(weekPlacer.bind(null, week));
+		console.log('ordUsers', ordUsers);
 		ordUsers.forEach((tiebreaker, i, allTiebreakers) => {
 			let currPlace = i + 1,
 					nextTiebreaker, result;
@@ -279,6 +267,7 @@ export const updatePlaces = new ValidatedMethod({
 			nextTiebreaker = allTiebreakers[i + 1];
 			if (nextTiebreaker) {
 				result = weekPlacer(week, tiebreaker, nextTiebreaker);
+				console.log('result', result);
 				if (result === 0) {
 					tiebreaker.tied_flag = true;
 					nextTiebreaker.place_in_week = currPlace;

@@ -35,8 +35,7 @@ export const getTiebreakerFromServer = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' },
 		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
-	run ({ league, week }) {
-		const user_id = this.userId;
+	run ({ league, week, user_id = this.userId }) {
 		const tb = Tiebreaker.findOne({ user_id, week, league });
 		if (!tb) throw new Meteor.Error('No tiebreaker found');
 		return tb;

@@ -40,10 +40,8 @@ export const getAllTiebreakersForWeek = new ValidatedMethod({
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
 	run ({ league, overrideSort, week }) {
-		const user_id = this.userId,
-				sort = overrideSort || { points_earned: -1, games_correct: -1 },
+		const sort = overrideSort || { points_earned: -1, games_correct: -1 },
 				tbs = Tiebreaker.find({ league, week }, { sort }).fetch();
-		if (!user_id) throw new Meteor.Error('You are not signed in!');
 		if (!tbs) throw new Meteor.Error(`No tiebreakers found for week ${week}`);
 		return tbs;
 	}

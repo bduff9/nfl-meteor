@@ -1,6 +1,14 @@
-<p>A new user has registered: </p>
+<h1>Hello {{ firstName }},</h1>
 
-<p>{{ firstName }} {{ lastName }} <br/>
-	 {{ referredBy }}</p>
+<p>This is just a notice that a new user has registered at {{ now }} with the following information:</p>
+
+<ul>
+	<li>Name: {{ newUser.first_name }} {{ newUser.last_name }}</li>
+	<li>Team Name: {{ newUser.team_name }}</li>
+	<li>Email: {{ newUser.email }}</li>
+	<li>Referred By: {{ newUser.referred_by }}</li>
+</ul>
+
+<p>You can maintain this user below.</p>
 
 <a href="https://nfl.asitewithnoname.com/admin/users" class="btn btn-primary">Manage Users</a>

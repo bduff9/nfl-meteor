@@ -40,7 +40,6 @@ export const getMySurvivorPicks = new ValidatedMethod({
 	}).validator(),
 	run ({ league, user_id = this.userId }) {
 		const picks = SurvivorPick.find({ league, user_id }, { sort: { week: 1 } }).fetch();
-		if (!user_id) throw new Meteor.Error('You are not signed in');
 		return picks;
 	}
 });

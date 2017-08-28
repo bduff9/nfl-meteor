@@ -1,14 +1,6 @@
 Emails
-	- Admin email when someone signs up
-		- users.js
-	- Admin email when someone signs up and needs to be approved
-		- users.js
 	- Confirmation of quick pick
 		- picks.js, test
-	- All users have submitted
-		- users.js, test
-	- Pool email (uses layout of above but takes in a subject and body for when we need to email everyone)
-		- Done but needs template of weeklyEmail with value message, test
 Misc.
 	- Move more static values to constants
 To Deploy

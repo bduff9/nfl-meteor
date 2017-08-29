@@ -13,8 +13,8 @@ import { handleError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import PointHolder from '../components/PointHolder.jsx';
 import TeamHover from '../components/TeamHover.jsx';
-import { getGamesForWeekSync } from '../../api/collections/games';
-import { autoPick, getPicksForWeekSync, resetPicks } from '../../api/collections/picks';
+import { getGamesForWeek } from '../../api/collections/games';
+import { autoPick, getPicksForWeek, resetPicks } from '../../api/collections/picks';
 import { getTiebreakerSync, resetTiebreaker, setTiebreaker, submitPicks } from '../../api/collections/tiebreakers';
 
 class MakePicks extends Component {
@@ -50,21 +50,21 @@ class MakePicks extends Component {
 		return false;
 	}
 	_handleSubmitPicks () {
-		const { currentLeague, selectedWeek } = this.props,
+		const { currentLeague, picks, selectedWeek, tiebreaker } = this.props,
 				{ email, first_name } = Meteor.user();
 		setTimeout(() => {
 			submitPicks.call({ league: currentLeague, week: selectedWeek }, err => {
 				if (err) {
 					handleError(err);
 				} else {
+					Meteor.call('Email.sendEmail', { data: { firstName: first_name, picks, preview: 'This is an automated notification to let you know that we have successfully received your picks for this week', tiebreaker: tiebreaker.last_score, week: selectedWeek }, subject: `Your week ${selectedWeek} picks have been submitted`, template: 'picksConfirm', to: email }, handleError);
 					sweetAlert({
 						title: 'Good luck this week!',
 						text: 'Your picks have been submitted and can no longer be changed. You can now close this message to view/print your picks',
 						type: 'success'
-					}, () => {
-						this.context.router.push('/picks/view');
-						Meteor.call('Email.sendEmail', { data: { firstName: first_name, preview: 'This is an automated notification to let you know that we have successfully received your picks for this week', week: selectedWeek }, subject: `Your week ${selectedWeek} picks have been submitted`, template: 'picksConfirm', to: email }, handleError);
-					});
+					},
+					() => this.context.router.push('/picks/view')
+					);
 				}
 			});
 		}, 500);
@@ -314,8 +314,8 @@ export default createContainer(() => {
 	let games = [],
 			picks = [],
 			tiebreaker = {};
-	if (gamesReady) games = getGamesForWeekSync({ week: selectedWeek });
-	if (picksReady) picks = getPicksForWeekSync({ league: currentLeague, week: selectedWeek });
+	if (gamesReady) games = getGamesForWeek.call({ week: selectedWeek });
+	if (picksReady) picks = getPicksForWeek.call({ league: currentLeague, week: selectedWeek });
 	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: selectedWeek });
 	return {
 		currentLeague,

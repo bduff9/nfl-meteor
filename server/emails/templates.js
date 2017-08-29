@@ -71,11 +71,21 @@ export default {
 	picksConfirm: {
 		path: 'email/templates/picks-confirmation.html',
 		extraCSS: 'email/media-email.css',
-		helpers: {},
+		helpers: {
+			sortPicks (picks) {
+				return picks.sort((pick1, pick2) => {
+					if (pick1.points > pick2.points) return -1;
+					if (pick1.points < pick2.points) return 1;
+					return 0;
+				});
+			}
+		},
 		route: {
 			path: '/picks-confirmation',
 			data: ({ query }) => ({
 				firstName: query.firstName,
+				picks: query.picks,
+				tiebreaker: query.tiebreaker,
 				week: query.week
 			})
 		}

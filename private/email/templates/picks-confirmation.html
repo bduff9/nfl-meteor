@@ -2,6 +2,15 @@
 
 <p>This is a confirmation that your week {{ week }} picks have been submitted.</p>
 
-<p>You can click the button below to view your submitted picks.</p>
+<p>Your picks are:</p>
 
-<a href="https://nfl.asitewithnoname.com/picks/view" class="btn btn-primary">View My Picks</a>
+<ul>
+	{{#each pick in (sortPicks picks)}}
+	<li>{{ pick.pick_short }} - {{ pick.points }}</li>
+	{{/each}}
+	<li>Tiebreaker Score: {{ tiebreaker }}</li>
+</ul>
+
+<p>You can also click the button below to view everyone's submitted picks.</p>
+
+<a href="https://nfl.asitewithnoname.com/picks/viewall" class="btn btn-primary">View All Picks</a>

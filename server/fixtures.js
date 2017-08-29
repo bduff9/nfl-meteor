@@ -38,6 +38,11 @@ if (!systemValuesExistSync()) {
 		}
 	});
 	if (!systemVal.year_updated) systemVal.year_updated = FIRST_YEAR_FOR_SYSTEM_VALS;
+	if (systemVal.games_updating) {
+		console.log('Games left as updating, fixing...');
+		systemVal.games_updating = false;
+		console.log('Games set to not currently updating!');
+	}
 	systemVal.save();
 	if (oldCt > 0) {
 		console.log(`${oldCt} old connections cleaned!`);

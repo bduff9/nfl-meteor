@@ -266,7 +266,6 @@ export const updatePlaces = new ValidatedMethod({
 			nextTiebreaker = allTiebreakers[i + 1];
 			if (nextTiebreaker) {
 				result = weekPlacer(week, tiebreaker, nextTiebreaker);
-				console.log('result', result);
 				if (result === 0) {
 					tiebreaker.tied_flag = true;
 					nextTiebreaker.place_in_week = currPlace;

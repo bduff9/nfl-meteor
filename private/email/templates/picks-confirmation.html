@@ -6,7 +6,7 @@
 
 <ul>
 	{{#each pick in (sortPicks picks)}}
-	<li>{{ pick.pick_short }} - {{ pick.points }}</li>
+	<li>{{#if pick.pick_short}}{{ pick.pick_short }}{{else}}Missed{{/if}} - {{ pick.points }}</li>
 	{{/each}}
 	<li>Tiebreaker Score: {{ tiebreaker }}</li>
 </ul>

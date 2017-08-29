@@ -255,7 +255,6 @@ export const updatePlaces = new ValidatedMethod({
 	}).validator(),
 	run ({ league, week }) {
 		let ordUsers = getAllTiebreakersForWeek.call({ league, week }).sort(weekPlacer.bind(null, week));
-		console.log('ordUsers', ordUsers);
 		ordUsers.forEach((tiebreaker, i, allTiebreakers) => {
 			let currPlace = i + 1,
 					nextTiebreaker, result;

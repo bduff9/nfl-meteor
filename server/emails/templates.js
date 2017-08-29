@@ -148,7 +148,6 @@ export default {
 			path: '/verify',
 			data: ({ query }) => ({
 				email: query.email,
-				firstName: query.firstName,
 				url: query.url
 			})
 		}

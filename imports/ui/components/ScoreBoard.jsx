@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import { handleError, pad } from '../../api/global';
+import { formatDate, handleError, pad } from '../../api/global';
 import { getGamesForWeek } from '../../api/collections/games';
 import { toggleScoreboard } from '../../api/collections/systemvals';
 
@@ -66,7 +66,7 @@ class ScoreBoard extends Component {
 								<tbody>
 									{games.map((game, i) => {
 										let rows = [],
-												thisKickoff = moment(game.kickoff).format('ddd, MMM D');
+												thisKickoff = formatDate(game.kickoff, false);
 										if (lastKickoff !== thisKickoff) {
 											rows.push(
 												<tr className="text-xs-center date-head" key={'kickoff' + game.kickoff}>

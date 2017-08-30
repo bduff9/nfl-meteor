@@ -5,11 +5,6 @@
  */
 
 /**
- * The address of the pool
- */
-export const POOL_URL = 'http://nfl.asitewithnoname.com';
-
-/**
  * The current schema version
  * 1 - First schema
  * 2 - New schema for 2017 season

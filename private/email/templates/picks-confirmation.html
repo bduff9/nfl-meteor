@@ -1,4 +1,4 @@
-<h1>Hi {{ firstName }},</h1>
+<h1>Hi {{ user.first_name }},</h1>
 
 <p>This is a confirmation that your week {{ week }} picks have been submitted.</p>
 
@@ -8,9 +8,9 @@
 	{{#each pick in (sortPicks picks)}}
 	<li>{{#if pick.pick_short}}{{ pick.pick_short }}{{else}}Missed{{/if}} - {{ pick.points }}</li>
 	{{/each}}
-	<li>Tiebreaker Score: {{ tiebreaker }}</li>
+	<li>Tiebreaker Score: {{ tiebreaker.last_score }}</li>
 </ul>
 
 <p>You can also click the button below to view everyone's submitted picks.</p>
 
-<a href="https://nfl.asitewithnoname.com/picks/viewall" class="btn btn-primary">View All Picks</a>
+<a href="{{ poolURL }}/picks/viewall" class="btn btn-primary">View All Picks</a>

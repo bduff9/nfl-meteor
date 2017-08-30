@@ -2,8 +2,8 @@ Misc.
 	- Move more static values to constants
 To Deploy
 	- Upgrade Twilio account to paid before season starts
-	- Update mup file from GoT mup file
 	- Ensure all http URLs are changed to https (emails, css, constants, etc.?)
+		- Add baseURL to settings.json
 	- Remove "new" badges from nav after week 3
 For BA
 	- TODO: New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help (ongoing)

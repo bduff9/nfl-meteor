@@ -1,4 +1,4 @@
-<h1>Quick {{ firstName }}!</h1>
+<h1>Quick {{ user.first_name }}!</h1>
 
 <p>You have not made your pick for game 1 of week {{ week }} yet and you now have less than {{ hours }} hours.</p>
 
@@ -7,9 +7,9 @@
 <p><strong>Note:</strong> This email is only good up until kickoff of this game, so act now to avoid losing points for this week!</p>
 
 <div class="quick-pick-buttons">
-  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort1 }}" class="btn btn-team" style="background-color: {{ team1Color1 }}; border-color: {{ team1Color1 }}; color: {{ team1Color2 }};">{{ teamName1 }}</a>
+  <a href="{{ poolURL }}/quick-pick/{{ user._id }}/{{ team1.short_name }}" class="btn btn-team" style="background-color: {{ team1.primary_color }}; border-color: {{ team1.primary_color }}; color: {{ team1.secondary_color }};">{{ team1.city }} {{ team1.name }}</a>
   <span class="tag tag-success tag-at">@</span>
-  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort2 }}" class="btn btn-team" style="background-color: {{ team2Color1 }}; border-color: {{ team2Color1 }}; color: {{ team2Color2 }};">{{ teamName2 }}</a>
+  <a href="{{ poolURL }}/quick-pick/{{ user._id }}/{{ team2.short_name }}" class="btn btn-team" style="background-color: {{ team2.primary_color }}; border-color: {{ team2.primary_color }}; color: {{ team2.secondary_color }};">{{ team2.city }} {{ team2.name }}</a>
 </div>
 
 

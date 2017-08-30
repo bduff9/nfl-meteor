@@ -1,4 +1,4 @@
-  <h1>Hi {{ firstName }},</h1>
+  <h1>Hi {{ user.first_name }},</h1>
   {{#if returning}}
   <p>Welcome back to the {{ year }} NFL Confidence Pool. Good luck this season!</p>
   {{else}}
@@ -8,17 +8,27 @@
   <p>You registered with:</p>
 
   <ul>
-    <li>email: {{ email }}</li>
-    {{#if password}}
-    <li>Password Sign-in</li>
+    <li>email: {{ user.email }}</li>
+    {{#if user.services.password}}
+    <li>Password sign-in</li>
+    {{else}}
+    <li>No password sign-in</li>
     {{/if}}
-    {{#if facebook}}<li>Facebook Quick Sign-in</li>{{/if}}
-    {{#if google}}<li>Google Quick Sign-in</li>{{/if}}
+    {{#if user.services.facebook}}
+    <li>Facebook quick sign-in</li>
+    {{else}}
+    <li>No Facebook quick sign-in</li>
+    {{/if}}
+    {{#if user.services.google}}
+    <li>Google quick sign-in</li>
+    {{else}}
+    <li>No Google quick sign-in</li>
+    {{/if}}
   </ul>
 
   <p>Remember to submit your picks before kickoff of the Thursday night game. If you do not, your highest point value is automatically used for that game.</p>
 
   <p>Go to the 'Edit Profile' page to set up your reminder notifications before the Thursday night game.</p>
 
-  <a href="https://nfl.asitewithnoname.com" class="btn btn-primary">Click here to enter the pool</a>
+  <a href="{{ poolURL }}/" class="btn btn-primary">Click here to enter the pool</a>
 

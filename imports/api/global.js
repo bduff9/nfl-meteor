@@ -1,11 +1,16 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
+import { moment } from 'meteor/momentjs:moment';
 
 export const convertEpoch = epoch => {
 	let d = new Date(0);
 	d.setUTCSeconds(epoch);
 	return d;
+};
+export const formatDate = (dt, incTime) => {
+	const fmt = (incTime ? 'h:mma [on] ddd, MMM Do' : 'ddd, MMM Do');
+	return moment(dt).format(fmt);
 };
 
 export const formattedPlace = place => {

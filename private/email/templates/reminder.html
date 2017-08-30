@@ -1,4 +1,4 @@
-<h1>Hello forgetful {{ firstName }},</h1>
+<h1>Hello forgetful {{ user.first_name }},</h1>
 
 <p>This is just a friendly reminder that you have not submitted your picks yet for week {{ week }} of the NFL confidence pool and you now have less than {{ hours }} hours.</p>
 
@@ -6,4 +6,4 @@
 
 <p>Good luck!</p>
 
-<a href="https://nfl.asitewithnoname.com/picks/set" class="btn btn-primary">Submit Picks</a>
+<a href="{{ poolURL }}/picks/set" class="btn btn-primary">Submit Picks</a>

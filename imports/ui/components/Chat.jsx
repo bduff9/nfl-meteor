@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
-import { handleError } from '../../api/global';
+import { formatDate, handleError } from '../../api/global';
 import { getCurrentUser } from '../../api/collections/users';
 import { getAllChats, writeLog } from '../../api/collections/nfllogs';
 
@@ -63,7 +63,7 @@ class Chat extends Component {
 								<div className="a-chat" key={'chat' + chat._id}>
 									<strong>{`${user.first_name} ${user.last_name}: `}</strong>
 									{chat.message}
-									<span className="chat-sent" title={moment(chat.when).format('dddd, MMMM Do, YYYY [at] h:mma')}>{moment(chat.when).fromNow()}</span>
+									<span className="chat-sent" title={formatDate(chat.when, true)}>{moment(chat.when).fromNow()}</span>
 								</div>
 							);
 							return rows;

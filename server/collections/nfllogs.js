@@ -30,7 +30,7 @@ export const endOfSurvivorMessage = new ValidatedMethod({
 	run ({ league }) {
 		const users = getSortedSurvivorPicksSync({ league });
 		const MESSAGE = 'The survivor pool is now over.';
-		const systemVals = getSystemValues.call({}, handleError);
+		const systemVals = getSystemValues.call({});
 		const currentYear = systemVals.year_updated;
 		users.forEach(user => {
 			const user_id = user._id;

@@ -17,13 +17,12 @@ Accounts.emailTemplates.verifyEmail = {
 	subject () {
 		return `${EMAIL_SUBJECT_PREFIX}Verify Your Email Address`;
 	},
-	html (user, url) {
-		const { email, first_name } = user,
-				urlWithoutHash = url.replace('#/', '');
+	html (user, urlWithHash) {
+		const url = urlWithHash.replace('#/', '');
 		let body;
-		console.log(`Sending Verify Email email to ${email}...`);
-		body = Mailer.render('verifyEmail', { email, firstName: first_name, preview: 'Please confirm your recent registration request for the NFL Confidence Pool', url: urlWithoutHash });
-		console.log(`Successfully sent Verify Email email to ${email}!`);
+		console.log(`Sending Verify Email email to ${user.email}...`);
+		body = Mailer.render('verifyEmail', { preview: 'Please confirm your recent registration request for the NFL Confidence Pool', url, user });
+		console.log(`Successfully sent Verify Email email to ${user.email}!`);
 		return body;
 	}
 };
@@ -32,13 +31,12 @@ Accounts.emailTemplates.resetPassword = {
 	subject () {
 		return `${EMAIL_SUBJECT_PREFIX}Reset Password Request`;
 	},
-	html (user, url) {
-		const { email, first_name } = user,
-				urlWithoutHash = url.replace('#/', '');
+	html (user, urlWithHash) {
+		const url = urlWithHash.replace('#/', '');
 		let body;
-		console.log(`Sending Reset Password email to ${email}...`);
-		body = Mailer.render('resetPassword', { firstName: first_name, preview: 'We just received a password reset request from your account', url: urlWithoutHash });
-		console.log(`Successfully sent Reset Password email to ${email}!`);
+		console.log(`Sending Reset Password email to ${user.email}...`);
+		body = Mailer.render('resetPassword', { preview: 'We just received a password reset request from your account', url, user });
+		console.log(`Successfully sent Reset Password email to ${user.email}!`);
 		return body;
 	}
 };

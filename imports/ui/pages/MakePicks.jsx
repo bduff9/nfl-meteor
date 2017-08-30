@@ -51,13 +51,13 @@ class MakePicks extends Component {
 	}
 	_handleSubmitPicks () {
 		const { currentLeague, picks, selectedWeek, tiebreaker } = this.props,
-				{ email, first_name } = Meteor.user();
+				user = Meteor.user();
 		setTimeout(() => {
 			submitPicks.call({ league: currentLeague, week: selectedWeek }, err => {
 				if (err) {
 					handleError(err);
 				} else {
-					Meteor.call('Email.sendEmail', { data: { firstName: first_name, picks, preview: 'This is an automated notification to let you know that we have successfully received your picks for this week', tiebreaker: tiebreaker.last_score, week: selectedWeek }, subject: `Your week ${selectedWeek} picks have been submitted`, template: 'picksConfirm', to: email }, handleError);
+					Meteor.call('Email.sendEmail', { data: { picks, preview: 'This is an automated notification to let you know that we have successfully received your picks for this week', tiebreaker, user, week: selectedWeek }, subject: `Your week ${selectedWeek} picks have been submitted`, template: 'picksConfirm', to: user.email }, handleError);
 					sweetAlert({
 						title: 'Good luck this week!',
 						text: 'Your picks have been submitted and can no longer be changed. You can now close this message to view/print your picks',

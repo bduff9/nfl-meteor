@@ -11,10 +11,10 @@ import '../../ui/pages/ViewAllPicksPrint.scss';
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { weekPlacer } from '../../api/global';
 import { Loading } from './Loading.jsx';
-import { getGamesForWeekSync } from '../../api/collections/games';
-import { getCurrentUserSync } from '../../api/collections/users';
-import { getTiebreakerSync, getAllTiebreakersForWeekSync } from '../../api/collections/tiebreakers';
-import { getAllPicksForWeekSync } from '../../api/collections/picks';
+import { getGamesForWeek } from '../../api/collections/games';
+import { getCurrentUser } from '../../api/collections/users';
+import { getTiebreaker, getAllTiebreakersForWeek } from '../../api/collections/tiebreakers';
+import { getAllPicksForWeek } from '../../api/collections/picks';
 
 class ViewAllPicks extends Component {
 	constructor (props) {
@@ -29,7 +29,7 @@ class ViewAllPicks extends Component {
 
 	componentWillReceiveProps (nextProps) {
 		const { currentWeek, games, pageReady, picks, selectedWeek, tiebreaker = {}, tiebreakers } = nextProps,
-				notAllowed = pageReady && ((selectedWeek >= currentWeek && !tiebreaker.submitted) || selectedWeek < currentWeek);
+				notAllowed = pageReady && selectedWeek >= currentWeek && !tiebreaker.submitted;
 		if (notAllowed) this.context.router.push('/picks/set');
 		if (pageReady) this.setState({ games: games.map(game => Object.assign({}, game)), users: this._updateUsers({ games, picks, selectedWeek, tiebreakers }) });
 	}
@@ -201,7 +201,7 @@ ViewAllPicks.contextTypes = {
 };
 
 export default createContainer(() => {
-	const currentUser = getCurrentUserSync({}),
+	const currentUser = getCurrentUser.call({}),
 			currentWeek = Session.get('currentWeek'),
 			selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
@@ -221,10 +221,10 @@ export default createContainer(() => {
 			tiebreakers = [],
 			picks = [],
 			games = [];
-	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: selectedWeek });
-	if (gamesReady) games = getGamesForWeekSync({ week: selectedWeek });
-	if (picksReady) picks = getAllPicksForWeekSync({ league: currentLeague, week: selectedWeek });
-	if (tiebreakersReady) tiebreakers = getAllTiebreakersForWeekSync({ league: currentLeague, week: selectedWeek });
+	if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek });
+	if (gamesReady) games = getGamesForWeek.call({ week: selectedWeek });
+	if (picksReady) picks = getAllPicksForWeek.call({ league: currentLeague, week: selectedWeek });
+	if (tiebreakersReady) tiebreakers = getAllTiebreakersForWeek.call({ league: currentLeague, week: selectedWeek });
 	return {
 		currentUser,
 		currentWeek,

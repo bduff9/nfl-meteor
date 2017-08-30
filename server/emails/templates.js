@@ -1,15 +1,26 @@
 'use strict';
 
+import { formatDate } from '../../imports/api/global';
+import { getFirstGameOfWeek } from '../../imports/api/collections/games';
+import { getPicksForWeek } from '../../imports/api/collections/picks';
+import { getTeamByShort } from '../../imports/api/collections/teams';
+import { getTiebreaker } from '../../imports/api/collections/tiebreakers';
+import { getUserByID } from '../../imports/api/collections/users';
+
 export default {
 	allSubmit: {
 		path: 'email/templates/all-submit.html',
 		helpers: {},
 		route: {
 			path: '/all-submit',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				week: query.week
-			})
+			data: ({ query }) => {
+				const { userID, week } = query,
+						user = getUserByID.call({ user_id: userID });
+				return {
+					user,
+					week
+				};
+			}
 		}
 	},
 
@@ -18,10 +29,15 @@ export default {
 		helpers: {},
 		route: {
 			path: '/approve-user',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				newUser: query.newUser
-			})
+			data: ({ query }) => {
+				const { adminID, newUserID } = query,
+						admin = getUserByID.call({ user_id: adminID }),
+						newUser = getUserByID.call({ user_id: newUserID });
+				return {
+					admin,
+					newUser
+				};
+			}
 		}
 	},
 
@@ -36,14 +52,22 @@ export default {
 
 	newUser: {
 		path: 'email/templates/new-user.html',
-		helpers: {},
+		helpers: {
+			now () {
+				return formatDate(new Date(), true);
+			}
+		},
 		route: {
 			path: '/new-user',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				newUser: query.newUser,
-				now: query.now
-			})
+			data: ({ query }) => {
+				const { adminID, newUserID } = query,
+						admin = getUserByID.call({ user_id: adminID }),
+						newUser = getUserByID.call({ user_id: newUserID });
+				return {
+					admin,
+					newUser
+				};
+			}
 		}
 	},
 
@@ -52,14 +76,15 @@ export default {
 		helpers: {},
 		route: {
 			path: '/welcome-email',
-			data: ({ query }) => ({
-				email: query.email,
-				facebook: !!query.facebook,
-				firstName: query.firstName,
-				google: !!query.google,
-				returning: !!query.returning,
-				year: query.year
-			})
+			data: ({ query }) => {
+				const { returning, userID, year } = query,
+						user = getUserByID.call({ user_id: userID });
+				return {
+					returning: returning === 'true',
+					user,
+					year
+				};
+			}
 		}
 	},
 
@@ -76,12 +101,19 @@ export default {
 		},
 		route: {
 			path: '/picks-confirmation',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				picks: query.picks,
-				tiebreaker: query.tiebreaker,
-				week: query.week
-			})
+			data: ({ query }) => {
+				const { league, userID: user_id, week: weekStr } = query,
+						week = parseInt(weekStr, 10),
+						user = getUserByID.call({ user_id }),
+						picks = getPicksForWeek.call({ league, user_id, week }),
+						tiebreaker = getTiebreaker.call({ league, user_id, week });
+				return {
+					picks,
+					tiebreaker,
+					user,
+					week
+				};
+			}
 		}
 	},
 
@@ -91,20 +123,21 @@ export default {
 		helpers: {},
 		route: {
 			path: '/quick-pick',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				hours: query.hours,
-				team1Color1: query.team1Color1,
-				team1Color2: query.team1Color2,
-				team2Color1: query.team2Color1,
-				team2Color2: query.team2Color2,
-				teamName1: query.teamName1,
-				teamName2: query.teamName2,
-				teamShort1: query.teamShort1,
-				teamShort2: query.teamShort2,
-				userId: query.userId,
-				week: query.week
-			})
+			data: ({ query }) => {
+				const { hours, userID: user_id, week: weekStr } = query,
+						week = parseInt(weekStr, 10),
+						user = getUserByID.call({ user_id }),
+						game = getFirstGameOfWeek.call({ week }),
+						team1 = game.getTeam('home'),
+						team2 = game.getTeam('visitor');
+				return {
+					hours,
+					team1,
+					team2,
+					user,
+					week
+				};
+			}
 		}
 	},
 
@@ -113,10 +146,16 @@ export default {
 		helpers: {},
 		route: {
 			path: '/quick-pick-confirm',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				week: query.week
-			})
+			data: ({ query }) => {
+				const { teamShort: short_name, userID: user_id, week } = query,
+						user = getUserByID.call({ user_id }),
+						team = getTeamByShort.call({ short_name });
+				return {
+					team,
+					user,
+					week
+				};
+			}
 		}
 	},
 
@@ -125,11 +164,15 @@ export default {
 		helpers: {},
 		route: {
 			path: '/reminder',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				hours: query.hours,
-				week: query.week
-			})
+			data: ({ query }) => {
+				const { hours, userID: user_id, week } = query,
+						user = getUserByID.call({ user_id });
+				return {
+					hours,
+					user,
+					week
+				};
+			}
 		}
 	},
 
@@ -138,10 +181,14 @@ export default {
 		helpers: {},
 		route: {
 			path: '/reset-password',
-			data: ({ query }) => ({
-				firstName: query.firstName,
-				url: query.url
-			})
+			data: ({ query }) => {
+				const { url, userID: user_id } = query,
+						user = getUserByID.call({ user_id });
+				return {
+					url,
+					user
+				};
+			}
 		}
 	},
 
@@ -150,10 +197,14 @@ export default {
 		helpers: {},
 		route: {
 			path: '/verify',
-			data: ({ query }) => ({
-				email: query.email,
-				url: query.url
-			})
+			data: ({ query }) => {
+				const { url, userID: user_id } = query,
+						user = getUserByID.call({ user_id });
+				return {
+					url,
+					user
+				};
+			}
 		}
 	},
 

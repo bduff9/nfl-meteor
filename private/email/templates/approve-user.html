@@ -1,4 +1,4 @@
-<h1>Hello {{ firstName }},</h1>
+<h1>Hello {{ admin.first_name }},</h1>
 
 <p>A new user needs your approval:</p>
 
@@ -8,4 +8,4 @@
 
 <p>You can approve/delete them from the below link.</p>
 
-<a href="https://nfl.asitewithnoname.com/admin/users" class="btn btn-primary">Manage Users</a>
+<a href="{{ poolURL }}/admin/users" class="btn btn-primary">Manage Users</a>

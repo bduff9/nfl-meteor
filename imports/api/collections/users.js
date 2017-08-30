@@ -9,7 +9,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Class } from 'meteor/jagi:astronomy';
 
-import { ACCOUNT_TYPES, AUTO_PICK_TYPES, dbVersion, DEFAULT_AUTO_PICK_COUNT, DEFAULT_LEAGUE, POOL_COST, POOL_EMAIL_FROM, SURVIVOR_COST } from '../constants';
+import { ACCOUNT_TYPES, AUTO_PICK_TYPES, dbVersion, DEFAULT_AUTO_PICK_COUNT, DEFAULT_LEAGUE, POOL_COST, SURVIVOR_COST } from '../constants';
 import { handleError, overallPlacer, weekPlacer } from '../global';
 import { writeLog } from './nfllogs';
 import { getAllPicksForUser, Pick } from './picks';
@@ -146,7 +146,7 @@ export const notifyAdminsOfUntrusted = new ValidatedMethod({
 			const admins = User.find({ is_admin: true }).fetch(),
 					user = User.findOne(user_id);
 			admins.forEach(admin => {
-				Meteor.call('Email.sendEmail', { data: { firstName: admin.first_name, newUser: user, preview: 'A new user requires confirmation to be able to participate' }, subject: 'New User Requires Admin Approval', template: 'approveUser', to: admin.email }, handleError);
+				Meteor.call('Email.sendEmail', { data: { admin, newUser: user, preview: 'A new user requires confirmation to be able to participate' }, subject: 'New User Requires Admin Approval', template: 'approveUser', to: admin.email }, handleError);
 			});
 		}
 	}
@@ -179,7 +179,7 @@ export const sendAllPicksInEmail = new ValidatedMethod({
 				console.log(`All picks have been submitted for week ${selectedWeek} in league ${league}, sending emails...`);
 				leagueUsers = User.find({ done_registering: true, leagues: league }).fetch();
 				leagueUsers.forEach(user => {
-					Meteor.call('Email.sendEmail', { data: { firstName: user.first_name, preview: `This is your notice that all users in your league have now submitted their picks for week ${selectedWeek}`, week: selectedWeek }, subject: `All picks for week ${selectedWeek} have been submitted!`, template: 'allSubmit', to: user.email }, handleError);
+					Meteor.call('Email.sendEmail', { data: { preview: `This is your notice that all users in your league have now submitted their picks for week ${selectedWeek}`, user, week: selectedWeek }, subject: `All picks for week ${selectedWeek} have been submitted!`, template: 'allSubmit', to: user.email }, handleError);
 				});
 				console.log('All emails sent!');
 			});
@@ -199,9 +199,9 @@ export const sendWelcomeEmail = new ValidatedMethod({
 				admins = User.find({ is_admin: true }).fetch(),
 				systemVals = getSystemValues.call({});
 		if (Meteor.isServer) {
-			Meteor.call('Email.sendEmail', { data: { email: user.email, facebook: !!user.services.facebook, firstName: user.first_name, google: !!user.services.google, preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, year: systemVals.year_updated }, subject: `Thanks for registering, ${user.first_name}!`, template: 'newUserWelcome', to: user.email }, handleError);
+			Meteor.call('Email.sendEmail', { data: { preview: 'This is an email sent to everyone signing up for this year\'s confidence pool', returning: !isNewPlayer, user, year: systemVals.year_updated }, subject: `Thanks for registering, ${user.first_name}!`, template: 'newUserWelcome', to: user.email }, handleError);
 			admins.forEach(admin => {
-				Meteor.call('Email.sendEmail', { data: { firstName: admin.first_name, newUser: user, now: moment().format('h:mma [on] ddd, MMM Do YYYY'), preview: 'This is an auto generated notice that a new user has just finished registering' }, subject: 'New User Registration', template: 'newUser', to: admin.email }, handleError);
+				Meteor.call('Email.sendEmail', { data: { admin, newUser: user, preview: 'This is an auto generated notice that a new user has just finished registering' }, subject: 'New User Registration', template: 'newUser', to: admin.email }, handleError);
 			});
 		}
 	}

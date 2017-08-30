@@ -1,11 +1,13 @@
-<h1>Congrats, {{ firstName }}!</h1>
+<h1>Congrats, {{ user.first_name }}!</h1>
 
-<p>Your quick pick selection for week {{ week }} has been successfully saved.</p>
+<p>You have successfully quick-pick'd the {{ team.city }} {{ team.name }} for game 1 of week {{ week }}.</p>
+
+<p>Don't forget to make the rest of your picks and submit for week {{ week }}!</p>
 
 <p>Click below to make/view all your picks.</p>
 
 <div>
-	<a href="https://nfl.asitewithnoname.com/picks/view" class="btn btn-primary">View My Picks</a>
+	<a href="{{ poolURL }}/picks/view" class="btn btn-primary">View My Picks</a>
 </div>
 
 

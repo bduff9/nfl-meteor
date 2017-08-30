@@ -7,7 +7,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { moment } from 'meteor/momentjs:moment';
 import { SyncedCron } from 'meteor/percolate:synced-cron';
 
-import { EMAIL_SUBJECT_PREFIX, MAX_SMS_LENGTH, POOL_URL } from '../imports/api/constants';
+import { EMAIL_SUBJECT_PREFIX, MAX_SMS_LENGTH } from '../imports/api/constants';
 import { handleError } from '../imports/api/global';
 import { sendSMS } from './twilio';
 import { sendEmail } from './emails/email';
@@ -58,6 +58,7 @@ SyncedCron.add({
 	name: 'Send notifications',
 	schedule: parse => parse.recur().on(30).minute(),
 	job: () => {
+		const POOL_URL = Meteor.settings.baseURL;
 		const nextGame1 = getNextGame1.call({});
 		const { kickoff, week } = nextGame1;
 		const homeTeam = nextGame1.getTeam('home');
@@ -79,7 +80,7 @@ SyncedCron.add({
 				if (is_quick) {
 					const pick1 = getPickForFirstGameOfWeek.call({ league, user_id: _id, week });
 					if (!pick1.pick_id || !pick1.pick_short || !pick1.points) {
-						sendEmail.call({ data: { firstName: first_name, hours: hours_before, preview: 'This is an automated email to allow you one-click access to make your pick for the first game of the week', team1Color1: homeTeam.primary_color, team1Color2: homeTeam.secondary_color, team2Color1: visitingTeam.primary_color, team2Color2: visitingTeam.secondary_color, teamName1: `${homeTeam.city} ${homeTeam.name}`, teamName2: `${visitingTeam.city} ${visitingTeam.name}`, teamShort1: homeTeam.short_name, teamShort2: visitingTeam.short_name, userId: _id, week }, subject: `Time's almost up, ${first_name}!`, template: 'quickPick', to: email }, err => {
+						sendEmail.call({ data: { hours: hours_before, preview: 'This is an automated email to allow you one-click access to make your pick for the first game of the week', team1: homeTeam, team2: visitingTeam, user, week }, subject: `Time's almost up, ${first_name}!`, template: 'quickPick', to: email }, err => {
 							if (err) {
 								handleError(err);
 							} else {
@@ -89,7 +90,7 @@ SyncedCron.add({
 					}
 				} else {
 					if (type.indexOf('email') > -1) {
-						sendEmail.call({ data: { firstName: first_name, hours: hours_before, preview: 'Don\'t lose out on points this week, act now to submit your picks!', week }, subject: `Hurry up, ${first_name}!`, template: 'reminder', to: email }, err => {
+						sendEmail.call({ data: { hours: hours_before, preview: 'Don\'t lose out on points this week, act now to submit your picks!', user, week }, subject: `Hurry up, ${first_name}!`, template: 'reminder', to: email }, err => {
 							if (err) {
 								handleError(err);
 							} else {

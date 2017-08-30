@@ -4,11 +4,10 @@ import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
-import { moment } from 'meteor/momentjs:moment';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 
 import { ACTIONS } from '../../api/constants';
-import { handleError } from '../../api/global';
+import { formatDate, handleError } from '../../api/global';
 import { Loading } from './Loading.jsx';
 import { getLogs } from '../../api/collections/nfllogs';
 import { getUsersForLogs } from '../../api/collections/users';
@@ -214,7 +213,7 @@ class AdminLogs extends Component {
 									return (
 										<tr key={'log' + log._id}>
 											<td>{log.action}</td>
-											<td>{moment(log.when).format('h:mma [on] ddd, MMM Do, YYYY')}</td>
+											<td>{formatDate(log.when, true)}</td>
 											<td>{log.message}</td>
 											<td>{user ? `${user.first_name} ${user.last_name}` : ''}</td>
 											<td>{log.action === 'MESSAGE' ? (log.is_read ? 'Y' : 'N') : ''}</td>

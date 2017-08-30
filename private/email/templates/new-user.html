@@ -1,4 +1,4 @@
-<h1>Hello {{ firstName }},</h1>
+<h1>Hello {{ admin.first_name }},</h1>
 
 <p>This is just a notice that a new user has registered at {{ now }} with the following information:</p>
 
@@ -11,4 +11,4 @@
 
 <p>You can maintain this user below.</p>
 
-<a href="https://nfl.asitewithnoname.com/admin/users" class="btn btn-primary">Manage Users</a>
+<a href="{{ poolURL }}/admin/users" class="btn btn-primary">Manage Users</a>

@@ -21,7 +21,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 
 	if (pageReady && !logoutOnly) {
 		if (currentUser) msgCt += (currentUser.paid ? 0 : 1);
-		if (currentWeekTiebreaker) msgCt += (currentWeekTiebreaker.submitted ? 0 : 1);
+		if (currentWeekTiebreaker) msgCt += (currentWeekTiebreaker.submitted || nextGame.notFound ? 0 : 1);
 		if (currentUser.survivor) msgCt += (currentUser.survivor && !survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id ? 0 : 1);
 	}
 

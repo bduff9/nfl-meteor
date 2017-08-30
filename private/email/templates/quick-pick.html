@@ -6,10 +6,10 @@
 
 <p><strong>Note:</strong> This email is only good up until kickoff of this game, so act now to avoid losing points for this week!</p>
 
-<div>
-  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort1 }}" class="btn btn-primary">{{ teamName1 }}</a>
-  <span class="tag tag-success">@</span>
-  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort2 }}" class="btn btn-info">{{ teamName2 }}</a>
+<div class="quick-pick-buttons">
+  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort1 }}" class="btn btn-team" style="background-color: {{ team1Color1 }}; border-color: {{ team1Color1 }}; color: {{ team1Color2 }};">{{ teamName1 }}</a>
+  <span class="tag tag-success tag-at">@</span>
+  <a href="https://nfl.asitewithnoname.com/quick-pick/{{ userId }}/{{ teamShort2 }}" class="btn btn-team" style="background-color: {{ team2Color1 }}; border-color: {{ team2Color1 }}; color: {{ team2Color2 }};">{{ teamName2 }}</a>
 </div>
 
 

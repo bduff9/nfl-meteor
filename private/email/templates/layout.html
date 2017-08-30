@@ -6,6 +6,46 @@
     <title>{{ preview }}</title>
 
     <style type="text/css">
+      @media (min-width: 992px) {
+        .email-content {
+          padding: 5em 17em;
+          background-image: url('http://nfl.asitewithnoname.com/bkgd-pitch.png');
+          background-repeat: no-repeat;
+          background-size: cover;
+        }
+        .email-inner-content {
+          border: 1px solid black;
+          border-radius: 5px;
+          padding: 60px 30px 30px 30px;
+          margin: 10% auto;
+        }
+        .ball-logo {
+          width: 200px;
+          top: -175px;
+        }
+      }
+      @media (max-width: 991px) {
+        .email-content {
+          background-color: black;
+          background-image: none;
+          padding: 0;
+        }
+        .email-inner-content {
+          border: none;
+          border-radius: 0;
+          padding: 162px 30px 30px 30px;
+          margin-top: 0;
+          margin-bottom: 0;
+          overflow: auto;
+        }
+        .ball-logo-parent {
+          margin-bottom: 15px;
+        }
+        .ball-logo {
+          width: 145px;
+          top: -149px;
+        }
+      }
       {{{ css }}}
     </style>
   </head>
@@ -23,16 +63,16 @@
     {{/if}}
 
     <!-- This is where the actual template content will be inserted. -->
-    <div class="login-stretch" id="email-content">
-      <div class="signin-form">
-          <div class="ball-logo-parent">
-            <div class="ball-logo">
-                <SVG src="http://nfl.asitewithnoname.com/svg/football.svg" />
-            </div>
+    <div class="email-content">
+      <div class="email-inner-content">
+        <div class="ball-logo-parent">
+          <div class="ball-logo">
+            <img src="http://nfl.asitewithnoname.com/svg/football.svg" />
           </div>
-          <div>
-            {{{ body }}}
-          </div>
+        </div>
+        <div>
+          {{{ body }}}
+        </div>
       </div>
     </div>
   </body>

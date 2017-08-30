@@ -79,7 +79,7 @@ SyncedCron.add({
 				if (is_quick) {
 					const pick1 = getPickForFirstGameOfWeek.call({ league, user_id: _id, week });
 					if (!pick1.pick_id || !pick1.pick_short || !pick1.points) {
-						sendEmail.call({ data: { firstName: first_name, hours: hours_before, preview: 'This is an automated email to allow you one-click access to make your pick for the first game of the week', teamName1: `${homeTeam.city} ${homeTeam.name}`, teamName2: `${visitingTeam.city} ${visitingTeam.name}`, teamShort1: homeTeam.short_name, teamShort2: visitingTeam.short_name, userId: _id, week }, subject: `Time's almost up, ${first_name}!`, template: 'quickPick', to: email }, err => {
+						sendEmail.call({ data: { firstName: first_name, hours: hours_before, preview: 'This is an automated email to allow you one-click access to make your pick for the first game of the week', team1Color1: homeTeam.primary_color, team1Color2: homeTeam.secondary_color, team2Color1: visitingTeam.primary_color, team2Color2: visitingTeam.secondary_color, teamName1: `${homeTeam.city} ${homeTeam.name}`, teamName2: `${visitingTeam.city} ${visitingTeam.name}`, teamShort1: homeTeam.short_name, teamShort2: visitingTeam.short_name, userId: _id, week }, subject: `Time's almost up, ${first_name}!`, template: 'quickPick', to: email }, err => {
 							if (err) {
 								handleError(err);
 							} else {

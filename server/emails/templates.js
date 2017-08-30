@@ -3,7 +3,6 @@
 export default {
 	allSubmit: {
 		path: 'email/templates/all-submit.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/all-submit',
@@ -16,7 +15,6 @@ export default {
 
 	approveUser: {
 		path: 'email/templates/approve-user.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/approve-user',
@@ -29,7 +27,6 @@ export default {
 
 	interest: {
 		path: 'email/templates/interest-email.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/interest',
@@ -39,7 +36,6 @@ export default {
 
 	newUser: {
 		path: 'email/templates/new-user.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/new-user',
@@ -53,7 +49,6 @@ export default {
 
 	newUserWelcome: {
 		path: 'email/templates/welcome-email.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/welcome-email',
@@ -70,7 +65,6 @@ export default {
 
 	picksConfirm: {
 		path: 'email/templates/picks-confirmation.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {
 			sortPicks (picks) {
 				return picks.sort((pick1, pick2) => {
@@ -93,13 +87,17 @@ export default {
 
 	quickPick: {
 		path: 'email/templates/quick-pick.html',
-		extraCSS: 'email/media-email.css',
+		extraCSS: 'email/quick-picks.css', // Use this for media queries as it won't be inlined
 		helpers: {},
 		route: {
 			path: '/quick-pick',
 			data: ({ query }) => ({
 				firstName: query.firstName,
 				hours: query.hours,
+				team1Color1: query.team1Color1,
+				team1Color2: query.team1Color2,
+				team2Color1: query.team2Color1,
+				team2Color2: query.team2Color2,
 				teamName1: query.teamName1,
 				teamName2: query.teamName2,
 				teamShort1: query.teamShort1,
@@ -112,7 +110,6 @@ export default {
 
 	quickPickConfirm: {
 		path: 'email/templates/quick-pick-confirm.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/quick-pick-confirm',
@@ -125,7 +122,6 @@ export default {
 
 	reminder: {
 		path: 'email/templates/reminder.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/reminder',
@@ -139,7 +135,6 @@ export default {
 
 	resetPassword: {
 		path: 'email/templates/reset-password.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/reset-password',
@@ -152,7 +147,6 @@ export default {
 
 	verifyEmail: {
 		path: 'email/templates/verify-email.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/verify',
@@ -165,7 +159,6 @@ export default {
 
 	weeklyEmail: {
 		path: 'email/templates/pool-email.html',
-		extraCSS: 'email/media-email.css',
 		helpers: {},
 		route: {
 			path: '/pool-email',

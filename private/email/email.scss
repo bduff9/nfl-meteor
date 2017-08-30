@@ -1,19 +1,31 @@
 @import '../../node_modules/bootstrap/scss/bootstrap.scss';
 
-$text-color: white;
-$background-color: black;
-
 html,
 body {
   height: 100%;
   width: 100%;
 }
 
-#email-content {
+.email-content {
+  height: 100%;
   box-sizing: inherit;
-  //height: 100%;
-  background-color: $background-color;
-  padding: 5em 17em;
+}
+
+.email-inner-content {
+  position: relative;
+  background-color: #F5F5F7;
+  box-sizing: border-box;
+  text-align: left;
+  height: 100%;
+}
+
+.ball-logo-parent {
+  position: relative;
+}
+
+.ball-logo {
+  position: absolute;
+  left: 33%;
 }
 
 h1,
@@ -21,8 +33,7 @@ p,
 ul,
 li {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: $text-color;
-  mix-blend-mode: difference;
+  color: black;
 }
 
 p {
@@ -41,4 +52,12 @@ h1 {
   display: none;
   max-height: 0;
   overflow: hidden;
+}
+
+.quick-pick-buttons {
+  text-align: center;
+}
+
+.tag-at {
+  font-size: 18px;
 }

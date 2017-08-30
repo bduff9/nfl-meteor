@@ -1,13 +1,9 @@
-Misc.
-	- Move more static values to constants
-To Deploy
-	- Upgrade Twilio account to paid before season starts
-	- Ensure all http URLs are changed to https (emails, css, constants, etc.?)
-		- Add baseURL to settings.json
+For BD
 	- Remove "new" badges from nav after week 3
 For BA
 	- TODO: New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help (ongoing)
 	- TODO: Add twilio creds to all settings.json files if you have not already.  If you have, delete this
 	- TODO: Ensure all emails look nice on PC and mobile, then delete this
+	- TODO: Add baseURL to settings.json
 Bugs
-	- None currently
+	- None

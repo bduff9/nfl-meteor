@@ -1,4 +1,4 @@
-@import '../../node_modules/bootstrap/scss/bootstrap.scss';
+@import "./bootstrap/scss/bootstrap.scss";
 
 html,
 body {
@@ -16,7 +16,6 @@ body {
   background-color: #F5F5F7;
   box-sizing: border-box;
   text-align: left;
-  //height: 100%;
 }
 
 .ball-logo-parent {

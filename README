@@ -1,0 +1,11 @@
+NFL Confidence Pool
+Created by Brian Duffey
+
+Deploying
+- mup setup
+- mup deploy --settings=prod-settings.json
+- mup logs --tail=100
+
+Emails
+- Lookback's emails
+- Current issue with emails (node-sass?) finding bootstrap.scss in node_modules, so entire bootstrap folder copied to private/emails

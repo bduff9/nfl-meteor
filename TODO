@@ -5,5 +5,6 @@ For BA
 	- TODO: Add twilio creds to all settings.json files if you have not already.  If you have, delete this
 	- TODO: Ensure all emails look nice on PC and mobile, then delete this
 	- TODO: Add baseURL to settings.json
+	- TODO: SVGs do not work in emails (i.e. Gmail), please find replacement png for football
 Bugs
 	- None

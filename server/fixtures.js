@@ -56,28 +56,3 @@ if (!gamesExistSync()) {
 	initScheduleSync();
 	console.log('Populating schedule completed!');
 }
-
-//TODO: remove this, one run only to resolve MIA-TB game move due to hurricane
-console.log('Starting hurricane fixer...');
-
-import { Pick } from '../imports/api/collections/picks';
-
-const badPicks = Pick.find({ week: 1, points: 16 }).fetch();
-
-badPicks.forEach(user => {
-	const { user_id }= user,
-			picks = Pick.find({ week: 1, user_id }, { sort: { points: -1 }}).fetch();
-	let currVal = 16;
-	picks.forEach(pick => {
-		if (!currVal) return;
-		if (pick.points !== currVal) {
-			currVal = false;
-			return;
-		}
-		currVal--;
-		pick.points = currVal;
-		pick.save();
-	});
-});
-
-console.log('Finished hurricane fixer!');

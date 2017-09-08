@@ -56,7 +56,8 @@ Meteor.publish('basicUsersInfo', function () {
 			'last_name': 1,
 			'team_name': 1,
 			'done_registering': 1,
-			'years_played': 1
+			'years_played': 1,
+			'survivor': 1
 		}
 	});
 	if (allUsers) return allUsers;

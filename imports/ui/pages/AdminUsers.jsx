@@ -122,7 +122,8 @@ class AdminUsers extends Component {
 
 	render () {
 		const { pageReady, users } = this.props,
-				{ emailBody, emailModal, emailSubject, show } = this.state;
+				{ emailBody, emailModal, emailSubject, show } = this.state,
+				shown = users && users.filter(user => (show === 'Registered' && user.done_registering) || (show === 'Rookies' && user.years_played.length === 1 && user.done_registering) || (show === 'Veterans' && user.years_played.length > 1 && user.done_registering) || (show === 'Incomplete' && !user.trusted) || (show === 'Inactive' && user.trusted && !user.done_registering) || show === 'All');
 		return (
 			<div className="row admin-wrapper">
 				<Helmet title="User Admin" />
@@ -136,6 +137,8 @@ class AdminUsers extends Component {
 						&nbsp; &nbsp;Filter:&nbsp;
 						<div className="btn-group" role="group" aria-label="Filter Users">
 							<button type="button" className="btn btn-info" disabled={show === 'Registered'} onClick={() => this.setState({ show: 'Registered' })}>Registered</button>
+							<button type="button" className="btn btn-info" disabled={show === 'Incomplete'} onClick={() => this.setState({ show: 'Incomplete' })}>Incomplete</button>
+							<button type="button" className="btn btn-info" disabled={show === 'Inactive'} onClick={() => this.setState({ show: 'Inactive' })}>Inactive</button>
 							<button type="button" className="btn btn-info" disabled={show === 'Rookies'} onClick={() => this.setState({ show: 'Rookies' })}>Rookies</button>
 							<button type="button" className="btn btn-info" disabled={show === 'Veterans'} onClick={() => this.setState({ show: 'Veterans' })}>Veterans</button>
 							<button type="button" className="btn btn-info" disabled={show === 'All'} onClick={() => this.setState({ show: 'All' })}>All</button>
@@ -165,7 +168,7 @@ class AdminUsers extends Component {
 						<table className="table table-hover table-bordered admin-users-table">
 							<thead>
 								<tr>
-									<th colSpan={5}>{`${users.length} Users`}</th>
+									<th colSpan={5}>{`${shown.length} Users`}</th>
 									<th>Name</th>
 									<th>Email</th>
 									<th>Team Name</th>
@@ -180,7 +183,7 @@ class AdminUsers extends Component {
 								</tr>
 							</thead>
 							<tbody>
-								{users.filter(user => (show === 'Registered' && user.done_registering) || (show === 'Rookies' && user.years_played.length === 0) || (show === 'Veterans' && user.years_played.length > 0) || show === 'All').map(user => (
+								{shown.map(user => (
 									<tr key={'user' + user._id}>
 										<td><i className={`fa fa-fw fa-money ${user.paid === 0 ? 'mark-paid' : (user.paid === user.owe ? 'mark-unpaid' : 'text-warning')}`} title={`${user.first_name} ${user.last_name} has paid $${user.paid} / $${user.owe}`} onClick={this._togglePaid.bind(null, user)} /></td>
 										<td><i className={`fa fa-fw fa-flag ${user.survivor ? 'survivor' : 'no-survivor'}`} title={`Toggle ${user.first_name} ${user.last_name} survivor game`} onClick={this._toggleSurvivor.bind(null, user)} /></td>

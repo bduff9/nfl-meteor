@@ -76,7 +76,7 @@ export const getSurvivorUsers = new ValidatedMethod({
 		league: { type: String, label: 'League' }
 	}).validator(),
 	run ({ league }) {
-		const users = User.find({ leagues: league }, { sort: { first_name: 1 }}).fetch();
+		const users = User.find({ leagues: league, survivor: true }, { sort: { first_name: 1 }}).fetch();
 		if (!this.userId) throw new Meteor.Error('You are not signed in');
 		return users;
 	}

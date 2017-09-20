@@ -54,7 +54,7 @@ class EditProfileForm extends Component {
 	}
 
 	render () {
-		const { errors, hasFacebook, hasGoogle, isCreate, isSubmitting, touched, user, values, handleBlur, handleChange, handleSubmit, linkFacebook, linkGoogle } = this.props,
+		const { errors, hasFacebook, hasGoogle, isCreate, isSubmitting, nextGame1, touched, user, values, handleBlur, handleChange, handleSubmit, linkFacebook, linkGoogle } = this.props,
 				{ showAccountInput, showQuickPick, showReminder } = this.state;
 		return (
 			<form onSubmit={handleSubmit}>
@@ -94,7 +94,7 @@ class EditProfileForm extends Component {
 						<label htmlFor="survivor" className="col-xs-12 col-md-2 col-form-label">Play Survivor Pool?</label>
 						<div className="col-xs-12 col-md-10">
 							<label className="form-check-label col-form-label">
-								<input type="checkbox" className="form-check-input" name="survivor" value="true" checked={values.survivor} onChange={handleChange} />
+								<input type="checkbox" className="form-check-input" name="survivor" title={nextGame1.week === 1 ? 'Check this if you would like to also participate in the survivor pool (optional)' : 'You cannot sign up for the survivor pool after week 1 has started'} value="true" checked={values.survivor} disabled={nextGame1.week > 1} onChange={handleChange} />
 								&nbsp;Yes
 							</label>
 							{errors.survivor && touched.survivor && <div className="form-control-feedback">{errors.survivor}</div>}
@@ -279,6 +279,7 @@ EditProfileForm.propTypes = {
 	hasGoogle: PropTypes.bool.isRequired,
 	isCreate: PropTypes.bool.isRequired,
 	isSubmitting: PropTypes.bool.isRequired,
+	nextGame1: PropTypes.object.isRequired,
 	router: PropTypes.object.isRequired,
 	touched: PropTypes.object.isRequired,
 	user: PropTypes.object.isRequired,

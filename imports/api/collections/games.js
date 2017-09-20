@@ -140,7 +140,7 @@ export const getNextGame1 = new ValidatedMethod({
 	name: 'Games.getNextGame1',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		const nextGame1 = Game.find({ game: 1, status: 'P' }, { sort: { kickoff: 1 } }).fetch()[0];
+		const nextGame1 = Game.find({ game: 1, status: 'P' }, { sort: { kickoff: 1 }}).fetch()[0];
 		if (!nextGame1) return { week: WEEKS_IN_SEASON, game: MAX_GAMES_IN_WEEK, notFound: true };
 		return nextGame1;
 	}

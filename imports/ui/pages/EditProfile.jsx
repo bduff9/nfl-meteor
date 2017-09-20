@@ -9,6 +9,7 @@ import Helmet from 'react-helmet';
 import { handleError } from '../../api/global';
 import EditProfileForm from '../components/EditProfileForm';
 import { Loading } from './Loading.jsx';
+import { getNextGame1 } from '../../api/collections/games';
 
 class EditProfile extends Component {
 	constructor (props) {
@@ -45,7 +46,7 @@ class EditProfile extends Component {
 
 	render () {
 		const { hasFacebook, hasGoogle, isCreate, user } = this.state,
-				{ pageReady } = this.props,
+				{ nextGame1, pageReady } = this.props,
 				{ router } = this.context;
 		return (
 			<div className="container-fluid edit-profile-wrapper">
@@ -59,7 +60,7 @@ class EditProfile extends Component {
 								</div>
 							</div>
 							<div className="edit-profile">
-								<EditProfileForm hasFacebook={hasFacebook} hasGoogle={hasGoogle} isCreate={isCreate} router={router} user={user} linkFacebook={this._oauthLink.bind(null, 'loginWithFacebook')} linkGoogle={this._oauthLink.bind(null, 'loginWithGoogle')} />
+								<EditProfileForm hasFacebook={hasFacebook} hasGoogle={hasGoogle} isCreate={isCreate} nextGame1={nextGame1} router={router} user={user} linkFacebook={this._oauthLink.bind(null, 'loginWithFacebook')} linkGoogle={this._oauthLink.bind(null, 'loginWithGoogle')} />
 							</div>
 						</div>
 					)
@@ -74,6 +75,7 @@ class EditProfile extends Component {
 
 EditProfile.propTypes = {
 	location: PropTypes.object.isRequired,
+	nextGame1: PropTypes.object.isRequired,
 	pageReady: PropTypes.bool.isRequired
 };
 
@@ -83,9 +85,14 @@ EditProfile.contextTypes = {
 
 export default createContainer(({ location }) => {
 	const usersHandle = Meteor.subscribe('usersForRegistration'),
-			usersReady = usersHandle.ready();
+			usersReady = usersHandle.ready(),
+			game1Handle = Meteor.subscribe('nextGame1'),
+			game1Ready = game1Handle.ready();
+	let nextGame1 = {};
+	if (game1Ready) nextGame1 = getNextGame1.call({});
 	return {
 		location,
-		pageReady: usersReady
+		nextGame1,
+		pageReady: game1Ready && usersReady
 	};
 }, EditProfile);

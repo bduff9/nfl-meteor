@@ -28,7 +28,8 @@ export default createContainer(({ week, weekForSec }) => {
 			const userSurvivor = survivor.filter(s => s.user_id === user._id),
 					thisWeek = userSurvivor.filter(s => s.week === week)[0];
 			let teamShort, index;
-			if (!thisWeek || !thisWeek.pick_id || (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id)) {
+			if (!thisWeek) return;
+			if (!thisWeek.pick_id || (thisWeek.winner_id && thisWeek.pick_id !== thisWeek.winner_id)) {
 				dead.push(user);
 			} else {
 				alive.push(user);

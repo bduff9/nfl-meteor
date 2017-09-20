@@ -191,8 +191,20 @@ export const resetPicks = new ValidatedMethod({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validator(),
 	run ({ league, selectedWeek }) {
-		if (!this.userId) throw new Meteor.Error('Picks.resetPicks.notLoggedIn', 'Must be logged in to reset picks');
-		if (Meteor.isServer) Pick.update({ league, user_id: this.userId, week: selectedWeek }, { $set: { pick_id: undefined, pick_short: undefined, points: undefined }}, { multi: true });
+		const user_id = this.userId;
+		let picks;
+		if (!user_id) throw new Meteor.Error('Not Logged In', 'Must be logged in to reset picks');
+		if (Meteor.isServer) {
+			picks = Pick.find({ league, user_id, week: selectedWeek }).fetch();
+			picks.forEach(pick => {
+				if (!pick.hasStarted()) {
+					pick.pick_id = undefined;
+					pick.pick_short = undefined;
+					pick.points = undefined;
+					pick.save();
+				}
+			});
+		}
 	}
 });
 export const resetPicksSync = Meteor.wrapAsync(resetPicks.call, resetPicks);

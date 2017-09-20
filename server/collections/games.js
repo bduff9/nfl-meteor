@@ -5,10 +5,11 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { Game } from '../../imports/api/collections/games';
-import { addPick, removeAllPicksForUser } from './picks';
+import { Game, currentWeek } from '../../imports/api/collections/games';
+import { addPick, getPick, removeAllPicksForUser } from './picks';
 import { addSurvivorPick, removeAllSurvivorPicksForUser } from './survivorpicks';
-import { addTiebreaker, removeAllTiebreakersForUser } from './tiebreakers';
+import { addTiebreaker, getTiebreakerFromServer, removeAllTiebreakersForUser } from './tiebreakers';
+import { getLowestScore } from './users';
 
 /**
  * All server side game logic
@@ -30,7 +31,10 @@ export const getEmptyUserPicks = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' }
 	}).validator(),
 	run ({ leagues, user_id }) {
+		const currWeek = currentWeek.call({});
 		leagues.forEach(league => {
+			let lowestScoreUser = null;
+			if (currWeek > 1) lowestScoreUser = getLowestScore.call({ current_user_ids: [user_id], league, week: currWeek });
 			const picks = Game.find({}, { sort: { week: 1, game: 1 }}).map(game => {
 				return {
 					user_id,
@@ -42,7 +46,35 @@ export const getEmptyUserPicks = new ValidatedMethod({
 			});
 			removeAllPicksForUser.call({ league, user_id });
 			picks.forEach(pick => {
-				addPick.call({ pick });
+				let pickToAdd = pick,
+						lowScorePick = null;
+				if (lowestScoreUser && pick.week < currWeek) {
+					lowScorePick = getPick.call({ game_id: pick.game_id, league, user_id: lowestScoreUser._id });
+					const { pick_id, pick_short, points, winner_id, winner_short } = lowScorePick;
+					pickToAdd = Object.assign({}, pick, {
+						pick_id,
+						pick_short,
+						points,
+						winner_id,
+						winner_short
+					});
+					if (pick.game === 1) {
+						const lowestTB = getTiebreakerFromServer.call({ league, user_id: lowestScoreUser._id, week: pick.week }),
+								userTB = getTiebreakerFromServer.call({ league, user_id, week: pick.week }),
+								{ last_score, last_score_act, points_earned, games_correct, place_in_week } = lowestTB;
+						lowestTB.tied_flag = true;
+						lowestTB.save();
+						userTB.last_score = last_score;
+						userTB.last_score_act = last_score_act;
+						userTB.points_earned = points_earned;
+						userTB.games_correct = games_correct;
+						userTB.place_in_week = place_in_week;
+						userTB.tied_flag = true;
+						userTB.submitted = true;
+						userTB.save();
+					}
+				}
+				addPick.call({ pick: pickToAdd });
 			});
 		});
 	}

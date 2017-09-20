@@ -23,8 +23,26 @@ Meteor.publish('nextGame', function () {
 	return this.ready();
 });
 
+Meteor.publish('nextGame1', function () {
+	const nextGame1 = Game.find({ game: 1, status: 'P' }, {
+		fields: {
+			'_id': 1,
+			'week': 1,
+			'game': 1,
+			'status': 1,
+			'kickoff': 1
+		},
+		sort: {
+			kickoff: 1
+		},
+		limit: 1
+	});
+	if (nextGame1) return nextGame1;
+	return this.ready();
+});
+
 Meteor.publish('nextGameToStart', function () {
-	const nextGame = Game.find({ status: 'P', game: { $ne: 0 }}, {
+	const nextGame = Game.find({ status: 'P' }, {
 		fields: {
 			'_id': 1,
 			'week': 1,
@@ -47,7 +65,7 @@ Meteor.publish('gamesForWeek', function (week) {
 	new SimpleSchema({
 		week: { type: Number, label: 'Week', min: 1, max: 17 }
 	}).validate({ week });
-	gamesForWeek = Game.find({ week, game: { $ne: 0 }}, {
+	gamesForWeek = Game.find({ week }, {
 		fields: {
 			'_id': 1,
 			'week': 1,

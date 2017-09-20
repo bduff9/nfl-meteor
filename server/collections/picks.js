@@ -77,6 +77,20 @@ export const doQuickPick = new ValidatedMethod({
 });
 export const doQuickPickSync = Meteor.wrapAsync(doQuickPick.call, doQuickPick);
 
+export const getPick = new ValidatedMethod({
+	name: 'Picks.getPick',
+	validate: new SimpleSchema({
+		game_id: { type: String, label: 'Game ID' },
+		league: { type: String, label: 'League' },
+		user_id: { type: String, label: 'User ID' }
+	}).validator(),
+	run ({ game_id, league, user_id }) {
+		const pick = Pick.findOne({ game_id, league, user_id });
+		return pick;
+	}
+});
+export const getPickSync = Meteor.wrapAsync(getPick.call, getPick);
+
 export const removeAllPicksForUser = new ValidatedMethod({
 	name: 'Picks.removeAllPicksForUser',
 	validate: new SimpleSchema({

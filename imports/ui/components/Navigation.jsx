@@ -56,11 +56,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						</li>
 						<li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
 						<li>
-							<Link to="/users/payments" activeClassName="active">
-								View Payments
-								{/* TODO: Remove after 2017 week 3 */}
-								<span className="tag tag-pill tag-info">New</span>
-							</Link>
+							<Link to="/users/payments" activeClassName="active">View Payments</Link>
 						</li>
 						<li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
 					</ul>
@@ -87,11 +83,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 					<ul className="nav nav-sidebar">
 						<li><IndexLink to="/" activeClassName="active">Dashboard</IndexLink></li>
 						<li>
-							<Link to="/stats" activeClassName="active">
-								Statistics
-								{/* TODO: Remove after 2017 week 3 */}
-								<span className="tag tag-pill tag-info">New</span>
-							</Link>
+							<Link to="/stats" activeClassName="active">Statistics</Link>
 						</li>
 						<li><Link to="/picks/view" activeClassName="active">View My Picks</Link></li>
 						{tiebreaker ?

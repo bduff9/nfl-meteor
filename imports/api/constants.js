@@ -28,11 +28,12 @@ export const SURVIVOR_COST = 5;
 
 /**
  * Prize levels
+ * Updated: 2017-10-03
  */
-export const WEEKLY_PRIZES = [0, 15, 7];
-export const OVERALL_PRIZES = [0, 200, 150, 100];
+export const WEEKLY_PRIZES = [0, 25, 15];
+export const OVERALL_PRIZES = [0, 250, 150, 100];
 export const LAST_PLACE_PRIZE = POOL_COST;
-export const SURVIVOR_PRIZES = [0, 50, 25];
+export const SURVIVOR_PRIZES = [0, 100, 45];
 
 /**
  * How many to insert into the pool history

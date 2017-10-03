@@ -1,6 +1,7 @@
 'use strict';
 
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { moment } from 'meteor/momentjs:moment';
 
 export default class Countdown extends Component {

@@ -9,6 +9,7 @@ import { SyncedCron } from 'meteor/percolate:synced-cron';
 
 import { EMAIL_SUBJECT_PREFIX, MAX_SMS_LENGTH } from '../imports/api/constants';
 import { handleError } from '../imports/api/global';
+import { updateGames } from './api-calls';
 import { sendSMS } from './twilio';
 import { sendEmail } from './emails/email';
 import { getNextGame1, getUnstartedGamesForWeek } from '../imports/api/collections/games';
@@ -34,7 +35,7 @@ SyncedCron.config({
 SyncedCron.add({
 	name: 'Update spread and ranks outside of games',
 	schedule: parse => parse.recur().on(5, 17).hour(),
-	job: () => API.updateGames()
+	job: () => updateGames()
 });
 
 SyncedCron.add({

@@ -1,6 +1,7 @@
 'use strict';
 
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
 import { Formik } from 'formik';

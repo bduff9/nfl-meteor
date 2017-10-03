@@ -5,6 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
+import { populateGames, refreshGameData } from '../api-calls';
 import { Game, currentWeek } from '../../imports/api/collections/games';
 import { addPick, getPick, removeAllPicksForUser } from './picks';
 import { addSurvivorPick, removeAllSurvivorPicksForUser } from './survivorpicks';
@@ -131,7 +132,7 @@ export const initSchedule = new ValidatedMethod({
 	name: 'Games.insert',
 	validate: new SimpleSchema({}).validator(),
 	run () {
-		API.populateGames();
+		populateGames();
 	}
 });
 export const initScheduleSync = Meteor.wrapAsync(initSchedule.call, initSchedule);
@@ -142,7 +143,7 @@ export const refreshGames = new ValidatedMethod({
 	run () {
 		const gamesInProgress = Game.find({ game: { $ne: 0 }, status: { $ne: 'C' }, kickoff: { $lte: new Date() }}).count();
 		if (gamesInProgress === 0) throw new Meteor.Error('No games found', 'There are no games currently in progress');
-		return API.refreshGameData();
+		return refreshGameData();
 	}
 });
 export const refreshGamesSync = Meteor.wrapAsync(refreshGames.call, refreshGames);

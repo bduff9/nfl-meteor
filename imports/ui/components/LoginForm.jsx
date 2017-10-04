@@ -5,7 +5,7 @@ import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
-import { Formik } from 'formik';
+import { withFormik } from 'formik';
 import Yup, { addMethod, string, ref } from 'yup';
 
 import { handleError } from '../../api/global';
@@ -73,7 +73,7 @@ addMethod(string, 'sameAs', function (ref, message) {
 	});
 });
 
-export default Formik({
+export default withFormik({
 
 	mapPropsToValues: props => ({
 		email: '',

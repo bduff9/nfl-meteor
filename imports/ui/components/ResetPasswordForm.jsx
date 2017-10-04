@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Formik } from 'formik';
+import { withFormik } from 'formik';
 import Yup, { addMethod, string, ref } from 'yup';
 
 import { handleError, getInputColor } from '../../api/global';
@@ -71,7 +71,7 @@ addMethod(string, 'sameAs', function (ref, message) {
 	});
 });
 
-export default Formik({
+export default withFormik({
 
 	mapPropsToValues: props => ({
 		password: '',

@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import Helmet from 'react-helmet';
 
 import { writeLog } from '../../api/collections/nfllogs';
@@ -16,7 +16,7 @@ export const _get404Image = () => {
 	return img;
 };
 
-export const NotFound = ({ location }) => {
+const NotFound = ({ location }) => {
 
 	writeLog.call({ userId: Meteor.userId(), action: '404', message: location.pathname }, handleError);
 
@@ -42,7 +42,7 @@ export const NotFound = ({ location }) => {
 				</div>
 				<div className="row">
 					<div className="text-xs-center col-xs-12">
-						<Link to="/">Please click here to get us both out of this situation</Link>
+						<NavLink to="/">Please click here to get us both out of this situation</NavLink>
 					</div>
 				</div>
 			</div>
@@ -53,3 +53,5 @@ export const NotFound = ({ location }) => {
 NotFound.propTypes = {
 	location: PropTypes.object.isRequired
 };
+
+export default NotFound;

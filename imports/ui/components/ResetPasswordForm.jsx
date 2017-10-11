@@ -2,10 +2,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Formik } from 'formik';
+import { withFormik } from 'formik';
 import Yup, { addMethod, string, ref } from 'yup';
 
 import { handleError, getInputColor } from '../../api/global';
@@ -39,7 +39,7 @@ const ResetPasswordForm = ({
 		</div>
 		<div className="row form-group">
 			<label className="col-xs-12 col-md-4 col-form-label">
-				<Link to="/"><i className="fa fa-fw fa-angle-double-left"></i> Back to Login</Link>
+				<NavLink to="/"><i className="fa fa-fw fa-angle-double-left"></i> Back to Login</NavLink>
 			</label>
 			<div className="col-xs-12 col-md-8 text-xs-center">
 				<button type="submit" className="btn btn-block btn-primary" disabled={isSubmitting}>
@@ -72,7 +72,7 @@ addMethod(string, 'sameAs', function (ref, message) {
 	});
 });
 
-export default Formik({
+export default withFormik({
 
 	mapPropsToValues: props => ({
 		password: '',

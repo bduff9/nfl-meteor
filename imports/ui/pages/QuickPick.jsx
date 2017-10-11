@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
@@ -30,8 +30,8 @@ const QuickPick = ({ isError, msg, pageReady }) => {
 						</div>
 						<div className="col-xs-12">
 							<ul>
-								<li><Link to="/">Go Home</Link></li>
-								{isError ? null : <li><Link to="/picks/set">Continue making picks</Link></li>}
+								<li><NavLink to="/">Go Home</NavLink></li>
+								{isError ? null : <li><NavLink to="/picks/set">Continue making picks</NavLink></li>}
 							</ul>
 						</div>
 					</div>
@@ -51,6 +51,15 @@ QuickPick.propTypes = {
 };
 
 export default createContainer(({ params }) => {
+	/*
+	TODO: will need to rework this component with react router 4 since the onEnter prop was taken off Route in Routes.jsx, this is to ensure the quick pick works the first time as well as if you were to come back (like after an error)
+
+	function clearOldQuickPick (nextState, replace) {
+		const { params } = nextState,
+				{ team_short, user_id } = params;
+		Session.set(`quick-pick-${user_id}-${team_short}`, null);
+	}
+	*/
 	const { team_short, user_id } = params,
 			currentUserID = Meteor.userId(),
 			sessionKey = `quick-pick-${user_id}-${team_short}`,

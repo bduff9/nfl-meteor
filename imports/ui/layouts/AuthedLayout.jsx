@@ -1,17 +1,32 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Switch } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
+import { currentWeek } from '../../api/collections/games';
 import { getCurrentUser } from '../../api/collections/users';
+import AdminLogs from '../pages/AdminLogs';
+import AdminOnly from '../../startup/client/AdminOnly';
+import AdminUsers from '../pages/AdminUsers';
+import Authenticated from '../../startup/client/Authenticated';
+import Dashboard from '../pages/Dashboard';
+import EditProfile from '../pages/EditProfile';
+import MakePicks from '../pages/MakePicks';
 import Navigation from '../components/Navigation.jsx';
 import { RightSlider } from '../components/RightSlider.jsx';
-import { currentWeek } from '../../api/collections/games';
+import SetSurvivor from '../pages/SetSurvivor';
+import Statistics from '../pages/Statistics';
+import UnfinishedRegistration from '../../startup/client/UnfinishedRegistration';
+import ViewAllPicks from '../pages/ViewAllPicks';
+import ViewPayments from '../pages/ViewPayments';
+import ViewPicks from '../pages/ViewPicks';
+import ViewSurvivor from '../pages/ViewSurvivor';
 
 class AuthedLayout extends Component {
 	constructor (props) {
@@ -47,7 +62,7 @@ class AuthedLayout extends Component {
 
 	render () {
 		const { openMenu, rightSlider, scoreboardWeek } = this.state,
-				{ children, currentWeek, location, ...rest } = this.props,
+				{ currentWeek, location, ...rest } = this.props,
 				logoutOnly = location.pathname.indexOf('create') > -1;// || location.pathname.indexOf('payment') > -1;
 		return (
 			<div className="col-xs-12 authed-layout-wrapper">
@@ -61,7 +76,22 @@ class AuthedLayout extends Component {
 						rightSlider={rightSlider}
 						_toggleMenu={this._toggleMenu}
 						_toggleRightSlider={this._toggleRightSlider} />
-					<div className="col-xs-12 col-sm-9 offset-sm-3 col-lg-10 offset-lg-2 main">{children}</div>
+					<div className="col-xs-12 col-sm-9 offset-sm-3 col-lg-10 offset-lg-2 main">
+						<Switch>
+							<AdminOnly exact path="/admin/logs" component={AdminLogs} {...this.props} />
+							<AdminOnly exact path="/admin/users" component={AdminUsers} {...this.props} />
+							<Authenticated exact path="/picks/set" component={MakePicks}  {...this.props}/>
+							<Authenticated exact path="/picks/view" component={ViewPicks} {...this.props} />
+							<Authenticated exact path="/picks/viewall" component={ViewAllPicks} {...this.props} />
+							<Authenticated exact path="/stats" component={Statistics} {...this.props} />
+							<Authenticated exact path="/survivor/set" component={SetSurvivor} {...this.props} />
+							<Authenticated exact path="/survivor/view" component={ViewSurvivor} {...this.props} />
+							<UnfinishedRegistration exact path="/users/create" component={EditProfile} {...this.props} />
+							<Authenticated exact path="/users/edit" component={EditProfile} {...this.props} />
+							<Authenticated exact path="/users/payments" component={ViewPayments} {...this.props} />
+							<Authenticated exact path="/" component={Dashboard} />
+						</Switch>
+					</div>
 				</div>
 				<ReactCSSTransitionGroup transitionName="right-slider" transitionEnterTimeout={1000} transitionLeaveTimeout={1000}>
 					{rightSlider ? (
@@ -81,7 +111,6 @@ class AuthedLayout extends Component {
 }
 
 AuthedLayout.propTypes = {
-	children: PropTypes.element.isRequired,
 	currentUser: PropTypes.object.isRequired,
 	currentWeek: PropTypes.number,
 	location: PropTypes.object.isRequired,

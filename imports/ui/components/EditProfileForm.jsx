@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
-import { Formik } from 'formik';
+import { withFormik } from 'formik';
 import Yup from 'yup';
 
 import { ACCOUNT_TYPES, AUTO_PICK_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
@@ -293,7 +293,7 @@ EditProfileForm.propTypes = {
 	linkGoogle: PropTypes.func.isRequired
 };
 
-export default Formik({
+export default withFormik({
 
 	mapPropsToValues: props => {
 		const { ...values } = props.user;

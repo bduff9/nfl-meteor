@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { IndexLink, Link } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
@@ -55,15 +55,15 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						<li>
 							<h5>{`Welcome, ${currentUser.first_name}`}</h5>
 						</li>
-						<li><Link to="/users/edit" activeClassName="active">Edit My Profile</Link></li>
+						<li><NavLink to="/users/edit" exact activeClassName="active">Edit My Profile</NavLink></li>
 						<li>
-							<Link to="/users/payments" activeClassName="active">
+							<NavLink to="/users/payments" exact activeClassName="active">
 								View Payments
 								{/* TODO: Remove after 2017 week 3 */}
 								<span className="tag tag-pill tag-info">New</span>
-							</Link>
+							</NavLink>
 						</li>
-						<li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
+						<li><NavLink to={{ pathname: '/logout', state: { isLogout: true } }} exact activeClassName="active">Signout</NavLink></li>
 					</ul>
 					{selectedWeek ? (
 						<ul className="nav nav-sidebar">
@@ -86,27 +86,27 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						null
 					}
 					<ul className="nav nav-sidebar">
-						<li><IndexLink to="/" activeClassName="active">Dashboard</IndexLink></li>
+						<li><NavLink to="/" exact activeClassName="active">Dashboard</NavLink></li>
 						<li>
-							<Link to="/stats" activeClassName="active">
+							<NavLink to="/stats" exact activeClassName="active">
 								Statistics
 								{/* TODO: Remove after 2017 week 3 */}
 								<span className="tag tag-pill tag-info">New</span>
-							</Link>
+							</NavLink>
 						</li>
-						<li><Link to="/picks/view" activeClassName="active">View My Picks</Link></li>
+						<li><NavLink to="/picks/view" exact activeClassName="active">View My Picks</NavLink></li>
 						{tiebreaker ?
 							(selectedWeek >= currentWeek && !tiebreaker.submitted ?
-								<li><Link to="/picks/set" activeClassName="active">Make Picks</Link></li>
+								<li><NavLink to="/picks/set" exact activeClassName="active">Make Picks</NavLink></li>
 								:
-								<li><Link to="/picks/viewall" activeClassName="active">View All Picks</Link></li>
+								<li><NavLink to="/picks/viewall" exact activeClassName="active">View All Picks</NavLink></li>
 							)
 							:
 							null
 						}
 						{currentUser.survivor ? [
-							(survivorPicks.length === 17 ? <li key="make-survivor-picks"><Link to="/survivor/set" activeClassName="active">Make Survivor Picks</Link></li> : null),
-							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null)
+							(survivorPicks.length === 17 ? <li key="make-survivor-picks"><NavLink to="/survivor/set" exact activeClassName="active">Make Survivor Picks</NavLink></li> : null),
+							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><NavLink to="/survivor/view" exact activeClassName="active">View Survivor Picks</NavLink></li> : null)
 						]
 							:
 							<li><a href="javascript:void(0)" className="disabled-link">No Survivor Pool</a></li>
@@ -134,8 +134,8 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 					</ul>
 					{currentUser.is_admin ? (
 						<ul className="nav nav-sidebar">
-							<li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
-							<li><Link to="/admin/logs" activeClassName="active">View Logs</Link></li>
+							<li><NavLink to="/admin/users" exact activeClassName="active">Manage Users</NavLink></li>
+							<li><NavLink to="/admin/logs" exact activeClassName="active">View Logs</NavLink></li>
 							<li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
 							{getCurrentSeasonYear() > systemVals.year_updated ? <li><a href="#" onClick={_initPool}>Init Pool for {getCurrentSeasonYear()} Season</a></li> : null}
 						</ul>
@@ -149,7 +149,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 				(
 					<div className="sidebar-inner">
 						<ul className="nav nav-sidebar">
-							<li><Link to={{ pathname: '/logout', state: { isLogout: true } }} activeClassName="active">Signout</Link></li>
+							<li><NavLink to={{ pathname: '/logout', state: { isLogout: true } }} exact activeClassName="active">Signout</NavLink></li>
 						</ul>
 					</div>
 				)}

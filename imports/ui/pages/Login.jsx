@@ -77,49 +77,44 @@ export default class Login extends Component {
 				systemVals = getSystemValues.call({}),
 				currYear = systemVals.year_updated;
 		return (
-			<div className="row login-stretch">
+			<div className="col login-stretch">
 				<Helmet title="Login" />
-				<div className="signin-form col-xs-12 col-sm-10 col-md-6 col-lg-4">
-					<div className="row ball-logo-parent">
-						<div className="ball-logo">
-							<Isvg src="/svg/football.svg" />
-						</div>
-					</div>
-					<div className="row">
-						<div className="login-title text-xs-center">
-							<h2>{`${currYear} NFL Confidence Pool`}</h2>
-							<h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
-						</div>
-					</div>
-					<div className="login-form">
-						<LoginForm loading={loading} type={type} forgotPassword={this._forgotPassword} setLoading={this._setLoading} />
-					</div>
-					<div className="reg-btns">
-						<br />
-						<div className="row">
-							<div className="col-xs-12 bottom-text text-xs-center">Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
+				<div className="row">
+					<div className="signin-form col-12 col-sm-10 col-md-6 col-lg-4">
+						<div className="row ball-logo-parent">
+							<div className="col ball-logo">
+								<Isvg src="/svg/football.svg" />
+							</div>
 						</div>
 						<div className="row">
-							<div className="col-xs-12 col-md-6">
-								<button type="button" className="btn text-xs-center btn-block btn-social btn-facebook" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
+							<div className="col login-title text-center">
+								<h2>{`${currYear} NFL Confidence Pool`}</h2>
+								<h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
+							</div>
+						</div>
+						<div className="row login-form">
+							<div className="col">
+								<LoginForm loading={loading} type={type} forgotPassword={this._forgotPassword} setLoading={this._setLoading} />
+							</div>
+						</div>
+						<div className="row reg-btns">
+							<div className="col-12 bottom-text text-center">Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
+							<div className="col-12 col-md-6">
+								<button type="button" className="btn text-center btn-block btn-social btn-facebook" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
 									<i className="fa fa-facebook"></i>
 									{loading === 'facebook' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
 								</button>
 							</div>
-							<div className="col-xs-12 col-md-6">
-								<button type="button" className="btn text-xs-center btn-block btn-social btn-google" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
+							<div className="col-12 col-md-6">
+								<button type="button" className="btn text-center btn-block btn-social btn-google" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithGoogle')}>
 									<i className="fa fa-google"></i>
 									{loading === 'google' ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
 								</button>
 							</div>
 						</div>
-					</div>
-					<div className="bottom-wrapper">
-						<div className="row">
-							<div className="col-xs-12 bottom-text text-xs-center">{type === 'login' ? 'Haven\'t Registered Yet?' : 'Already Registered?'}</div>
-						</div>
-						<div className="row">
-							<div className="col-xs-12">
+						<div className="row bottom-wrapper">
+							<div className="col-12 bottom-text text-center">{type === 'login' ? 'Haven\'t Registered Yet?' : 'Already Registered?'}</div>
+							<div className="col-12">
 								<button type="button" className="btn btn-block btn-default reg-switch-button" onClick={this._toggleType}>{type === 'login' ? 'Register Here' : 'Back To Login'}</button>
 							</div>
 						</div>

@@ -129,8 +129,8 @@ class AdminUsers extends Component {
 			<div className="row admin-wrapper">
 				<Helmet title="User Admin" />
 				{pageReady ? (
-					<div className="col-xs-12">
-						<h3 className="title-text text-xs-center text-md-left hidden-md-up">User Admin</h3>
+					<div className="col-12">
+						<h3 className="title-text text-center text-md-left hidden-md-up">User Admin</h3>
 						<button type="button" className="btn btn-primary" onClick={this._toggleEmail}>
 							<i className="fa fa-fw fa-envelope"></i>
 							Send Email to All
@@ -146,16 +146,16 @@ class AdminUsers extends Component {
 							<button type="button" className="btn btn-info" disabled={show === 'All'} onClick={() => this.setState({ show: 'All' })}>All</button>
 						</div>
 						{emailModal ? (
-							<div className="col-xs-12 email-all">
+							<div className="col-12 email-all">
 								<div className="row form-group">
-									<label htmlFor="emailSubject" className="col-xs-12 col-md-2 col-form-label">Subject</label>
-									<div className="col-xs-12 col-md-10">
+									<label htmlFor="emailSubject" className="col-12 col-md-2 col-form-label">Subject</label>
+									<div className="col-12 col-md-10">
 										<input type="text" className="form-control" id="emailSubject" name="emailSubject" value={emailSubject} onChange={this._updateEmailSubject} />
 									</div>
 								</div>
 								<div className="row form-group">
-									<label htmlFor="emailBody" className="col-xs-12 col-md-2 col-form-label">Message</label>
-									<div className="col-xs-12 col-md-10">
+									<label htmlFor="emailBody" className="col-12 col-md-2 col-form-label">Message</label>
+									<div className="col-12 col-md-10">
 										<textarea className="form-control" id="emailBody" name="emailBody" value={emailBody} onChange={this._updateEmailBody} />
 									</div>
 								</div>

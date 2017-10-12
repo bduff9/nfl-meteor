@@ -12,6 +12,10 @@ label.error {
   color: #C9302C;
 }
 
+.swal-overlay {
+  overflow-y: hidden;
+}
+
 @media (min-width: 675px) {
   body {
     background-image: url('/bkgd-pitch.png');
@@ -98,11 +102,11 @@ label.error {
 @media print {
   .container-fluid {
 
-    div.col-xs-10.hidden-xs-down.col-sm-3.col-lg-2.sidebar {
+    div.col-10.hidden-xs-down.col-sm-3.col-lg-2.sidebar {
       display: none;
     }
 
-    div.col-xs-12.col-sm-9.offset-sm-3.col-lg-10.offset-lg-2.main {
+    div.col-12.col-sm-9.offset-sm-3.col-lg-10.offset-lg-2.main {
       width: 100%;
       margin-left: 0;
 

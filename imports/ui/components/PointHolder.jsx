@@ -53,8 +53,8 @@ class PointHolder extends Component {
 		const { className, disabledPoints, gameId, numGames, points, teamId, teamShort, thisRef } = this.props;
 		return (
 			<ul className={className} data-game-id={gameId} data-team-id={teamId} data-team-short={teamShort} ref={ul => { this[thisRef] = ul; }}>
-				{points.map(point => <li className="points col-xs-12 text-xs-center" style={getColor(point, numGames)} key={'point' + point}>{point}</li>)}
-				{disabledPoints.map(point => <li className="points col-xs-12 text-xs-center disabled" style={getColor(point, numGames)} key={'point' + point}>{point}</li>)}
+				{points.map(point => <li className="points col-12 text-center" style={getColor(point, numGames)} key={'point' + point}>{point}</li>)}
+				{disabledPoints.map(point => <li className="points col-12 text-center disabled" style={getColor(point, numGames)} key={'point' + point}>{point}</li>)}
 			</ul>
 		);
 	}

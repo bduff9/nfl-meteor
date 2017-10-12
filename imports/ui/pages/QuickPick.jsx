@@ -16,19 +16,19 @@ const QuickPick = ({ isError, msg, pageReady }) => {
 	return (
 		<div className="row quick-pick">
 			{pageReady ? (
-				<div className="white-box col-xs-11 col-sm-10 col-md-6">
+				<div className="white-box col-11 col-sm-10 col-md-6">
 					<Helmet title={pageTitle} />
 					<div className="row">
-						<div className="col-xs-12">
-							<h3 className="title-text text-xs-center">{pageTitle}</h3>
+						<div className="col-12">
+							<h3 className="title-text text-center">{pageTitle}</h3>
 						</div>
 					</div>
 					<div className="row">
-						<div className="col-xs-12 quick-pick-message">
+						<div className="col-12 quick-pick-message">
 							{isError ? <i className="fa fa-fw fa-2x fa-exclamation-triangle text-danger"></i> : <i className="fa fa-fw fa-2x fa-thumbs-up text-success"></i>}
 							{msg}
 						</div>
-						<div className="col-xs-12">
+						<div className="col-12">
 							<ul>
 								<li><NavLink to="/">Go Home</NavLink></li>
 								{isError ? null : <li><NavLink to="/picks/set">Continue making picks</NavLink></li>}

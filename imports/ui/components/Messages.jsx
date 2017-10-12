@@ -27,7 +27,7 @@ class Messages extends Component {
 				submittedPicks = tiebreaker.submitted;
 		return (
 			<div className="messages">
-				<h3 className="text-xs-center">Private Messages</h3>
+				<h3 className="text-center">Private Messages</h3>
 				<div className="inner-messages">
 					<div className="message-list">
 						{pageReady ? (
@@ -40,7 +40,7 @@ class Messages extends Component {
 						)
 							:
 							(
-								<div className="text-xs-center loading">Loading...
+								<div className="text-center loading">Loading...
 									<br />
 									<i className="fa fa-spinner fa-pulse" />
 								</div>

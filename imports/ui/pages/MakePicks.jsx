@@ -144,8 +144,8 @@ class MakePicks extends Component {
 			<div className="row make-picks-wrapper">
 				<Helmet title={`Set Week ${selectedWeek} Picks`} />
 				{pageReady ? [
-					<div className="col-xs-12" key="picks">
-						<h3 className="title-text text-xs-center text-md-left hidden-md-up">{`Set Week ${selectedWeek} Picks`}</h3>
+					<div className="col-12" key="picks">
+						<h3 className="title-text text-center text-md-left hidden-md-up">{`Set Week ${selectedWeek} Picks`}</h3>
 						<PointHolder
 							className="pointBank"
 							disabledPoints={unavailable}
@@ -159,8 +159,8 @@ class MakePicks extends Component {
 								<tr>
 									<th>
 										<div className="row">
-											<div className="col-xs-6 text-xs-center">Home</div>
-											<div className="col-xs-6 text-xs-center">Away</div>
+											<div className="col-6 text-center">Home</div>
+											<div className="col-6 text-center">Away</div>
 										</div>
 									</th>
 								</tr>
@@ -179,7 +179,7 @@ class MakePicks extends Component {
 										<tr className={(homePicked || visitorPicked ? 'done' : '') + (started ? ' disabled' : '')} title={(started ? 'This game has already begun, no changes allowed' : null)} key={'game' + i}>
 											<td>
 												<div className="row">
-													<div className="col-xs-6 col-md-2 homePoints">
+													<div className="col-6 col-md-2 homePoints">
 														{homePicked || !started ? (
 															<PointHolder
 																className="pull-md-left"
@@ -197,21 +197,21 @@ class MakePicks extends Component {
 															null
 														}
 													</div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-left homeName">
+													<div className="col-6 col-md-2 text-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
+													<div className="col-6 col-md-2 text-center text-md-left homeName">
 														{homeTeam.city}&nbsp;
 														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id, game, true)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
 														<br />
 														{homeTeam.name}
 													</div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorName">
+													<div className="col-6 col-md-2 text-center text-md-right visitorName">
 														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id, game, false)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
 															&nbsp;{visitTeam.city}
 														<br />
 														{visitTeam.name}
 													</div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
-													<div className="col-xs-6 col-md-2 visitorPoints">
+													<div className="col-6 col-md-2 text-center text-md-right visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
+													<div className="col-6 col-md-2 visitorPoints">
 														{visitorPicked || !started ? (
 															<PointHolder
 																className="pull-md-right"
@@ -254,7 +254,7 @@ class MakePicks extends Component {
 							</tbody>
 						</table>
 					</div>,
-					<div className="col-xs-12 col-sm-9 col-md-10 text-xs-center pick-buttons" key="pick-buttons">
+					<div className="col-12 col-sm-9 col-md-10 text-center pick-buttons" key="pick-buttons">
 						<button type="button" className="btn btn-danger" disabled={used.length === 0} onClick={this._resetPicks}>
 							<i className="fa fa-fw fa-refresh hidden-sm-down" /> Reset
 						</button>

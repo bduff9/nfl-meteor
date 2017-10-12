@@ -27,7 +27,6 @@ orgztion:meteor-global-tether
 fortawesome:fontawesome
 react-meteor-data
 themeteorchef:bert@2.1.2
-splendido:accounts-meld
 aldeed:simple-schema
 mdg:validated-method
 http@1.3.0-rc.3

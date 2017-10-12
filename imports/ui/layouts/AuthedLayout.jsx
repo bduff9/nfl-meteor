@@ -65,7 +65,7 @@ class AuthedLayout extends Component {
 				{ currentWeek, location, ...rest } = this.props,
 				logoutOnly = location.pathname.indexOf('create') > -1;// || location.pathname.indexOf('payment') > -1;
 		return (
-			<div className="col-xs-12 authed-layout-wrapper">
+			<div className="col-12 authed-layout-wrapper">
 				<div className="row">
 					<Helmet title="Welcome" />
 					<i className="fa fa-lg fa-bars hidden-sm-up mobile-menu" onClick={this._toggleMenu} />
@@ -76,7 +76,7 @@ class AuthedLayout extends Component {
 						rightSlider={rightSlider}
 						_toggleMenu={this._toggleMenu}
 						_toggleRightSlider={this._toggleRightSlider} />
-					<div className="col-xs-12 col-sm-9 offset-sm-3 col-lg-10 offset-lg-2 main">
+					<div className="col-12 col-sm-9 offset-sm-3 col-lg-10 offset-lg-2 main">
 						<Switch>
 							<AdminOnly exact path="/admin/logs" component={AdminLogs} {...this.props} />
 							<AdminOnly exact path="/admin/users" component={AdminUsers} {...this.props} />

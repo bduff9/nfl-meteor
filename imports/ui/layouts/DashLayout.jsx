@@ -25,11 +25,11 @@ export const DashLayout = ({ data, highestScore, isOverall, myTiebreaker, myUser
 	};
 
 	return (
-		<div className="col-xs-12 dashboard-layout">
+		<div className="col-12 dashboard-layout">
 			{pageReady ? (
-				<div className="row text-xs-center">
+				<div className="row text-center">
 					{correctPoints || incorrectPoints || correctPicks.length || incorrectPicks.length ?
-						<div className="col-xs-12 col-md-6">
+						<div className="col-12 col-md-6">
 							<ResponsiveContainer height={200}>
 								<PieChart margin={{ left: 10, right: 10 }}>
 									<Pie data={[
@@ -52,7 +52,7 @@ export const DashLayout = ({ data, highestScore, isOverall, myTiebreaker, myUser
 						null
 					}
 					{myPlace ?
-						<div className="col-xs-12 col-md-6">
+						<div className="col-12 col-md-6">
 							<ResponsiveContainer height={200}>
 								<PieChart margin={{ left: 10, right: 10 }}>
 									<Pie data={[
@@ -71,7 +71,7 @@ export const DashLayout = ({ data, highestScore, isOverall, myTiebreaker, myUser
 						:
 						null
 					}
-					<div className="col-xs-12 dashboard-table-parent">
+					<div className="col-12 dashboard-table-parent">
 						<table className="table table-hover dashboard-table">
 							<thead className="thead-default">
 								<tr>

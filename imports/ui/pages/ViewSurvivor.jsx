@@ -41,9 +41,9 @@ class ViewSurvivor extends Component {
 		return (
 			<div className="row view-survivor-wrapper">
 				<Helmet title={'View Survivor Picks'} />
-				<h3 className="title-text text-xs-center text-md-left hidden-md-up">View Survivor Picks</h3>
+				<h3 className="title-text text-center text-md-left hidden-md-up">View Survivor Picks</h3>
 				{pageReady ? (
-					<div className="col-xs-12 view-survivor-picks">
+					<div className="col-12 view-survivor-picks">
 						View:
 						<select className="form-control" value={viewOverall} onChange={this._toggleOverall}>
 							<option value={true}>Overall</option>

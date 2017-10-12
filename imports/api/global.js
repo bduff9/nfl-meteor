@@ -47,11 +47,11 @@ export const getInputColor = (error, touched, prefix) => {
 export const handleError = (err, opts = {}, cb = null, hide = false) => {
 	if (!err) return;
 	if (Meteor.isClient && !hide) {
-		const sweetAlert = require('sweetalert');
+		import sweetAlert from 'sweetalert';
 		opts.title = opts.title || 'Error Occurred';
 		opts.text = opts.text || err.reason || err.message || err.error || 'Something went wrong, please try again';
 		opts.type = opts.type || 'error';
-		sweetAlert(opts, cb);
+		sweetAlert(opts).then(cb);
 	} else {
 		console.error(opts.title || 'Caught error', err);
 		if (cb) cb();

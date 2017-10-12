@@ -1,13 +1,15 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 
-const Unauthenticated = ({ authenticated, component, location, loggingIn, ...rest }) => (
+const Unauthenticated = ({ authenticated, component, location, ...rest }) => (
 	<Route {...rest} render={props => {
 		const { state = {} } = location,
-				{ nextPathname } = state;
+				{ nextPathname } = state,
+				loggingIn = Meteor.loggingIn();
 		return !authenticated ? (
 			React.createElement(component, { ...props, location, loggingIn, authenticated })
 		)
@@ -21,8 +23,7 @@ const Unauthenticated = ({ authenticated, component, location, loggingIn, ...res
 Unauthenticated.propTypes = {
 	authenticated: PropTypes.bool,
 	component: PropTypes.func,
-	location: PropTypes.object,
-	loggingIn: PropTypes.bool
+	location: PropTypes.object
 };
 
 export default Unauthenticated;

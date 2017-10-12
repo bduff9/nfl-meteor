@@ -110,8 +110,8 @@ class AdminLogs extends Component {
 		return (
 			<div className="row admin-logs">
 				<Helmet title="View All Logs" />
-				<h3 className="title-text text-xs-center text-md-left hidden-md-up">View All Logs</h3>
-				<nav className="text-xs-center text-md-right">
+				<h3 className="title-text text-center text-md-left hidden-md-up">View All Logs</h3>
+				<nav className="text-center text-md-right">
 					<ul className="pagination">
 						<li className={'page-item' + (!hasPrev ? ' disabled' : '')}>
 							<a className="page-link" href="#" aria-label="First" onClick={this._changePage.bind(null, 1 - page, !hasPrev)}>
@@ -143,7 +143,7 @@ class AdminLogs extends Component {
 					</ul>
 				</nav>
 				{pageReady ? (
-					<div className="col-xs-12">
+					<div className="col-12">
 						<table className="table table-hover table-bordered admin-logs-table">
 							<thead>
 								<tr>

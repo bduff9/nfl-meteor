@@ -68,10 +68,10 @@ class Dashboard extends Component {
 		return (
 			<div className="row dashboard-wrapper">
 				<Helmet title={'My Dashboard'} />
-				<h3 className="title-text text-xs-center text-md-left hidden-md-up">My Dashboard</h3>
+				<h3 className="title-text text-center text-md-left hidden-md-up">My Dashboard</h3>
 				{pageReady ? (
-					<div className="col-xs-12 dashboard">
-						<div className="col-xs-6">
+					<div className="col-12 dashboard">
+						<div className="col-6">
 							<div className="form-group">
 								<label htmlFor="view-overall">View:</label>
 								<select className="form-control" id="view-overall" value={'' + viewOverall} onChange={this._toggleOverall}>
@@ -81,7 +81,7 @@ class Dashboard extends Component {
 							</div>
 						</div>
 						{!viewOverall ? (
-							<div className="col-xs-6">
+							<div className="col-6">
 								<div className="form-group">
 									<label htmlFor="select-week-for-dashboard">Jump to:</label>
 									<select className="form-control" value={selectedWeek} onChange={this._selectWeek}>

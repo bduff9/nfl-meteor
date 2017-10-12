@@ -1,7 +1,8 @@
 For BD
+	- Cannot sign in/verify email not being sent
+	- Every route pushes back to sign in
 	- Add new/remove old merge accounts logic
 	- Handle deprecated React addons
-	- Flexbox display issue
 For BA
 	- TODO: New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help (ongoing)
 	- TODO: Add twilio creds to all settings.json files if you have not already.  If you have, delete this

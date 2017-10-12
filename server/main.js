@@ -38,6 +38,9 @@ Meteor.startup(() => {
 				email = EMPTY_VAL,
 				verified = true,
 				firstName, lastName;
+		//TODO: check if existing user, and if so, merge them, else continue on
+		//TODO: do we also need to check for someone signed in?
+		//TODO: https://forums.meteor.com/t/accounts-password-merge-with-accounts-google-2017-way/35590/2
 		if (currWeek > 3) throw new Meteor.Error('Registration has ended', 'No new users are allowed after the third week.  Please try again next year');
 		if (user.services.facebook) {
 			first_name = user.services.facebook.first_name;

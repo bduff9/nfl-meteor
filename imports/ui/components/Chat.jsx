@@ -45,9 +45,9 @@ class Chat extends Component {
 		let lastDay;
 		return (
 			<div className="chat">
-				<h3 className="text-xs-center">Chat</h3>
+				<h3 className="text-center">Chat</h3>
 				<div className="inner-chat">
-					<div className="text-xs-right add-chat">
+					<div className="text-right add-chat">
 						<textarea className="form-control new-chat" value={newMessage} onChange={this._updateMessage} />
 						{newMessage.length} | <button type="button" className="btn btn-primary" disabled={newMessage.length === 0} onClick={this._addChat}>Submit</button>
 					</div>
@@ -57,7 +57,7 @@ class Chat extends Component {
 									user = chat.getUser();
 							let rows = [];
 							if (daySent !== lastDay) {
-								rows.push(<div className="text-xs-center" key={daySent}>{daySent}</div>);
+								rows.push(<div className="text-center" key={daySent}>{daySent}</div>);
 								lastDay = daySent;
 							}
 							rows.push(
@@ -71,7 +71,7 @@ class Chat extends Component {
 						})
 							:
 							(
-								<div className="text-xs-center loading">Loading...
+								<div className="text-center loading">Loading...
 									<br />
 									<i className="fa fa-spinner fa-pulse" />
 								</div>

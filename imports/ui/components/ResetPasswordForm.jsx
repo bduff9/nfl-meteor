@@ -24,24 +24,24 @@ const ResetPasswordForm = ({
 }) => (
 	<form onSubmit={handleSubmit}>
 		<div className={`row form-group ${getInputColor(errors.password, touched.password, 'has-')}`}>
-			<label htmlFor="password" className="col-xs-12 col-md-4 col-form-label">New Password</label>
-			<div className="col-xs-12 col-md-8">
+			<label htmlFor="password" className="col-12 col-md-4 col-form-label">New Password</label>
+			<div className="col-12 col-md-8">
 				<input type="password" id="password" name="password" className={`form-control ${getInputColor(errors.password, touched.password, 'form-control-')}`} placeholder="Password" value={values.password} onChange={handleChange} onBlur={handleBlur} />
 				{errors.password && touched.password && <div className="form-control-feedback">{errors.password}</div>}
 			</div>
 		</div>
 		<div className={`row form-group ${getInputColor(errors.confirm_password, touched.confirm_password, 'has-')}`}>
-			<label htmlFor="confirm_password" className="col-xs-12 col-md-4 col-form-label">Confirm New Password</label>
-			<div className="col-xs-12 col-md-8">
+			<label htmlFor="confirm_password" className="col-12 col-md-4 col-form-label">Confirm New Password</label>
+			<div className="col-12 col-md-8">
 				<input type="password" id="confirm_password" name="confirm_password" className={`form-control ${getInputColor(errors.confirm_password, touched.confirm_password, 'form-control-')}`} placeholder="Confirm Password" value={values.confirm_password} onChange={handleChange} onBlur={handleBlur} />
 				{errors.confirm_password && touched.confirm_password && <div className="form-control-feedback">{errors.confirm_password}</div>}
 			</div>
 		</div>
 		<div className="row form-group">
-			<label className="col-xs-12 col-md-4 col-form-label">
+			<label className="col-12 col-md-4 col-form-label">
 				<NavLink to="/"><i className="fa fa-fw fa-angle-double-left"></i> Back to Login</NavLink>
 			</label>
-			<div className="col-xs-12 col-md-8 text-xs-center">
+			<div className="col-12 col-md-8 text-center">
 				<button type="submit" className="btn btn-block btn-primary" disabled={isSubmitting}>
 					<strong>Reset Password</strong>
 					{isSubmitting ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}

@@ -43,7 +43,7 @@ const WeeklyStats = ({ canView, games, pageReady, picks, selectedWeek, tiebreake
 	return (
 		<div className="row">
 			{pageReady ? (
-				<div className="col-xs-12">
+				<div className="col-12">
 					{canView ? (
 						<table className="table table-striped table-hover">
 							<thead>

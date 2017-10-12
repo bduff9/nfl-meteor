@@ -57,7 +57,7 @@ class EditProfile extends Component {
 							<Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
 							<div className="row">
 								<div className="hidden-md-up">
-									<h3 className="title-text text-xs-center text-md-left">{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
+									<h3 className="title-text text-center text-md-left">{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
 								</div>
 							</div>
 							<div className="edit-profile">

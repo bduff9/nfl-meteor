@@ -47,7 +47,7 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 					<div className="col-md-11">
 						<div className="row">
 							<div className="hidden-md-up">
-								<h3 className="title-text text-xs-center text-md-left">View My Payments</h3>
+								<h3 className="title-text text-center text-md-left">View My Payments</h3>
 							</div>
 						</div>
 						<div className="view-payments">
@@ -115,7 +115,7 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 								</tbody>
 								<tfoot>
 									<tr>
-										<td colSpan={2} className="text-xs-right">{total >= 0 ? 'TOTAL YOU ARE OWED:' : 'TOTAL YOU OWE:'}</td>
+										<td colSpan={2} className="text-right">{total >= 0 ? 'TOTAL YOU ARE OWED:' : 'TOTAL YOU OWE:'}</td>
 										<td>${Math.abs(total)}</td>
 									</tr>
 								</tfoot>

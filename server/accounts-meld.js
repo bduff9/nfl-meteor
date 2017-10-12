@@ -1,7 +1,8 @@
 'use strict';
 
+//TODO: This file is currently legacy since we removed splendido's account-meld.  We might use it for the new logic but for now its only here so we save the logic we used pre-Metoer 1.6
+
 import { Meteor } from 'meteor/meteor';
-import { AccountsMeld } from 'meteor/splendido:accounts-meld';
 
 import { handleError } from '../imports/api/global';
 import { migrateLogEntriesForUser } from '../imports/api/collections/nfllogs';
@@ -40,11 +41,3 @@ const serviceAddedCallback = (userId, serviceName) => {
 	}
 	Meteor.users.update(userId, { $set: { first_name: firstName, last_name: lastName, 'profile.name': fullName }});
 };
-
-AccountsMeld.configure({
-	askBeforeMeld: false,
-	checkForConflictingServices: false,
-	meldUserCallback,
-	meldDBCallback,
-	serviceAddedCallback
-});

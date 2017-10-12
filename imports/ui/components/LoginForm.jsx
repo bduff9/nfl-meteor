@@ -36,7 +36,7 @@ const LoginForm = ({
 		</div>
 		<br/>
 		<div className="row">
-			<div className="col-xs-12">
+			<div className="col-12">
 				<button type="submit" className="btn btn-block btn-success" disabled={isSubmitting || loading === 'verify'}>
 					<strong>{type === 'login' ? 'Sign In With Email' : 'Register With Email'}</strong>
 					{isSubmitting ? <i className="fa fa-fw fa-spinner fa-pulse" /> : null}
@@ -44,7 +44,7 @@ const LoginForm = ({
 				<button type="button" className="btn btn-block btn-info" onClick={forgotPassword.bind(null, values.email)}>
 					Forgot password?
 				</button>
-				{loading === 'verify' ? <div className="text-xs-center text-success"><i className="fa fa-fw fa-check" /> <strong>Please check your email to verify your account</strong></div> : null}
+				{loading === 'verify' ? <div className="text-center text-success"><i className="fa fa-fw fa-check" /> <strong>Please check your email to verify your account</strong></div> : null}
 			</div>
 		</div>
 	</form>

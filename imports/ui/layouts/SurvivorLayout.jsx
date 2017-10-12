@@ -8,7 +8,7 @@ import { Loading } from '../pages/Loading.jsx';
 
 export const SurvivorLayout = ({ alive, dead, graphData, isOverall, pageReady, week, weekForSec }) => {
 	return (
-		<div className="col-xs-12 survivor-layout">
+		<div className="col-12 survivor-layout">
 			{pageReady ? (
 				<div>
 					<table className="table table-hover view-survivor-table">

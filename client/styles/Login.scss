@@ -9,7 +9,6 @@
       background-color: #F5F5F7;
       padding: 60px 30px 30px 30px;
       margin: 10% auto;
-      float: none;
     }
 
     .ball-logo-parent {
@@ -42,7 +41,6 @@
       background-color: #F5F5F7;
       padding: 60px 30px 30px 30px;
       margin: 25% auto;
-      float: none;
     }
 
     .ball-logo-parent {
@@ -66,19 +64,21 @@
 
 // Styling for mobile screens
 @media (max-width: 674px) {
-  #react-root, #react-root > .row, .login-stretch {
+  #react-root,
+  #react-root > .row,
+  .login-stretch {
     height: 100%;
   }
 
   .login-stretch {
 
     .signin-form {
+      box-sizing: border-box;
       position: relative;
       border: none;
       background-color: #F5F5F7;
       padding: 162px 30px 30px 30px;
       margin: 0 auto;
-      float: none;
       height: 100%;
       overflow: auto;
     }

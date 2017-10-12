@@ -19,7 +19,7 @@ const ViewHistory = ({ history, pageReady }) => {
 	return (
 		<div className="row">
 			{pageReady ? (
-				<div className="col-xs-12">
+				<div className="col-12">
 					<table className="table table-striped table-hover">
 						<thead>
 							<tr>

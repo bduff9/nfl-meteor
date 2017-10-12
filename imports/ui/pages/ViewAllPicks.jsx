@@ -98,9 +98,9 @@ class ViewAllPicks extends Component {
 		return (
 			<div className="row view-all-picks-wrapper">
 				<Helmet title={`View All Week ${selectedWeek} Picks`} />
-				<h3 className="title-text text-xs-center text-md-left hidden-md-up">{`View All Week ${selectedWeek} Picks`}</h3>
+				<h3 className="title-text text-center text-md-left hidden-md-up">{`View All Week ${selectedWeek} Picks`}</h3>
 				{pageReady ? (
-					<div className="col-xs-12 text-xs-left view-all-picks">
+					<div className="col-12 text-left view-all-picks">
 						<button type="button" className="btn btn-danger reset-picks" onClick={this._resetPicks}>
 							<i className="fa fa-fw fa-refresh" />
 							Reset Page
@@ -156,21 +156,21 @@ class ViewAllPicks extends Component {
 												const game = games[i];
 												let cells = [];
 												cells.push(
-													<td className={'text-xs-center visiting-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'uservisitorpick' + pick._id}>
+													<td className={'text-center visiting-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'uservisitorpick' + pick._id}>
 														{pick.pick_id && pick.pick_id === game.visitor_id ? pick.points : null}
 													</td>
 												);
 												cells.push(
-													<td className={'text-xs-center home-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'userhomepick' + pick._id}>
+													<td className={'text-center home-team pick-points' + (game.winner_id ? (pick.pick_id === game.winner_id ? ' text-success' : ' text-danger') : '')} colSpan={3} key={'userhomepick' + pick._id}>
 														{pick.pick_id && pick.pick_id === game.home_id ? pick.points : null}
 													</td>
 												);
 												return cells;
 											})}
-											<td className="text-xs-center pick-points">{tiebreaker.points_earned}</td>
-											<td className="text-xs-center pick-points">{tiebreaker.games_correct}</td>
-											<td className="text-xs-center pick-points">{tiebreaker.last_score}</td>
-											<td className="text-xs-center pick-points">{tiebreaker.last_score_act}</td>
+											<td className="text-center pick-points">{tiebreaker.points_earned}</td>
+											<td className="text-center pick-points">{tiebreaker.games_correct}</td>
+											<td className="text-center pick-points">{tiebreaker.last_score}</td>
+											<td className="text-center pick-points">{tiebreaker.last_score_act}</td>
 										</tr>
 									);
 								})}

@@ -60,40 +60,40 @@ class EditProfileForm extends Component {
 		return (
 			<form onSubmit={handleSubmit}>
 				<div className="row form-group">
-					<label htmlFor="first_name" className="col-xs-12 col-md-2 col-form-label">Full Name</label>
-					<div className={`col-xs-12 col-md-5 ${getInputColor(errors.first_name, touched.first_name, 'has-')}`}>
+					<label htmlFor="first_name" className="col-12 col-md-2 col-form-label">Full Name</label>
+					<div className={`col-12 col-md-5 ${getInputColor(errors.first_name, touched.first_name, 'has-')}`}>
 						<input type="text" className={`form-control ${getInputColor(errors.first_name, touched.first_name, 'form-control-')}`} name="first_name" placeholder="First Name" value={values.first_name} required autoFocus={!values.first_name} onBlur={handleBlur} onChange={handleChange} />
 						{errors.first_name && touched.first_name && <div className="form-control-feedback">{errors.first_name}</div>}
 					</div>
-					<div className={`col-xs-12 col-md-5 ${getInputColor(errors.last_name, touched.last_name, 'has-')}`}>
+					<div className={`col-12 col-md-5 ${getInputColor(errors.last_name, touched.last_name, 'has-')}`}>
 						<input type="text" className={`form-control ${getInputColor(errors.last_name, touched.last_name, 'form-control-')}`} name="last_name" placeholder="Last Name" value={values.last_name} required onBlur={handleBlur} onChange={handleChange} />
 						{errors.last_name && touched.last_name && <div className="form-control-feedback">{errors.last_name}</div>}
 					</div>
 				</div>
 				<div className={`row form-group ${getInputColor(errors.team_name, touched.team_name, 'has-')}`}>
-					<label htmlFor="team_name" className="col-xs-12 col-md-2 col-form-label">Team Name (Optional)</label>
-					<div className="col-xs-12 col-md-10">
+					<label htmlFor="team_name" className="col-12 col-md-2 col-form-label">Team Name (Optional)</label>
+					<div className="col-12 col-md-10">
 						<input type="text" className={`form-control ${getInputColor(errors.team_name, touched.team_name, 'form-control-')}`} name="team_name" placeholder="Team Name (Optional)" value={values.team_name} onBlur={handleBlur} onChange={handleChange} />
 						{errors.team_name && touched.team_name && <div className="form-control-feedback">{errors.team_name}</div>}
 					</div>
 				</div>
 				<div className="row form-group">
-					<label className="col-xs-12 col-md-2 col-form-label">Email</label>
-					<div className="col-xs-12 col-md-10">
+					<label className="col-12 col-md-2 col-form-label">Email</label>
+					<div className="col-12 col-md-10">
 						<p className="form-control-static">{values.email}</p>
 					</div>
 				</div>
 				<div className={`row form-group ${getInputColor(errors.phone_number, touched.phone_number, 'has-')}`}>
-					<label htmlFor="phone_number" className="col-xs-12 col-md-2 col-form-label">Phone # (Optional) <Tooltip message="If you would like to receive text reminders, please enter your SMS-capable phone number in the format 1234567980" /></label>
-					<div className="col-xs-12 col-md-10">
+					<label htmlFor="phone_number" className="col-12 col-md-2 col-form-label">Phone # (Optional) <Tooltip message="If you would like to receive text reminders, please enter your SMS-capable phone number in the format 1234567980" /></label>
+					<div className="col-12 col-md-10">
 						<input type="tel" className={`form-control ${getInputColor(errors.phone_number, touched.phone_number, 'form-control-')}`} name="phone_number" placeholder="Phone # (Optional)" value={values.phone_number} onBlur={handleBlur} onChange={handleChange} />
 						{errors.phone_number && touched.phone_number && <div className="form-control-feedback">{errors.phone_number}</div>}
 					</div>
 				</div>
 				{isCreate ? (
 					<div className={`row form-group ${getInputColor(errors.survivor, touched.survivor, 'has-')}`}>
-						<label htmlFor="survivor" className="col-xs-12 col-md-2 col-form-label">Play Survivor Pool?</label>
-						<div className="col-xs-12 col-md-10">
+						<label htmlFor="survivor" className="col-12 col-md-2 col-form-label">Play Survivor Pool?</label>
+						<div className="col-12 col-md-10">
 							<label className="form-check-label col-form-label">
 								<input type="checkbox" className="form-check-input" name="survivor" title={nextGame1.week === 1 ? 'Check this if you would like to also participate in the survivor pool (optional)' : 'You cannot sign up for the survivor pool after week 1 has started'} value="true" checked={values.survivor} disabled={nextGame1.week > 1} onChange={handleChange} />
 								&nbsp;Yes
@@ -106,15 +106,15 @@ class EditProfileForm extends Component {
 					null
 				}
 				<div className="row form-group">
-					<label htmlFor="payment_type" className="col-xs-12 col-md-2 col-form-label">Payments (To/From)</label>
-					<div className={`col-xs-12 col-md-5 ${getInputColor(errors.payment_type, touched.payment_type, 'has-')}`}>
+					<label htmlFor="payment_type" className="col-12 col-md-2 col-form-label">Payments (To/From)</label>
+					<div className={`col-12 col-md-5 ${getInputColor(errors.payment_type, touched.payment_type, 'has-')}`}>
 						<select className={`form-control ${getInputColor(errors.payment_type, touched.payment_type, 'form-control-')}`} name="payment_type" value={values.payment_type} required onChange={this._toggleAccountInput}>
 							<option value="">--Select a Payment Type--</option>
 							{ACCOUNT_TYPES.map(type => <option value={type} key={`account_type_${type}`}>{type === 'QuickPay' ? 'Chase QuickPay' : type}</option>)}
 						</select>
 						{errors.payment_type && touched.payment_type && <div className="form-control-feedback">{errors.payment_type}</div>}
 					</div>
-					<div className={`col-xs-12 col-md-5 ${getInputColor(errors.payment_account, touched.payment_account, 'has-')}`}>
+					<div className={`col-12 col-md-5 ${getInputColor(errors.payment_account, touched.payment_account, 'has-')}`}>
 						{showAccountInput ? (
 							<input type="text" className={`form-control ${getInputColor(errors.payment_account, touched.payment_account, 'form-control-')}`} name="payment_account" placeholder="Account for Payments" value={values.payment_account} onBlur={handleBlur} onChange={handleChange} />
 						)
@@ -126,8 +126,8 @@ class EditProfileForm extends Component {
 				</div>
 				{isCreate && !user.trusted ? (
 					<div className={`row form-group ${getInputColor(errors.referred_by, touched.referred_by, 'has-')}`}>
-						<label htmlFor="referred_by" className="col-xs-12 col-md-2 col-form-label">Referred By <Tooltip message="Please enter the exact, full name of the person who referred you in order to gain immediate access" /></label>
-						<div className="col-xs-12 col-md-10">
+						<label htmlFor="referred_by" className="col-12 col-md-2 col-form-label">Referred By <Tooltip message="Please enter the exact, full name of the person who referred you in order to gain immediate access" /></label>
+						<div className="col-12 col-md-10">
 							<input type="text" className={`form-control ${getInputColor(errors.referred_by, touched.referred_by, 'form-control-')}`} name="referred_by" placeholder="Referred By" value={values.referred_by} required onBlur={handleBlur} onChange={handleChange} />
 							{errors.referred_by && touched.referred_by && <div className="form-control-feedback">{errors.referred_by}</div>}
 						</div>
@@ -138,12 +138,12 @@ class EditProfileForm extends Component {
 				}
 				{!isCreate ? (
 					<div className={`row form-group ${getInputColor(errors.auto_pick_strategy, touched.auto_pick_strategy, 'has-')}`}>
-						<div className="col-xs-12 text-xs-center h3">
+						<div className="col-12 text-center h3">
 							Auto Picks&nbsp;
 							<small className="text-muted">({values.auto_pick_count} left)</small>
 						</div>
-						<label className="col-xs-12 col-md-2 col-form-label">Auto Pick? <Tooltip message="When you have auto picks left, this will pick a game for you so you don't lose any points when a game starts that you have not picked" /></label>
-						<div className="col-xs-12 col-md-10 form-check form-check-inline">
+						<label className="col-12 col-md-2 col-form-label">Auto Pick? <Tooltip message="When you have auto picks left, this will pick a game for you so you don't lose any points when a game starts that you have not picked" /></label>
+						<div className="col-12 col-md-10 form-check form-check-inline">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="radio" name="auto_pick_strategy" value="" checked={values.auto_pick_strategy === '' || !values.auto_pick_count} onBlur={handleBlur} onChange={handleChange} />
 								&nbsp;Off&nbsp; &nbsp;
@@ -163,9 +163,9 @@ class EditProfileForm extends Component {
 				}
 				{!isCreate ? (
 					<div className={`row form-group ${getInputColor(errors.do_reminder, touched.do_reminder, 'has-')}`}>
-						<div className="col-xs-12 text-xs-center h3">Notifications</div>
-						<label className="col-xs-12 col-md-2 col-form-label">Submit Pick Reminder <Tooltip message="This option allows you to be sent a reminder (email/SMS) when you have not submitted your picks for a week. Note: SMS requires a valid SMS-capable phone number above." /></label>
-						<div className="col-xs-12 col-md-10">
+						<div className="col-12 text-center h3">Notifications</div>
+						<label className="col-12 col-md-2 col-form-label">Submit Pick Reminder <Tooltip message="This option allows you to be sent a reminder (email/SMS) when you have not submitted your picks for a week. Note: SMS requires a valid SMS-capable phone number above." /></label>
+						<div className="col-12 col-md-10">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="do_reminder" value="true" checked={values.do_reminder} onChange={this._toggleReminder} />
 								&nbsp;Yes
@@ -180,7 +180,7 @@ class EditProfileForm extends Component {
 				{showReminder ? (
 					<div className="row form-group">
 						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
-						<div className="col-xs-12 col-md-2">
+						<div className="col-12 col-md-2">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="reminder_types_email" value="email" checked={values.reminder_types_email} onBlur={handleBlur} onChange={handleChange} />
 								&nbsp;Email
@@ -193,8 +193,8 @@ class EditProfileForm extends Component {
 							</label>
 							{errors.reminder_types_text && touched.reminder_types_text && <div className="form-control-feedback">{errors.reminder_types_text}</div>}
 						</div>
-						<label className="col-xs-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
-						<div className={`col-xs-12 col-md-4 ${getInputColor(errors.reminder_hours, true, 'has-')}`}>
+						<label className="col-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
+						<div className={`col-12 col-md-4 ${getInputColor(errors.reminder_hours, true, 'has-')}`}>
 							<select className="form-control" name="reminder_hours" value={values.reminder_hours} onBlur={handleBlur} onChange={handleChange}>
 								<option value="">--Select Hours Before First Game--</option>
 								{this._getHourOptions(72)}
@@ -208,8 +208,8 @@ class EditProfileForm extends Component {
 				}
 				{!isCreate ? (
 					<div className={`row form-group ${getInputColor(errors.do_quick_pick, touched.do_quick_pick, 'has-')}`}>
-						<label className="col-xs-12 col-md-2 col-form-label">Send quick pick email? <Tooltip message="Quick Pick email will let you pick the first game of the week when you have not already made it with one button press" /></label>
-						<div className="col-xs-12 col-md-10">
+						<label className="col-12 col-md-2 col-form-label">Send quick pick email? <Tooltip message="Quick Pick email will let you pick the first game of the week when you have not already made it with one button press" /></label>
+						<div className="col-12 col-md-10">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="do_quick_pick" value="true" checked={values.do_quick_pick} onChange={this._toggleQuickPick} />
 								&nbsp;Yes
@@ -225,8 +225,8 @@ class EditProfileForm extends Component {
 					<div className={`row form-group ${getInputColor(errors.quick_pick_hours, true, 'has-')}`}>
 						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
 						<div className="hidden-sm-down col-md-2">&nbsp;</div>
-						<label className="col-xs-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
-						<div className="col-xs-12 col-md-4">
+						<label className="col-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
+						<div className="col-12 col-md-4">
 							<select className="form-control" name="quick_pick_hours" value={values.quick_pick_hours} onBlur={handleBlur} onChange={handleChange}>
 								<option value="">--Select Hours Before First Game--</option>
 								{this._getHourOptions(6)}
@@ -239,27 +239,27 @@ class EditProfileForm extends Component {
 					null
 				}
 				<div className="row form-group">
-					<div className="col-xs-10 offset-xs-1 text-xs-center">
+					<div className="col-10 offset-xs-1 text-center">
 						<p className="form-text text-muted">
 							<strong>Note:</strong> &nbsp;Linking your account makes logging in as simple as a single click
 						</p>
 					</div>
-					<div className="col-xs-12 col-md-6 text-xs-center text-md-right social-btns">
+					<div className="col-12 col-md-6 text-center text-md-right social-btns">
 						<button type="button" className="btn btn-primary btn-facebook" disabled={hasFacebook} onClick={linkFacebook}>
 							<i className="fa fa-facebook"></i> {hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
 						</button>
 					</div>
-					<div className="col-xs-12 col-md-6 text-xs-center text-md-left social-btns">
+					<div className="col-12 col-md-6 text-center text-md-left social-btns">
 						<button type="button" className="btn btn-danger btn-google" disabled={hasGoogle} onClick={linkGoogle}>
 							<i className="fa fa-google"></i> {hasGoogle ? 'Google Linked!' : 'Link Google'}
 						</button>
 					</div>
 				</div>
 				<div className="row form-group">
-					<div className="col-xs-12">&nbsp;</div>
+					<div className="col-12">&nbsp;</div>
 				</div>
 				<div className="row form-group">
-					<div className="col-xs-12 text-xs-center">
+					<div className="col-12 text-center">
 						<button type="submit" className="btn btn-primary" disabled={isSubmitting || user.trusted === false}>
 							<i className="fa fa-fw fa-save"></i>
 							{isCreate ? 'Finish Registration' : 'Save Changes'}

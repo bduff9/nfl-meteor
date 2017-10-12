@@ -43,15 +43,15 @@ class SetSurvivor extends Component {
 			<div className="row set-survivor-wrapper">
 				<Helmet title={'Make Survivor Picks'} />
 				{pageReady ? (
-					<div className="col-xs-12">
-						<h3 className="title-text text-xs-center text-md-left hidden-md-up">Make Survivor Picks</h3>
+					<div className="col-12">
+						<h3 className="title-text text-center text-md-left hidden-md-up">Make Survivor Picks</h3>
 						<div className="row">
 							<div className="col-md-4 hidden-sm-down side-bar">
 								{teams.map((team, i) => {
 									const weekIndex = survivorPicks.findIndex((pick, i) => team._id === pick.pick_id);
 									return (
-										<div className="col-md-3 col-xs-2" key={'team' + i}>
-											<div className="text-xs-center survivor-logo">
+										<div className="col-md-3 col-2" key={'team' + i}>
+											<div className="text-center survivor-logo">
 												<img src={`/NFLLogos/${team.logo}`} className={(weekIndex !== -1 ? 'used' : '')} />
 												{weekIndex !== -1 ? <span className="tag tag-default when-picked">{weekIndex + 1}</span> : null}
 											</div>
@@ -59,22 +59,22 @@ class SetSurvivor extends Component {
 									);
 								})}
 							</div>
-							<div className="col-md-7 offset-md-5 col-xs-12">
+							<div className="col-md-7 offset-md-5 col-12">
 								<table className="table table-hover set-survivor-table">
 									<thead className="thead-default">
 										<tr>
-											<th className="text-xs-center">Week</th>
-											<th className="text-xs-center">Pick</th>
+											<th className="text-center">Week</th>
+											<th className="text-center">Pick</th>
 										</tr>
 									</thead>
 									<tbody>
 										{survivorPicks.map((pick, i) => (
 											<tr key={'survivor' + i}>
-												<td className="text-xs-right">
+												<td className="text-right">
 													{pick.winner_id ? (pick.pick_id === pick.winner_id ? <i className="fa fa-fw fa-lg fa-check text-success" /> : <i className="fa fa-fw fa-lg fa-times text-danger" />) : null}
 													{pick.week}
 												</td>
-												<td className="text-xs-left">
+												<td className="text-left">
 													{pick.week > weekForSec ? (
 														<button type="button" className={'btn btn-' + (pick.pick_id ? 'success is-picked' : (pick.week === currentWeek ? 'danger' : 'primary'))} onClick={this._setModalWeek.bind(null, pick.week)}>
 															<i className="fa fa-fw fa-large fa-pencil-square-o" />

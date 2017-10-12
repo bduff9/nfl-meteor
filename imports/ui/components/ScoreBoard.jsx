@@ -54,9 +54,9 @@ class ScoreBoard extends Component {
 		let lastKickoff;
 		return (
 			<div className="scoreboard">
-				<h3 className="text-xs-center">NFL Scoreboard</h3>
+				<h3 className="text-center">NFL Scoreboard</h3>
 				<div className="inner-scoreboard">
-					<div className="text-xs-center week-disp">
+					<div className="text-center week-disp">
 						<span>{week > 1 ? <i className="fa fa-fw fa-caret-left" onClick={_changeScoreboardWeek.bind(null, week - 1)} /> : null}</span>
 						<span>{!weekGamesReady || games.length ? `Week ${week}` : 'No games to display'}</span>
 						<span>{week < 17 ? <i className="fa fa-fw fa-caret-right" onClick={_changeScoreboardWeek.bind(null, week + 1)} /> : null}</span>
@@ -70,7 +70,7 @@ class ScoreBoard extends Component {
 												thisKickoff = formatDate(game.kickoff, false);
 										if (lastKickoff !== thisKickoff) {
 											rows.push(
-												<tr className="text-xs-center date-head" key={'kickoff' + game.kickoff}>
+												<tr className="text-center date-head" key={'kickoff' + game.kickoff}>
 													<td colSpan="3">
 														<u>{thisKickoff}</u>
 													</td>
@@ -112,7 +112,7 @@ class ScoreBoard extends Component {
 						)
 							:
 							(
-								<div className="text-xs-center loading">Loading...
+								<div className="text-center loading">Loading...
 									<br />
 									<i className="fa fa-spinner fa-pulse" />
 								</div>

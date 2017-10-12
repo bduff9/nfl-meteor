@@ -47,7 +47,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 	};
 
 	return (
-		<div className={`col-xs-10 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-lg-2 sidebar`}>
+		<div className={`col-10 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-lg-2 sidebar`}>
 			{!logoutOnly ? (
 				<div className="sidebar-inner">
 					<i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />

@@ -50,25 +50,21 @@ class EditProfile extends Component {
 				{ nextGame1, pageReady } = this.props,
 				{ router } = this.context;
 		return (
-			<div className="container-fluid edit-profile-wrapper">
-				<div className="row">
-					{pageReady ? (
-						<div className="col-md-11">
-							<Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
-							<div className="row">
-								<div className="hidden-md-up">
-									<h3 className="title-text text-center text-md-left">{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
-								</div>
-							</div>
-							<div className="edit-profile">
-								<EditProfileForm hasFacebook={hasFacebook} hasGoogle={hasGoogle} isCreate={isCreate} nextGame1={nextGame1} router={router} user={user} linkFacebook={this._oauthLink.bind(null, 'loginWithFacebook')} linkGoogle={this._oauthLink.bind(null, 'loginWithGoogle')} />
-							</div>
+			<div className="row edit-profile-wrapper">
+				{pageReady ? (
+					<div className="col-md-11">
+						<Helmet title={isCreate ? 'Finish Registration' : 'Edit My Profile'} />
+						<div className="d-md-none">
+							<h3 className="title-text text-center text-md-left">{isCreate ? 'Finish Registration' : 'Edit My Profile'}</h3>
 						</div>
-					)
-						:
-						<Loading />
-					}
-				</div>
+						<div className="edit-profile">
+							<EditProfileForm hasFacebook={hasFacebook} hasGoogle={hasGoogle} isCreate={isCreate} nextGame1={nextGame1} router={router} user={user} linkFacebook={this._oauthLink.bind(null, 'loginWithFacebook')} linkGoogle={this._oauthLink.bind(null, 'loginWithGoogle')} />
+						</div>
+					</div>
+				)
+					:
+					<Loading />
+				}
 			</div>
 		);
 	}

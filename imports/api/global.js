@@ -38,10 +38,10 @@ export const getCurrentSeasonYear = () => {
 	return currYear;
 };
 
-export const getInputColor = (error, touched, prefix) => {
-	if (!touched) return '';
-	if (error) return prefix + 'danger';
-	return prefix + 'success';
+export const getInputStatus = (field, error, touched, prefix = '', suffix = '') => {
+	if (!touched[field]) return '';
+	if (error[field]) return prefix + 'invalid' + suffix;
+	return prefix + 'valid' + suffix;
 };
 
 export const handleError = (err, opts = {}, cb = null, hide = false) => {

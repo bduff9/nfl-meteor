@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { Session } from 'meteor/session';
 import { createContainer } from 'meteor/react-meteor-data';
@@ -14,7 +14,6 @@ import { getCurrentUser } from '../../api/collections/users';
 import AdminLogs from '../pages/AdminLogs';
 import AdminOnly from '../../startup/client/AdminOnly';
 import AdminUsers from '../pages/AdminUsers';
-import Authenticated from '../../startup/client/Authenticated';
 import Dashboard from '../pages/Dashboard';
 import EditProfile from '../pages/EditProfile';
 import MakePicks from '../pages/MakePicks';
@@ -63,12 +62,12 @@ class AuthedLayout extends Component {
 	render () {
 		const { openMenu, rightSlider, scoreboardWeek } = this.state,
 				{ currentWeek, location, ...rest } = this.props,
-				logoutOnly = location.pathname.indexOf('create') > -1;// || location.pathname.indexOf('payment') > -1;
+				logoutOnly = location.pathname.indexOf('create') > -1;
 		return (
 			<div className="col-12 authed-layout-wrapper">
 				<div className="row">
 					<Helmet title="Welcome" />
-					<i className="fa fa-lg fa-bars hidden-sm-up mobile-menu" onClick={this._toggleMenu} />
+					<i className="fa fa-lg fa-bars d-sm-none mobile-menu" onClick={this._toggleMenu} />
 					<Navigation {...rest}
 						currentWeek={currentWeek}
 						logoutOnly={logoutOnly}
@@ -76,20 +75,20 @@ class AuthedLayout extends Component {
 						rightSlider={rightSlider}
 						_toggleMenu={this._toggleMenu}
 						_toggleRightSlider={this._toggleRightSlider} />
-					<div className="col-12 col-sm-9 offset-sm-3 col-lg-10 offset-lg-2 main">
+					<div className="col-12 col-sm-9 ml-sm-auto col-lg-10 main">
 						<Switch>
 							<AdminOnly exact path="/admin/logs" component={AdminLogs} {...this.props} />
 							<AdminOnly exact path="/admin/users" component={AdminUsers} {...this.props} />
-							<Authenticated exact path="/picks/set" component={MakePicks}  {...this.props}/>
-							<Authenticated exact path="/picks/view" component={ViewPicks} {...this.props} />
-							<Authenticated exact path="/picks/viewall" component={ViewAllPicks} {...this.props} />
-							<Authenticated exact path="/stats" component={Statistics} {...this.props} />
-							<Authenticated exact path="/survivor/set" component={SetSurvivor} {...this.props} />
-							<Authenticated exact path="/survivor/view" component={ViewSurvivor} {...this.props} />
+							<Route exact path="/picks/set" component={MakePicks}  {...this.props}/>
+							<Route exact path="/picks/view" component={ViewPicks} {...this.props} />
+							<Route exact path="/picks/viewall" component={ViewAllPicks} {...this.props} />
+							<Route exact path="/stats" component={Statistics} {...this.props} />
+							<Route exact path="/survivor/set" component={SetSurvivor} {...this.props} />
+							<Route exact path="/survivor/view" component={ViewSurvivor} {...this.props} />
 							<UnfinishedRegistration exact path="/users/create" component={EditProfile} {...this.props} />
-							<Authenticated exact path="/users/edit" component={EditProfile} {...this.props} />
-							<Authenticated exact path="/users/payments" component={ViewPayments} {...this.props} />
-							<Authenticated exact path="/" component={Dashboard} />
+							<Route exact path="/users/edit" component={EditProfile} {...this.props} />
+							<Route exact path="/users/payments" component={ViewPayments} {...this.props} />
+							<Route exact path="/" component={Dashboard} />
 						</Switch>
 					</div>
 				</div>

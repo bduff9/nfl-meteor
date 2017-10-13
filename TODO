@@ -1,6 +1,6 @@
 For BD
-	- Cannot sign in/verify email not being sent
-	- Every route pushes back to sign in
+	- Verify email not being sent (check registration)
+	- Logout fails to work from create profile
 	- Add new/remove old merge accounts logic
 	- Handle deprecated React addons
 For BA
@@ -11,3 +11,9 @@ For BA
 	- TODO: SVGs do not work in emails (i.e. Gmail), please find replacement png for football
 Bugs
 	- None
+Bootstrap 4 Beta Notes (Upgraded from Bootstrap 4 alpha)
+	- You cannot have anything other than a .col inside a row
+	- .col can have anything inside it but another .col (must use a .row then the .col)
+	- There is no more -xs modifier (i.e. col-xs-12 is now just col-12)
+	- There is no more offset class (i.e. offset-md-3 is gone (MAY be added back in beta v2)).  Instead, you can use ml-auto to push a column to the far right (or mr-auto to the far left)
+	- There is no more hidden class (i.e. hidden-md-up).  Use the display utility classes instead (i.e. d-md-none).

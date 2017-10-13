@@ -8,7 +8,7 @@ import { withFormik } from 'formik';
 import Yup from 'yup';
 
 import { ACCOUNT_TYPES, AUTO_PICK_TYPES, DEFAULT_LEAGUE, DIGITAL_ACCOUNTS } from '../../api/constants';
-import { handleError, getInputColor } from '../../api/global';
+import { handleError, getInputStatus } from '../../api/global';
 import Tooltip from './Tooltip';
 import { notifyAdminsOfUntrusted, updateNotifications, updateUser, validateReferredBy } from '../../api/collections/users';
 
@@ -61,20 +61,20 @@ class EditProfileForm extends Component {
 			<form onSubmit={handleSubmit}>
 				<div className="row form-group">
 					<label htmlFor="first_name" className="col-12 col-md-2 col-form-label">Full Name</label>
-					<div className={`col-12 col-md-5 ${getInputColor(errors.first_name, touched.first_name, 'has-')}`}>
-						<input type="text" className={`form-control ${getInputColor(errors.first_name, touched.first_name, 'form-control-')}`} name="first_name" placeholder="First Name" value={values.first_name} required autoFocus={!values.first_name} onBlur={handleBlur} onChange={handleChange} />
-						{errors.first_name && touched.first_name && <div className="form-control-feedback">{errors.first_name}</div>}
+					<div className="col-12 col-md-5">
+						<input type="text" className={`form-control ${getInputStatus('first_name', errors, touched, 'is-')}`} name="first_name" placeholder="First Name" value={values.first_name} required autoFocus={!values.first_name} onBlur={handleBlur} onChange={handleChange} />
+						{errors.first_name && touched.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
 					</div>
-					<div className={`col-12 col-md-5 ${getInputColor(errors.last_name, touched.last_name, 'has-')}`}>
-						<input type="text" className={`form-control ${getInputColor(errors.last_name, touched.last_name, 'form-control-')}`} name="last_name" placeholder="Last Name" value={values.last_name} required onBlur={handleBlur} onChange={handleChange} />
-						{errors.last_name && touched.last_name && <div className="form-control-feedback">{errors.last_name}</div>}
+					<div className="col-12 col-md-5">
+						<input type="text" className={`form-control ${getInputStatus('last_name', errors, touched, 'is-')}`} name="last_name" placeholder="Last Name" value={values.last_name} required onBlur={handleBlur} onChange={handleChange} />
+						{errors.last_name && touched.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
 					</div>
 				</div>
-				<div className={`row form-group ${getInputColor(errors.team_name, touched.team_name, 'has-')}`}>
+				<div className="row form-group">
 					<label htmlFor="team_name" className="col-12 col-md-2 col-form-label">Team Name (Optional)</label>
 					<div className="col-12 col-md-10">
-						<input type="text" className={`form-control ${getInputColor(errors.team_name, touched.team_name, 'form-control-')}`} name="team_name" placeholder="Team Name (Optional)" value={values.team_name} onBlur={handleBlur} onChange={handleChange} />
-						{errors.team_name && touched.team_name && <div className="form-control-feedback">{errors.team_name}</div>}
+						<input type="text" className={`form-control ${getInputStatus('team_name', errors, touched, 'is-')}`} name="team_name" placeholder="Team Name (Optional)" value={values.team_name} onBlur={handleBlur} onChange={handleChange} />
+						{errors.team_name && touched.team_name && <div className="invalid-feedback">{errors.team_name}</div>}
 					</div>
 				</div>
 				<div className="row form-group">
@@ -83,22 +83,22 @@ class EditProfileForm extends Component {
 						<p className="form-control-static">{values.email}</p>
 					</div>
 				</div>
-				<div className={`row form-group ${getInputColor(errors.phone_number, touched.phone_number, 'has-')}`}>
+				<div className="row form-group">
 					<label htmlFor="phone_number" className="col-12 col-md-2 col-form-label">Phone # (Optional) <Tooltip message="If you would like to receive text reminders, please enter your SMS-capable phone number in the format 1234567980" /></label>
 					<div className="col-12 col-md-10">
-						<input type="tel" className={`form-control ${getInputColor(errors.phone_number, touched.phone_number, 'form-control-')}`} name="phone_number" placeholder="Phone # (Optional)" value={values.phone_number} onBlur={handleBlur} onChange={handleChange} />
-						{errors.phone_number && touched.phone_number && <div className="form-control-feedback">{errors.phone_number}</div>}
+						<input type="tel" className={`form-control ${getInputStatus('phone_number', errors, touched, 'is-')}`} name="phone_number" placeholder="Phone # (Optional)" value={values.phone_number} onBlur={handleBlur} onChange={handleChange} />
+						{errors.phone_number && touched.phone_number && <div className="invalid-feedback">{errors.phone_number}</div>}
 					</div>
 				</div>
 				{isCreate ? (
-					<div className={`row form-group ${getInputColor(errors.survivor, touched.survivor, 'has-')}`}>
+					<div className="row form-group">
 						<label htmlFor="survivor" className="col-12 col-md-2 col-form-label">Play Survivor Pool?</label>
 						<div className="col-12 col-md-10">
 							<label className="form-check-label col-form-label">
 								<input type="checkbox" className="form-check-input" name="survivor" title={nextGame1.week === 1 ? 'Check this if you would like to also participate in the survivor pool (optional)' : 'You cannot sign up for the survivor pool after week 1 has started'} value="true" checked={values.survivor} disabled={nextGame1.week > 1} onChange={handleChange} />
 								&nbsp;Yes
 							</label>
-							{errors.survivor && touched.survivor && <div className="form-control-feedback">{errors.survivor}</div>}
+							{errors.survivor && touched.survivor && <div className="invalid-feedback">{errors.survivor}</div>}
 						</div>
 					</div>
 				)
@@ -107,29 +107,29 @@ class EditProfileForm extends Component {
 				}
 				<div className="row form-group">
 					<label htmlFor="payment_type" className="col-12 col-md-2 col-form-label">Payments (To/From)</label>
-					<div className={`col-12 col-md-5 ${getInputColor(errors.payment_type, touched.payment_type, 'has-')}`}>
-						<select className={`form-control ${getInputColor(errors.payment_type, touched.payment_type, 'form-control-')}`} name="payment_type" value={values.payment_type} required onChange={this._toggleAccountInput}>
+					<div className="col-12 col-md-5">
+						<select className={`form-control ${getInputStatus('payment_type', errors, touched, 'is-')}`} name="payment_type" value={values.payment_type} required onChange={this._toggleAccountInput}>
 							<option value="">--Select a Payment Type--</option>
 							{ACCOUNT_TYPES.map(type => <option value={type} key={`account_type_${type}`}>{type === 'QuickPay' ? 'Chase QuickPay' : type}</option>)}
 						</select>
-						{errors.payment_type && touched.payment_type && <div className="form-control-feedback">{errors.payment_type}</div>}
+						{errors.payment_type && touched.payment_type && <div className="invalid-feedback">{errors.payment_type}</div>}
 					</div>
-					<div className={`col-12 col-md-5 ${getInputColor(errors.payment_account, touched.payment_account, 'has-')}`}>
+					<div className="col-12 col-md-5">
 						{showAccountInput ? (
-							<input type="text" className={`form-control ${getInputColor(errors.payment_account, touched.payment_account, 'form-control-')}`} name="payment_account" placeholder="Account for Payments" value={values.payment_account} onBlur={handleBlur} onChange={handleChange} />
+							<input type="text" className={`form-control ${getInputStatus('payment_account', errors, touched, 'is-')}`} name="payment_account" placeholder="Account for Payments" value={values.payment_account} onBlur={handleBlur} onChange={handleChange} />
 						)
 							:
 							null
 						}
-						{showAccountInput && errors.payment_account && touched.payment_account && <div className="form-control-feedback">{errors.payment_account}</div>}
+						{showAccountInput && errors.payment_account && touched.payment_account && <div className="invalid-feedback">{errors.payment_account}</div>}
 					</div>
 				</div>
 				{isCreate && !user.trusted ? (
-					<div className={`row form-group ${getInputColor(errors.referred_by, touched.referred_by, 'has-')}`}>
+					<div className="row form-group">
 						<label htmlFor="referred_by" className="col-12 col-md-2 col-form-label">Referred By <Tooltip message="Please enter the exact, full name of the person who referred you in order to gain immediate access" /></label>
 						<div className="col-12 col-md-10">
-							<input type="text" className={`form-control ${getInputColor(errors.referred_by, touched.referred_by, 'form-control-')}`} name="referred_by" placeholder="Referred By" value={values.referred_by} required onBlur={handleBlur} onChange={handleChange} />
-							{errors.referred_by && touched.referred_by && <div className="form-control-feedback">{errors.referred_by}</div>}
+							<input type="text" className={`form-control ${getInputStatus('referred_by', errors, touched, 'is-')}`} name="referred_by" placeholder="Referred By" value={values.referred_by} required onBlur={handleBlur} onChange={handleChange} />
+							{errors.referred_by && touched.referred_by && <div className="invalid-feedback">{errors.referred_by}</div>}
 						</div>
 					</div>
 				)
@@ -137,7 +137,7 @@ class EditProfileForm extends Component {
 					<input type="hidden" name="referred_by" value={values.referred_by} />
 				}
 				{!isCreate ? (
-					<div className={`row form-group ${getInputColor(errors.auto_pick_strategy, touched.auto_pick_strategy, 'has-')}`}>
+					<div className="row form-group">
 						<div className="col-12 text-center h3">
 							Auto Picks&nbsp;
 							<small className="text-muted">({values.auto_pick_count} left)</small>
@@ -154,7 +154,7 @@ class EditProfileForm extends Component {
 									&nbsp;{`${type} team`}&nbsp; &nbsp;
 								</label>
 							))}
-							{errors.auto_pick_strategy && touched.auto_pick_strategy && <div className="form-control-feedback">{errors.auto_pick_strategy}</div>}
+							{errors.auto_pick_strategy && touched.auto_pick_strategy && <div className="invalid-feedback">{errors.auto_pick_strategy}</div>}
 						</div>
 					</div>
 				)
@@ -162,7 +162,7 @@ class EditProfileForm extends Component {
 					null
 				}
 				{!isCreate ? (
-					<div className={`row form-group ${getInputColor(errors.do_reminder, touched.do_reminder, 'has-')}`}>
+					<div className="row form-group">
 						<div className="col-12 text-center h3">Notifications</div>
 						<label className="col-12 col-md-2 col-form-label">Submit Pick Reminder <Tooltip message="This option allows you to be sent a reminder (email/SMS) when you have not submitted your picks for a week. Note: SMS requires a valid SMS-capable phone number above." /></label>
 						<div className="col-12 col-md-10">
@@ -170,7 +170,7 @@ class EditProfileForm extends Component {
 								<input className="form-check-input" type="checkbox" name="do_reminder" value="true" checked={values.do_reminder} onChange={this._toggleReminder} />
 								&nbsp;Yes
 							</label>
-							{errors.do_reminder && touched.do_reminder && <div className="form-control-feedback">{errors.do_reminder}</div>}
+							{errors.do_reminder && touched.do_reminder && <div className="invalid-feedback">{errors.do_reminder}</div>}
 						</div>
 					</div>
 				)
@@ -185,21 +185,21 @@ class EditProfileForm extends Component {
 								<input className="form-check-input" type="checkbox" name="reminder_types_email" value="email" checked={values.reminder_types_email} onBlur={handleBlur} onChange={handleChange} />
 								&nbsp;Email
 							</label>
-							{errors.reminder_types_email && touched.reminder_types_email && <div className="form-control-feedback">{errors.reminder_types_email}</div>}
+							{errors.reminder_types_email && touched.reminder_types_email && <div className="invalid-feedback">{errors.reminder_types_email}</div>}
 							&nbsp; &nbsp;
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="reminder_types_text" value="text" checked={values.reminder_types_text && !errors.phone_number && values.phone_number} disabled={errors.phone_number || !values.phone_number} onBlur={handleBlur} onChange={handleChange} />
 								&nbsp;Text
 							</label>
-							{errors.reminder_types_text && touched.reminder_types_text && <div className="form-control-feedback">{errors.reminder_types_text}</div>}
+							{errors.reminder_types_text && touched.reminder_types_text && <div className="invalid-feedback">{errors.reminder_types_text}</div>}
 						</div>
 						<label className="col-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
-						<div className={`col-12 col-md-4 ${getInputColor(errors.reminder_hours, true, 'has-')}`}>
+						<div className="col-12 col-md-4">
 							<select className="form-control" name="reminder_hours" value={values.reminder_hours} onBlur={handleBlur} onChange={handleChange}>
 								<option value="">--Select Hours Before First Game--</option>
 								{this._getHourOptions(72)}
 							</select>
-							{errors.reminder_hours && <div className="form-control-feedback">{errors.reminder_hours}</div>}
+							{errors.reminder_hours && <div className="invalid-feedback">{errors.reminder_hours}</div>}
 						</div>
 					</div>
 				)
@@ -207,14 +207,14 @@ class EditProfileForm extends Component {
 					null
 				}
 				{!isCreate ? (
-					<div className={`row form-group ${getInputColor(errors.do_quick_pick, touched.do_quick_pick, 'has-')}`}>
+					<div className="row form-group">
 						<label className="col-12 col-md-2 col-form-label">Send quick pick email? <Tooltip message="Quick Pick email will let you pick the first game of the week when you have not already made it with one button press" /></label>
 						<div className="col-12 col-md-10">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="do_quick_pick" value="true" checked={values.do_quick_pick} onChange={this._toggleQuickPick} />
 								&nbsp;Yes
 							</label>
-							{errors.do_quick_pick && touched.do_quick_pick && <div className="form-control-feedback">{errors.do_quick_pick}</div>}
+							{errors.do_quick_pick && touched.do_quick_pick && <div className="invalid-feedback">{errors.do_quick_pick}</div>}
 						</div>
 					</div>
 				)
@@ -222,7 +222,7 @@ class EditProfileForm extends Component {
 					null
 				}
 				{showQuickPick ? (
-					<div className={`row form-group ${getInputColor(errors.quick_pick_hours, true, 'has-')}`}>
+					<div className="row form-group">
 						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
 						<div className="hidden-sm-down col-md-2">&nbsp;</div>
 						<label className="col-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
@@ -231,7 +231,7 @@ class EditProfileForm extends Component {
 								<option value="">--Select Hours Before First Game--</option>
 								{this._getHourOptions(6)}
 							</select>
-							{errors.quick_pick_hours && <div className="form-control-feedback">{errors.quick_pick_hours}</div>}
+							{errors.quick_pick_hours && <div className="invalid-feedback">{errors.quick_pick_hours}</div>}
 						</div>
 					</div>
 				)

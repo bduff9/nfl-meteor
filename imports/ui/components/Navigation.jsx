@@ -1,20 +1,21 @@
 'use strict';
 
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
-import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
+import { Session } from 'meteor/session';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { handleError, getCurrentSeasonYear } from '../../api/global';
 import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
-import { getLastChatAction, getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
+import { getLastChatAction, getUnreadChatCount, getUnreadMessages, writeLog } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
-import { updateSelectedWeek } from '../../api/collections/users';
+import { removeSelectedWeek, updateSelectedWeek } from '../../api/collections/users';
 
 const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length,
@@ -45,9 +46,23 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 		ev.preventDefault();
 		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, handleError);
 	};
+	const _signOut = ev => {
+		const user = Meteor.user();
+		ev.preventDefault();
+		ev.stopPropagation();
+		if (Meteor.userId()) {
+			removeSelectedWeek.call({ userId: user._id }, handleError);
+			Meteor.logout((err) => {
+				writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, handleError);
+				Object.keys(Session.keys).forEach(key => Session.set(key, undefined));
+				Session.keys = {};
+			});
+		}
+		return false;
+	};
 
 	return (
-		<div className={`col-10 ${(openMenu ? '' : 'hidden-xs-down')} col-sm-3 col-lg-2 sidebar`}>
+		<div className={`col-10 ${(openMenu ? '' : 'd-sm-block')} col-sm-3 col-lg-2 sidebar`}>
 			{!logoutOnly ? (
 				<div className="sidebar-inner">
 					<i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />
@@ -57,13 +72,9 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						</li>
 						<li><NavLink to="/users/edit" exact activeClassName="active">Edit My Profile</NavLink></li>
 						<li>
-							<NavLink to="/users/payments" exact activeClassName="active">
-								View Payments
-								{/* TODO: Remove after 2017 week 3 */}
-								<span className="tag tag-pill tag-info">New</span>
-							</NavLink>
+							<NavLink to="/users/payments" exact activeClassName="active">View Payments</NavLink>
 						</li>
-						<li><NavLink to={{ pathname: '/logout', state: { isLogout: true } }} exact activeClassName="active">Signout</NavLink></li>
+						<li><a href="/logout" onClick={_signOut}>Signout</a></li>
 					</ul>
 					{selectedWeek ? (
 						<ul className="nav nav-sidebar">
@@ -88,11 +99,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 					<ul className="nav nav-sidebar">
 						<li><NavLink to="/" exact activeClassName="active">Dashboard</NavLink></li>
 						<li>
-							<NavLink to="/stats" exact activeClassName="active">
-								Statistics
-								{/* TODO: Remove after 2017 week 3 */}
-								<span className="tag tag-pill tag-info">New</span>
-							</NavLink>
+							<NavLink to="/stats" exact activeClassName="active">Statistics</NavLink>
 						</li>
 						<li><NavLink to="/picks/view" exact activeClassName="active">View My Picks</NavLink></li>
 						{tiebreaker ?
@@ -149,7 +156,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 				(
 					<div className="sidebar-inner">
 						<ul className="nav nav-sidebar">
-							<li><NavLink to={{ pathname: '/logout', state: { isLogout: true } }} exact activeClassName="active">Signout</NavLink></li>
+							<li><a href="/logout" onClick={_signOut}>Signout</a></li>
 						</ul>
 					</div>
 				)}

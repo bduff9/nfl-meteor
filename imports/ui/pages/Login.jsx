@@ -98,7 +98,7 @@ export default class Login extends Component {
 							</div>
 						</div>
 						<div className="row reg-btns">
-							<div className="col-12 bottom-text text-center">Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
+							<div className="col-12 bottom-text text-center">&nbsp;<br />Or Quickly {type === 'login' ? 'Login With' : 'Register With'}:</div>
 							<div className="col-12 col-md-6">
 								<button type="button" className="btn text-center btn-block btn-social btn-facebook" disabled={loading} onClick={this._oauthLogin.bind(null, 'loginWithFacebook')}>
 									<i className="fa fa-facebook"></i>

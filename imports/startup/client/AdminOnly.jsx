@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 
-const AdminOnly = ({ component, ...rest }) => (
+const AdminOnly = ({ authenticated, component, loggingIn, ...rest }) => (
 	<Route {...rest} render={(props) => {
 		const loggingIn = Meteor.loggingIn(),
 				currentUser = Meteor.user(),
@@ -22,7 +22,9 @@ const AdminOnly = ({ component, ...rest }) => (
 );
 
 AdminOnly.propTypes = {
-	component: PropTypes.func
+	authenticated: PropTypes.bool.isRequired,
+	component: PropTypes.func.isRequired,
+	loggingIn: PropTypes.bool.isRequired
 };
 
 export default AdminOnly;

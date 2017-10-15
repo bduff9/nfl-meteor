@@ -31,8 +31,8 @@ class ViewPicks extends Component {
 		return (
 			<div className="view-picks-wrapper">
 				<Helmet title={`View My Picks for Week ${selectedWeek}`} />
-				<h3 className="title-text text-center text-md-left offset-xs-2 hidden-md-up">{`View My Picks for Week ${selectedWeek}`}</h3>
-				<button type="button" className="btn btn-primary hidden-sm-down print-page" onClick={window.print}>
+				<h3 className="title-text text-center text-md-left d-md-none">{`View My Picks for Week ${selectedWeek}`}</h3>
+				<button type="button" className="btn btn-primary d-none d-md-block print-page" onClick={window.print}>
 					<i className="fa fa-fw fa-print" />
 					Print this Page
 				</button>

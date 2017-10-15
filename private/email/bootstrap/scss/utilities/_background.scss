@@ -1,21 +1,6 @@
-//
-// Contextual backgrounds
-//
-
-.bg-inverse {
-  background-color: $brand-inverse;
+@each $color, $value in $theme-colors {
+  @include bg-variant('.bg-#{$color}', $value);
 }
 
-.bg-faded {
-  background-color: $gray-lightest;
-}
-
-@include bg-variant('.bg-primary', $brand-primary);
-
-@include bg-variant('.bg-success', $brand-success);
-
-@include bg-variant('.bg-info', $brand-info);
-
-@include bg-variant('.bg-warning', $brand-warning);
-
-@include bg-variant('.bg-danger', $brand-danger);
+.bg-white { background-color: $white !important; }
+.bg-transparent { background-color: transparent !important; }

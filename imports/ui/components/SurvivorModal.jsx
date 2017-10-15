@@ -52,7 +52,7 @@ class SurvivorModal extends Component {
 								const homeTeam = game.getTeam('home'),
 										visitingTeam = game.getTeam('visitor');
 								return (
-									<div className="survivor-matchups pull-xs-left" key={'game' + i}>
+									<div className="survivor-matchups float-left" key={'game' + i}>
 										<button type="button" className={'btn btn-' + (game.visitor_id === pick.pick_id ? 'success' : 'default')} title={`${visitingTeam.city} ${visitingTeam.name}`} onClick={this._setSurvivorPick.bind(null, game._id, visitingTeam)} disabled={usedTeams.indexOf(game.visitor_id) > -1} data-dismiss="modal">
 											<img src={`/NFLLogos/${visitingTeam.logo}`} />
 										</button>

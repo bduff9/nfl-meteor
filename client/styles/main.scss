@@ -95,35 +95,20 @@ label.error {
   margin-bottom: 5px;
 }
 
-.show-for-print {
-  display: none;
-}
-
 @media print {
   .container-fluid {
 
-    div.col-10.hidden-xs-down.col-sm-3.col-lg-2.sidebar {
-      display: none;
-    }
-
-    div.col-12.col-sm-9.offset-sm-3.col-lg-10.offset-lg-2.main {
+    div.col-12.col-sm-9.col-lg-10.main {
       width: 100%;
       margin-left: 0;
 
+      // Use .d-print-none instead
       button.btn {
         display: none;
       }
 
       .view-pick-results-table {
         page-break-inside: avoid;
-      }
-
-      .hide-for-print {
-        display: none;
-      }
-
-      .show-for-print {
-        display: inline-block;
       }
     }
   }

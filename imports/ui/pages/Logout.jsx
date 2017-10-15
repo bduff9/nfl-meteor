@@ -16,7 +16,7 @@ const Logout = () => {
 					</div>
 				</div>
 				<div className="row">
-					<div className="text-center col-xs">
+					<div className="text-center col">
 						<NavLink to="/login">Return to Sign-in</NavLink>
 					</div>
 				</div>

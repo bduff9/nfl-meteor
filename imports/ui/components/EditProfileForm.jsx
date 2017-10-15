@@ -179,7 +179,7 @@ class EditProfileForm extends Component {
 				}
 				{showReminder ? (
 					<div className="row form-group">
-						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
+						<label className="d-none d-md-block col-md-2 col-form-label">&nbsp;</label>
 						<div className="col-12 col-md-2">
 							<label className="form-check-label col-form-label">
 								<input className="form-check-input" type="checkbox" name="reminder_types_email" value="email" checked={values.reminder_types_email} onBlur={handleBlur} onChange={handleChange} />
@@ -223,8 +223,8 @@ class EditProfileForm extends Component {
 				}
 				{showQuickPick ? (
 					<div className="row form-group">
-						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
-						<div className="hidden-sm-down col-md-2">&nbsp;</div>
+						<label className="d-none d-md-block col-md-2 col-form-label">&nbsp;</label>
+						<div className="d-none d-md-block col-md-2">&nbsp;</div>
 						<label className="col-12 col-md-4 col-form-label text-md-right">Hours before first game:</label>
 						<div className="col-12 col-md-4">
 							<select className="form-control" name="quick_pick_hours" value={values.quick_pick_hours} onBlur={handleBlur} onChange={handleChange}>
@@ -239,7 +239,7 @@ class EditProfileForm extends Component {
 					null
 				}
 				<div className="row form-group">
-					<div className="col-10 offset-xs-1 text-center">
+					<div className="col-10 mx-auto text-center">
 						<p className="form-text text-muted">
 							<strong>Note:</strong> &nbsp;Linking your account makes logging in as simple as a single click
 						</p>

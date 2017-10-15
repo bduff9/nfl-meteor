@@ -110,7 +110,7 @@ class AdminLogs extends Component {
 		return (
 			<div className="row admin-logs">
 				<Helmet title="View All Logs" />
-				<h3 className="title-text text-center text-md-left hidden-md-up">View All Logs</h3>
+				<h3 className="title-text text-center text-md-left d-md-none">View All Logs</h3>
 				<nav className="text-center text-md-right">
 					<ul className="pagination">
 						<li className={'page-item' + (!hasPrev ? ' disabled' : '')}>

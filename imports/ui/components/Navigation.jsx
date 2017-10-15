@@ -62,11 +62,11 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 	};
 
 	return (
-		<div className={`col-10 ${(openMenu ? '' : 'd-sm-block')} col-sm-3 col-lg-2 sidebar`}>
+		<div className={`col-10 col-sm-3 col-lg-2 ${(openMenu ? '' : 'd-sm-block')} d-print-none sidebar`}>
 			{!logoutOnly ? (
 				<div className="sidebar-inner">
-					<i className="fa fa-times hidden-sm-up close-menu" onClick={_toggleMenu} />
-					<ul className="nav nav-sidebar">
+					<i className="fa fa-times d-sm-none close-menu" onClick={_toggleMenu} />
+					<ul className="nav nav-sidebar flex-column">
 						<li>
 							<h5>{`Welcome, ${currentUser.first_name}`}</h5>
 						</li>
@@ -77,7 +77,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						<li><a href="/logout" onClick={_signOut}>Signout</a></li>
 					</ul>
 					{selectedWeek ? (
-						<ul className="nav nav-sidebar">
+						<ul className="nav nav-sidebar flex-column">
 							<li>
 								<i className={'fa fa-fw fa-caret-left' + (selectedWeek === 1 ? ' disabled' : '')} onClick={_selectWeek.bind(null, selectedWeek - 1)} />
 								{` Week ${selectedWeek} `}
@@ -96,7 +96,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						:
 						null
 					}
-					<ul className="nav nav-sidebar">
+					<ul className="nav nav-sidebar flex-column">
 						<li><NavLink to="/" exact activeClassName="active">Dashboard</NavLink></li>
 						<li>
 							<NavLink to="/stats" exact activeClassName="active">Statistics</NavLink>
@@ -119,11 +119,11 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 							<li><a href="javascript:void(0)" className="disabled-link">No Survivor Pool</a></li>
 						}
 					</ul>
-					<ul className="nav nav-sidebar">
+					<ul className="nav nav-sidebar flex-column">
 						<li>
 							<a href="#" onClick={_toggleRightSlider.bind(null, 'messages')}>
 								{(msgCt > 0 ? <strong>Messages</strong> : 'Messages')}&nbsp;
-								{(msgCt > 0 ? <span title={`You have ${msgCt} messages`} className="tag tag-pill tag-pulsate tag-danger">{msgCt}</span> : null)}
+								{(msgCt > 0 ? <span title={`You have ${msgCt} messages`} className="badge badge-pill badge-pulsate badge-danger">{msgCt}</span> : null)}
 							</a>
 						</li>
 						<li><a href="#" onClick={_toggleRightSlider.bind(null, 'rules')}>Rules</a></li>
@@ -135,12 +135,12 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						<li>
 							<a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>
 								{(unreadChatCt > 0 ? <strong>Chat</strong> : 'Chat')}
-								{(unreadChatCt > 0 ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-pill tag-pulsate tag-primary">{unreadChatCt}</span> : null)}
+								{(unreadChatCt > 0 ? <span title={`There are ${unreadChatCt} new chats`} className="badge badge-pill badge-pulsate badge-primary">{unreadChatCt}</span> : null)}
 							</a>
 						</li>
 					</ul>
 					{currentUser.is_admin ? (
-						<ul className="nav nav-sidebar">
+						<ul className="nav nav-sidebar flex-column">
 							<li><NavLink to="/admin/users" exact activeClassName="active">Manage Users</NavLink></li>
 							<li><NavLink to="/admin/logs" exact activeClassName="active">View Logs</NavLink></li>
 							<li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
@@ -155,7 +155,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 				:
 				(
 					<div className="sidebar-inner">
-						<ul className="nav nav-sidebar">
+						<ul className="nav nav-sidebar flex-column">
 							<li><a href="/logout" onClick={_signOut}>Signout</a></li>
 						</ul>
 					</div>

@@ -46,7 +46,7 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 					<Helmet title="View Payments" />
 					<div className="col-md-11">
 						<div className="row">
-							<div className="hidden-md-up">
+							<div className="d-md-none">
 								<h3 className="title-text text-center text-md-left">View My Payments</h3>
 							</div>
 						</div>

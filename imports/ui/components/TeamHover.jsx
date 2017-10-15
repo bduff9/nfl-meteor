@@ -74,7 +74,7 @@ class TeamHover extends Component {
 							<tr>
 								<td>{`Rushing Defense: ${teamInfo.rush_defense || ''} | Passing Defense: ${teamInfo.pass_defense || ''}`}</td>
 							</tr>
-							<tr className="hidden-xs-up">
+							<tr className="d-none">
 								<td>{`Conference Rank: ${teamInfo.rank || ''}`}</td>
 							</tr>
 							<tr>

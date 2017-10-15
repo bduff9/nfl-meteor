@@ -5,12 +5,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 
-const UnfinishedRegistration = ({ component, ...rest }) => (
+const UnfinishedRegistration = ({ authenticated, component, loggingIn, ...rest }) => (
 	<Route {...rest} render={(props) => {
 		const currentUser = Meteor.user(),
-				{ done_registering } = currentUser,
-				loggingIn = Meteor.loggingIn(),
-				authenticated = !loggingIn && !!currentUser;
+				{ done_registering } = currentUser;
 		if (loggingIn) return <div></div>;
 		return authenticated && !done_registering ? (
 			React.createElement(component, { ...props, loggingIn, authenticated })
@@ -23,7 +21,9 @@ const UnfinishedRegistration = ({ component, ...rest }) => (
 );
 
 UnfinishedRegistration.propTypes = {
-	component: PropTypes.func
+	authenticated: PropTypes.bool.isRequired,
+	component: PropTypes.func.isRequired,
+	loggingIn: PropTypes.bool.isRequired
 };
 
 export default UnfinishedRegistration;

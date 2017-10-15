@@ -5,13 +5,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 
-const Authenticated = ({ component, location, ...rest }) => (
+const Authenticated = ({ authenticated, component, location, loggingIn, ...rest }) => (
 	<Route {...rest} render={props => {
 		const { pathname } = location,
-				loggingIn = Meteor.loggingIn(),
-				currentUser = Meteor.user(),
-				authenticated = !loggingIn && !!currentUser;
-		console.log({ authenticated, loggingIn, currentUser, component, location, rest });
+				currentUser = Meteor.user();
 		if (loggingIn) return <div></div>;
 		if (pathname !== '/users/create' && authenticated && !currentUser.done_registering) return (<Redirect to="/users/create" />);
 		return authenticated ? (
@@ -25,8 +22,10 @@ const Authenticated = ({ component, location, ...rest }) => (
 );
 
 Authenticated.propTypes = {
+	authenticated: PropTypes.bool.isRequired,
 	component: PropTypes.func.isRequired,
-	location: PropTypes.object
+	location: PropTypes.object,
+	loggingIn: PropTypes.bool.isRequired
 };
 
 export default Authenticated;

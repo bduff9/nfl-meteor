@@ -5,14 +5,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 
-const Unauthenticated = ({ component, location, ...rest }) => (
+const Unauthenticated = ({ authenticated, component, location, loggingIn, ...rest }) => (
 	<Route {...rest} render={props => {
 		const { state = {} } = location,
-				{ nextPathname } = state,
-				currentUser = Meteor.user(),
-				loggingIn = Meteor.loggingIn(),
-				authenticated = !loggingIn && !!currentUser;
-		console.log({ loggingIn, authenticated, component, location, rest });
+				{ nextPathname } = state;
 		return !authenticated ? (
 			React.createElement(component, { ...props, location, loggingIn, authenticated })
 		)
@@ -24,8 +20,10 @@ const Unauthenticated = ({ component, location, ...rest }) => (
 );
 
 Unauthenticated.propTypes = {
-	component: PropTypes.func,
-	location: PropTypes.object
+	authenticated: PropTypes.bool.isRequired,
+	component: PropTypes.func.isRequired,
+	location: PropTypes.object,
+	loggingIn: PropTypes.bool.isRequired
 };
 
 export default Unauthenticated;

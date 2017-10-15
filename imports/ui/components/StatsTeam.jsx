@@ -23,12 +23,12 @@ const StatsTeam = ({ gameStats, which }) => {
 			<div className="stat-text">
 				<div className={winner ? (thisTeamWon === teamWonPicks && winner !== 'TIE' ? 'text-success' : 'text-danger') : ''} title={`${picks / totalPicks * 100}%`}>
 					<span className="no-wrap">Picked by: </span>
-					<br className="hidden-md-up" />
+					<br className="d-md-none" />
 					<span className="no-wrap">{picks} / {totalPicks}</span>
 				</div>
 				<div className={winner ? (thisTeamWon === teamWonPoints && winner !== 'TIE' ? 'text-success' : 'text-danger') : ''} title={`${points / totalPoints * 100}%`}>
 					<span className="no-wrap">Points for: </span>
-					<br className="hidden-md-up" />
+					<br className="d-md-none" />
 					<span className="no-wrap">{points} / {totalPoints}</span>
 				</div>
 			</div>

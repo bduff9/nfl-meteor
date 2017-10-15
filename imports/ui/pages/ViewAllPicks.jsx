@@ -98,20 +98,20 @@ class ViewAllPicks extends Component {
 		return (
 			<div className="row view-all-picks-wrapper">
 				<Helmet title={`View All Week ${selectedWeek} Picks`} />
-				<h3 className="title-text text-center text-md-left hidden-md-up">{`View All Week ${selectedWeek} Picks`}</h3>
+				<h3 className="title-text text-center text-md-left d-md-none">{`View All Week ${selectedWeek} Picks`}</h3>
 				{pageReady ? (
 					<div className="col-12 text-left view-all-picks">
 						<button type="button" className="btn btn-danger reset-picks" onClick={this._resetPicks}>
 							<i className="fa fa-fw fa-refresh" />
 							Reset Page
 						</button>
-						<button type="button" className="btn btn-primary hidden-sm-down print-page" onClick={window.print}>
+						<button type="button" className="btn btn-primary d-none d-md-block print-page" onClick={window.print}>
 							<i className="fa fa-fw fa-print" />
 							Print this Page
 						</button>
 						<table className="table table-hover view-all-picks-table">
 							<thead>
-								<tr className="hide-for-print">
+								<tr className="d-print-none">
 									<th colSpan={5 + games.length * 6}>
 										Click the team names below to test &quot;what-if&quot; scenarios. To undo, click &apos;Reset Page&apos; above.
 									</th>
@@ -125,7 +125,7 @@ class ViewAllPicks extends Component {
 												<button className={'btn' + (game.visitor_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.visitor_id, game.visitor_short, i)}>
 													{game.visitor_short}
 												</button>
-												<div className={'show-for-print' + (game.visitor_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.visitor_short}</div>
+												<div className={'d-none d-print-inline-block' + (game.visitor_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.visitor_short}</div>
 											</th>
 										);
 										cells.push(
@@ -136,7 +136,7 @@ class ViewAllPicks extends Component {
 												<button className={'btn' + (game.home_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.home_id, game.home_short, i)}>
 													{game.home_short}
 												</button>
-												<div className={'show-for-print' + (game.home_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.home_short}</div>
+												<div className={'d-none d-print-inline-block' + (game.home_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.home_short}</div>
 											</th>
 										);
 										return cells;

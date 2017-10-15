@@ -145,7 +145,7 @@ class MakePicks extends Component {
 				<Helmet title={`Set Week ${selectedWeek} Picks`} />
 				{pageReady ? [
 					<div className="col-12" key="picks">
-						<h3 className="title-text text-center text-md-left hidden-md-up">{`Set Week ${selectedWeek} Picks`}</h3>
+						<h3 className="title-text text-center text-md-left d-md-none">{`Set Week ${selectedWeek} Picks`}</h3>
 						<PointHolder
 							className="pointBank"
 							disabledPoints={unavailable}
@@ -200,12 +200,12 @@ class MakePicks extends Component {
 													<div className="col-6 col-md-2 text-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
 													<div className="col-6 col-md-2 text-center text-md-left homeName">
 														{homeTeam.city}&nbsp;
-														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id, game, true)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
+														<i className="text-primary d-none d-md-block fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id, game, true)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
 														<br />
 														{homeTeam.name}
 													</div>
 													<div className="col-6 col-md-2 text-center text-md-right visitorName">
-														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id, game, false)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
+														<i className="text-primary d-none d-md-block fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id, game, false)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
 															&nbsp;{visitTeam.city}
 														<br />
 														{visitTeam.name}
@@ -256,11 +256,11 @@ class MakePicks extends Component {
 					</div>,
 					<div className="col-12 col-sm-9 col-md-10 text-center pick-buttons" key="pick-buttons">
 						<button type="button" className="btn btn-danger" disabled={used.length === 0} onClick={this._resetPicks}>
-							<i className="fa fa-fw fa-refresh hidden-sm-down" /> Reset
+							<i className="fa fa-fw fa-refresh d-none d-md-block" /> Reset
 						</button>
 						<div className="btn-group dropup">
 							<button type="button" className="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled={available.length === 0}>
-								<i className="fa fa-fw fa-magic hidden-sm-down" /> Auto-Pick
+								<i className="fa fa-fw fa-magic d-none d-md-block" /> Auto-Pick
 							</button>
 							<div className="dropdown-menu">
 								<a className="dropdown-item" href="#" onClick={this._autopick.bind(null, 'home')}>All Home Teams</a>
@@ -270,10 +270,10 @@ class MakePicks extends Component {
 							</div>
 						</div>
 						<button type="button" className="btn btn-primary" disabled={used.length === 0} onClick={this._savePicks}>
-							<i className="fa fa-fw fa-save hidden-sm-down" /> Save
+							<i className="fa fa-fw fa-save d-none d-md-block" /> Save
 						</button>
 						<button type="submit" className="btn btn-success" onClick={this._submitPicks.bind(null, available.length !== 0, !tiebreaker.last_score)}>
-							<i className="fa fa-fw fa-arrow-circle-right hidden-sm-down" /> Submit
+							<i className="fa fa-fw fa-arrow-circle-right d-none d-md-block" /> Submit
 						</button>
 					</div>
 				]

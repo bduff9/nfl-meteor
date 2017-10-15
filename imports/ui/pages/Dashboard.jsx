@@ -68,7 +68,7 @@ class Dashboard extends Component {
 		return (
 			<div className="row dashboard-wrapper">
 				<Helmet title={'My Dashboard'} />
-				<h3 className="title-text text-center text-md-left hidden-md-up">My Dashboard</h3>
+				<h3 className="title-text text-center text-md-left d-md-none">My Dashboard</h3>
 				{pageReady ? (
 					<div className="col-12 dashboard">
 						<div className="col-6">

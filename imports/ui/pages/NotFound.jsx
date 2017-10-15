@@ -21,7 +21,7 @@ const NotFound = ({ location }) => {
 	writeLog.call({ userId: Meteor.userId(), action: '404', message: location.pathname }, handleError);
 
 	return (
-		<div className="col-xs not-found-wrapper">
+		<div className="col not-found-wrapper">
 			<Helmet title="Not Found" />
 			<div className="white-box col-12 col-sm-10 col-md-8 col-xl-6">
 				<div className="row">

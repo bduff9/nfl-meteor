@@ -44,9 +44,9 @@ class SetSurvivor extends Component {
 				<Helmet title={'Make Survivor Picks'} />
 				{pageReady ? (
 					<div className="col-12">
-						<h3 className="title-text text-center text-md-left hidden-md-up">Make Survivor Picks</h3>
+						<h3 className="title-text text-center text-md-left d-md-none">Make Survivor Picks</h3>
 						<div className="row">
-							<div className="col-md-4 hidden-sm-down side-bar">
+							<div className="col-md-4 d-none d-md-block side-bar">
 								{teams.map((team, i) => {
 									const weekIndex = survivorPicks.findIndex((pick, i) => team._id === pick.pick_id);
 									return (
@@ -59,7 +59,7 @@ class SetSurvivor extends Component {
 									);
 								})}
 							</div>
-							<div className="col-md-7 offset-md-5 col-12">
+							<div className="col-md-7 ml-md-auto col-12">
 								<table className="table table-hover set-survivor-table">
 									<thead className="thead-default">
 										<tr>

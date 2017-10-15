@@ -30,10 +30,10 @@ div.sidebar {
 
       li {
 
-        .tag {
+        .badge {
           cursor: pointer;
 
-          &.tag-pulsate {
+          &.badge-pulsate {
             animation: pulsate 2s ease-out;
             animation-iteration-count: infinite;
           }

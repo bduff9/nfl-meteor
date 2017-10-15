@@ -130,7 +130,7 @@ class AdminUsers extends Component {
 				<Helmet title="User Admin" />
 				{pageReady ? (
 					<div className="col-12">
-						<h3 className="title-text text-center text-md-left hidden-md-up">User Admin</h3>
+						<h3 className="title-text text-center text-md-left d-md-none">User Admin</h3>
 						<button type="button" className="btn btn-primary" onClick={this._toggleEmail}>
 							<i className="fa fa-fw fa-envelope"></i>
 							Send Email to All

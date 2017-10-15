@@ -28,7 +28,7 @@ class Statistics extends Component {
 		return (
 			<div className="row statistics-wrapper">
 				<Helmet title={pageTitle} />
-				<h3 className="title-text text-center text-md-left hidden-md-up">{pageTitle}</h3>
+				<h3 className="title-text text-center text-md-left d-md-none">{pageTitle}</h3>
 				{pageReady ? (
 					<div className="col-12 statistics">
 						<select className="form-control" value={display} onChange={(ev) => this.setState({ display: ev.currentTarget.value })}>

@@ -5,7 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { createContainer } from 'meteor/react-meteor-data';
-import { Session } from 'meteor/session';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { handleError, getCurrentSeasonYear } from '../../api/global';
@@ -46,20 +45,6 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 		ev.preventDefault();
 		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, handleError);
 	};
-	const _signOut = ev => {
-		const user = Meteor.user();
-		ev.preventDefault();
-		ev.stopPropagation();
-		if (Meteor.userId()) {
-			removeSelectedWeek.call({ userId: user._id }, handleError);
-			Meteor.logout((err) => {
-				writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, handleError);
-				Object.keys(Session.keys).forEach(key => Session.set(key, undefined));
-				Session.keys = {};
-			});
-		}
-		return false;
-	};
 
 	return (
 		<div className={`col-10 col-sm-3 col-lg-2 ${(openMenu ? '' : 'd-sm-block')} d-print-none sidebar`}>
@@ -74,7 +59,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						<li>
 							<NavLink to="/users/payments" exact activeClassName="active">View Payments</NavLink>
 						</li>
-						<li><a href="/logout" onClick={_signOut}>Signout</a></li>
+						<li><NavLink to="/logout" exact activeClassName="active">Signout</NavLink></li>
 					</ul>
 					{selectedWeek ? (
 						<ul className="nav nav-sidebar flex-column">
@@ -156,7 +141,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 				(
 					<div className="sidebar-inner">
 						<ul className="nav nav-sidebar flex-column">
-							<li><a href="/logout" onClick={_signOut}>Signout</a></li>
+							<li><NavLink to="/logout" exact activeClassName="active">Signout</NavLink></li>
 						</ul>
 					</div>
 				)}

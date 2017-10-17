@@ -53,7 +53,7 @@ export default class Login extends Component {
 		Meteor[service](options, (err) => {
 			if (err) {
 				this.setState({ loading: null });
-				handleError(err, { title: err.message, type: 'danger' });
+				handleError(err, { title: err.message, icon: 'danger' });
 			} else {
 				Bert.alert({
 					message: 'Welcome!',

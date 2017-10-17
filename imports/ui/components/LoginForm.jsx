@@ -97,7 +97,7 @@ export default withFormik({
 				if (err && err.reason !== 'Login forbidden') {
 					if (err.error && err.reason) {
 						setSubmitting(false);
-						handleError(err, { title: err.error, message: err.reason, type: 'warning' });
+						handleError(err, { title: err.error, message: err.reason, icon: 'warning' });
 					} else {
 						handleError(err);
 					}
@@ -106,7 +106,7 @@ export default withFormik({
 					sweetAlert({
 						title: 'Your account has been created',
 						text: 'Please check your email to verify your account in order to sign in',
-						type: 'success'
+						icon: 'success'
 					});
 				}
 			});
@@ -115,9 +115,9 @@ export default withFormik({
 				if (err) {
 					setSubmitting(false);
 					if (err.reason === 'User not found') {
-						handleError(err, { title: 'User not found!', text: 'Did you mean to register at the bottom of this page instead?', type: 'warning' });
+						handleError(err, { title: 'User not found!', text: 'Did you mean to register at the bottom of this page instead?', icon: 'warning' });
 					} else {
-						handleError(err, { type: 'warning' });
+						handleError(err, { icon: 'warning' });
 					}
 				} else {
 					Bert.alert({

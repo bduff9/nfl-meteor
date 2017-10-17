@@ -9,6 +9,7 @@ const Authenticated = ({ authenticated, component, location, loggingIn, ...rest 
 	<Route {...rest} render={props => {
 		const { pathname } = location,
 				currentUser = Meteor.user();
+		console.log('authenticated');
 		if (loggingIn) return <div></div>;
 		if (pathname !== '/users/create' && authenticated && !currentUser.done_registering) return (<Redirect to="/users/create" />);
 		return authenticated ? (

@@ -41,3 +41,4 @@ prod-settings.json
 mup.*
 *.orig
 backup
+.vscode/out

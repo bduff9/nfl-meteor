@@ -30,7 +30,7 @@ class EditProfile extends Component {
 		};
 		Meteor[service](options, (err) => {
 			if (err && err.errorType !== 'Accounts.LoginCancelledError') {
-				handleError(err, { title: err.message, type: 'danger' });
+				handleError(err, { title: err.message, icon: 'danger' });
 			} else {
 				if (service.indexOf('Facebook') > -1) {
 					this.setState({ hasFacebook: true });

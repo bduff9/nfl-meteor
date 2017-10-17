@@ -10,6 +10,7 @@ import { Routes } from '../../startup/client/Routes.jsx';
 import { Loading } from '../pages/Loading.jsx';
 
 const NFLPool = ({ authenticated, loggingIn, pageReady, userID }) => {
+	console.log('nflpool');
 	return (
 		<div className="row">
 			<Helmet

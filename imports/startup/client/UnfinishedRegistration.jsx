@@ -9,6 +9,7 @@ const UnfinishedRegistration = ({ authenticated, component, loggingIn, ...rest }
 	<Route {...rest} render={(props) => {
 		const currentUser = Meteor.user(),
 				{ done_registering } = currentUser;
+		console.log('UnfinishedRegistration');
 		if (loggingIn) return <div></div>;
 		return authenticated && !done_registering ? (
 			React.createElement(component, { ...props, loggingIn, authenticated })

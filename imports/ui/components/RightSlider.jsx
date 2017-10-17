@@ -8,7 +8,7 @@ import { Rules } from './Rules.jsx';
 import ScoreBoard from './ScoreBoard.jsx';
 import Chat from './Chat.jsx';
 
-export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSlider }) => {
+const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSlider }) => {
 
 	const _getSliderContent = () => {
 		switch(type) {
@@ -40,3 +40,5 @@ RightSlider.propTypes = {
 	_changeScoreboardWeek: PropTypes.func.isRequired,
 	_toggleRightSlider: PropTypes.func.isRequired
 };
+
+export default RightSlider;

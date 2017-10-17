@@ -17,11 +17,15 @@ export const Routes = props => (
 	<Router>
 		<Switch>
 			<Unauthenticated exact path="/login" component={Login} {...props} />
-			<Authenticated exact path="/logout" component={Logout} {...props} />
+			<Route exact path="/logout" component={Logout} {...props} />
 			<Route exact path="/quick-pick/:user_id/:team_short" component={QuickPick} {...props} />
 			<Route exact path="/reset-password/:token" component={ResetPassword} {...props} />
-			<Route exact path="/verify-email/:token" component={VerifyEmail} {...props} />
-			<Authenticated path="/" component={AuthedLayout} />
+			<Unauthenticated exact path="/verify-email/:token" component={VerifyEmail} {...props} />
+			<Authenticated path="/admin" component={AuthedLayout} {...props} />
+			<Authenticated path="/picks" component={AuthedLayout} {...props} />
+			<Authenticated path="/survivor" component={AuthedLayout} {...props} />
+			<Authenticated path="/users" component={AuthedLayout} {...props} />
+			<Authenticated exact path="/" component={AuthedLayout} {...props} />
 			<Route component={NotFound} {...props} />
 		</Switch>
 	</Router>

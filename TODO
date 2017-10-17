@@ -1,6 +1,5 @@
 For BD
-	- Verify email not being sent (check registration)
-	- Logout fails to work from create profile
+	- Email issue with bootstrap v4
 	- Add new/remove old merge accounts logic
 	- Handle deprecated React addons
 For BA

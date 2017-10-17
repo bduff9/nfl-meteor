@@ -50,7 +50,7 @@ export const handleError = (err, opts = {}, cb = null, hide = false) => {
 		import sweetAlert from 'sweetalert';
 		opts.title = opts.title || 'Error Occurred';
 		opts.text = opts.text || err.reason || err.message || err.error || 'Something went wrong, please try again';
-		opts.type = opts.type || 'error';
+		opts.icon = opts.icon || opts.type || 'error';
 		sweetAlert(opts).then(cb);
 	} else {
 		console.error(opts.title || 'Caught error', err);

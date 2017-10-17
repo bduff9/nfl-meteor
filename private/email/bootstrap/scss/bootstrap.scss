@@ -23,7 +23,7 @@
 @import "input-group";
 @import "custom-forms";
 @import "nav";
-@import "navbar";
+@import "navbar"; // Could not add CSS to emailLayout: Unmatched ' (line 2551, char 253) mailer-utils
 @import "card";
 @import "breadcrumb";
 @import "pagination";
@@ -37,5 +37,5 @@
 @import "modal";
 @import "tooltip";
 @import "popover";
-@import "carousel";
-@import "utilities";
+@import "carousel"; // Could not add CSS to emailLayout: Unexpected } (line 3307, char 42) mailer-utils
+@import "utilities"; //  Could not add CSS to emailLayout: Unexpected } (line 3974, char 22) mailer-utils

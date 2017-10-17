@@ -18,7 +18,8 @@ import Dashboard from '../pages/Dashboard';
 import EditProfile from '../pages/EditProfile';
 import MakePicks from '../pages/MakePicks';
 import Navigation from '../components/Navigation.jsx';
-import { RightSlider } from '../components/RightSlider.jsx';
+import NotFound from '../../ui/pages/NotFound';
+import RightSlider from '../components/RightSlider.jsx';
 import SetSurvivor from '../pages/SetSurvivor';
 import Statistics from '../pages/Statistics';
 import UnfinishedRegistration from '../../startup/client/UnfinishedRegistration';
@@ -63,6 +64,7 @@ class AuthedLayout extends Component {
 		const { openMenu, rightSlider, scoreboardWeek } = this.state,
 				{ currentWeek, location, ...rest } = this.props,
 				logoutOnly = location.pathname.indexOf('create') > -1;
+		console.log('AuthedLayout');
 		return (
 			<div className="col-12 authed-layout-wrapper">
 				<div className="row">
@@ -82,13 +84,14 @@ class AuthedLayout extends Component {
 							<Route exact path="/picks/set" component={MakePicks}  {...this.props}/>
 							<Route exact path="/picks/view" component={ViewPicks} {...this.props} />
 							<Route exact path="/picks/viewall" component={ViewAllPicks} {...this.props} />
-							<Route exact path="/stats" component={Statistics} {...this.props} />
+							<Route exact path="/users/stats" component={Statistics} {...this.props} />
 							<Route exact path="/survivor/set" component={SetSurvivor} {...this.props} />
 							<Route exact path="/survivor/view" component={ViewSurvivor} {...this.props} />
 							<UnfinishedRegistration exact path="/users/create" component={EditProfile} {...this.props} />
 							<Route exact path="/users/edit" component={EditProfile} {...this.props} />
 							<Route exact path="/users/payments" component={ViewPayments} {...this.props} />
 							<Route exact path="/" component={Dashboard} />
+							<Route component={NotFound} {...this.props} />
 						</Switch>
 					</div>
 				</div>

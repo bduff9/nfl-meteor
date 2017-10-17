@@ -154,13 +154,13 @@ export const notifyAdminsOfUntrusted = new ValidatedMethod({
 export const notifyAdminsOfUntrustedSync = Meteor.wrapAsync(notifyAdminsOfUntrusted.call, notifyAdminsOfUntrusted);
 
 export const removeSelectedWeek = new ValidatedMethod({
-	name: 'Users.selected_week.delete',
+	name: 'Users.removeSelectedWeek',
 	validate: new SimpleSchema({
 		userId: { type: String, label: 'User ID' }
 	}).validator(),
 	run ({ userId }) {
 		if (!userId) throw new Meteor.Error('Users.selected_week.delete.notLoggedIn', 'Must be logged in to change week');
-		if (Meteor.isServer) User.update(userId, { $set: { selected_week: {}}});
+		if (Meteor.isServer) Meteor.users.update({ _id: userId }, { $set: { selected_week: {}}});
 	}
 });
 export const removeSelectedWeekSync = Meteor.wrapAsync(removeSelectedWeek.call, removeSelectedWeek);

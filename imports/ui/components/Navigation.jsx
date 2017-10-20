@@ -10,11 +10,11 @@ import { DEFAULT_LEAGUE } from '../../api/constants';
 import { handleError, getCurrentSeasonYear } from '../../api/global';
 import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
-import { getLastChatAction, getUnreadChatCount, getUnreadMessages, writeLog } from '../../api/collections/nfllogs';
+import { getLastChatAction, getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
-import { removeSelectedWeek, updateSelectedWeek } from '../../api/collections/users';
+import { updateSelectedWeek } from '../../api/collections/users';
 
 const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	let msgCt = unreadMessages.length,
@@ -84,7 +84,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 					<ul className="nav nav-sidebar flex-column">
 						<li><NavLink to="/" exact activeClassName="active">Dashboard</NavLink></li>
 						<li>
-							<NavLink to="/stats" exact activeClassName="active">Statistics</NavLink>
+							<NavLink to="/users/stats" exact activeClassName="active">Statistics</NavLink>
 						</li>
 						<li><NavLink to="/picks/view" exact activeClassName="active">View My Picks</NavLink></li>
 						{tiebreaker ?

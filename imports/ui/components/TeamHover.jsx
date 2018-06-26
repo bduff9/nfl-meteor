@@ -1,17 +1,17 @@
-/* globals Tether */
 'use strict';
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
+import Tether from 'tether';
 
 import { handleError } from '../../api/global';
 import { getTeamByID } from '../../api/collections/teams';
 
 class TeamHover extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {};
 	}
 
@@ -134,7 +134,7 @@ TeamHover.propTypes = {
 
 TeamHover._tether = null;
 
-export default createContainer(({ game, isHome, teamId }) => {
+export default withTracker(({ game, isHome, teamId }) => {
 	const teamHandle = Meteor.subscribe('getTeamInfo', teamId),
 			teamReady = teamHandle.ready();
 	let teamInfo = {};
@@ -145,4 +145,4 @@ export default createContainer(({ game, isHome, teamId }) => {
 		pageReady: teamReady,
 		teamInfo
 	};
-}, TeamHover);
+})(TeamHover);

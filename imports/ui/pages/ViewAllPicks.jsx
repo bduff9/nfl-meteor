@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import '../../ui/pages/ViewAllPicksPrint.scss';
@@ -19,7 +19,7 @@ import { getAllPicksForWeek } from '../../api/collections/picks';
 
 class ViewAllPicks extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {
 			games: [],
 			users: []
@@ -201,7 +201,7 @@ ViewAllPicks.contextTypes = {
 	router: PropTypes.object.isRequired
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const currentUser = getCurrentUser.call({}),
 			currentWeek = Session.get('currentWeek'),
 			selectedWeek = Session.get('selectedWeek'),
@@ -236,4 +236,4 @@ export default createContainer(() => {
 		tiebreaker,
 		tiebreakers
 	};
-}, ViewAllPicks);
+})(ViewAllPicks);

@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
 import { formatDate, handleError } from '../../api/global';
@@ -89,7 +89,7 @@ Chat.propTypes = {
 	pageReady: PropTypes.bool.isRequired
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const currentUser = getCurrentUser.call({}, handleError),
 			chatsHandle = Meteor.subscribe('allChats'),
 			chatsReady = chatsHandle.ready(),
@@ -103,4 +103,4 @@ export default createContainer(() => {
 		currentUser,
 		pageReady: chatsReady && usersReady
 	};
-}, Chat);
+})(Chat);

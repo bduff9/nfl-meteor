@@ -3,9 +3,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import $ from 'jquery';
-import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
@@ -15,7 +14,7 @@ import { setSurvivorPick } from '../../api/collections/survivorpicks';
 
 class SurvivorModal extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {};
 		this._setSurvivorPick = this._setSurvivorPick.bind(this);
 	}
@@ -84,7 +83,7 @@ SurvivorModal.propTypes = {
 	_setModalWeek: PropTypes.func.isRequired
 };
 
-export default createContainer(({ week }) => {
+export default withTracker(({ week }) => {
 	const gamesHandle = Meteor.subscribe('gamesForWeek', week),
 			gamesReady = gamesHandle.ready(),
 			currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
@@ -96,4 +95,4 @@ export default createContainer(({ week }) => {
 		pageReady: gamesReady,
 		week
 	};
-}, SurvivorModal);
+})(SurvivorModal);

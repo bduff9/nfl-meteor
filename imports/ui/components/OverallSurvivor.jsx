@@ -1,14 +1,14 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { SurvivorLayout } from '../layouts/SurvivorLayout.jsx';
 import { getSurvivorUsers } from '../../api/collections/users';
 import { getAllSurvivorPicks } from '../../api/collections/survivorpicks';
 
-export default createContainer(({ weekForSec }) => {
+export default withTracker(({ weekForSec }) => {
 	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
 			survivorHandle = Meteor.subscribe('overallSurvivor', currentLeague, weekForSec),
 			survivorReady = survivorHandle.ready(),
@@ -56,4 +56,4 @@ export default createContainer(({ weekForSec }) => {
 		pageReady,
 		weekForSec
 	};
-}, SurvivorLayout);
+})(SurvivorLayout);

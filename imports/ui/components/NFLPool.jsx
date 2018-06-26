@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { Routes } from '../../startup/client/Routes.jsx';
@@ -32,7 +32,7 @@ NFLPool.propTypes = {
 	userID: PropTypes.string
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const systemValsHandle = Meteor.subscribe('systemValues'),
 			systemValsReady = systemValsHandle.ready(),
 			userHandle = Meteor.subscribe('userData'),
@@ -45,4 +45,4 @@ export default createContainer(() => {
 		pageReady: systemValsReady && userReady,
 		userID
 	};
-}, NFLPool);
+})(NFLPool);

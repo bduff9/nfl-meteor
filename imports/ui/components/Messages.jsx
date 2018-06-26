@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 
 import { DEFAULT_LEAGUE, PAYMENT_DUE_WEEK } from '../../api/constants';
@@ -64,7 +64,7 @@ Messages.propTypes = {
 	tiebreaker: PropTypes.object.isRequired
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const currentUser = getCurrentUser.call({}),
 			currentWeek = Session.get('currentWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
@@ -105,4 +105,4 @@ export default createContainer(() => {
 		submittedSurvivor,
 		tiebreaker
 	};
-}, Messages);
+})(Messages);

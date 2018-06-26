@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { handleError } from '../../api/global';
 import { getGameByID } from '../../api/collections/games';
@@ -39,7 +39,7 @@ SurvivorPick.propTypes = {
 	pick: PropTypes.object.isRequired
 };
 
-export default createContainer(({ pick }) => {
+export default withTracker(({ pick }) => {
 	const gameHandle = Meteor.subscribe('getGame', pick.game_id),
 			gameReady = gameHandle.ready();
 	let game = {};
@@ -49,4 +49,4 @@ export default createContainer(({ pick }) => {
 		gameReady,
 		pick
 	};
-}, SurvivorPick);
+})(SurvivorPick);

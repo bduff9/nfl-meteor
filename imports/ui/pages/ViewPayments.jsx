@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { DEFAULT_LEAGUE, OVERALL_PRIZES, POOL_COST, SURVIVOR_COST, SURVIVOR_PRIZES, TOP_OVERALL_FOR_HISTORY, TOP_SURVIVOR_FOR_HISTORY, TOP_WEEKLY_FOR_HISTORY, WEEKS_IN_SEASON, WEEKLY_PRIZES } from '../../api/constants';
@@ -18,25 +18,21 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 	let total;
 
 	const getPaymentMessage = (amount, type) => {
-		let msg = 'ERROR';
 		switch (type) {
 			case 'Cash':
-				msg = <span className="amount-message">Please pay ${amount} to Brian or Billy</span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} to Brian or Billy</span>;
 			case 'PayPal':
-				msg = <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a></span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a></span>;
 			case 'QuickPay':
-				msg = <span className="amount-message">Please pay ${amount} using Chase QuickPay to account bduff9@gmail.com</span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} using Chase QuickPay to account bduff9@gmail.com</span>;
 			case 'Venmo':
-				msg = <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com</span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com</span>;
 			default:
 				console.error('Unknown account type', type);
 				break;
 		}
-		return msg;
+
+		return 'ERROR';
 	};
 
 	return (
@@ -142,7 +138,7 @@ ViewPayments.propTypes = {
 	tiebreakers: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const user_id = Meteor.userId(),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
 			survivorHandle = Meteor.subscribe('overallSurvivor', currentLeague, WEEKS_IN_SEASON),
@@ -170,4 +166,4 @@ export default createContainer(() => {
 		stillAlive,
 		tiebreakers
 	};
-}, ViewPayments);
+})(ViewPayments);

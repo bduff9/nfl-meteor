@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { Session } from 'meteor/session';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { currentWeek } from '../../api/collections/games';
@@ -30,7 +30,7 @@ import ViewSurvivor from '../pages/ViewSurvivor';
 
 class AuthedLayout extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {
 			openMenu: false,
 			rightSlider: '',
@@ -119,7 +119,7 @@ AuthedLayout.propTypes = {
 	selectedWeek: PropTypes.number
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const currentUser = getCurrentUser.call({}),
 			nextGameHandle = Meteor.subscribe('nextGame'),
 			nextGameReady = nextGameHandle.ready();
@@ -136,4 +136,4 @@ export default createContainer(() => {
 		currentWeek: week,
 		selectedWeek
 	};
-}, AuthedLayout);
+})(AuthedLayout);

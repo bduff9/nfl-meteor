@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import '../../ui/pages/ViewPicksPrint.scss';
@@ -16,8 +16,8 @@ import { getTiebreakerSync } from '../../api/collections/tiebreakers';
 import { getPicksForWeekSync } from '../../api/collections/picks';
 
 class ViewPicks extends Component {
-	constructor (prop) {
-		super();
+	constructor (props) {
+		super(props);
 		this.state = {};
 	}
 
@@ -68,7 +68,7 @@ class ViewPicks extends Component {
 					<table className="table table-hover view-pick-results-table" key="view-pick-results-table">
 						<thead className="thead-default">
 							<tr>
-								<th colSpan="2">My Results</th>
+								<th colSpan={2}>My Results</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -111,7 +111,7 @@ ViewPicks.propTypes = {
 	tiebreaker: PropTypes.object
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
 			picksHandle = Meteor.subscribe('singleWeekPicksForUser', selectedWeek, currentLeague),
@@ -135,4 +135,4 @@ export default createContainer(() => {
 		selectedWeek,
 		tiebreaker
 	};
-}, ViewPicks);
+})(ViewPicks);

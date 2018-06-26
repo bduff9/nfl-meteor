@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { Loading } from '../pages/Loading';
 import { getPoolHistoryForYear } from '../../api/collections/poolhistorys';
@@ -55,7 +55,7 @@ ViewHistory.propTypes = {
 	pageReady: PropTypes.bool.isRequired
 };
 
-export default createContainer(({ currentLeague, year }) => {
+export default withTracker(({ currentLeague, year }) => {
 	const historyHandle = Meteor.subscribe('poolHistoryForYear', currentLeague, year),
 			historyReady = historyHandle.ready();
 	let history = [];
@@ -66,4 +66,4 @@ export default createContainer(({ currentLeague, year }) => {
 		history,
 		pageReady: historyReady
 	};
-}, ViewHistory);
+})(ViewHistory);

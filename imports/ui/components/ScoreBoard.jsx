@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { moment } from 'meteor/momentjs:moment';
 
 import { formatDate, handleError, pad } from '../../api/global';
@@ -12,7 +12,7 @@ import { toggleScoreboard } from '../../api/collections/systemvals';
 
 class ScoreBoard extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {};
 	}
 
@@ -131,7 +131,7 @@ ScoreBoard.propTypes = {
 	_changeScoreboardWeek: PropTypes.func.isRequired
 };
 
-export default createContainer(({ week, _changeScoreboardWeek }) => {
+export default withTracker(({ week, _changeScoreboardWeek }) => {
 	const weekGameHandle = Meteor.subscribe('gamesForWeek', week),
 			weekGamesReady = weekGameHandle.ready();
 	let games = [];
@@ -142,4 +142,4 @@ export default createContainer(({ week, _changeScoreboardWeek }) => {
 		weekGamesReady,
 		_changeScoreboardWeek
 	};
-}, ScoreBoard);
+})(ScoreBoard);

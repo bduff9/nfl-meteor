@@ -1,7 +1,7 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { NO_MISS_WEEK } from '../../api/constants';
 import { sortForDash } from '../../api/global';
@@ -9,7 +9,7 @@ import { DashLayout } from '../layouts/DashLayout.jsx';
 import { getCurrentUser, getUsers } from '../../api/collections/users';
 import { getAllPicks } from '../../api/collections/picks';
 
-export default createContainer(({ league, sortBy, _changeSortBy }) => {
+export default withTracker(({ league, sortBy, _changeSortBy }) => {
 	const myUser = getCurrentUser.call({}),
 			picksHandle = Meteor.subscribe('allPicks', league),
 			picksReady = picksHandle.ready(),
@@ -77,4 +77,4 @@ export default createContainer(({ league, sortBy, _changeSortBy }) => {
 		sort,
 		_changeSortBy
 	};
-}, DashLayout);
+})(DashLayout);

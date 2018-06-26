@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
@@ -21,7 +21,7 @@ import { getTiebreakerSync, resetTiebreaker, setTiebreaker, submitPicks } from '
 class MakePicks extends Component {
 	constructor (props) {
 		const { games, pageReady, picks } = props;
-		super();
+		super(props);
 		this.state = this._populatePoints(games, picks, pageReady);
 		this._autopick = this._autopick.bind(this);
 		this._handleSubmitPicks = this._handleSubmitPicks.bind(this);
@@ -300,7 +300,7 @@ MakePicks.contextTypes = {
 	router: PropTypes.object.isRequired
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const currentWeek = Session.get('currentWeek'),
 			selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
@@ -327,4 +327,4 @@ export default createContainer(() => {
 		selectedWeek,
 		tiebreaker
 	};
-}, MakePicks);
+})(MakePicks);

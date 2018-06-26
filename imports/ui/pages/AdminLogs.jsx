@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 import { Counts } from 'meteor/tmeasday:publish-counts';
 
@@ -16,7 +16,7 @@ import { getUsersForLogs } from '../../api/collections/users';
 class AdminLogs extends Component {
 	constructor (props) {
 		const { limit, logCt } = props;
-		super();
+		super(props);
 		this.state = {
 			totalPages: Math.ceil(logCt / limit)
 		};
@@ -252,7 +252,7 @@ AdminLogs.contextTypes = {
 	router: PropTypes.object.isRequired
 };
 
-export default createContainer(({ location }) => {
+export default withTracker(({ location }) => {
 	const { pathname, search } = location,
 			searchArr = search.substring(1).split('&'),
 			limit = searchArr.reduce((prev, q) => {
@@ -307,4 +307,4 @@ export default createContainer(({ location }) => {
 		users,
 		userTos
 	};
-}, AdminLogs);
+})(AdminLogs);

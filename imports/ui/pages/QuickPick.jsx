@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import { Session } from 'meteor/session';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { Loading } from './Loading.jsx';
@@ -50,7 +50,7 @@ QuickPick.propTypes = {
 	pageReady: PropTypes.bool.isRequired
 };
 
-export default createContainer(({ params }) => {
+export default withTracker(({ params }) => {
 	/*
 	TODO: will need to rework this component with react router 4 since the onEnter prop was taken off Route in Routes.jsx, this is to ensure the quick pick works the first time as well as if you were to come back (like after an error)
 
@@ -84,4 +84,4 @@ export default createContainer(({ params }) => {
 		msg,
 		pageReady: !!msg
 	};
-}, QuickPick);
+})(QuickPick);

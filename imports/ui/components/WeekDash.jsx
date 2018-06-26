@@ -1,7 +1,7 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { DashLayout } from '../layouts/DashLayout.jsx';
 import { sortForDash } from '../../api/global';
@@ -9,7 +9,7 @@ import { getCurrentUser } from '../../api/collections/users';
 import { getAllTiebreakersForWeek, getTiebreaker } from '../../api/collections/tiebreakers';
 import { getAllPicksForWeek } from '../../api/collections/picks';
 
-export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
+export default withTracker(({ league, sortBy, week, _changeSortBy }) => {
 	const myUser = getCurrentUser.call({}),
 			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', week, league),
 			tiebreakerReady = tiebreakerHandle.ready(),
@@ -102,4 +102,4 @@ export default createContainer(({ league, sortBy, week, _changeSortBy }) => {
 		week,
 		_changeSortBy
 	};
-}, DashLayout);
+})(DashLayout);

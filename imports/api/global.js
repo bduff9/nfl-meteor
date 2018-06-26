@@ -1,7 +1,7 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
-import { moment } from 'meteor/momentjs:moment';
+import moment from 'moment';
 
 export const convertEpoch = epoch => {
 	let d = new Date(0);
@@ -23,8 +23,8 @@ export const getColor = (point, max) => {
 	const BLUE = 0;
 	let style = {},
 			perc = point / max,
-			red = parseInt((1 - perc) * 510, 10),
-			green = parseInt(510 * perc, 10);
+			red = Math.round((1 - perc) * 510),
+			green = Math.round(510 * perc);
 	green = (green > 255 ? 255 : green);
 	red = (red > 255 ? 255 : red);
 	style.backgroundColor = `rgb(${red}, ${green}, ${BLUE})`;
@@ -47,7 +47,7 @@ export const getInputStatus = (field, error, touched, prefix = '', suffix = '') 
 export const handleError = (err, opts = {}, cb = null, hide = false) => {
 	if (!err) return;
 	if (Meteor.isClient && !hide) {
-		import sweetAlert from 'sweetalert';
+		const sweetAlert = require('sweetalert');
 		opts.title = opts.title || 'Error Occurred';
 		opts.text = opts.text || err.reason || err.message || err.error || 'Something went wrong, please try again';
 		opts.icon = opts.icon || opts.type || 'error';

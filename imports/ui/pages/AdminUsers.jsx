@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
@@ -15,7 +15,7 @@ import { deleteUser, getAdminUsers, updateUserAdmin } from '../../api/collection
 
 class AdminUsers extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {
 			emailBody: '',
 			emailModal: false,
@@ -229,7 +229,7 @@ AdminUsers.propTypes = {
 	users: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const allUsersHandle = Meteor.subscribe('adminUsers'),
 			allUsersReady = allUsersHandle.ready();
 	let users = [];
@@ -238,4 +238,4 @@ export default createContainer(() => {
 		pageReady: allUsersReady,
 		users
 	};
-}, AdminUsers);
+})(AdminUsers);

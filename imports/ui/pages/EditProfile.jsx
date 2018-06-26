@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import { Bert } from 'meteor/themeteorchef:bert';
 import Helmet from 'react-helmet';
 
@@ -15,7 +15,7 @@ import { getNextGame1 } from '../../api/collections/games';
 class EditProfile extends Component {
 	constructor (props) {
 		const user = Meteor.user();
-		super();
+		super(props);
 		this.state = {
 			hasFacebook: !!user.services && !!user.services.facebook,
 			hasGoogle: !!user.services && !!user.services.google,
@@ -80,7 +80,7 @@ EditProfile.contextTypes = {
 	router: PropTypes.object.isRequired
 };
 
-export default createContainer(({ location }) => {
+export default withTracker(({ location }) => {
 	const usersHandle = Meteor.subscribe('usersForRegistration'),
 			usersReady = usersHandle.ready(),
 			game1Handle = Meteor.subscribe('nextGame1'),
@@ -92,4 +92,4 @@ export default createContainer(({ location }) => {
 		nextGame1,
 		pageReady: game1Ready && usersReady
 	};
-}, EditProfile);
+})(EditProfile);

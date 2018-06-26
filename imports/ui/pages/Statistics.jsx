@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
@@ -15,7 +15,7 @@ import { getUsers } from '../../api/collections/users';
 
 class Statistics extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {
 			display: ''
 		};
@@ -53,7 +53,7 @@ Statistics.propTypes = {
 	selectedWeek: PropTypes.number
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const selectedWeek = Session.get('selectedWeek'),
 			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
 			usersHandle = Meteor.subscribe('usersForHistory'),
@@ -69,4 +69,4 @@ export default createContainer(() => {
 		poolYears,
 		selectedWeek
 	};
-}, Statistics);
+})(Statistics);

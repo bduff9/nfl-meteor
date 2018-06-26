@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { Loading } from '../pages/Loading';
 import StatsTeam from './StatsTeam';
@@ -83,7 +83,7 @@ WeeklyStats.propTypes = {
 	tiebreakers: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
-export default createContainer(({ currentLeague, selectedWeek }) => {
+export default withTracker(({ currentLeague, selectedWeek }) => {
 	const gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
 			gamesReady = gamesHandle.ready(),
 			picksHandle = Meteor.subscribe('allPicksForWeek', selectedWeek, currentLeague),
@@ -115,4 +115,4 @@ export default createContainer(({ currentLeague, selectedWeek }) => {
 		selectedWeek,
 		tiebreakers
 	};
-}, WeeklyStats);
+})(WeeklyStats);

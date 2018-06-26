@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 
 import { handleError } from '../../api/global.js';
@@ -15,7 +15,7 @@ import { getNextGame } from '../../api/collections/games';
 
 class ViewSurvivor extends Component {
 	constructor (props) {
-		super();
+		super(props);
 		this.state = {
 			viewOverall: true
 		};
@@ -70,7 +70,7 @@ ViewSurvivor.contextTypes = {
 	router: PropTypes.object.isRequired
 };
 
-export default createContainer(() => {
+export default withTracker(() => {
 	const nextGameHandle = Meteor.subscribe('nextGameToStart'),
 			nextGameReady = nextGameHandle.ready(),
 			selectedWeek = Session.get('selectedWeek');
@@ -81,4 +81,4 @@ export default createContainer(() => {
 		pageReady: nextGameReady,
 		selectedWeek
 	};
-}, ViewSurvivor);
+})(ViewSurvivor);

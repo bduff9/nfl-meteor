@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
-import { createContainer } from 'meteor/react-meteor-data';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { handleError, getCurrentSeasonYear } from '../../api/global';
@@ -167,7 +167,7 @@ Navigation.propTypes = {
 	_toggleRightSlider: PropTypes.func.isRequired
 };
 
-export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
+export default withTracker(({ currentUser, currentWeek, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
 	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
 			lastChatActionHandle = Meteor.subscribe('lastChatAction'),
 			lastChatActionReady = lastChatActionHandle.ready(),
@@ -223,4 +223,4 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 		unreadChatCt,
 		unreadMessages
 	};
-}, Navigation);
+})(Navigation);

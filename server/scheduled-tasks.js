@@ -1,4 +1,3 @@
-/* globals API */
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
@@ -68,18 +67,26 @@ SyncedCron.add({
 		const upperLimit = (Math.round(rawTimeToKickoff * 2) / 2);
 		const lowerLimit = upperLimit - 1;
 		let unstartedGames = [];
+
 		if (week > 1) unstartedGames = getUnstartedGamesForWeek.call({ week: week - 1 });
+
 		if (unstartedGames.length) return;
+
 		let notSubmitted = getUnsubmittedPicksForWeek.call({ week });
+
 		notSubmitted.forEach(tb => {
 			const { league } = tb;
 			const user = tb.getUser();
 			const { _id, email, first_name, last_name, notifications, phone_number } = user;
+
 			notifications.forEach(notification => {
 				const { hours_before, is_quick, type } = notification;
+
 				if (hours_before <= lowerLimit || hours_before > upperLimit) return;
+
 				if (is_quick) {
 					const pick1 = getPickForFirstGameOfWeek.call({ league, user_id: _id, week });
+
 					if (!pick1.pick_id || !pick1.pick_short || !pick1.points) {
 						sendEmail.call({ data: { hours: hours_before, preview: 'This is an automated email to allow you one-click access to make your pick for the first game of the week', team1: homeTeam, team2: visitingTeam, user, week }, subject: `Time's almost up, ${first_name}!`, template: 'quickPick', to: email }, err => {
 							if (err) {
@@ -101,7 +108,9 @@ SyncedCron.add({
 					}
 					if (type.indexOf('text') > -1) {
 						let msg = `${EMAIL_SUBJECT_PREFIX}${first_name}, this is your reminder to submit your picks for week ${week} as you now have less than ${hours_before} hours!`;
+
 						if ((msg.length + POOL_URL.length) < MAX_SMS_LENGTH) msg += ` ${POOL_URL}`;
+
 						sendSMS(`+1${phone_number}`, msg, err => {
 							console.log(`Sent reminder text to ${first_name} ${last_name}!`);
 						});
@@ -109,10 +118,12 @@ SyncedCron.add({
 				}
 			});
 		});
+
 		return `Email task run for ${notSubmitted.length} users`;
 	}
 });
 
 Meteor.startup(() => {
+
 	SyncedCron.start();
 });

@@ -1,13 +1,13 @@
 For BD
+	- Work through api/collections/
+	- Work through ui/
+	- Work through server/api-calls.js
+	- Work through server/*/
 	- Email issue with bootstrap v4
-	- Add new/remove old merge accounts logic
 	- Handle deprecated React addons
-For BA
-	- TODO: New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help (ongoing)
-	- TODO: Add twilio creds to all settings.json files if you have not already.  If you have, delete this
-	- TODO: Ensure all emails look nice on PC and mobile, then delete this
-	- TODO: Add baseURL to settings.json
-	- TODO: SVGs do not work in emails (i.e. Gmail), please find replacement png for football
+	- New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help (ongoing)
+	- Ensure all emails look nice on PC and mobile, then delete this
+	- SVGs do not work in emails (i.e. Gmail), please find replacement png for football
 Bugs
 	- None
 Bootstrap 4 Beta Notes (Upgraded from Bootstrap 4 alpha)

@@ -7,10 +7,13 @@ import { Route, Redirect } from 'react-router-dom';
 
 const UnfinishedRegistration = ({ authenticated, component, loggingIn, ...rest }) => (
 	<Route {...rest} render={(props) => {
-		const currentUser = Meteor.user(),
-				{ done_registering } = currentUser;
+		const currentUser = Meteor.user();
+		const { done_registering } = currentUser;
+
 		console.log('UnfinishedRegistration');
+
 		if (loggingIn) return <div></div>;
+
 		return authenticated && !done_registering ? (
 			React.createElement(component, { ...props, loggingIn, authenticated })
 		)

@@ -14,29 +14,38 @@ import { getNextGame1 } from '../../api/collections/games';
 
 class EditProfile extends Component {
 	constructor (props) {
-		const user = Meteor.user();
 		super(props);
+
+		const user = Meteor.user();
+
 		this.state = {
 			hasFacebook: !!user.services && !!user.services.facebook,
 			hasGoogle: !!user.services && !!user.services.google,
 			isCreate: props.location.pathname.indexOf('create') > -1,
 			user
 		};
+
+		this._oauthLink = this._oauthLink.bind(this);
 	}
 
 	_oauthLink (service, ev) {
 		const options = {
 			requestPermissions: ['email']
 		};
+
 		Meteor[service](options, (err) => {
 			if (err && err.errorType !== 'Accounts.LoginCancelledError') {
 				handleError(err, { title: err.message, icon: 'danger' });
 			} else {
+				/*
+				 * TODO: Testing if the button states still work with this commented out as it currently throws an error on
+				 * not updating an unmounted component
 				if (service.indexOf('Facebook') > -1) {
 					this.setState({ hasFacebook: true });
 				} else if (service.indexOf('Google') > -1) {
 					this.setState({ hasGoogle: true });
 				}
+				 */
 				Bert.alert({
 					message: 'Successfully linked!',
 					type: 'success'
@@ -46,9 +55,10 @@ class EditProfile extends Component {
 	}
 
 	render () {
-		const { hasFacebook, hasGoogle, isCreate, user } = this.state,
-				{ nextGame1, pageReady } = this.props,
-				{ router } = this.context;
+		const { hasFacebook, hasGoogle, isCreate, user } = this.state;
+		const { nextGame1, pageReady } = this.props;
+		const { router } = this.context;
+
 		return (
 			<div className="row edit-profile-wrapper">
 				{pageReady ? (

@@ -10,9 +10,11 @@ import Twilio from 'twilio';
  * @param {function} cb (If desired, the function to be called upon completion (takes in error and result parms))
  */
 export const sendSMS = (to, body, cb) => {
-	const { accountSid, authToken, phoneNumber } = Meteor.settings.private.twilio,
-			twilioClient = new Twilio(accountSid, authToken);
+	const { accountSid, authToken, phoneNumber } = Meteor.settings.private.twilio;
+	const twilioClient = new Twilio(accountSid, authToken);
+
 	console.log(`Sending SMS to ${to}...`);
+
 	twilioClient.messages.create({
 		body,
 		to,

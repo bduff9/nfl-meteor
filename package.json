@@ -59,6 +59,8 @@
     }
   },
   "devDependencies": {
+    "@types/meteor": "1.4.16",
+    "@types/react": "16.4.2",
     "babel-eslint": "8.2.5",
     "core-js": "2.5.7",
     "eslint": "5.0.0",

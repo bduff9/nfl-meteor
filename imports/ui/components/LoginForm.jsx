@@ -12,7 +12,6 @@ import Yup, { addMethod, string, ref } from 'yup';
 import { handleError } from '../../api/global';
 
 const LoginForm = ({
-	dirty,
 	errors,
 	isSubmitting,
 	loading,
@@ -22,8 +21,7 @@ const LoginForm = ({
 	forgotPassword,
 	handleBlur,
 	handleChange,
-	handleReset,
-	handleSubmit
+	handleSubmit,
 }) => (
 	<form onSubmit={handleSubmit}>
 		<div className="form-inputs">
@@ -64,7 +62,7 @@ LoginForm.propTypes = {
 	handleChange: PropTypes.func.isRequired,
 	handleReset: PropTypes.func.isRequired,
 	handleSubmit: PropTypes.func.isRequired,
-	setLoading: PropTypes.func.isRequired
+	setLoading: PropTypes.func.isRequired,
 };
 
 addMethod(string, 'sameAs', function (ref, message) {
@@ -79,21 +77,23 @@ export default withFormik({
 	mapPropsToValues: props => ({
 		email: '',
 		password: '',
-		confirmPassword: ''
+		confirmPassword: '',
 	}),
 
 	validationSchema: props => Yup.object().shape({
 		email: Yup.string().email('Please enter a valid email').required('Please enter your email address'),
 		password: Yup.string().min(6, 'Password must be at least 6 characters').required('Please enter your password'),
-		confirmPassword: (props.type === 'register' ? Yup.string().sameAs(ref('password'), 'Please enter the same password again').required('Please enter your password again') : Yup.string())
+		confirmPassword: (props.type === 'register' ? Yup.string().sameAs(ref('password'), 'Please enter the same password again').required('Please enter your password again') : Yup.string()),
 	}),
 
 	handleSubmit: (values, { props, setErrors, setSubmitting }) => {
-		const { type, setLoading } = props,
-				{ email, password } = values;
+		const { type, setLoading } = props;
+		const { email, password } = values;
+
 		if (type === 'register') {
 			Accounts.createUser({ email, password }, err => {
 				setSubmitting(false);
+
 				if (err && err.reason !== 'Login forbidden') {
 					if (err.error && err.reason) {
 						setSubmitting(false);
@@ -103,10 +103,11 @@ export default withFormik({
 					}
 				} else {
 					setLoading('verify');
+
 					sweetAlert({
 						title: 'Your account has been created',
 						text: 'Please check your email to verify your account in order to sign in',
-						icon: 'success'
+						icon: 'success',
 					});
 				}
 			});
@@ -123,10 +124,10 @@ export default withFormik({
 					Bert.alert({
 						message: 'Welcome back!',
 						type: 'success',
-						icon: 'fa-thumbs-up'
+						icon: 'fa-thumbs-up',
 					});
 				}
 			});
 		}
-	}
+	},
 })(LoginForm);

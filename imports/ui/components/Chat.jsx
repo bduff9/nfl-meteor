@@ -12,10 +12,12 @@ import { getAllChats, writeLog } from '../../api/collections/nfllogs';
 
 class Chat extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {
-			newMessage: ''
+			newMessage: '',
 		};
+
 		this._addChat = this._addChat.bind(this);
 		this._updateMessage = this._updateMessage.bind(this);
 	}
@@ -86,7 +88,7 @@ class Chat extends Component {
 Chat.propTypes = {
 	chats: PropTypes.arrayOf(PropTypes.object).isRequired,
 	currentUser: PropTypes.object.isRequired,
-	pageReady: PropTypes.bool.isRequired
+	pageReady: PropTypes.bool.isRequired,
 };
 
 export default withTracker(() => {
@@ -101,6 +103,6 @@ export default withTracker(() => {
 	return {
 		chats,
 		currentUser,
-		pageReady: chatsReady && usersReady
+		pageReady: chatsReady && usersReady,
 	};
 })(Chat);

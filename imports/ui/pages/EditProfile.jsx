@@ -91,12 +91,14 @@ EditProfile.contextTypes = {
 };
 
 export default withTracker(({ location }) => {
-	const usersHandle = Meteor.subscribe('usersForRegistration'),
-			usersReady = usersHandle.ready(),
-			game1Handle = Meteor.subscribe('nextGame1'),
-			game1Ready = game1Handle.ready();
+	const usersHandle = Meteor.subscribe('usersForRegistration');
+	const usersReady = usersHandle.ready();
+	const game1Handle = Meteor.subscribe('nextGame1');
+	const game1Ready = game1Handle.ready();
 	let nextGame1 = {};
+
 	if (game1Ready) nextGame1 = getNextGame1.call({});
+
 	return {
 		location,
 		nextGame1,

@@ -16,28 +16,34 @@ import { getNextGame } from '../../api/collections/games';
 class ViewSurvivor extends Component {
 	constructor (props) {
 		super(props);
+
 		this.state = {
-			viewOverall: true
+			viewOverall: true,
 		};
+
 		this._toggleOverall = this._toggleOverall.bind(this);
 	}
 
 	componentWillReceiveProps (nextProps) {
-		const { nextGame, pageReady, selectedWeek } = nextProps,
-				notAllowed = pageReady && nextGame.week === 1 && nextGame.game === 1;
+		const { nextGame, pageReady, selectedWeek } = nextProps;
+		const notAllowed = pageReady && nextGame.week === 1 && nextGame.game === 1;
+
 		if (notAllowed) this.context.router.push('/');
+
 		if (nextGame.week > selectedWeek || (nextGame.week === selectedWeek && nextGame.game > 1)) this.setState({ viewOverall: true });
 	}
 
 	_toggleOverall (ev) {
 		const { viewOverall } = this.state;
+
 		this.setState({ viewOverall: !viewOverall });
 	}
 
 	render () {
-		const { viewOverall } = this.state,
-				{ nextGame, pageReady, selectedWeek } = this.props,
-				weekForSec = nextGame.week - (nextGame.game === 1 ? 1 : 0);
+		const { viewOverall } = this.state;
+		const { nextGame, pageReady, selectedWeek } = this.props;
+		const weekForSec = nextGame.week - (nextGame.game === 1 ? 1 : 0);
+
 		return (
 			<div className="row view-survivor-wrapper">
 				<Helmet title={'View Survivor Picks'} />
@@ -63,22 +69,24 @@ class ViewSurvivor extends Component {
 ViewSurvivor.propTypes = {
 	nextGame: PropTypes.object,
 	pageReady: PropTypes.bool.isRequired,
-	selectedWeek: PropTypes.number
+	selectedWeek: PropTypes.number,
 };
 
 ViewSurvivor.contextTypes = {
-	router: PropTypes.object.isRequired
+	router: PropTypes.object.isRequired,
 };
 
 export default withTracker(() => {
-	const nextGameHandle = Meteor.subscribe('nextGameToStart'),
-			nextGameReady = nextGameHandle.ready(),
-			selectedWeek = Session.get('selectedWeek');
+	const nextGameHandle = Meteor.subscribe('nextGameToStart');
+	const nextGameReady = nextGameHandle.ready();
+	const selectedWeek = Session.get('selectedWeek');
 	let nextGame = {};
+
 	if (nextGameReady) nextGame = getNextGame.call({}, handleError);
+
 	return {
 		nextGame,
 		pageReady: nextGameReady,
-		selectedWeek
+		selectedWeek,
 	};
 })(ViewSurvivor);

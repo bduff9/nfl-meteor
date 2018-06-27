@@ -16,9 +16,25 @@ import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
 import { updateSelectedWeek } from '../../api/collections/users';
 
-const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
-	let msgCt = unreadMessages.length,
-			showCountdown = nextGame && nextGame.game === 1;
+const Navigation = ({
+	currentUser,
+	currentWeek,
+	currentWeekTiebreaker,
+	logoutOnly,
+	nextGame,
+	openMenu,
+	pageReady,
+	selectedWeek,
+	survivorPicks,
+	systemVals,
+	tiebreaker,
+	unreadChatCt,
+	unreadMessages,
+	_toggleMenu,
+	_toggleRightSlider,
+}) => {
+	let msgCt = unreadMessages.length;
+	let showCountdown = nextGame && nextGame.game === 1;
 
 	if (pageReady && !logoutOnly) {
 		if (currentUser) msgCt += (currentUser.paid ? 0 : 1);
@@ -28,21 +44,26 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 
 	const _initPool = (ev) => {
 		ev.preventDefault();
+
 		if (confirm(`Are you sure you want to do this?  All data will be reset for the ${getCurrentSeasonYear()} season`)) {
 			Meteor.call('initPoolOnServer', {}, err => {
 				if (err) return handleError(err);
 				Meteor.logout();
 			});
 		}
+
 		return false;
 	};
 	const _refreshGames = (ev) => {
 		ev.preventDefault();
+
 		Meteor.call('Games.refreshGameData', {}, handleError);
+
 		return false;
 	};
 	const _selectWeek = (newWeek, ev) => {
 		ev.preventDefault();
+
 		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, handleError);
 	};
 
@@ -98,7 +119,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						}
 						{currentUser.survivor ? [
 							(survivorPicks.length === 17 ? <li key="make-survivor-picks"><NavLink to="/survivor/set" exact activeClassName="active">Make Survivor Picks</NavLink></li> : null),
-							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><NavLink to="/survivor/view" exact activeClassName="active">View Survivor Picks</NavLink></li> : null)
+							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><NavLink to="/survivor/view" exact activeClassName="active">View Survivor Picks</NavLink></li> : null),
 						]
 							:
 							<li><a href="javascript:void(0)" className="disabled-link">No Survivor Pool</a></li>
@@ -164,50 +185,59 @@ Navigation.propTypes = {
 	unreadChatCt: PropTypes.number.isRequired,
 	unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
 	_toggleMenu: PropTypes.func.isRequired,
-	_toggleRightSlider: PropTypes.func.isRequired
+	_toggleRightSlider: PropTypes.func.isRequired,
 };
 
 export default withTracker(({ currentUser, currentWeek, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
-	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
-			lastChatActionHandle = Meteor.subscribe('lastChatAction'),
-			lastChatActionReady = lastChatActionHandle.ready(),
-			nextGameHandle = Meteor.subscribe('nextGameToStart'),
-			nextGameReady = nextGameHandle.ready(),
-			messagesHandle = Meteor.subscribe('unreadMessages'),
-			messagesReady = messagesHandle.ready(),
-			survivorHandle = Meteor.subscribe('mySurvivorPicks', currentLeague),
-			survivorReady = survivorHandle.ready(),
-			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
-			tiebreakerReady = tiebreakerHandle.ready(),
-			currentWeekTiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague),
-			currentWeekTiebreakerReady = currentWeekTiebreakerHandle.ready();
-	let unreadChatCt = 0,
-			nextGame = {},
-			unreadMessages = [],
-			survivorPicks = [],
-			systemVals = getSystemValues.call({}),
-			tiebreaker = {},
-			currentWeekTiebreaker = {},
-			unreadChatReady = false,
-			lastChatAction, unreadChatHandle;
+	const currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+	const lastChatActionHandle = Meteor.subscribe('lastChatAction');
+	const lastChatActionReady = lastChatActionHandle.ready();
+	const nextGameHandle = Meteor.subscribe('nextGameToStart');
+	const nextGameReady = nextGameHandle.ready();
+	const messagesHandle = Meteor.subscribe('unreadMessages');
+	const messagesReady = messagesHandle.ready();
+	const survivorHandle = Meteor.subscribe('mySurvivorPicks', currentLeague);
+	const survivorReady = survivorHandle.ready();
+	const tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague);
+	const tiebreakerReady = tiebreakerHandle.ready();
+	const currentWeekTiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague);
+	const currentWeekTiebreakerReady = currentWeekTiebreakerHandle.ready();
+	let unreadChatCt = 0;
+	let nextGame = {};
+	let unreadMessages = [];
+	let survivorPicks = [];
+	let systemVals = getSystemValues.call({});
+	let tiebreaker = {};
+	let currentWeekTiebreaker = {};
+	let unreadChatReady = false;
+	let lastChatAction;
+	let unreadChatHandle;
+
 	if (!logoutOnly) {
 		if (lastChatActionReady) {
 			lastChatAction = getLastChatAction.call({});
+
 			let lastAction;
+
 			if (lastChatAction) {
 				const { action, when } = lastChatAction;
+
 				lastAction = { action, when };
 			}
+
 			unreadChatHandle = Meteor.subscribe('unreadChats', lastChatAction);
 			unreadChatReady = unreadChatHandle.ready();
+
 			if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({ lastAction });
 		}
+
 		if (nextGameReady) nextGame = getNextGame.call({});
 		if (messagesReady) unreadMessages = getUnreadMessages.call({});
 		if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague });
 		if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek });
 		if (currentWeekTiebreakerReady) currentWeekTiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek });
 	}
+
 	return {
 		...rest,
 		currentUser,
@@ -221,6 +251,6 @@ export default withTracker(({ currentUser, currentWeek, logoutOnly, rightSlider,
 		systemVals,
 		tiebreaker,
 		unreadChatCt,
-		unreadMessages
+		unreadMessages,
 	};
 })(Navigation);

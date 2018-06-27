@@ -15,11 +15,13 @@ import { getSystemValues } from '../../api/collections/systemvals';
 export default class Login extends Component {
 
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {
 			loading: null,
-			type: 'login'
+			type: 'login',
 		};
+
 		this._oauthLogin = this._oauthLogin.bind(this);
 		this._setLoading = this._setLoading.bind(this);
 		this._toggleType = this._toggleType.bind(this);
@@ -30,35 +32,39 @@ export default class Login extends Component {
 			sweetAlert({
 				title: 'Email not found',
 				text: 'Please enter the email address you signed up with',
-				type: 'warning'
+				type: 'warning',
 			});
 			return false;
 		}
+
 		Accounts.forgotPassword({ email }, err => {
 			if (err) {
 				handleError(err);
 			} else {
 				sweetAlert({
 					title: 'Password reset email has been sent',
-					type: 'success'
+					type: 'success',
 				});
 			}
 		});
 	}
 	_oauthLogin (service, ev) {
 		const options = {
-			requestPermissions: ['email']
+			requestPermissions: ['email'],
 		};
+
 		this.setState({ loading: service });
+
 		Meteor[service](options, (err) => {
 			if (err) {
 				this.setState({ loading: null });
+
 				handleError(err, { title: err.message, icon: 'danger' });
 			} else {
 				Bert.alert({
 					message: 'Welcome!',
 					type: 'success',
-					icon: 'fa-thumbs-up'
+					icon: 'fa-thumbs-up',
 				});
 			}
 		});
@@ -68,14 +74,17 @@ export default class Login extends Component {
 	}
 	_toggleType (ev) {
 		let { type } = this.state;
+
 		type = (type === 'login' ? 'register' : 'login');
+
 		this.setState({ type });
 	}
 
 	render () {
-		const { loading, type } = this.state,
-				systemVals = getSystemValues.call({}),
-				currYear = systemVals.year_updated;
+		const { loading, type } = this.state;
+		const systemVals = getSystemValues.call({});
+		const currYear = systemVals.year_updated;
+
 		return (
 			<div className="col login-stretch">
 				<Helmet title="Login" />

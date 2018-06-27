@@ -22,7 +22,7 @@ class EditProfile extends Component {
 			hasFacebook: !!user.services && !!user.services.facebook,
 			hasGoogle: !!user.services && !!user.services.google,
 			isCreate: props.location.pathname.indexOf('create') > -1,
-			user
+			user,
 		};
 
 		this._oauthLink = this._oauthLink.bind(this);
@@ -30,7 +30,7 @@ class EditProfile extends Component {
 
 	_oauthLink (service, ev) {
 		const options = {
-			requestPermissions: ['email']
+			requestPermissions: ['email'],
 		};
 
 		Meteor[service](options, (err) => {
@@ -48,7 +48,7 @@ class EditProfile extends Component {
 				 */
 				Bert.alert({
 					message: 'Successfully linked!',
-					type: 'success'
+					type: 'success',
 				});
 			}
 		});
@@ -83,11 +83,11 @@ class EditProfile extends Component {
 EditProfile.propTypes = {
 	location: PropTypes.object.isRequired,
 	nextGame1: PropTypes.object.isRequired,
-	pageReady: PropTypes.bool.isRequired
+	pageReady: PropTypes.bool.isRequired,
 };
 
 EditProfile.contextTypes = {
-	router: PropTypes.object.isRequired
+	router: PropTypes.object.isRequired,
 };
 
 export default withTracker(({ location }) => {
@@ -100,6 +100,6 @@ export default withTracker(({ location }) => {
 	return {
 		location,
 		nextGame1,
-		pageReady: game1Ready && usersReady
+		pageReady: game1Ready && usersReady,
 	};
 })(EditProfile);

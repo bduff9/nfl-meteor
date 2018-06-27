@@ -1,8 +1,8 @@
 For BD
 	- Work through api/collections/
 	- Work through ui/
-	- Work through server/api-calls.js
-	- Work through server/*/
+	- Work through server/publications/
+	- Work through server/collections/
 	- Email issue with bootstrap v4
 	- Handle deprecated React addons
 	- New Tooltip component for help on confusing screens, feel free to see the EditProfile.jsx file for how to add to any screen you feel needs more help (ongoing)

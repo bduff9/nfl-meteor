@@ -20,11 +20,13 @@ Accounts.emailTemplates.verifyEmail = {
 	html (user, urlWithHash) {
 		const url = urlWithHash.replace('#/', '');
 		let body;
+
 		console.log(`Sending Verify Email email to ${user.email}...`);
 		body = Mailer.render('verifyEmail', { preview: 'Please confirm your recent registration request for the NFL Confidence Pool', url, user });
 		console.log(`Successfully sent Verify Email email to ${user.email}!`);
+
 		return body;
-	}
+	},
 };
 
 Accounts.emailTemplates.resetPassword = {
@@ -34,11 +36,13 @@ Accounts.emailTemplates.resetPassword = {
 	html (user, urlWithHash) {
 		const url = urlWithHash.replace('#/', '');
 		let body;
+
 		console.log(`Sending Reset Password email to ${user.email}...`);
 		body = Mailer.render('resetPassword', { preview: 'We just received a password reset request from your account', url, user });
 		console.log(`Successfully sent Reset Password email to ${user.email}!`);
+
 		return body;
-	}
+	},
 };
 
 Mailer.config({
@@ -51,7 +55,7 @@ Mailer.config({
 	addRoutes: process.env.NODE_ENV === 'development',
 	language: 'html',
 	plainText: true,
-	plainTextOpts: {} // Options for `html-to-text` module. See all here: https://www.npmjs.com/package/html-to-text
+	plainTextOpts: {}, // Options for `html-to-text` module. See all here: https://www.npmjs.com/package/html-to-text
 });
 
 Mailer.init({
@@ -60,8 +64,8 @@ Mailer.init({
 	layout: {
 		name: 'emailLayout',
 		path: 'email/templates/layout.html',
-		scss: './email/email.scss'
-	}
+		scss: './email/email.scss',
+	},
 });
 
 /**
@@ -81,22 +85,27 @@ export const sendEmail = new ValidatedMethod({
 		data: { type: Object, label: 'Email Data', optional: true, blackbox: true },
 		subject: { type: String, label: 'Email Subject' },
 		template: { type: String, label: 'Email Template', allowedValues: Object.keys(Templates) },
-		to: { type: String, label: 'Send To Email Address', optional: true }
+		to: { type: String, label: 'Send To Email Address', optional: true },
 	}).validator(),
 	run ({ attachments = [], bcc = [], data = {}, subject, template, to = '' }) {
 		const sendTo = to || bcc;
+
 		if (!sendTo || sendTo.length === 0) throw new Meteor.Error('Email.sendEmail.noSendToEmailFound', 'You must include either bcc (multiple recipients) or to (single recipient) in order to send an email');
+
 		console.log(`Sending ${subject} email to ${sendTo}`);
+
 		const isSuccessful = Mailer.send({
 			to,
 			subject: EMAIL_SUBJECT_PREFIX + subject,
 			template,
 			bcc,
 			data,
-			attachments
+			attachments,
 		});
+
 		console.log(isSuccessful ? `Successfully sent ${subject} email to ${sendTo}!` : `${subject} email failed to send to ${sendTo}!`);
+
 		return isSuccessful;
-	}
+	},
 });
 export const sendEmailSync = Meteor.wrapAsync(sendEmail.call, sendEmail);

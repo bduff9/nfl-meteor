@@ -31,11 +31,13 @@ import ViewSurvivor from '../pages/ViewSurvivor';
 class AuthedLayout extends Component {
 	constructor (props) {
 		super(props);
+
 		this.state = {
 			openMenu: false,
 			rightSlider: '',
-			scoreboardWeek: props.currentWeek
+			scoreboardWeek: props.currentWeek,
 		};
+
 		this._changeScoreboardWeek = this._changeScoreboardWeek.bind(this);
 		this._toggleMenu = this._toggleMenu.bind(this);
 		this._toggleRightSlider = this._toggleRightSlider.bind(this);
@@ -50,21 +52,27 @@ class AuthedLayout extends Component {
 	}
 	_toggleMenu (ev) {
 		const { openMenu } = this.state;
+
 		this.setState({ openMenu: !openMenu });
 	}
 	_toggleRightSlider (type, ev) {
 		const { openMenu, rightSlider } = this.state;
 		let newType = (type === rightSlider ? '' : type);
+
 		ev.preventDefault();
+
 		this.setState({ openMenu: (newType ? false : openMenu), rightSlider: newType });
+
 		return false;
 	}
 
 	render () {
-		const { openMenu, rightSlider, scoreboardWeek } = this.state,
-				{ currentWeek, location, ...rest } = this.props,
-				logoutOnly = location.pathname.indexOf('create') > -1;
+		const { openMenu, rightSlider, scoreboardWeek } = this.state;
+		const { currentWeek, location, ...rest } = this.props;
+		const logoutOnly = location.pathname.indexOf('create') > -1;
+
 		console.log('AuthedLayout');
+
 		return (
 			<div className="col-12 authed-layout-wrapper">
 				<div className="row">
@@ -116,24 +124,26 @@ AuthedLayout.propTypes = {
 	currentUser: PropTypes.object.isRequired,
 	currentWeek: PropTypes.number,
 	location: PropTypes.object.isRequired,
-	selectedWeek: PropTypes.number
+	selectedWeek: PropTypes.number,
 };
 
 export default withTracker(() => {
-	const currentUser = getCurrentUser.call({}),
-			nextGameHandle = Meteor.subscribe('nextGame'),
-			nextGameReady = nextGameHandle.ready();
-	let selectedWeek = Session.get('selectedWeek'),
-			week;
+	const currentUser = getCurrentUser.call({});
+	const nextGameHandle = Meteor.subscribe('nextGame');
+	const nextGameReady = nextGameHandle.ready();
+	let selectedWeek = Session.get('selectedWeek');
+	let week;
+
 	if (nextGameReady) {
 		week = currentWeek.call({});
 		selectedWeek = currentUser.getSelectedWeek() || week;
 		Session.set('currentWeek', week);
 		Session.setDefault('selectedWeek', selectedWeek);
 	}
+
 	return {
 		currentUser,
 		currentWeek: week,
-		selectedWeek
+		selectedWeek,
 	};
 })(AuthedLayout);

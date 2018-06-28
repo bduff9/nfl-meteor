@@ -6,7 +6,7 @@ import { Bar, BarChart, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAx
 
 import { Loading } from '../pages/Loading.jsx';
 
-export const SurvivorLayout = ({ alive, dead, graphData, isOverall, pageReady, week, weekForSec }) => {
+export const SurvivorLayout = ({ alive, dead, graphData, isOverall, pageReady }) => {
 	return (
 		<div className="col-12 survivor-layout">
 			{pageReady ? (
@@ -81,5 +81,5 @@ SurvivorLayout.propTypes = {
 	isOverall: PropTypes.bool.isRequired,
 	pageReady: PropTypes.bool.isRequired,
 	week: PropTypes.number,
-	weekForSec: PropTypes.number.isRequired
+	weekForSec: PropTypes.number.isRequired,
 };

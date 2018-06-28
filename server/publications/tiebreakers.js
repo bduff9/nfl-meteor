@@ -7,10 +7,13 @@ import { Tiebreaker } from '../../imports/api/collections/tiebreakers';
 
 Meteor.publish('allTiebreakersForUser', function (league) {
 	let tiebreakers;
+
 	if (!this.userId) return this.ready();
+
 	new SimpleSchema({
-		league: { type: String, label: 'League' }
+		league: { type: String, label: 'League' },
 	}).validate({ league });
+
 	tiebreakers = Tiebreaker.find({ league, user_id: this.userId }, {
 		fields: {
 			'_id': 1,
@@ -23,23 +26,28 @@ Meteor.publish('allTiebreakersForUser', function (league) {
 			'points_earned': 1,
 			'games_correct': 1,
 			'place_in_week': 1,
-			'tied_flag': 1
+			'tied_flag': 1,
 		},
 		sort: {
-			'week': 1
-		}
+			'week': 1,
+		},
 	});
+
 	if (tiebreakers) return tiebreakers;
+
 	return this.ready();
 });
 
 Meteor.publish('allTiebreakersForWeek', function (week, league) {
 	let tiebreakers;
+
 	if (!this.userId) return this.ready();
+
 	new SimpleSchema({
 		league: { type: String, label: 'League' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validate({ league, week });
+
 	tiebreakers = Tiebreaker.find({ week, league }, {
 		fields: {
 			'_id': 1,
@@ -52,24 +60,29 @@ Meteor.publish('allTiebreakersForWeek', function (week, league) {
 			'points_earned': 1,
 			'games_correct': 1,
 			'place_in_week': 1,
-			'tied_flag': 1
+			'tied_flag': 1,
 		},
 		sort: {
 			'points_earned': -1,
-			'games_correct': -1
-		}
+			'games_correct': -1,
+		},
 	});
+
 	if (tiebreakers) return tiebreakers;
+
 	return this.ready();
 });
 
 Meteor.publish('singleTiebreakerForUser', function (week, league) {
 	let tiebreakers;
+
 	if (!this.userId) return this.ready();
+
 	new SimpleSchema({
 		league: { type: String, label: 'League' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validate({ league, week });
+
 	tiebreakers = Tiebreaker.find({ week, user_id: this.userId, league }, {
 		fields: {
 			'_id': 1,
@@ -82,9 +95,11 @@ Meteor.publish('singleTiebreakerForUser', function (week, league) {
 			'points_earned': 1,
 			'games_correct': 1,
 			'place_in_week': 1,
-			'tied_flag': 1
-		}
+			'tied_flag': 1,
+		},
 	});
+
 	if (tiebreakers) return tiebreakers;
+
 	return this.ready();
 });

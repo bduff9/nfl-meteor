@@ -9,12 +9,13 @@ import { SurvivorPick } from '../../imports/api/collections/survivorpicks';
 export const addSurvivorPick = new ValidatedMethod({
 	name: 'SurvivorPicks.addSurvivorPick',
 	validate: new SimpleSchema({
-		survivorPick: { type: Object, label: 'Survivor Pick', blackbox: true }
+		survivorPick: { type: Object, label: 'Survivor Pick', blackbox: true },
 	}).validator(),
 	run ({ survivorPick }) {
 		const newPick = new SurvivorPick(survivorPick);
+
 		newPick.save();
-	}
+	},
 });
 export const addSurvivorPickSync = Meteor.wrapAsync(addSurvivorPick.call, addSurvivorPick);
 
@@ -23,7 +24,7 @@ export const clearSurvivorPicks = new ValidatedMethod({
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		SurvivorPick.remove({});
-	}
+	},
 });
 export const clearSurvivorPicksSync = Meteor.wrapAsync(clearSurvivorPicks.call, clearSurvivorPicks);
 
@@ -31,7 +32,7 @@ export const removeAllSurvivorPicksForUser = new ValidatedMethod({
 	name: 'SurvivorPicks.removeAllSurvivorPicksForUser',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League', optional: true },
-		user_id: { type: String, label: 'User ID' }
+		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	run ({ league, user_id }) {
 		if (league == null) {
@@ -39,6 +40,6 @@ export const removeAllSurvivorPicksForUser = new ValidatedMethod({
 		} else {
 			SurvivorPick.remove({ league, user_id }, { multi: true });
 		}
-	}
+	},
 });
 export const removeAllSurvivorPicksForUserSync = Meteor.wrapAsync(removeAllSurvivorPicksForUser.call, removeAllSurvivorPicksForUser);

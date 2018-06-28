@@ -7,10 +7,13 @@ import { Pick } from '../../imports/api/collections/picks';
 
 Meteor.publish('allPicks', function (league) {
 	let picks;
+
 	if (!this.userId) return this.ready();
+
 	new SimpleSchema({
-		league: { type: String, label: 'League' }
+		league: { type: String, label: 'League' },
 	}).validate({ league });
+
 	picks = Pick.find({ league}, {
 		fields: {
 			'_id': 1,
@@ -23,25 +26,30 @@ Meteor.publish('allPicks', function (league) {
 			'pick_short': 1,
 			'points': 1,
 			'winner_id': 1,
-			'winner_short': 1
+			'winner_short': 1,
 		},
 		sort: {
 			user_id: 1,
 			week: 1,
-			game: 1
-		}
+			game: 1,
+		},
 	});
+
 	if (picks) return picks;
+
 	return this.ready();
 });
 
 Meteor.publish('allPicksForWeek', function (week, league) {
 	let picks;
+
 	if (!this.userId) return this.ready();
+
 	new SimpleSchema({
 		league: { type: String, label: 'League' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validate({ league, week });
+
 	picks = Pick.find({ week, league }, {
 		fields: {
 			'_id': 1,
@@ -54,24 +62,29 @@ Meteor.publish('allPicksForWeek', function (week, league) {
 			'pick_short': 1,
 			'points': 1,
 			'winner_id': 1,
-			'winner_short': 1
+			'winner_short': 1,
 		},
 		sort: {
 			user_id: 1,
-			game: 1
-		}
+			game: 1,
+		},
 	});
+
 	if (picks) return picks;
+
 	return this.ready();
 });
 
 Meteor.publish('singleWeekPicksForUser', function (week, league) {
 	let picks;
+
 	if (!this.userId) return this.ready();
+
 	new SimpleSchema({
 		league: { type: String, label: 'League' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validate({ league, week });
+
 	picks = Pick.find({ week, user_id: this.userId, league}, {
 		fields: {
 			'_id': 1,
@@ -84,9 +97,11 @@ Meteor.publish('singleWeekPicksForUser', function (week, league) {
 			'pick_short': 1,
 			'points': 1,
 			'winner_id': 1,
-			'winner_short': 1
-		}
+			'winner_short': 1,
+		},
 	});
+
 	if (picks) return picks;
+
 	return this.ready();
 });

@@ -13,12 +13,13 @@ import { getUserByID } from '../../imports/api/collections/users';
 export const addPick = new ValidatedMethod({
 	name: 'Picks.addPick',
 	validate: new SimpleSchema({
-		pick: { type: Object, label: 'Pick', blackbox: true }
+		pick: { type: Object, label: 'Pick', blackbox: true },
 	}).validator(),
 	run ({ pick }) {
 		const newPick = new Pick(pick);
+
 		newPick.save();
-	}
+	},
 });
 export const addPickSync = Meteor.wrapAsync(addPick.call, addPick);
 
@@ -27,7 +28,7 @@ export const clearPicks = new ValidatedMethod({
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		Pick.remove({});
-	}
+	},
 });
 export const clearPicksSync = Meteor.wrapAsync(clearPicks.call, clearPicks);
 
@@ -35,12 +36,18 @@ export const doQuickPick = new ValidatedMethod({
 	name: 'Picks.doQuickPick',
 	validate: new SimpleSchema({
 		team_short: { type: String, label: 'Team Short Name', min: 3, max: 3 },
-		user_id: { type: String, label: 'User ID' }
+		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	run ({ team_short, user_id }) {
-		const game = getNextGame1.call({}),
-				{ _id: game_id, home_short, notFound, visitor_short, week } = game;
-		let setPick = false, user, team, team_id, city, name;
+		const game = getNextGame1.call({});
+		const { _id: game_id, home_short, notFound, visitor_short, week } = game;
+		let setPick = false;
+		let user;
+		let team;
+		let team_id;
+		let city;
+		let name;
+
 		try {
 			user = getUserByID.call({ user_id });
 			team = getTeamByShort.call({ short_name: team_short });
@@ -50,30 +57,40 @@ export const doQuickPick = new ValidatedMethod({
 		} catch (err) {
 			console.error('Failed to do quick pick', err);
 		}
+
 		if (!user) throw new Meteor.Error('Picks.doQuickPick.invalidUserID', 'Invalid user ID! Please only use valid quick pick links.');
+
 		if (!team_id) throw new Meteor.Error('Picks.doQuickPick.invalidTeamID', `Invalid team (${team_short})!  Please only use valid quick pick links.`);
+
 		if (notFound || game.game !== 1) throw new Meteor.Error('Picks.doQuickPick.noGameFound', 'No game found!  Please try again later.');
+
 		if (home_short !== team_short && visitor_short !== team_short) throw new Meteor.Error('Picks.doQuickPick.invalidTeam', `Invalid team (${city} ${name})! Please only use valid quick pick links.`);
+
 		user.leagues.forEach(league => {
-			const thisPick = Pick.findOne({ league, game_id, user_id }),
-					myPicks = Pick.find({ league, user_id, week }).fetch(),
-					pointsUsed = myPicks.filter(pick => pick.points).map(pick => pick.points);
+			const thisPick = Pick.findOne({ league, game_id, user_id });
+			const myPicks = Pick.find({ league, user_id, week }).fetch();
+			const pointsUsed = myPicks.filter(pick => pick.points).map(pick => pick.points);
 			let highestPointVal = myPicks.length;
+
 			if (thisPick.pick_id || thisPick.pick_short || thisPick.points) return;
+
 			while (pointsUsed.indexOf(highestPointVal) > -1) highestPointVal--;
+
 			setPick = true;
 			thisPick.pick_id = team_id;
 			thisPick.pick_short = team_short;
 			thisPick.points = highestPointVal;
 			thisPick.save();
 		});
+
 		if (setPick) {
 			Meteor.call('Email.sendEmail', { data: { preview: 'Congrats!  Your quick pick was successfully saved!', team, user, week }, subject: `Your pick for week ${week} has been saved`, template: 'quickPickConfirm', to: user.email }, handleError);
 		} else {
 			throw new Meteor.Error('Picks.doQuickPick.pickAlreadySet', `Quick Pick failed!  Your game 1 picks for week ${week} have already been set`);
 		}
+
 		return true;
-	}
+	},
 });
 export const doQuickPickSync = Meteor.wrapAsync(doQuickPick.call, doQuickPick);
 
@@ -82,12 +99,13 @@ export const getPick = new ValidatedMethod({
 	validate: new SimpleSchema({
 		game_id: { type: String, label: 'Game ID' },
 		league: { type: String, label: 'League' },
-		user_id: { type: String, label: 'User ID' }
+		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	run ({ game_id, league, user_id }) {
 		const pick = Pick.findOne({ game_id, league, user_id });
+
 		return pick;
-	}
+	},
 });
 export const getPickSync = Meteor.wrapAsync(getPick.call, getPick);
 
@@ -95,7 +113,7 @@ export const removeAllPicksForUser = new ValidatedMethod({
 	name: 'Picks.removeAllPicksForUser',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League', optional: true },
-		user_id: { type: String, label: 'User ID' }
+		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	run ({ league, user_id }) {
 		if (league == null) {
@@ -103,7 +121,7 @@ export const removeAllPicksForUser = new ValidatedMethod({
 		} else {
 			Pick.remove({ league, user_id }, { multi: true });
 		}
-	}
+	},
 });
 export const removeAllPicksForUserSync = Meteor.wrapAsync(removeAllPicksForUser.call, removeAllPicksForUser);
 
@@ -112,6 +130,6 @@ export const removeBonusPointPicks = new ValidatedMethod({
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		Pick.remove({ game: 0 }, { multi: true });
-	}
+	},
 });
 export const removeBonusPointPicksSync = Meteor.wrapAsync(removeBonusPointPicks.call, removeBonusPointPicks);

@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import { CSSTransitionGroup } from 'react-transition-group';
 import { Session } from 'meteor/session';
 import { withTracker } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
@@ -103,7 +103,7 @@ class AuthedLayout extends Component {
 						</Switch>
 					</div>
 				</div>
-				<ReactCSSTransitionGroup transitionName="right-slider" transitionEnterTimeout={1000} transitionLeaveTimeout={1000}>
+				<CSSTransitionGroup transitionName="right-slider" transitionEnterTimeout={1000} transitionLeaveTimeout={1000}>
 					{rightSlider ? (
 						<RightSlider
 							type={rightSlider}
@@ -114,7 +114,7 @@ class AuthedLayout extends Component {
 						:
 						null
 					}
-				</ReactCSSTransitionGroup>
+				</CSSTransitionGroup>
 			</div>
 		);
 	}

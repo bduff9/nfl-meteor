@@ -14,7 +14,9 @@ import { getNextGame1 } from '../../api/collections/games';
 class EditProfile extends Component {
 	constructor (props) {
 		const user = Meteor.user();
-		super();
+
+		super(props);
+
 		this.state = {
 			hasFacebook: !!user.services && !!user.services.facebook,
 			hasGoogle: !!user.services && !!user.services.google,
@@ -27,6 +29,7 @@ class EditProfile extends Component {
 		const options = {
 			requestPermissions: ['email']
 		};
+
 		Meteor[service](options, (err) => {
 			if (err && err.errorType !== 'Accounts.LoginCancelledError') {
 				handleError(err, { title: err.message, type: 'danger' });
@@ -45,9 +48,10 @@ class EditProfile extends Component {
 	}
 
 	render () {
-		const { hasFacebook, hasGoogle, isCreate, user } = this.state,
-				{ nextGame1, pageReady } = this.props,
-				{ router } = this.context;
+		const { hasFacebook, hasGoogle, isCreate, user } = this.state;
+		const { pageReady } = this.props;
+		const { router } = this.context;
+
 		return (
 			<div className="container-fluid edit-profile-wrapper">
 				<div className="row">
@@ -60,7 +64,7 @@ class EditProfile extends Component {
 								</div>
 							</div>
 							<div className="edit-profile">
-								<EditProfileForm hasFacebook={hasFacebook} hasGoogle={hasGoogle} isCreate={isCreate} nextGame1={nextGame1} router={router} user={user} linkFacebook={this._oauthLink.bind(null, 'loginWithFacebook')} linkGoogle={this._oauthLink.bind(null, 'loginWithGoogle')} />
+								<EditProfileForm hasFacebook={hasFacebook} hasGoogle={hasGoogle} isCreate={isCreate} router={router} user={user} linkFacebook={this._oauthLink.bind(null, 'loginWithFacebook')} linkGoogle={this._oauthLink.bind(null, 'loginWithGoogle')} />
 							</div>
 						</div>
 					)
@@ -75,7 +79,6 @@ class EditProfile extends Component {
 
 EditProfile.propTypes = {
 	location: PropTypes.object.isRequired,
-	nextGame1: PropTypes.object.isRequired,
 	pageReady: PropTypes.bool.isRequired
 };
 
@@ -84,15 +87,11 @@ EditProfile.contextTypes = {
 };
 
 export default createContainer(({ location }) => {
-	const usersHandle = Meteor.subscribe('usersForRegistration'),
-			usersReady = usersHandle.ready(),
-			game1Handle = Meteor.subscribe('nextGame1'),
-			game1Ready = game1Handle.ready();
-	let nextGame1 = {};
-	if (game1Ready) nextGame1 = getNextGame1.call({});
+	const usersHandle = Meteor.subscribe('usersForRegistration');
+	const usersReady = usersHandle.ready();
+
 	return {
 		location,
-		nextGame1,
-		pageReady: game1Ready && usersReady
+		pageReady: usersReady
 	};
 }, EditProfile);

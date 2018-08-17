@@ -109,12 +109,12 @@ export const MAX_SMS_LENGTH = 160;
 /**
  * All supported account types for payments
  */
-export const ACCOUNT_TYPES = ['Cash', 'PayPal', 'QuickPay', 'Venmo'];
+export const ACCOUNT_TYPES = ['Cash', 'PayPal', 'Zelle', 'Venmo'];
 
 /**
  * The account types that require an account name
  */
-export const DIGITAL_ACCOUNTS = ['QuickPay', 'PayPal', 'Venmo'];
+export const DIGITAL_ACCOUNTS = ['Zelle', 'PayPal', 'Venmo'];
 
 /**
  * Types of auto picking

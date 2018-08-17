@@ -14,48 +14,79 @@ import { notifyAdminsOfUntrusted, updateNotifications, updateUser, validateRefer
 class EditProfileForm extends Component {
 	constructor (props) {
 		const { values } = props;
-		super();
+
+		super(props);
+
 		this.state = {
 			showAccountInput: DIGITAL_ACCOUNTS.indexOf(values.payment_type) > -1,
 			showQuickPick: values.do_quick_pick,
 			showReminder: values.do_reminder
 		};
+
 		this._toggleAccountInput = this._toggleAccountInput.bind(this);
 		this._toggleQuickPick = this._toggleQuickPick.bind(this);
 		this._toggleReminder = this._toggleReminder.bind(this);
 	}
 
+	_getAccountPlaceholder (accountType) {
+		switch (accountType) {
+			case 'PayPal':
+			case 'Zelle':
+			return 'Email Address for ' + accountType;
+			case 'Venmo':
+			return 'User ID for ' + accountType;
+			default:
+			console.error('Invalid account type passed', accountType);
+			return 'ERROR';
+		}
+	}
 	_getHourOptions (max) {
 		const opts = [];
+
 		for (let i = 1; i <= max; i++) {
-			opts.push(
-				<option value={i} key={`${i}-hours-before-first-game-of-max-${max}`}>{i}</option>
-			);
+			opts.push(<option value={i} key={`${i}-hours-before-first-game-of-max-${max}`}>{i}</option>);
 		}
+
 		return opts;
 	}
 	_toggleAccountInput (ev) {
-		const { handleChange } = this.props,
-				accountType = ev.target.value;
-		this.setState({ showAccountInput: (DIGITAL_ACCOUNTS.indexOf(accountType) > -1) });
+		const { handleChange } = this.props;
+		const accountType = ev.target.value;
+		const showAccountInput = (DIGITAL_ACCOUNTS.indexOf(accountType) > -1);
+
+		if (!showAccountInput) {
+			sweetAlert({
+				title: 'IMPORTANT: You have chosen cash.',
+				text: 'Checks are not an option so it is your responsibility to submit/receive all cash.\n\nBy pressing \'OK\', you acknowledge this, otherwise choose an electronic payment type.',
+				type: 'warning',
+			});
+		}
+
+		this.setState({ showAccountInput });
+
 		handleChange(ev);
 	}
 	_toggleQuickPick (ev) {
-		const { handleChange } = this.props,
-				showQuickPick = ev.target.checked;
+		const { handleChange } = this.props;
+		const showQuickPick = ev.target.checked;
+
 		this.setState({ showQuickPick });
+
 		handleChange(ev);
 	}
 	_toggleReminder (ev) {
-		const { handleChange } = this.props,
-				showReminder = ev.target.checked;
+		const { handleChange } = this.props;
+		const showReminder = ev.target.checked;
+
 		this.setState({ showReminder });
+
 		handleChange(ev);
 	}
 
 	render () {
-		const { errors, hasFacebook, hasGoogle, isCreate, isSubmitting, nextGame1, touched, user, values, handleBlur, handleChange, handleSubmit, linkFacebook, linkGoogle } = this.props,
-				{ showAccountInput, showQuickPick, showReminder } = this.state;
+		const { errors, hasFacebook, hasGoogle, isCreate, isSubmitting, touched, user, values, handleBlur, handleChange, handleSubmit, linkFacebook, linkGoogle } = this.props;
+		const { showAccountInput, showQuickPick, showReminder } = this.state;
+
 		return (
 			<form onSubmit={handleSubmit}>
 				<div className="row form-group">
@@ -89,21 +120,6 @@ class EditProfileForm extends Component {
 						{errors.phone_number && touched.phone_number && <div className="form-control-feedback">{errors.phone_number}</div>}
 					</div>
 				</div>
-				{isCreate ? (
-					<div className={`row form-group ${getInputColor(errors.survivor, touched.survivor, 'has-')}`}>
-						<label htmlFor="survivor" className="col-xs-12 col-md-2 col-form-label">Play Survivor Pool?</label>
-						<div className="col-xs-12 col-md-10">
-							<label className="form-check-label col-form-label">
-								<input type="checkbox" className="form-check-input" name="survivor" title={nextGame1.week === 1 ? 'Check this if you would like to also participate in the survivor pool (optional)' : 'You cannot sign up for the survivor pool after week 1 has started'} value="true" checked={values.survivor} disabled={nextGame1.week > 1} onChange={handleChange} />
-								&nbsp;Yes
-							</label>
-							{errors.survivor && touched.survivor && <div className="form-control-feedback">{errors.survivor}</div>}
-						</div>
-					</div>
-				)
-					:
-					null
-				}
 				<div className="row form-group">
 					<label htmlFor="payment_type" className="col-xs-12 col-md-2 col-form-label">Payments (To/From)</label>
 					<div className={`col-xs-12 col-md-5 ${getInputColor(errors.payment_type, touched.payment_type, 'has-')}`}>
@@ -115,7 +131,7 @@ class EditProfileForm extends Component {
 					</div>
 					<div className={`col-xs-12 col-md-5 ${getInputColor(errors.payment_account, touched.payment_account, 'has-')}`}>
 						{showAccountInput ? (
-							<input type="text" className={`form-control ${getInputColor(errors.payment_account, touched.payment_account, 'form-control-')}`} name="payment_account" placeholder="Account for Payments" value={values.payment_account} onBlur={handleBlur} onChange={handleChange} />
+							<input type="text" className={`form-control ${getInputColor(errors.payment_account, touched.payment_account, 'form-control-')}`} name="payment_account" placeholder={this._getAccountPlaceholder(values.payment_type)} value={values.payment_account} onBlur={handleBlur} onChange={handleChange} />
 						)
 							:
 							null
@@ -176,7 +192,7 @@ class EditProfileForm extends Component {
 					:
 					null
 				}
-				{showReminder ? (
+				{!isCreate && showReminder ? (
 					<div className="row form-group">
 						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
 						<div className="col-xs-12 col-md-2">
@@ -220,7 +236,7 @@ class EditProfileForm extends Component {
 					:
 					null
 				}
-				{showQuickPick ? (
+				{!isCreate && showQuickPick ? (
 					<div className={`row form-group ${getInputColor(errors.quick_pick_hours, true, 'has-')}`}>
 						<label className="hidden-sm-down col-md-2 col-form-label">&nbsp;</label>
 						<div className="hidden-sm-down col-md-2">&nbsp;</div>
@@ -279,7 +295,6 @@ EditProfileForm.propTypes = {
 	hasGoogle: PropTypes.bool.isRequired,
 	isCreate: PropTypes.bool.isRequired,
 	isSubmitting: PropTypes.bool.isRequired,
-	nextGame1: PropTypes.object.isRequired,
 	router: PropTypes.object.isRequired,
 	touched: PropTypes.object.isRequired,
 	user: PropTypes.object.isRequired,
@@ -326,12 +341,14 @@ export default withFormik({
 		team_name: Yup.string(),
 		referred_by: (props.isCreate ? Yup.string().matches(/\s/, 'Please input the full name of the person that invited you').required('Please input the full name of the person that invited you') : Yup.string()),
 		phone_number: Yup.string().matches(/^\d{10}$/, 'Please enter a valid phone number, numbers only'),
-		survivor: Yup.string().nullable(true),
 		payment_type: Yup.string().oneOf(ACCOUNT_TYPES, 'Please select a valid account type').required('Please select an account type'),
 		payment_account: Yup.string().when('payment_type', {
-			is: val => DIGITAL_ACCOUNTS.indexOf(val) > -1,
-			then: Yup.string().required('Please enter your account name'),
-			otherwise: Yup.string()
+			is: val => DIGITAL_ACCOUNTS.indexOf(val) === -1,
+			then: Yup.string().max(0),
+		}).when('payment_type', {
+			is: 'Venmo',
+			then: Yup.string().required('Please enter your Venmo user ID'),
+			otherwise: Yup.string().email('Please enter your account email address').required('Please enter your account email address'),
 		}),
 		auto_pick_strategy: Yup.string().oneOf(['', ...AUTO_PICK_TYPES], 'Please pick a valid auto pick strategy'),
 		do_quick_pick: Yup.boolean(),
@@ -351,12 +368,13 @@ export default withFormik({
 	}),
 
 	handleSubmit: (values, { props, setErrors, setSubmitting }) => {
-		const { auto_pick_strategy, do_quick_pick, do_reminder, first_name, survivor, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types_email, reminder_types_text, team_name } = values,
+		const { auto_pick_strategy, do_quick_pick, do_reminder, first_name, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types_email, reminder_types_text, team_name } = values,
 				{ isCreate, router, user } = props,
 				done_registering = user.trusted || validateReferredBy.call({ referred_by });
 		try {
 			if (isCreate) {
-				updateUser.call({ done_registering, first_name, last_name, leagues: [DEFAULT_LEAGUE], payment_account, payment_type, phone_number, referred_by, survivor: survivor || false, team_name });
+				updateUser.call({ done_registering, first_name, last_name, leagues: [DEFAULT_LEAGUE], payment_account, payment_type, phone_number, referred_by, survivor: false, team_name });
+				updateNotifications.call({ do_quick_pick: false, do_reminder: true, quick_pick_hours: 0, reminder_hours: 24, reminder_types_email: true, reminder_types_text: false });
 				if (done_registering) {
 					Bert.alert(`Thanks for registering, ${first_name}`, 'success');
 					router.push('/users/payments');

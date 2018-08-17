@@ -20,7 +20,9 @@ import { getTiebreakerSync, resetTiebreaker, setTiebreaker, submitPicks } from '
 class MakePicks extends Component {
 	constructor (props) {
 		const { games, pageReady, picks } = props;
-		super();
+
+		super(props);
+
 		this.state = this._populatePoints(games, picks, pageReady);
 		this._autopick = this._autopick.bind(this);
 		this._handleSubmitPicks = this._handleSubmitPicks.bind(this);
@@ -31,27 +33,33 @@ class MakePicks extends Component {
 	}
 
 	componentWillReceiveProps (nextProps) {
-		const { currentWeek, games, pageReady, picks, selectedWeek, tiebreaker = {} } = nextProps,
-				notAllowed = pageReady && (selectedWeek < currentWeek || tiebreaker.submitted);
+		const { currentWeek, games, pageReady, picks, selectedWeek, tiebreaker = {} } = nextProps;
+		const notAllowed = pageReady && (selectedWeek < currentWeek || tiebreaker.submitted);
 		let pointObj;
+
 		if (notAllowed) this.context.router.push('/picks/view');
+
 		if (pageReady) {
 			pointObj = this._populatePoints(games, picks, true);
+
 			this.setState(pointObj);
 		}
 	}
 
 	_autopick (type, ev) {
-		const { available } = this.state,
-				{ currentLeague, selectedWeek } = this.props;
+		const { available } = this.state;
+		const { currentLeague, selectedWeek } = this.props;
+
 		ev.preventDefault();
 		autoPick.call({ available, league: currentLeague, selectedWeek, type }, handleError);
 		Bert.alert({ type: 'success', message: `Your unset picks have been automatically set ${type === 'random' ? 'randomly' : `to the ${type} teams`}!` });
+
 		return false;
 	}
 	_handleSubmitPicks () {
-		const { currentLeague, picks, selectedWeek, tiebreaker } = this.props,
-				user = Meteor.user();
+		const { currentLeague, picks, selectedWeek, tiebreaker } = this.props;
+		const user = Meteor.user();
+
 		setTimeout(() => {
 			submitPicks.call({ league: currentLeague, week: selectedWeek }, err => {
 				if (err) {
@@ -71,27 +79,32 @@ class MakePicks extends Component {
 	}
 	_populatePoints (games, picks, gamesReady) {
 		if (!gamesReady) return { available: [], unavailable: [], used: [] };
-		const used = picks.filter(pick => pick.points && pick.pick_id).map(pick => pick.points),
-				missedGames = picks.filter((pick, i) => !pick.pick_id && games[i].kickoff <= new Date());
-		let available = [],
-				unavailable = [];
+		const used = picks.filter(pick => pick.points && pick.pick_id).map(pick => pick.points);
+		const missedGames = picks.filter((pick, i) => !pick.pick_id && games[i].kickoff <= new Date());
+		let available = [];
+		let unavailable = [];
+
 		for (let i = 1; i <= games.length; i++) {
 			if (used.indexOf(i) === -1) available.push(i);
 		}
+
 		if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
+
 		return { available, unavailable, used };
 	}
 	_setHover (hoverTeam = '', hoverGame = null, hoverIsHome = false, ev) {
 		this.setState({ hoverGame, hoverIsHome, hoverTeam, hoverOn: (hoverTeam ? ev.target : null) });
 	}
 	_setTiebreakerWrapper (ev) {
-		const { currentLeague, selectedWeek } = this.props,
-				lastScoreStr = ev.currentTarget.value,
-				lastScore = (lastScoreStr ? parseInt(lastScoreStr, 10) : 0);
+		const { currentLeague, selectedWeek } = this.props;
+		const lastScoreStr = ev.currentTarget.value;
+		const lastScore = (lastScoreStr ? parseInt(lastScoreStr, 10) : 0);
+
 		setTiebreaker.call({ lastScore, league: currentLeague, week: selectedWeek }, handleError);
 	}
 	_resetPicks (ev) {
 		const { currentLeague, selectedWeek } = this.props;
+
 		resetPicks.call({ league: currentLeague, selectedWeek }, handleError);
 		resetTiebreaker.call({ league: currentLeague, week: selectedWeek }, handleError);
 		Bert.alert({ type: 'success', message: 'Your picks have been reset!' });
@@ -107,7 +120,9 @@ class MakePicks extends Component {
 	}
 	_submitPicks (picksLeft, noTiebreaker, ev) {
 		const tiebreakerVal = this.tiebreakerRef.value;
+
 		ev.preventDefault();
+
 		if (picksLeft) {
 			sweetAlert({
 				title: 'Hold On!',
@@ -136,9 +151,11 @@ class MakePicks extends Component {
 	}
 
 	render () {
-		const { available, hoverGame, hoverIsHome, hoverOn, hoverTeam, unavailable, used } = this.state,
-				{ currentLeague, games, pageReady, picks, selectedWeek, tiebreaker } = this.props;
-		let lastHomeTeam, lastVisitingTeam;
+		const { available, hoverGame, hoverIsHome, hoverOn, hoverTeam, unavailable, used } = this.state;
+		const { currentLeague, games, pageReady, picks, selectedWeek, tiebreaker } = this.props;
+		let lastHomeTeam;
+		let lastVisitingTeam;
+
 		return (
 			<div className="row make-picks-wrapper">
 				<Helmet title={`Set Week ${selectedWeek} Picks`} />
@@ -158,58 +175,28 @@ class MakePicks extends Component {
 								<tr>
 									<th>
 										<div className="row">
-											<div className="col-xs-6 text-xs-center">Home</div>
 											<div className="col-xs-6 text-xs-center">Away</div>
+											<div className="col-xs-6 text-xs-center">Home</div>
 										</div>
 									</th>
 								</tr>
 							</thead>
 							<tbody>
 								{games.map((game, i) => {
-									const homeTeam = game.getTeam('home'),
-											visitTeam = game.getTeam('visitor'),
-											thisPick = picks[i],
-											homePicked = thisPick.pick_id === homeTeam._id,
-											visitorPicked = thisPick.pick_id === visitTeam._id,
-											started = game.kickoff <= new Date();
+									const homeTeam = game.getTeam('home');
+									const visitTeam = game.getTeam('visitor');
+									const thisPick = picks[i];
+									const homePicked = thisPick.pick_id === homeTeam._id;
+									const visitorPicked = thisPick.pick_id === visitTeam._id;
+									const started = game.kickoff <= new Date();
+
 									lastHomeTeam = homeTeam;
 									lastVisitingTeam = visitTeam;
+
 									return (
 										<tr className={(homePicked || visitorPicked ? 'done' : '') + (started ? ' disabled' : '')} title={(started ? 'This game has already begun, no changes allowed' : null)} key={'game' + i}>
 											<td>
 												<div className="row">
-													<div className="col-xs-6 col-md-2 homePoints">
-														{homePicked || !started ? (
-															<PointHolder
-																className="pull-md-left"
-																disabledPoints={homePicked && started ? [thisPick.points] : []}
-																gameId={game._id}
-																league={currentLeague}
-																numGames={games.length}
-																points={homePicked && !started ? [thisPick.points] : []}
-																selectedWeek={selectedWeek}
-																teamId={homeTeam._id}
-																teamShort={homeTeam.short_name}
-																thisRef={`${homeTeam.short_name}Ref`} />
-														)
-															:
-															null
-														}
-													</div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-left homeName">
-														{homeTeam.city}&nbsp;
-														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id, game, true)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
-														<br />
-														{homeTeam.name}
-													</div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorName">
-														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id, game, false)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
-															&nbsp;{visitTeam.city}
-														<br />
-														{visitTeam.name}
-													</div>
-													<div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
 													<div className="col-xs-6 col-md-2 visitorPoints">
 														{visitorPicked || !started ? (
 															<PointHolder
@@ -228,6 +215,38 @@ class MakePicks extends Component {
 															null
 														}
 													</div>
+													<div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorLogo"><img src={`/NFLLogos/${visitTeam.logo}`} /></div>
+													<div className="col-xs-6 col-md-2 text-xs-center text-md-right visitorName">
+														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, visitTeam._id, game, false)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
+															&nbsp;{visitTeam.city}
+														<br />
+														{visitTeam.name}
+													</div>
+													<div className="col-xs-6 col-md-2 text-xs-center text-md-left homeName">
+														{homeTeam.city}&nbsp;
+														<i className="text-primary hidden-sm-down fa fa-info-circle team-hover-link" onMouseEnter={this._setHover.bind(null, homeTeam._id, game, true)} onMouseLeave={this._setHover.bind(null, undefined, undefined, undefined)} />
+														<br />
+														{homeTeam.name}
+													</div>
+													<div className="col-xs-6 col-md-2 text-xs-center text-md-left homeLogo"><img src={`/NFLLogos/${homeTeam.logo}`} /></div>
+													<div className="col-xs-6 col-md-2 homePoints">
+														{homePicked || !started ? (
+															<PointHolder
+																className="pull-md-left"
+																disabledPoints={homePicked && started ? [thisPick.points] : []}
+																gameId={game._id}
+																league={currentLeague}
+																numGames={games.length}
+																points={homePicked && !started ? [thisPick.points] : []}
+																selectedWeek={selectedWeek}
+																teamId={homeTeam._id}
+																teamShort={homeTeam.short_name}
+																thisRef={`${homeTeam.short_name}Ref`} />
+														)
+															:
+															null
+														}
+													</div>
 												</div>
 											</td>
 										</tr>
@@ -235,23 +254,28 @@ class MakePicks extends Component {
 								})}
 							</tbody>
 						</table>
-						<table className="table table-hover tiebreakerTable">
-							<thead className="thead-default">
-								<tr>
-									<th>Tiebreaker</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>{`Without going over, input the total number of points scored in the ${lastVisitingTeam.city} ${lastVisitingTeam.name} vs. ${lastHomeTeam.city} ${lastHomeTeam.name} game`}</td>
-								</tr>
-								<tr>
-									<td>
-										<input type="number" className="form-control" defaultValue={tiebreaker.last_score} onBlur={this._setTiebreakerWrapper} ref={input => { this.tiebreakerRef = input; }} />
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						{lastVisitingTeam && lastHomeTeam ? (
+							<table className="table table-hover tiebreakerTable">
+								<thead className="thead-default">
+									<tr>
+										<th>Tiebreaker</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>{`Without going over, input the total number of points scored in the ${lastVisitingTeam.city} ${lastVisitingTeam.name} vs. ${lastHomeTeam.city} ${lastHomeTeam.name} game`}</td>
+									</tr>
+									<tr>
+										<td>
+											<input type="number" className="form-control" defaultValue={tiebreaker.last_score} onBlur={this._setTiebreakerWrapper} ref={input => { this.tiebreakerRef = input; }} />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						)
+							:
+							null
+						}
 					</div>,
 					<div className="col-xs-12 col-sm-9 col-md-10 text-xs-center pick-buttons" key="pick-buttons">
 						<button type="button" className="btn btn-danger" disabled={used.length === 0} onClick={this._resetPicks}>
@@ -262,8 +286,8 @@ class MakePicks extends Component {
 								<i className="fa fa-fw fa-magic hidden-sm-down" /> Auto-Pick
 							</button>
 							<div className="dropdown-menu">
-								<a className="dropdown-item" href="#" onClick={this._autopick.bind(null, 'home')}>All Home Teams</a>
 								<a className="dropdown-item" href="#" onClick={this._autopick.bind(null, 'away')}>All Away Teams</a>
+								<a className="dropdown-item" href="#" onClick={this._autopick.bind(null, 'home')}>All Home Teams</a>
 								<div className="dropdown-divider"></div>
 								<a className="dropdown-item" href="#" onClick={this._autopick.bind(null, 'random')}>Random</a>
 							</div>
@@ -300,23 +324,27 @@ MakePicks.contextTypes = {
 };
 
 export default createContainer(() => {
-	const currentWeek = Session.get('currentWeek'),
-			selectedWeek = Session.get('selectedWeek'),
-			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
-			picksHandle = Meteor.subscribe('singleWeekPicksForUser', selectedWeek, currentLeague),
-			picksReady = picksHandle.ready(),
-			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
-			tiebreakerReady = tiebreakerHandle.ready(),
-			gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek),
-			gamesReady = gamesHandle.ready(),
-			teamsHandle = Meteor.subscribe('allTeams'),
-			teamsReady = teamsHandle.ready();
-	let games = [],
-			picks = [],
-			tiebreaker = {};
+	const currentWeek = Session.get('currentWeek');
+	const selectedWeek = Session.get('selectedWeek');
+	const currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+	const picksHandle = Meteor.subscribe('singleWeekPicksForUser', selectedWeek, currentLeague);
+	const picksReady = picksHandle.ready();
+	const tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague);
+	const tiebreakerReady = tiebreakerHandle.ready();
+	const gamesHandle = Meteor.subscribe('gamesForWeek', selectedWeek);
+	const gamesReady = gamesHandle.ready();
+	const teamsHandle = Meteor.subscribe('allTeams');
+	const teamsReady = teamsHandle.ready();
+	let games = [];
+	let picks = [];
+	let tiebreaker = {};
+
 	if (gamesReady) games = getGamesForWeek.call({ week: selectedWeek });
+
 	if (picksReady) picks = getPicksForWeek.call({ league: currentLeague, week: selectedWeek });
+
 	if (tiebreakerReady) tiebreaker = getTiebreakerSync({ league: currentLeague, week: selectedWeek });
+
 	return {
 		currentLeague,
 		currentWeek,

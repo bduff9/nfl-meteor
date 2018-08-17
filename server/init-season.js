@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { DEFAULT_LEAGUE } from '../imports/api/constants';
+import { ACCOUNT_TYPES, DEFAULT_LEAGUE } from '../imports/api/constants';
 import { getCurrentSeasonYear } from '../imports/api/global';
 import { clearGames, initSchedule } from './collections/games';
 import { clearNFLLogs } from './collections/nfllogs';
@@ -17,6 +17,21 @@ import { clearTeams, initTeams } from './collections/teams';
 import { clearTiebreakers } from './collections/tiebreakers';
 import { getCurrentUser, getUsers } from '../imports/api/collections/users';
 
+const resetUser = function resetUser (user) {
+	user.done_registering = false;
+	user.leagues = [];
+	user.survivor = false;
+	user.owe = 0;
+	user.paid = 0;
+	user.selected_week = {};
+	user.total_points = 0;
+	user.total_games = 0;
+	user.overall_place = undefined;
+	user.overall_tied_flag = false;
+	if (ACCOUNT_TYPES.indexOf(user.payment_type) === -1) user.payment_type = 'Zelle';
+	user.save();
+};
+
 /**
  * Before new year begins, reset all data i.e. clear out games, teams, picks, etc. and reset users back to empty
  */
@@ -25,13 +40,16 @@ export const initPoolOnServer = new ValidatedMethod({
 	validate: new SimpleSchema({}).validator(),
 	run () {
 		// Validate that current year and system vals year are different, also that current user is an admin
-		const systemVals = getSystemValues.call({}),
-				poolYear = systemVals.year_updated,
-				currYear = getCurrentSeasonYear(),
-				currUser = getCurrentUser.call({}),
-				users = getUsers.call({ activeOnly: false });
+		const systemVals = getSystemValues.call({});
+		const poolYear = systemVals.year_updated;
+		const currYear = getCurrentSeasonYear();
+		const currUser = getCurrentUser.call({});
+		const users = getUsers.call({ activeOnly: true });
+
 		if (currYear <= poolYear) throw new Meteor.Error('Invalid Year Passed', 'Current year must be greater than the last updated year');
+
 		if (!currUser || !currUser.is_admin) throw new Meteor.Error('Not Authorized', 'You are not authorized to do this');
+
 		// Grab overall top 3 and insert into poolhistory
 		users.forEach(user => {
 			const overallPlace = user.overall_place;
@@ -41,11 +59,13 @@ export const initPoolOnServer = new ValidatedMethod({
 				league: user.league || DEFAULT_LEAGUE,
 				type: 'O'
 			};
-			if (overallPlace <= 3) {
+
+			if (overallPlace && overallPlace <= 3) {
 				overallHistory.place = overallPlace;
 				addPoolHistory.call({ poolHistory: overallHistory });
 			}
 		});
+
 		// Empty all collections we are going to refill: cronHistory, games, nfllogs, picks, survivor, teams, tiebreakers
 		clearCronHistory.call({});
 		clearGames.call({});
@@ -54,25 +74,19 @@ export const initPoolOnServer = new ValidatedMethod({
 		clearSurvivorPicks.call({});
 		clearTeams.call({});
 		clearTiebreakers.call({});
+
 		// Clear out/default old user info i.e. referred_by, done_registering, leagues, survivor, owe, paid, selected_week, total_points, total_games, overall_place, overall_tied_flag
 		users.forEach(user => {
-			user.done_registering = false;
-			user.leagues = [];
-			user.survivor = false;
-			user.owe = 0;
-			user.paid = 0;
-			user.selected_week = {};
-			user.total_points = 0;
-			user.total_games = 0;
-			user.overall_place = undefined;
-			user.overall_tied_flag = false;
-			user.save();
+			if (user._id !== currUser._id) resetUser(user);
 		});
+
 		// When done, update lastUpdated in systemvals, then refill teams and games
 		systemVals.year_updated = currYear;
 		systemVals.save();
 		initTeams.call({});
 		initSchedule.call({});
+		resetUser(currUser);
+
 		console.log(`Finished updating pool from ${poolYear} to ${currYear}!`);
 	}
 });

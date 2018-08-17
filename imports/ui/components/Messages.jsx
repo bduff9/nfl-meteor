@@ -16,14 +16,16 @@ import { getCurrentUser } from '../../api/collections/users';
 
 class Messages extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {};
 	}
 
 	render () {
-		const { currentUser, currentWeek, firstGame, messages, nextGame, pageReady, paymentDue, submittedSurvivor, tiebreaker } = this.props,
-				{ paid, survivor } = currentUser,
-				submittedPicks = tiebreaker.submitted;
+		const { currentUser, currentWeek, firstGame, messages, nextGame, pageReady, paymentDue, submittedSurvivor, tiebreaker } = this.props;
+		const { paid, survivor } = currentUser;
+		const submittedPicks = tiebreaker.submitted;
+
 		return (
 			<div className="messages">
 				<h3 className="text-xs-center">Private Messages</h3>

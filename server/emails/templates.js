@@ -1,7 +1,8 @@
 'use strict';
 
-import { formatDate } from '../../imports/api/global';
-import { getFirstGameOfWeek } from '../../imports/api/collections/games';
+import { POOL_COST, SURVIVOR_COST } from '../../imports/api/constants';
+import { formatDate, handleError } from '../../imports/api/global';
+import { getFirstGameOfWeek, getPaymentDue } from '../../imports/api/collections/games';
 import { getPicksForWeek } from '../../imports/api/collections/picks';
 import { getTeamByShort } from '../../imports/api/collections/teams';
 import { getTiebreaker } from '../../imports/api/collections/tiebreakers';
@@ -46,7 +47,15 @@ export default {
 		helpers: {},
 		route: {
 			path: '/interest',
-			data: ({ query }) => ({})
+			data: () => {
+				const paymentDue = getPaymentDue.call({});
+
+				return {
+					payByDate: formatDate(paymentDue),
+					poolCost: POOL_COST,
+					survivorCost: SURVIVOR_COST,
+				};
+			}
 		}
 	},
 

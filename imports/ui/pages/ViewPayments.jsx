@@ -25,8 +25,8 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 			case 'PayPal':
 				msg = <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a></span>;
 				break;
-			case 'QuickPay':
-				msg = <span className="amount-message">Please pay ${amount} using Chase QuickPay to account bduff9@gmail.com</span>;
+			case 'Zelle':
+				msg = <span className="amount-message">Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com</span>;
 				break;
 			case 'Venmo':
 				msg = <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com</span>;

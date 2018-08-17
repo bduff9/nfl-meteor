@@ -32,12 +32,12 @@ class EditProfileForm extends Component {
 		switch (accountType) {
 			case 'PayPal':
 			case 'Zelle':
-			return 'Email Address for ' + accountType;
+				return 'Email Address for ' + accountType;
 			case 'Venmo':
-			return 'User ID for ' + accountType;
+				return 'User ID for ' + accountType;
 			default:
-			console.error('Invalid account type passed', accountType);
-			return 'ERROR';
+				console.error('Invalid account type passed', accountType);
+				return 'ERROR';
 		}
 	}
 	_getHourOptions (max) {
@@ -125,7 +125,7 @@ class EditProfileForm extends Component {
 					<div className={`col-xs-12 col-md-5 ${getInputColor(errors.payment_type, touched.payment_type, 'has-')}`}>
 						<select className={`form-control ${getInputColor(errors.payment_type, touched.payment_type, 'form-control-')}`} name="payment_type" value={values.payment_type} required onChange={this._toggleAccountInput}>
 							<option value="">--Select a Payment Type--</option>
-							{ACCOUNT_TYPES.map(type => <option value={type} key={`account_type_${type}`}>{type === 'QuickPay' ? 'Chase QuickPay' : type}</option>)}
+							{ACCOUNT_TYPES.map(type => <option value={type} key={`account_type_${type}`}>{type}</option>)}
 						</select>
 						{errors.payment_type && touched.payment_type && <div className="form-control-feedback">{errors.payment_type}</div>}
 					</div>

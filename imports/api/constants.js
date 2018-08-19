@@ -9,7 +9,7 @@
  * 1 - First schema
  * 2 - New schema for 2017 season
  */
-export const dbVersion = '2';
+export const dbVersion = 2;
 
 /**
  * First year of tracking for system values

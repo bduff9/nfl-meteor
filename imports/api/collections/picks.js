@@ -29,29 +29,42 @@ export const assignPointsToMissed = new ValidatedMethod({
 			const missedPicks = Pick.find({ game_id: gameId, points: null }).fetch();
 			if (missedPicks.length) console.log(`${missedPicks.length} users missed game ${gameId} in week ${week}`);
 			missedPicks.forEach(missedPick => {
-				const { league, user_id } = missedPick,
-						user = missedPick.getUser(),
-						{ auto_pick_count, auto_pick_strategy } = user,
-						game = missedPick.getGame(),
-						usersPicks = Pick.find({ league, user_id, week }).fetch(),
-						pointsUsed = usersPicks.filter(pick => pick.points).map(pick => pick.points);
-				let maxPointVal = gameCount;
-				while (pointsUsed.indexOf(maxPointVal) > -1) maxPointVal--;
-				missedPick.points = maxPointVal;
+				const { league, user_id } = missedPick;
+				const user = missedPick.getUser();
+				const { auto_pick_count, auto_pick_strategy } = user;
+				const game = missedPick.getGame();
+				const usersPicks = Pick.find({ league, user_id, week }).fetch();
+				const pointsUsed = usersPicks.filter(pick => pick.points).map(pick => pick.points);
+				const maxPointVal = gameCount;
+				let pointVal = 1;
+
+				while (pointsUsed.indexOf(pointVal) > -1) {
+					if (pointVal === maxPointVal) {
+						console.error(`While trying to assign max points to user ${user.first_name} ${user.last_name}, reached max point value of ${maxPointVal}, meaning all points from 1 to ${maxPointVal} are used, yet somehow we got into this block where a pick was missed.  Should be impossible so adding this long comment just to ensure visibility if it ever happens.`);
+					} else {
+						pointVal++;
+					}
+				}
+
+				missedPick.points = pointVal;
+
 				if (auto_pick_strategy && auto_pick_count > 0) {
 					user.auto_pick_count -= 1;
 					user.save();
+
 					if (auto_pick_strategy === 'Home' || (auto_pick_strategy === 'Random' && Math.random() < 0.5)) {
 						missedPick.pick_id = game.home_id;
 						missedPick.pick_short = game.home_short;
-					} else if (auto_pick_strategy === 'Away' || auto_pick_strategy === 'Random') {
+					} else { //if (auto_pick_strategy === 'Away' || auto_pick_strategy === 'Random') {
 						missedPick.pick_id = game.visitor_id;
 						missedPick.pick_short = game.visitor_short;
 					}
-					console.log(`Auto picked ${auto_pick_strategy} team for ${maxPointVal} points for user ${user_id}`);
+
+					console.log(`Auto picked ${auto_pick_strategy} team for ${pointVal} points for user ${user_id}`);
 				} else {
-					console.log(`Auto assigned ${maxPointVal} points to user ${user_id}`);
+					console.log(`Auto assigned ${pointVal} points to user ${user_id}`);
 				}
+
 				missedPick.save();
 			});
 		}

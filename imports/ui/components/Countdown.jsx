@@ -5,7 +5,8 @@ import { moment } from 'meteor/momentjs:moment';
 
 export default class Countdown extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {
 			now: new Date()
 		};
@@ -25,11 +26,11 @@ export default class Countdown extends Component {
 	}
 
 	render () {
-		const { nextKickoff, week } = this.props,
-				{ now } = this.state,
-				diff = moment(nextKickoff).diff(now),
-				duration = moment.duration(diff),
-				{ days, hours, minutes, seconds } = duration._data;
+		const { nextKickoff, week } = this.props;
+		const { now } = this.state;
+		const diff = moment(nextKickoff).diff(now);
+		const duration = moment.duration(diff);
+		const { days, hours, minutes, seconds } = duration._data;
 		let timeString;
 
 		if (days > 0) {

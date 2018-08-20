@@ -17,25 +17,20 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 	let total;
 
 	const getPaymentMessage = (amount, type) => {
-		let msg = 'ERROR';
 		switch (type) {
 			case 'Cash':
-				msg = <span className="amount-message">Please pay ${amount} to Brian or Billy</span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} to Brian or Billy</span>;
 			case 'PayPal':
-				msg = <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a></span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a></span>;
 			case 'Zelle':
-				msg = <span className="amount-message">Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com</span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com</span>;
 			case 'Venmo':
-				msg = <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com</span>;
-				break;
+				return <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com</span>;
 			default:
 				console.error('Unknown account type', type);
-				break;
+
+				return 'ERROR';
 		}
-		return msg;
 	};
 
 	return (
@@ -142,24 +137,34 @@ ViewPayments.propTypes = {
 };
 
 export default createContainer(() => {
-	const user_id = Meteor.userId(),
-			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
-			survivorHandle = Meteor.subscribe('overallSurvivor', currentLeague, WEEKS_IN_SEASON),
-			survivorReady = survivorHandle.ready(),
-			tiebreakersHandle = Meteor.subscribe('allTiebreakersForUser', currentLeague),
-			tiebreakersReady = tiebreakersHandle.ready(),
-			currentUser = getCurrentUser.call({}),
-			nextGame = getNextGame.call({});
-	let sortedUsers = [],
-			stillAlive = [],
-			tiebreakers = [],
-			survivorPlace = 99;
+	const user_id = Meteor.userId();
+	const currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+	const survivorHandle = Meteor.subscribe('overallSurvivor', currentLeague, WEEKS_IN_SEASON);
+	const survivorReady = survivorHandle.ready();
+	const tiebreakersHandle = Meteor.subscribe('allTiebreakersForUser', currentLeague);
+	const tiebreakersReady = tiebreakersHandle.ready();
+	const currentUser = getCurrentUser.call({});
+	const nextGame = getNextGame.call({});
+	let sortedUsers = [];
+	let stillAlive = [];
+	let tiebreakers = [];
+	let survivorPlace = 99;
+	let mySurvivor;
+
 	if (survivorReady) {
 		sortedUsers = getSortedSurvivorPicks.call({ league: currentLeague });
-		if (currentUser.survivor) survivorPlace = sortedUsers.filter(user => user.user_id === user_id)[0].place;
+
+		if (currentUser.survivor) {
+			mySurvivor = sortedUsers.filter(u => u.user_id === user_id);
+
+			if (mySurvivor.length > 0) survivorPlace = mySurvivor[0].place;
+		}
+
 		stillAlive = sortedUsers.filter(user => user.weeks === WEEKS_IN_SEASON);
 	}
+
 	if (tiebreakersReady) tiebreakers = getAllTiebreakersForUser.call({ league: currentLeague, user_id });
+
 	return {
 		currentLeague,
 		currentUser,

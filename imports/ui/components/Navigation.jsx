@@ -4,20 +4,23 @@ import React, { PropTypes } from 'react';
 import { IndexLink, Link } from 'react-router';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
+import sweetAlert from 'sweetalert';
 
-import { DEFAULT_LEAGUE } from '../../api/constants';
-import { handleError, getCurrentSeasonYear } from '../../api/global';
+import { DEFAULT_LEAGUE, SURVIVOR_COST } from '../../api/constants';
+import { formatDate, handleError, getCurrentSeasonYear } from '../../api/global';
 import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
 import { getLastChatAction, getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
-import { updateSelectedWeek } from '../../api/collections/users';
+import { updateSelectedWeek, updateUserSurvivor } from '../../api/collections/users';
 
 const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
-	let msgCt = unreadMessages.length,
-			showCountdown = nextGame && nextGame.game === 1;
+	const showCountdown = nextGame && nextGame.game === 1;
+	const hasSeasonStarted = nextGame && (nextGame.week > 1 || nextGame.game > 1);
+	const seasonStart = formatDate(nextGame.kickoff);
+	let msgCt = unreadMessages.length;
 
 	if (pageReady && !logoutOnly) {
 		if (currentUser) msgCt += (currentUser.paid ? 0 : 1);
@@ -43,6 +46,22 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 	const _selectWeek = (newWeek, ev) => {
 		ev.preventDefault();
 		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, handleError);
+	};
+	const _confirmSurvivorPool = (ev) => {
+		sweetAlert({
+			title: 'Register for Survivor Pool?',
+			text: `Are you sure you want to register for the survivor pool?\n\nParticipating in the survivor pool costs an additional $${SURVIVOR_COST}.  Press 'OK' to join or 'Cancel' to decide later.\n\nNote: You have until the first kickoff (on ${seasonStart}) to register.`,
+			type: 'info',
+			showCancelButton: true,
+			closeOnConfirm: false,
+		}, function () {
+			updateUserSurvivor.call({ survivor: true });
+			sweetAlert({
+				title: 'Welcome to the Survivor Pool',
+				text: 'You have successfully joined the survivor pool for this season.\n\nPlease be sure to select your pick prior to the first kickoff of each week.',
+				type: 'success',
+			});
+		});
 	};
 
 	return (
@@ -100,7 +119,13 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null)
 						]
 							:
-							<li><a href="javascript:void(0)" className="disabled-link">No Survivor Pool</a></li>
+							hasSeasonStarted ? (
+								<li><a href="javascript:void(0)" className="disabled-link">No Survivor Pool</a></li>
+							)
+								:
+								(
+									<li><button className="btn btn-danger btn-glowing" onClick={_confirmSurvivorPool}>Join Survivor Pool</button></li>
+								)
 						}
 					</ul>
 					<ul className="nav nav-sidebar">
@@ -128,6 +153,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 							<li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
 							<li><Link to="/admin/logs" activeClassName="active">View Logs</Link></li>
 							<li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
+							<li><Link to="/admin/data" activeClassName="active">TODO: Manage Data</Link></li>
 							{getCurrentSeasonYear() > systemVals.year_updated ? <li><a href="#" onClick={_initPool}>Init Pool for {getCurrentSeasonYear()} Season</a></li> : null}
 						</ul>
 					)

@@ -498,6 +498,33 @@ export const updateUserAdmin = new ValidatedMethod({
 });
 export const updateUserAdminSync = Meteor.wrapAsync(updateUserAdmin.call, updateUserAdmin);
 
+export const updateUserSurvivor = new ValidatedMethod({
+	name: 'Users.updateUserSurvivor',
+	validate: new SimpleSchema({
+		survivor: { type: Boolean, label: 'Join Survivor' }
+	}).validator(),
+	run ({ survivor }) {
+		const user = User.findOne(this.userId);
+
+		if (!this.userId) throw new Meteor.Error('Users.updateUserSurvivor.notLoggedIn', 'Not signed in to pool');
+
+		user.survivor = survivor;
+
+		if (Meteor.isServer) {
+			if (survivor) {
+				user.owe += SURVIVOR_COST;
+				Meteor.call('Games.getEmptyUserSurvivorPicks', { user_id: user._id, leagues: user.leagues });
+			} else {
+				user.owe -= SURVIVOR_COST;
+				Meteor.call('SurvivorPicks.removeAllSurvivorPicksForUser', { user_id: user._id });
+			}
+		}
+
+		user.save();
+	}
+});
+export const updateUserSurvivorSync = Meteor.wrapAsync(updateUserSurvivor.call, updateUserSurvivor);
+
 export const validateReferredBy = new ValidatedMethod({
 	name: 'Users.validateReferredBy',
 	validate: new SimpleSchema({

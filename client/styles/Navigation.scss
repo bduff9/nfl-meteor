@@ -13,7 +13,6 @@ div.sidebar {
     color: #fff;
     box-shadow: 7px -10px 15px -5px #100C08;
 
-
     h5 {
       font-weight: bold;
     }
@@ -88,4 +87,17 @@ div.sidebar {
     transform: scale(1.5, 1.5);
     opacity: 1.0;
   }
+}
+
+.btn-glowing {
+  animation: glowing 3500ms infinite;
+}
+
+$glow: deeppink;
+
+@keyframes glowing {
+  0% { box-shadow: 0 0 0 $glow; }
+  40% { box-shadow: 0 0 25px $glow; }
+  60% { box-shadow: 0 0 25px $glow; }
+  100% { box-shadow: 0 0 0 $glow; }
 }

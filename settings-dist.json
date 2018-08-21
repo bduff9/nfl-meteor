@@ -1,0 +1,23 @@
+{
+  "public": {},
+  "private": {
+    "oAuth": {
+      "facebook": {
+        "appId": "",
+        "secret": ""
+      },
+      "google": {
+        "clientId": "",
+        "secret": ""
+      }
+    },
+    "gmail": "",
+    "twilio": {
+      "accountSid": "",
+      "authToken": "",
+      "phoneNumber": ""
+    }
+  },
+    "mode": "development",
+    "apiHost": "http://localhost:3003"
+}

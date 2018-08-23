@@ -50,7 +50,7 @@ class EditProfileForm extends Component {
 		return opts;
 	}
 	_toggleAccountInput (ev) {
-		const { handleChange } = this.props;
+		const { handleChange, setFieldValue } = this.props;
 		const accountType = ev.target.value;
 		const showAccountInput = (DIGITAL_ACCOUNTS.indexOf(accountType) > -1);
 
@@ -60,6 +60,8 @@ class EditProfileForm extends Component {
 				text: 'Checks are not an option so it is your responsibility to submit/receive all cash.\n\nBy pressing \'OK\', you acknowledge this, otherwise choose an electronic payment type.',
 				type: 'warning',
 			});
+
+			setFieldValue('payment_account', '', true);
 		}
 
 		this.setState({ showAccountInput });
@@ -304,7 +306,8 @@ EditProfileForm.propTypes = {
 	handleReset: PropTypes.func.isRequired,
 	handleSubmit: PropTypes.func.isRequired,
 	linkFacebook: PropTypes.func.isRequired,
-	linkGoogle: PropTypes.func.isRequired
+	linkGoogle: PropTypes.func.isRequired,
+	setFieldValue: PropTypes.func.isRequired,
 };
 
 export default withFormik({
@@ -345,10 +348,11 @@ export default withFormik({
 		payment_account: Yup.string().when('payment_type', {
 			is: val => DIGITAL_ACCOUNTS.indexOf(val) === -1,
 			then: Yup.string().max(0),
-		}).when('payment_type', {
-			is: 'Venmo',
-			then: Yup.string().required('Please enter your Venmo user ID'),
-			otherwise: Yup.string().email('Please enter your account email address').required('Please enter your account email address'),
+			otherwise: Yup.string().when('payment_type', {
+				is: 'Venmo',
+				then: Yup.string().required('Please enter your Venmo user ID'),
+				otherwise: Yup.string().email('Please enter your account email address').required('Please enter your account email address'),
+			}),
 		}),
 		auto_pick_strategy: Yup.string().oneOf(['', ...AUTO_PICK_TYPES], 'Please pick a valid auto pick strategy'),
 		do_quick_pick: Yup.boolean(),
@@ -368,9 +372,10 @@ export default withFormik({
 	}),
 
 	handleSubmit: (values, { props, setErrors, setSubmitting }) => {
-		const { auto_pick_strategy, do_quick_pick, do_reminder, first_name, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types_email, reminder_types_text, team_name } = values,
-				{ isCreate, router, user } = props,
-				done_registering = user.trusted || validateReferredBy.call({ referred_by });
+		const { auto_pick_strategy, do_quick_pick, do_reminder, first_name, last_name, payment_account, payment_type, phone_number, quick_pick_hours, referred_by, reminder_hours, reminder_types_email, reminder_types_text, team_name } = values;
+		const { isCreate, router, user } = props;
+		const done_registering = user.trusted || validateReferredBy.call({ referred_by });
+
 		try {
 			if (isCreate) {
 				updateUser.call({ done_registering, first_name, last_name, leagues: [DEFAULT_LEAGUE], payment_account, payment_type, phone_number, referred_by, survivor: false, team_name });

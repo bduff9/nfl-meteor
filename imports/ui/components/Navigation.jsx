@@ -124,7 +124,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 							)
 								:
 								(
-									<li><button className="btn btn-danger btn-glowing" onClick={_confirmSurvivorPool}>Join Survivor Pool</button></li>
+									<li><button className="btn btn-success btn-glowing" onClick={_confirmSurvivorPool}>Join Survivor Pool</button></li>
 								)
 						}
 					</ul>

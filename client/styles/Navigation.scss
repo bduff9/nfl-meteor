@@ -93,7 +93,7 @@ div.sidebar {
   animation: glowing 3500ms infinite;
 }
 
-$glow: deeppink;
+$glow: #00FF00;
 
 @keyframes glowing {
   0% { box-shadow: 0 0 0 $glow; }

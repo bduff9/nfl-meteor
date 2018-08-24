@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "assignees": ["bduff9"],
+  "supportPolicy": ["LTS"],
+  "meteor": {
+    "enabled": true
+  }
+}

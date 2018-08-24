@@ -19,7 +19,7 @@ export const FIRST_YEAR_FOR_SYSTEM_VALS = 2016;
 /**
  * The cost of the pool
  */
-export const POOL_COST = 30;
+export const POOL_COST = 40;
 
 /**
  * The cost of the survivor pool

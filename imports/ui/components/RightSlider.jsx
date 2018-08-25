@@ -18,6 +18,7 @@ export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSli
 				return <ScoreBoard week={week} _changeScoreboardWeek={_changeScoreboardWeek} />;
 			default:
 				console.error('Invalid slider type chosen', type);
+
 				return null;
 		}
 	};

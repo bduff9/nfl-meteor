@@ -125,3 +125,8 @@ export const AUTO_PICK_TYPES = ['Home', 'Away', 'Random'];
  * Default auto pick count for users
  */
 export const DEFAULT_AUTO_PICK_COUNT = 3;
+
+/**
+ * URL of Slack Invite
+ */
+export const SLACK_INVITE_URL = 'https://join.slack.com/t/asitewithnoname/shared_invite/enQtNDIyNzUxNTAxMzk0LTIxNmFjOWVkMDk2N2Q2ZDNmMjIxMjQ1NzgwMzUzZTFhMmU3OWIyZmVmZmQ1ZDViZmU5YTJhNmQwYjIxMjYwY2E';

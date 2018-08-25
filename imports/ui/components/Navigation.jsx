@@ -6,17 +6,17 @@ import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import sweetAlert from 'sweetalert';
 
-import { DEFAULT_LEAGUE, SURVIVOR_COST } from '../../api/constants';
+import { DEFAULT_LEAGUE, SLACK_INVITE_URL, SURVIVOR_COST } from '../../api/constants';
 import { formatDate, handleError, getCurrentSeasonYear } from '../../api/global';
 import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
-import { getLastChatAction, getUnreadChatCount, getUnreadMessages } from '../../api/collections/nfllogs';
+import { getUnreadMessages } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
 import { updateSelectedWeek, updateUserSurvivor } from '../../api/collections/users';
 
-const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadChatCt, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
+const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnly, nextGame, openMenu, pageReady, selectedWeek, survivorPicks, systemVals, tiebreaker, unreadMessages, _toggleMenu, _toggleRightSlider }) => {
 	const showCountdown = nextGame && nextGame.game === 1;
 	const hasSeasonStarted = nextGame && (nextGame.week > 1 || nextGame.game > 1);
 	const seasonStart = formatDate(nextGame.kickoff);
@@ -61,6 +61,19 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 				text: 'You have successfully joined the survivor pool for this season.\n\nPlease be sure to select your pick prior to the first kickoff of each week.',
 				type: 'success',
 			});
+		});
+	};
+	const _confirmGoToSlack = (ev) => {
+		sweetAlert({
+			title: 'Open Slack?',
+			text: 'Chat/Support is handled in a 3rd party website named Slack.  The first time you do this, you will need to register for Slack to participate.\n\nNote: Slack will open in a new window/tab, so you will not lose anything in the pool.\n\nPress \'OK\' to open a new window/tab for Slack or \'Cancel\' to stay on the current page.',
+			type: 'info',
+			showCancelButton: true,
+			closeOnConfirm: true,
+		}, function () {
+			const slackWin = window.open(SLACK_INVITE_URL, '_slack');
+
+			slackWin.focus();
 		});
 	};
 
@@ -142,9 +155,9 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 							</a>
 						</li>
 						<li>
-							<a href="#" onClick={_toggleRightSlider.bind(null, 'chat')}>
-								{(unreadChatCt > 0 ? <strong>Chat</strong> : 'Chat')}
-								{(unreadChatCt > 0 ? <span title={`There are ${unreadChatCt} new chats`} className="tag tag-pill tag-pulsate tag-primary">{unreadChatCt}</span> : null)}
+							<a href="#" onClick={_confirmGoToSlack}>
+								Chat/Support
+								<i className="fa fa-external-link external-link" />
 							</a>
 						</li>
 					</ul>
@@ -186,53 +199,38 @@ Navigation.propTypes = {
 	survivorPicks: PropTypes.arrayOf(PropTypes.object).isRequired,
 	systemVals: PropTypes.object.isRequired,
 	tiebreaker: PropTypes.object.isRequired,
-	unreadChatCt: PropTypes.number.isRequired,
 	unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
 	_toggleMenu: PropTypes.func.isRequired,
 	_toggleRightSlider: PropTypes.func.isRequired
 };
 
 export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
-	const currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
-			lastChatActionHandle = Meteor.subscribe('lastChatAction'),
-			lastChatActionReady = lastChatActionHandle.ready(),
-			nextGameHandle = Meteor.subscribe('nextGameToStart'),
-			nextGameReady = nextGameHandle.ready(),
-			messagesHandle = Meteor.subscribe('unreadMessages'),
-			messagesReady = messagesHandle.ready(),
-			survivorHandle = Meteor.subscribe('mySurvivorPicks', currentLeague),
-			survivorReady = survivorHandle.ready(),
-			tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague),
-			tiebreakerReady = tiebreakerHandle.ready(),
-			currentWeekTiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague),
-			currentWeekTiebreakerReady = currentWeekTiebreakerHandle.ready();
-	let unreadChatCt = 0,
-			nextGame = {},
-			unreadMessages = [],
-			survivorPicks = [],
-			systemVals = getSystemValues.call({}),
-			tiebreaker = {},
-			currentWeekTiebreaker = {},
-			unreadChatReady = false,
-			lastChatAction, unreadChatHandle;
+	const currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'), //TODO: Eventually will need to uncomment this and allow them to change current league
+	const nextGameHandle = Meteor.subscribe('nextGameToStart');
+	const nextGameReady = nextGameHandle.ready();
+	const messagesHandle = Meteor.subscribe('unreadMessages');
+	const messagesReady = messagesHandle.ready();
+	const survivorHandle = Meteor.subscribe('mySurvivorPicks', currentLeague);
+	const survivorReady = survivorHandle.ready();
+	const tiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', selectedWeek, currentLeague);
+	const tiebreakerReady = tiebreakerHandle.ready();
+	const currentWeekTiebreakerHandle = Meteor.subscribe('singleTiebreakerForUser', currentWeek, currentLeague);
+	const currentWeekTiebreakerReady = currentWeekTiebreakerHandle.ready();
+	let nextGame = {};
+	let unreadMessages = [];
+	let survivorPicks = [];
+	let systemVals = getSystemValues.call({});
+	let tiebreaker = {};
+	let currentWeekTiebreaker = {};
+
 	if (!logoutOnly) {
-		if (lastChatActionReady) {
-			lastChatAction = getLastChatAction.call({});
-			let lastAction;
-			if (lastChatAction) {
-				const { action, when } = lastChatAction;
-				lastAction = { action, when };
-			}
-			unreadChatHandle = Meteor.subscribe('unreadChats', lastChatAction);
-			unreadChatReady = unreadChatHandle.ready();
-			if (unreadChatReady) unreadChatCt = getUnreadChatCount.call({ lastAction });
-		}
 		if (nextGameReady) nextGame = getNextGame.call({});
 		if (messagesReady) unreadMessages = getUnreadMessages.call({});
 		if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague });
 		if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek });
 		if (currentWeekTiebreakerReady) currentWeekTiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek });
 	}
+
 	return {
 		...rest,
 		currentUser,
@@ -240,12 +238,11 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 		currentWeekTiebreaker,
 		logoutOnly,
 		nextGame,
-		pageReady: currentWeekTiebreakerReady && lastChatActionReady && nextGameReady && messagesReady && survivorReady && tiebreakerReady && unreadChatReady,
+		pageReady: currentWeekTiebreakerReady && nextGameReady && messagesReady && survivorReady && tiebreakerReady,
 		selectedWeek,
 		survivorPicks,
 		systemVals,
 		tiebreaker,
-		unreadChatCt,
 		unreadMessages
 	};
 }, Navigation);

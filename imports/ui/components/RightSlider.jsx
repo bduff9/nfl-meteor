@@ -5,7 +5,6 @@ import React, { PropTypes } from 'react';
 import Messages from './Messages.jsx';
 import { Rules } from './Rules.jsx';
 import ScoreBoard from './ScoreBoard.jsx';
-import Chat from './Chat.jsx';
 
 export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSlider }) => {
 
@@ -17,8 +16,6 @@ export const RightSlider = ({ type, week, _changeScoreboardWeek, _toggleRightSli
 				return <Rules />;
 			case 'scoreboard':
 				return <ScoreBoard week={week} _changeScoreboardWeek={_changeScoreboardWeek} />;
-			case 'chat':
-				return <Chat />;
 			default:
 				console.error('Invalid slider type chosen', type);
 				return null;

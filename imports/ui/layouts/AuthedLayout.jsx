@@ -14,12 +14,14 @@ import { currentWeek } from '../../api/collections/games';
 
 class AuthedLayout extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {
 			openMenu: false,
 			rightSlider: '',
 			scoreboardWeek: props.currentWeek
 		};
+
 		this._changeScoreboardWeek = this._changeScoreboardWeek.bind(this);
 		this._toggleMenu = this._toggleMenu.bind(this);
 		this._toggleRightSlider = this._toggleRightSlider.bind(this);
@@ -34,20 +36,25 @@ class AuthedLayout extends Component {
 	}
 	_toggleMenu (ev) {
 		const { openMenu } = this.state;
+
 		this.setState({ openMenu: !openMenu });
 	}
 	_toggleRightSlider (type, ev) {
 		const { openMenu, rightSlider } = this.state;
 		let newType = (type === rightSlider ? '' : type);
+
 		ev.preventDefault();
+
 		this.setState({ openMenu: (newType ? false : openMenu), rightSlider: newType });
+
 		return false;
 	}
 
 	render () {
-		const { openMenu, rightSlider, scoreboardWeek } = this.state,
-				{ children, currentWeek, location, ...rest } = this.props,
-				logoutOnly = location.pathname.indexOf('create') > -1;// || location.pathname.indexOf('payment') > -1;
+		const { openMenu, rightSlider, scoreboardWeek } = this.state;
+		const { children, currentWeek, location, ...rest } = this.props;
+		const logoutOnly = location.pathname.indexOf('create') > -1;
+
 		return (
 			<div className="col-xs-12 authed-layout-wrapper">
 				<div className="row">
@@ -88,17 +95,19 @@ AuthedLayout.propTypes = {
 };
 
 export default createContainer(() => {
-	const currentUser = getCurrentUser.call({}),
-			nextGameHandle = Meteor.subscribe('nextGame'),
-			nextGameReady = nextGameHandle.ready();
-	let selectedWeek = Session.get('selectedWeek'),
-			week;
+	const currentUser = getCurrentUser.call({});
+	const nextGameHandle = Meteor.subscribe('nextGame');
+	const nextGameReady = nextGameHandle.ready();
+	let selectedWeek = Session.get('selectedWeek');
+	let week;
+
 	if (nextGameReady) {
 		week = currentWeek.call({});
 		selectedWeek = currentUser.getSelectedWeek() || week;
 		Session.set('currentWeek', week);
 		Session.setDefault('selectedWeek', selectedWeek);
 	}
+
 	return {
 		currentUser,
 		currentWeek: week,

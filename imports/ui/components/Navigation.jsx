@@ -10,7 +10,7 @@ import { DEFAULT_LEAGUE, SLACK_INVITE_URL, SURVIVOR_COST } from '../../api/const
 import { formatDate, handleError, getCurrentSeasonYear } from '../../api/global';
 import Countdown from './Countdown';
 import { getNextGame } from '../../api/collections/games';
-import { getUnreadMessages } from '../../api/collections/nfllogs';
+import { getUnreadMessages, writeLog } from '../../api/collections/nfllogs';
 import { getMySurvivorPicks } from '../../api/collections/survivorpicks';
 import { getSystemValues } from '../../api/collections/systemvals';
 import { getTiebreaker } from  '../../api/collections/tiebreakers';
@@ -72,7 +72,9 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 			closeOnConfirm: true,
 		}, function () {
 			const slackWin = window.open(SLACK_INVITE_URL, '_slack');
+			const user = Meteor.user();
 
+			writeLog.call({ action: 'SLACK', message: `${user.first_name} ${user.last_name} navigated to Slack`, userId: user._id }, handleError);
 			slackWin.focus();
 		});
 	};

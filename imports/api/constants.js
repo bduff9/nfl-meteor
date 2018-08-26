@@ -55,6 +55,7 @@ export const ACTIONS = [
 	'MESSAGE',
 	'PAID',
 	'REGISTER',
+	'SLACK',
 	'SUBMIT_PICKS',
 	'SURVIVOR_PICK'
 ];

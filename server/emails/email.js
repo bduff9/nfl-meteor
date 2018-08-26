@@ -60,7 +60,7 @@ Mailer.init({
 	layout: {
 		name: 'emailLayout',
 		path: 'email/templates/layout.html',
-		scss: './email/email.scss'
+		css: './email/bootstrap/dist/css/bootstrap.min.css'
 	}
 });
 

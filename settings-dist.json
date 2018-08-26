@@ -19,5 +19,6 @@
     }
   },
     "mode": "development",
-    "apiHost": "http://localhost:3003"
+    "apiHost": "http://localhost:3003",
+    "baseURL": "http://localhost:3000"
 }

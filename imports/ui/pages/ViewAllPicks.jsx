@@ -121,7 +121,7 @@ class ViewAllPicks extends Component {
 										let cells = [];
 										cells.push(
 											<th className="visiting-team" colSpan={2} key={'team' + game.visitor_id}>
-												<button className={'btn' + (game.visitor_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.visitor_id, game.visitor_short, i)}>
+												<button className={'btn' + (game.visitor_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-secondary'))} onClick={this._updateGame.bind(null, game.visitor_id, game.visitor_short, i)}>
 													{game.visitor_short}
 												</button>
 												<div className={'show-for-print' + (game.visitor_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.visitor_short}</div>
@@ -132,7 +132,7 @@ class ViewAllPicks extends Component {
 										);
 										cells.push(
 											<th className="home-team" colSpan={2} key={'team' + game.home_id}>
-												<button className={'btn' + (game.home_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-default'))} onClick={this._updateGame.bind(null, game.home_id, game.home_short, i)}>
+												<button className={'btn' + (game.home_id === game.winner_id ? ' btn-success' : (game.winner_id ? ' btn-danger' : ' btn-secondary'))} onClick={this._updateGame.bind(null, game.home_id, game.home_short, i)}>
 													{game.home_short}
 												</button>
 												<div className={'show-for-print' + (game.home_id === game.winner_id ? ' text-success' : (game.winner_id ? ' text-danger' : ''))}>{game.home_short}</div>

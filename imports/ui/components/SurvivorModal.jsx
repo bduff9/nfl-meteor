@@ -14,8 +14,10 @@ import { setSurvivorPick } from '../../api/collections/survivorpicks';
 
 class SurvivorModal extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {};
+
 		this._setSurvivorPick = this._setSurvivorPick.bind(this);
 	}
 
@@ -26,8 +28,10 @@ class SurvivorModal extends Component {
 
 	_setSurvivorPick (gameId, team, ev) {
 		const { currentLeague, week } = this.props;
+
 		setSurvivorPick.call({ gameId, league: currentLeague, teamId: team._id, teamShort: team.short_name, week }, err => {
 			if (err) return handleError(err);
+
 			sweetAlert({
 				title: 'Way to go!',
 				text: `Your week ${week} pick has been successfully saved!`,
@@ -38,6 +42,7 @@ class SurvivorModal extends Component {
 
 	render () {
 		const { games, pick, usedTeams, week } = this.props;
+
 		return (
 			<div className="modal fade survivor-modal" ref={div => { this.survivorModalRef = div; }}>
 				<div className="modal-dialog">
@@ -52,11 +57,11 @@ class SurvivorModal extends Component {
 										visitingTeam = game.getTeam('visitor');
 								return (
 									<div className="survivor-matchups pull-xs-left" key={'game' + i}>
-										<button type="button" className={'btn btn-' + (game.visitor_id === pick.pick_id ? 'success' : 'default')} title={`${visitingTeam.city} ${visitingTeam.name}`} onClick={this._setSurvivorPick.bind(null, game._id, visitingTeam)} disabled={usedTeams.indexOf(game.visitor_id) > -1} data-dismiss="modal">
+										<button type="button" className={'btn btn-' + (game.visitor_id === pick.pick_id ? 'success' : 'secondary')} title={`${visitingTeam.city} ${visitingTeam.name}`} onClick={this._setSurvivorPick.bind(null, game._id, visitingTeam)} disabled={usedTeams.indexOf(game.visitor_id) > -1} data-dismiss="modal">
 											<img src={`/NFLLogos/${visitingTeam.logo}`} />
 										</button>
 										<i className="fa fa-fw fa-large fa-at" />
-										<button type="button" className={'btn btn-' + (game.home_id === pick.pick_id ? 'success' : 'default')} title={`${homeTeam.city} ${homeTeam.name}`} onClick={this._setSurvivorPick.bind(null, game._id, homeTeam)} disabled={usedTeams.indexOf(game.home_id) > -1} data-dismiss="modal">
+										<button type="button" className={'btn btn-' + (game.home_id === pick.pick_id ? 'success' : 'secondary')} title={`${homeTeam.city} ${homeTeam.name}`} onClick={this._setSurvivorPick.bind(null, game._id, homeTeam)} disabled={usedTeams.indexOf(game.home_id) > -1} data-dismiss="modal">
 											<img src={`/NFLLogos/${homeTeam.logo}`} />
 										</button>
 									</div>
@@ -64,7 +69,7 @@ class SurvivorModal extends Component {
 							})}
 						</div>
 						<div className="modal-footer">
-							<button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+							<button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</div>
@@ -84,11 +89,13 @@ SurvivorModal.propTypes = {
 };
 
 export default createContainer(({ week }) => {
-	const gamesHandle = Meteor.subscribe('gamesForWeek', week),
-			gamesReady = gamesHandle.ready(),
-			currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
+	const gamesHandle = Meteor.subscribe('gamesForWeek', week);
+	const gamesReady = gamesHandle.ready();
+	const currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
 	let games = [];
+
 	if (gamesReady) games = getGamesForWeek.call({ week }, handleError);
+
 	return {
 		currentLeague,
 		games,

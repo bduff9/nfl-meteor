@@ -120,7 +120,7 @@ export default class Login extends Component {
 						</div>
 						<div className="row">
 							<div className="col-xs-12">
-								<button type="button" className="btn btn-block btn-default reg-switch-button" onClick={this._toggleType}>{type === 'login' ? 'Register Here' : 'Back To Login'}</button>
+								<button type="button" className="btn btn-block btn-secondary reg-switch-button" onClick={this._toggleType}>{type === 'login' ? 'Register Here' : 'Back To Login'}</button>
 							</div>
 						</div>
 					</div>

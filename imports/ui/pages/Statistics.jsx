@@ -14,16 +14,18 @@ import { getUsers } from '../../api/collections/users';
 
 class Statistics extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {
 			display: ''
 		};
 	}
 
 	render () {
-		const { currentLeague, pageReady, poolYears, selectedWeek } = this.props,
-				{ display } = this.state,
-				pageTitle = 'Pool Stats';
+		const { currentLeague, pageReady, poolYears, selectedWeek } = this.props;
+		const { display } = this.state;
+		const pageTitle = 'Pool Stats';
+
 		return (
 			<div className="row statistics-wrapper">
 				<Helmet title={pageTitle} />
@@ -53,15 +55,19 @@ Statistics.propTypes = {
 };
 
 export default createContainer(() => {
-	const selectedWeek = Session.get('selectedWeek'),
-			currentLeague = DEFAULT_LEAGUE, //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
-			usersHandle = Meteor.subscribe('usersForHistory'),
-			usersReady = usersHandle.ready();
+	const selectedWeek = Session.get('selectedWeek');
+	const currentLeague = DEFAULT_LEAGUE; //Session.get('selectedLeague'); //TODO: Eventually will need to uncomment this and allow them to change current league
+	const usersHandle = Meteor.subscribe('usersForHistory');
+	const usersReady = usersHandle.ready();
 	let poolYears = [];
+	let allUsers;
+
 	if (usersReady) {
-		let allUsers = getUsers.call({ activeOnly: true, league: currentLeague });
+		allUsers = getUsers.call({ activeOnly: true, league: currentLeague });
+
 		poolYears = allUsers.reduce((years, user) => user.years_played.concat(years), []).filter((year, i, allYears) => allYears.indexOf(year) === i).sort().reverse().slice(1);
 	}
+
 	return {
 		currentLeague,
 		pageReady: !!selectedWeek && usersReady,

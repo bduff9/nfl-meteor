@@ -7,7 +7,9 @@
   },
   "license": "UNLICENSED",
   "scripts": {
+    "deploy": "mup deploy --settings=prod-settings.json --verbose",
     "initApp": "meteor npm prune && meteor npm i",
+    "predeploy": "mup setup",
     "prestart": "meteor npm run initApp",
     "predebug": "meteor npm run initApp",
     "start": "meteor --settings settings.json",

@@ -55,6 +55,8 @@
       "always"
     ],
     "import/named": 2,
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "comma-dangle": ["error", "always-multiline"],
+    "one-var": ["error", "never"]
   }
 }

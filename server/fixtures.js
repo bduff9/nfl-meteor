@@ -2,7 +2,7 @@
 
 import { moment } from 'meteor/momentjs:moment';
 
-import { FIRST_YEAR_FOR_SYSTEM_VALS } from '../imports/api/constants';
+import { getCurrentSeasonYear } from '../imports/api/global';
 import { gamesExistSync } from '../imports/api/collections/games';
 import { createSystemValuesSync, getSystemValues, systemValuesExistSync } from '../imports/api/collections/systemvals';
 import { teamsExistSync } from '../imports/api/collections/teams';
@@ -21,15 +21,19 @@ if (!systemValuesExistSync()) {
 	console.log('System values initialized!');
 } else {
 	const systemVal = getSystemValues.call({});
-	let oldCt = 0,
-			conns;
+	let oldCt = 0;
+	let conns;
+
 	console.log('Cleaning up old connections...');
+
 	conns = systemVal.current_connections;
+
 	Object.keys(conns).forEach(connId => {
-		let conn = conns[connId],
-				opened = moment(conn.opened),
-				now = moment(),
-				hoursAgo = now.diff(opened, 'hours', true);
+		let conn = conns[connId];
+		let opened = moment(conn.opened);
+		let now = moment();
+		let hoursAgo = now.diff(opened, 'hours', true);
+
 		if (hoursAgo > 24) {
 			console.log(`Connection ${connId} ${hoursAgo} hours old, deleting...`);
 			delete conns[connId];
@@ -37,13 +41,15 @@ if (!systemValuesExistSync()) {
 			console.log(`Connection ${connId} deleted!`);
 		}
 	});
-	if (!systemVal.year_updated) systemVal.year_updated = FIRST_YEAR_FOR_SYSTEM_VALS;
+
 	if (systemVal.games_updating) {
 		console.log('Games left as updating, fixing...');
 		systemVal.games_updating = false;
 		console.log('Games set to not currently updating!');
 	}
+
 	systemVal.save();
+
 	if (oldCt > 0) {
 		console.log(`${oldCt} old connections cleaned!`);
 	} else {

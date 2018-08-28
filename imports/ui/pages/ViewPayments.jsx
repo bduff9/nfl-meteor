@@ -27,7 +27,7 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 			case 'Zelle':
 				return <span className="amount-message">Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com<br /><br />{NOTE_FOR_EPAY}</span>;
 			case 'Venmo':
-				return <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com<br /><br />{NOTE_FOR_EPAY}</span>;
+				return <span className="amount-message">Please pay ${amount} using Venmo to account @brianduffey<br /><br />{NOTE_FOR_EPAY}</span>;
 			default:
 				console.error('Unknown account type', type);
 

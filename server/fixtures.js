@@ -2,7 +2,6 @@
 
 import { moment } from 'meteor/momentjs:moment';
 
-import { getCurrentSeasonYear } from '../imports/api/global';
 import { gamesExistSync } from '../imports/api/collections/games';
 import { createSystemValuesSync, getSystemValues, systemValuesExistSync } from '../imports/api/collections/systemvals';
 import { teamsExistSync } from '../imports/api/collections/teams';

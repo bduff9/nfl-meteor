@@ -17,15 +17,17 @@ const ViewPayments = ({ currentUser, survivorPlace, nextGame, pageReady, stillAl
 	let total;
 
 	const getPaymentMessage = (amount, type) => {
+		const NOTE_FOR_EPAY = 'Please ONLY put your name and/or ASWNN in the memo';
+
 		switch (type) {
 			case 'Cash':
 				return <span className="amount-message">Please pay ${amount} to Brian or Billy</span>;
 			case 'PayPal':
-				return <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a></span>;
+				return <span className="amount-message">Please pay ${amount} using PayPal: <a href={`https://www.paypal.me/brianduffey/${amount}`} target="_blank">paypal.me/brianduffey/{amount}</a><br /><br />{NOTE_FOR_EPAY}</span>;
 			case 'Zelle':
-				return <span className="amount-message">Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com</span>;
+				return <span className="amount-message">Please pay ${amount} using your bank&apos;s Zelle service to account bduff9@gmail.com<br /><br />{NOTE_FOR_EPAY}</span>;
 			case 'Venmo':
-				return <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com</span>;
+				return <span className="amount-message">Please pay ${amount} using Venmo to account bduff9@gmail.com<br /><br />{NOTE_FOR_EPAY}</span>;
 			default:
 				console.error('Unknown account type', type);
 

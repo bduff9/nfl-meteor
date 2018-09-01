@@ -58,7 +58,7 @@
   "devDependencies": {
     "ajv": "6.5.3",
     "babel-eslint": "8.2.6",
-    "eslint": "5.4.0",
+    "eslint": "5.5.0",
     "eslint-plugin-import": "2.14.0",
     "eslint-plugin-react": "7.11.1",
     "jshint": "2.9.6"

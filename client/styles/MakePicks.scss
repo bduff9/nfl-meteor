@@ -130,7 +130,7 @@ $footerHeightLarge: 120px;
             }
 
             &.homePoints {
-              order: 5;
+              order: 6;
 
               ul {
                 margin: 0 auto;
@@ -138,23 +138,23 @@ $footerHeightLarge: 120px;
             }
 
             &.homeLogo {
-              order: 3;
-            }
-
-            &.homeName {
-              order: 1;
-            }
-
-            &.visitorName {
-              order: 2;
-            }
-
-            &.visitorLogo {
               order: 4;
             }
 
+            &.homeName {
+              order: 2;
+            }
+
+            &.visitorName {
+              order: 1;
+            }
+
+            &.visitorLogo {
+              order: 3;
+            }
+
             &.visitorPoints {
-              order: 6;
+              order: 5;
 
               ul {
                 margin: 0 auto;

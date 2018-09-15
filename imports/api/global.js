@@ -1,7 +1,8 @@
 'use strict';
 
 import { Meteor } from 'meteor/meteor';
-import { moment } from 'meteor/momentjs:moment';
+import format from 'date-fns/format';
+import differenceInSeconds from 'date-fns/difference_in_seconds';
 
 export const convertEpoch = epoch => {
 	let d = new Date(0);
@@ -14,7 +15,7 @@ export const convertEpoch = epoch => {
 export const formatDate = (dt, incTime) => {
 	const fmt = (incTime ? 'h:mma [on] ddd, MMM Do' : 'ddd, MMM Do');
 
-	return moment(dt).format(fmt);
+	return format(dt, fmt);
 };
 
 export const formattedPlace = place => {
@@ -28,8 +29,8 @@ export const getColor = (point, max) => {
 	const BLUE = 0;
 	let style = {};
 	let perc = point / max;
-	let red = parseInt((1 - perc) * 510, 10);
-	let green = parseInt(510 * perc, 10);
+	let red = Math.round((1 - perc) * 510);
+	let green = Math.round(510 * perc);
 
 	green = (green > 255 ? 255 : green);
 	red = (red > 255 ? 255 : red);
@@ -52,6 +53,31 @@ export const getInputColor = (error, touched, prefix) => {
 	if (error) return prefix + 'danger';
 
 	return prefix + 'success';
+};
+
+export const getTimeDifferenceObject = (newerDate, olderDate) => {
+	const totalSeconds = differenceInSeconds(newerDate, olderDate);
+	let delta = totalSeconds;
+	let days = Math.floor(delta / 86400);
+	let hours;
+	let minutes;
+	let seconds;
+
+	delta -= days * 86400;
+	hours = Math.floor(delta / 3600) % 24;
+	delta -= hours * 3600;
+	minutes = Math.floor(delta / 60) % 60;
+	delta -= minutes * 60;
+	seconds = delta % 60;
+
+	return {
+		days,
+		delta,
+		hours,
+		minutes,
+		seconds,
+		totalSeconds,
+	};
 };
 
 export const handleError = (err, opts = {}, cb = null, hide = false) => {
@@ -126,6 +152,12 @@ export const overallPlacer = (user1, user2) => {
 	return 0;
 };
 
+/**
+ * Pads a string to given length with padWith ('0' by default)
+ * @param {*} toPad Value to pad
+ * @param {Number} ln The length to pad to
+ * @param {String} padWith (Optional) String to pad with, '0' by default
+ */
 export const pad = (toPad, ln, padWith = '0') => {
 	let padded = '' + toPad;
 

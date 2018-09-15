@@ -34,7 +34,6 @@ http
 session
 percolate:synced-cron
 themeteorchef:jquery-validation
-momentjs:moment
 tmeasday:publish-counts
 blaze-html-templates
 practicalmeteor:mocha

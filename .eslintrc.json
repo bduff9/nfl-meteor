@@ -6,7 +6,8 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:you-dont-need-momentjs/recommended"
   ],
   "parser": "babel-eslint",
   "parserOptions": {

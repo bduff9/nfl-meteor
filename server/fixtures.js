@@ -1,6 +1,6 @@
 'use strict';
 
-import { moment } from 'meteor/momentjs:moment';
+import differenceInHours from 'date-fns/difference_in_hours';
 
 import { gamesExistSync } from '../imports/api/collections/games';
 import { createSystemValuesSync, getSystemValues, systemValuesExistSync } from '../imports/api/collections/systemvals';
@@ -29,9 +29,9 @@ if (!systemValuesExistSync()) {
 
 	Object.keys(conns).forEach(connId => {
 		let conn = conns[connId];
-		let opened = moment(conn.opened);
-		let now = moment();
-		let hoursAgo = now.diff(opened, 'hours', true);
+		let opened = new Date(conn.opened);
+		let now = new Date();
+		let hoursAgo = differenceInHours(now, opened);
 
 		if (hoursAgo > 24) {
 			console.log(`Connection ${connId} ${hoursAgo} hours old, deleting...`);

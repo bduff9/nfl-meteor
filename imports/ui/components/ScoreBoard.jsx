@@ -3,7 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
-import { moment } from 'meteor/momentjs:moment';
+import format from 'date-fns/format';
 
 import { formatDate, handleError, pad } from '../../api/global';
 import { getGamesForWeek } from '../../api/collections/games';
@@ -11,7 +11,8 @@ import { toggleScoreboard } from '../../api/collections/systemvals';
 
 class ScoreBoard extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {};
 	}
 
@@ -26,10 +27,13 @@ class ScoreBoard extends Component {
 
 	_getGameStatus ({ kickoff, status, time_left }) {
 		const SEC_IN_QTR = 900;
-		let secLeftQtr, minLeft, secLeft;
-		switch(status) {
+		let secLeftQtr;
+		let minLeft;
+		let secLeft;
+
+		switch (status) {
 			case 'P':
-				return moment(kickoff).format('h:mm a');
+				return format(kickoff, 'h:mm a');
 			case 'H':
 				return 'Half';
 			case 'C':
@@ -41,7 +45,7 @@ class ScoreBoard extends Component {
 				secLeftQtr = time_left % SEC_IN_QTR || SEC_IN_QTR;
 				minLeft = Math.floor(secLeftQtr / 60);
 				secLeft = secLeftQtr % 60;
-				return `Q${status}, ${minLeft}:${pad(secLeft, '0', 2)}`;
+				return `Q${status}, ${minLeft}:${pad(secLeft, 2, '0')}`;
 			default:
 				console.error('Invalid status flag', status);
 				return 'ERROR';
@@ -51,6 +55,7 @@ class ScoreBoard extends Component {
 	render () {
 		const { games, week, weekGamesReady, _changeScoreboardWeek } = this.props;
 		let lastKickoff;
+
 		return (
 			<div className="scoreboard">
 				<h3 className="text-xs-center">NFL Scoreboard</h3>
@@ -65,8 +70,9 @@ class ScoreBoard extends Component {
 							<table className="table table-condensed table-bordered">
 								<tbody>
 									{games.map((game, i) => {
-										let rows = [],
-												thisKickoff = formatDate(game.kickoff, false);
+										let rows = [];
+										let thisKickoff = formatDate(game.kickoff, false);
+
 										if (lastKickoff !== thisKickoff) {
 											rows.push(
 												<tr className="text-xs-center date-head" key={'kickoff' + game.kickoff}>
@@ -127,18 +133,20 @@ ScoreBoard.propTypes = {
 	games: PropTypes.arrayOf(PropTypes.object).isRequired,
 	week: PropTypes.number.isRequired,
 	weekGamesReady: PropTypes.bool.isRequired,
-	_changeScoreboardWeek: PropTypes.func.isRequired
+	_changeScoreboardWeek: PropTypes.func.isRequired,
 };
 
 export default createContainer(({ week, _changeScoreboardWeek }) => {
-	const weekGameHandle = Meteor.subscribe('gamesForWeek', week),
-			weekGamesReady = weekGameHandle.ready();
+	const weekGameHandle = Meteor.subscribe('gamesForWeek', week);
+	const weekGamesReady = weekGameHandle.ready();
 	let games = [];
+
 	if (weekGamesReady) games = getGamesForWeek.call({ week }, handleError);
+
 	return {
 		games,
 		week,
 		weekGamesReady,
-		_changeScoreboardWeek
+		_changeScoreboardWeek,
 	};
 }, ScoreBoard);

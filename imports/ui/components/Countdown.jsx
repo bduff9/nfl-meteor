@@ -1,14 +1,15 @@
 'use strict';
 
 import React, { Component, PropTypes } from 'react';
-import { moment } from 'meteor/momentjs:moment';
+
+import { getTimeDifferenceObject } from '../../api/global';
 
 export default class Countdown extends Component {
 	constructor (props) {
 		super(props);
 
 		this.state = {
-			now: new Date()
+			now: new Date(),
 		};
 	}
 
@@ -22,23 +23,24 @@ export default class Countdown extends Component {
 
 	tick () {
 		const now = new Date();
+
 		this.setState({ now });
 	}
 
 	render () {
 		const { nextKickoff, week } = this.props;
 		const { now } = this.state;
-		const diff = moment(nextKickoff).diff(now);
-		const duration = moment.duration(diff);
-		const { days, hours, minutes, seconds } = duration._data;
+		const durationData = getTimeDifferenceObject(nextKickoff, now);
+		const { days, hours, minutes, seconds, totalSeconds } = durationData;
 		let timeString;
 
 		if (days > 0) {
 			timeString = `${days}d ${hours}h ${minutes}m`;
-		} else if (hours + minutes + seconds > 0) {
+		} else if (totalSeconds > 0) {
 			timeString = `${hours}h ${minutes}m ${seconds}s`;
 		} else {
 			timeString = 'NFL Scoreboard';
+
 			if (this.timerID) clearInterval(this.timerID);
 		}
 
@@ -48,5 +50,5 @@ export default class Countdown extends Component {
 
 Countdown.propTypes = {
 	nextKickoff: PropTypes.instanceOf(Date).isRequired,
-	week: PropTypes.number.isRequired
+	week: PropTypes.number.isRequired,
 };

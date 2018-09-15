@@ -7,6 +7,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import Helmet from 'react-helmet';
 import { Bert } from 'meteor/themeteorchef:bert';
 import sweetAlert from 'sweetalert';
+import isAfter from 'date-fns/is_after';
 
 import { DEFAULT_LEAGUE } from '../../api/constants';
 import { handleError } from '../../api/global';
@@ -69,7 +70,7 @@ class MakePicks extends Component {
 					sweetAlert({
 						title: 'Good luck this week!',
 						text: 'Your picks have been submitted and can no longer be changed. You can now close this message to view/print your picks',
-						type: 'success'
+						type: 'success',
 					},
 					() => this.context.router.push('/picks/view')
 					);
@@ -78,17 +79,14 @@ class MakePicks extends Component {
 		}, 500);
 	}
 	_populatePoints (games, picks, gamesReady) {
-		if (!gamesReady) return { available: [], unavailable: [], used: [] };
 		const used = picks.filter(pick => pick.points && pick.pick_id).map(pick => pick.points);
-		const missedGames = picks.filter((pick, i) => !pick.pick_id && games[i].kickoff <= new Date());
-		let available = [];
-		let unavailable = [];
+		const unavailable = picks.filter((pick, i) => !pick.pick_id && isAfter(new Date(), games[i].kickoff)).map(pick => pick.points);
+		const allUsed = used.concat(unavailable);
+		const available = [];
 
 		for (let i = 1; i <= games.length; i++) {
-			if (used.indexOf(i) === -1) available.push(i);
+			if (allUsed.indexOf(i) === -1) available.push(i);
 		}
-
-		if (missedGames.length) unavailable = available.splice(available.length - missedGames.length, missedGames.length);
 
 		return { available, unavailable, used };
 	}
@@ -115,7 +113,7 @@ class MakePicks extends Component {
 			title: 'Your picks have been successfully saved!',
 			text: 'Please be sure to submit them as soon as you are ready, as they have only been saved, not submitted',
 			type: 'success',
-			allowOutsideClick: true
+			allowOutsideClick: true,
 		});
 	}
 	_submitPicks (picksLeft, noTiebreaker, ev) {
@@ -127,13 +125,13 @@ class MakePicks extends Component {
 			sweetAlert({
 				title: 'Hold On!',
 				text: 'You must use all available points before you can submit',
-				type: 'warning'
+				type: 'warning',
 			});
 		} else if (noTiebreaker && !tiebreakerVal) {
 			sweetAlert({
 				title: 'Slow down!',
 				text: 'You must fill in a tiebreaker score at the bottom of this page before you can submit',
-				type: 'warning'
+				type: 'warning',
 			});
 		} else {
 			sweetAlert({
@@ -144,7 +142,7 @@ class MakePicks extends Component {
 				closeOnConfirm: false,
 				showLoaderOnConfirm: true,
 				confirmButtonText: 'Yes, submit',
-				cancelButtonText: 'No, cancel'
+				cancelButtonText: 'No, cancel',
 			}, this._handleSubmitPicks);
 		}
 		return false;
@@ -298,7 +296,7 @@ class MakePicks extends Component {
 						<button type="submit" className="btn btn-success" onClick={this._submitPicks.bind(null, available.length !== 0, !tiebreaker.last_score)}>
 							<i className="fa fa-fw fa-arrow-circle-right hidden-sm-down" /> Submit
 						</button>
-					</div>
+					</div>,
 				]
 					:
 					<Loading />
@@ -316,11 +314,11 @@ MakePicks.propTypes = {
 	pageReady: PropTypes.bool.isRequired,
 	picks: PropTypes.arrayOf(PropTypes.object).isRequired,
 	selectedWeek: PropTypes.number,
-	tiebreaker: PropTypes.object
+	tiebreaker: PropTypes.object,
 };
 
 MakePicks.contextTypes = {
-	router: PropTypes.object.isRequired
+	router: PropTypes.object.isRequired,
 };
 
 export default createContainer(() => {
@@ -352,6 +350,6 @@ export default createContainer(() => {
 		pageReady: gamesReady && picksReady && teamsReady && tiebreakerReady,
 		picks,
 		selectedWeek,
-		tiebreaker
+		tiebreaker,
 	};
 }, MakePicks);

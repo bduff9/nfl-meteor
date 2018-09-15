@@ -9,29 +9,33 @@ import { handleError } from '../../api/global';
 
 class PointHolder extends Component {
 	constructor (props) {
-		super();
+		super(props);
+
 		this.state = {};
+
 		this._handlePointAdd = this._handlePointAdd.bind(this);
 	}
 
 	componentDidMount () {
-		const { thisRef } = this.props,
-				opts = {
-					group: 'picks',
-					sort: false,
-					filter: '.disabled',
-					onAdd: this._handlePointAdd,
-					onMove: this._validatePointDrop
-				};
+		const { thisRef } = this.props;
+		const opts = {
+			group: 'picks',
+			sort: false,
+			filter: '.disabled',
+			onAdd: this._handlePointAdd,
+			onMove: this._validatePointDrop,
+		};
+
 		this._sortableInstance = Sortable.create(this[thisRef], opts);
 	}
 
 	_handlePointAdd (ev) {
-		const { from, item, to } = ev,
-				{ league, selectedWeek } = this.props,
-				pointVal = parseInt(item.innerText, 10),
-				addOnly = (Sortable.utils.is(from, '.pointBank')),
-				removeOnly = (Sortable.utils.is(to, '.pointBank'));
+		const { from, item, to } = ev;
+		const { league, selectedWeek } = this.props;
+		const pointVal = parseInt(item.innerText, 10);
+		const addOnly = (Sortable.utils.is(from, '.pointBank'));
+		const removeOnly = (Sortable.utils.is(to, '.pointBank'));
+
 		setPick.call({ addOnly, fromData: from.dataset, league, pointVal, removeOnly, selectedWeek, toData: to.dataset }, handleError);
 		// Fix for removeChild error
 		item.style.display = 'none';
@@ -40,20 +44,26 @@ class PointHolder extends Component {
 	_validatePointDrop (ev) {
 		const { dragged, to } = ev;
 		let usedPoints;
+
 		if (Sortable.utils.is(to, '.pointBank')) return true;
+
 		if (Sortable.utils.is(to, '.disabled')) return false;
+
 		if (to.children.length > 0) return false;
+
 		usedPoints = Sortable.utils.find(Sortable.utils.closest(to, '.row'), 'li');
 		usedPoints = Array.from(usedPoints).filter(point => Sortable.utils.is(point, '.points') && point !== dragged);
+
 		return (usedPoints.length === 0);
 	}
 
 	render () {
 		const { className, disabledPoints, gameId, numGames, points, teamId, teamShort, thisRef } = this.props;
+
 		return (
 			<ul className={className} data-game-id={gameId} data-team-id={teamId} data-team-short={teamShort} ref={ul => { this[thisRef] = ul; }}>
-				{points.map(point => <li className="points col-xs-12 text-xs-center" style={getColor(point, numGames)} key={'point' + point}>{point}</li>)}
 				{disabledPoints.map(point => <li className="points col-xs-12 text-xs-center disabled" style={getColor(point, numGames)} key={'point' + point}>{point}</li>)}
+				{points.map(point => <li className="points col-xs-12 text-xs-center" style={getColor(point, numGames)} key={'point' + point}>{point}</li>)}
 			</ul>
 		);
 	}

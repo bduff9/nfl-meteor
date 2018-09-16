@@ -168,7 +168,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 							<li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
 							<li><Link to="/admin/logs" activeClassName="active">View Logs</Link></li>
 							<li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
-							<li><Link to="/admin/data" activeClassName="active">TODO: Manage Data</Link></li>
+							<li><Link to="/admin/email" activeClassName="active" title="TODO:">Email Users</Link></li>
 							{getCurrentSeasonYear() > systemVals.year_updated ? <li><a href="#" onClick={_initPool}>Init Pool for {getCurrentSeasonYear()} Season</a></li> : null}
 						</ul>
 					)

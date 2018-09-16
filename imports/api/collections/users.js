@@ -10,7 +10,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Class } from 'meteor/jagi:astronomy';
 
 import { ACCOUNT_TYPES, AUTO_PICK_TYPES, dbVersion, DEFAULT_AUTO_PICK_COUNT, DEFAULT_LEAGUE, POOL_COST, SURVIVOR_COST } from '../constants';
-import { handleError, overallPlacer, weekPlacer } from '../global';
+import { getCurrentSeasonYear, handleError, overallPlacer, weekPlacer } from '../global';
 import { writeLog } from './nfllogs';
 import { getAllPicksForUser, Pick } from './picks';
 import { getMySurvivorPicks, markUserDead, SurvivorPick } from './survivorpicks';
@@ -186,6 +186,43 @@ export const removeSelectedWeek = new ValidatedMethod({
 	},
 });
 export const removeSelectedWeekSync = Meteor.wrapAsync(removeSelectedWeek.call, removeSelectedWeek);
+
+export const resetUser = new ValidatedMethod({
+	name: 'Users.resetUser',
+	validate: new SimpleSchema({
+		userId: { type: String, label: 'User ID' },
+		isDropOut: { type: Boolean, label: 'Drop out?', defaultValue: false },
+	}).validator(),
+	run ({ isDropOut, userId }) {
+		const user = User.findOne(userId);
+
+		user.done_registering = false;
+		user.leagues = [];
+		user.survivor = false;
+		user.owe = 0;
+		user.paid = 0;
+		user.selected_week = {};
+		user.total_points = 0;
+		user.total_games = 0;
+		user.overall_place = undefined;
+		user.overall_tied_flag = false;
+
+		if (ACCOUNT_TYPES.indexOf(user.payment_type) === -1) user.payment_type = 'Zelle';
+
+		if (isDropOut) {
+			const currentYear = getCurrentSeasonYear();
+
+			user.years_played = user.years_played.filter(year => year !== currentYear);
+
+			Meteor.call('Tiebreakers.removeAllTiebreakersForUser', { user_id: userId }, handleError);
+			Meteor.call('Picks.removeAllPicksForUser', { user_id: userId }, handleError);
+			Meteor.call('SurvivorPicks.removeAllSurvivorPicksForUser', { user_id: userId }, handleError);
+		}
+
+		user.save();
+	},
+});
+export const resetUserSync = Meteor.wrapAsync(resetUser.call, resetUser);
 
 export const sendAllPicksInEmail = new ValidatedMethod({
 	name: 'Users.sendAllPicksInEmail',

@@ -20,24 +20,28 @@ export const getLowestScore = new ValidatedMethod({
 	}).validator(),
 	run ({ current_user_ids, league, week }) {
 		const allUsers = Tiebreaker.find({ league, user_id: { $nin: current_user_ids }, week: { $lt: week }}).fetch();
-		let combinedUserObj = allUsers.reduce((sorted, user) => {
-					if (sorted[user.user_id]) {
-						sorted[user.user_id] += user.points_earned;
-					} else {
-						sorted[user.user_id] = user.points_earned;
-					}
-					return sorted;
-				}, {}),
-				combinedUsers = Object.keys(combinedUserObj).map(user_id => ({ user_id, points: combinedUserObj[user_id] })),
-				sortedUsers = combinedUsers.sort((a, b) => {
-					if (a.points < b.points) return -1;
-					if (a.points > b.points) return 1;
-					return 0;
-				}),
-				user_id = sortedUsers[0].user_id,
-				user;
-		user = User.findOne(user_id);
-		return user;
+		const combinedUserObj = allUsers.reduce((sorted, user) => {
+			if (sorted[user.user_id]) {
+				sorted[user.user_id] += user.points_earned;
+			} else {
+				sorted[user.user_id] = user.points_earned;
+			}
+
+			return sorted;
+		}, {});
+		const combinedUsers = Object.keys(combinedUserObj).map(user_id => ({ user_id, points: combinedUserObj[user_id] }));
+		const sortedUsers = combinedUsers.sort((a, b) => {
+			if (a.points < b.points) return -1;
+
+			if (a.points > b.points) return 1;
+
+			return 0;
+		});
+		const user_id = sortedUsers[0] && sortedUsers[0].user_id;
+
+		if (!user_id) return null;
+
+		return User.findOne(user_id);
 	}
 });
 export const getLowestScoreSync = Meteor.wrapAsync(getLowestScore.call, getLowestScore);

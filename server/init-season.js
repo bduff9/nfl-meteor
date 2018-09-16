@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { ACCOUNT_TYPES, DEFAULT_LEAGUE } from '../imports/api/constants';
+import { DEFAULT_LEAGUE } from '../imports/api/constants';
 import { getCurrentSeasonYear } from '../imports/api/global';
 import { clearGames, initSchedule } from './collections/games';
 import { clearNFLLogs } from './collections/nfllogs';
@@ -15,22 +15,7 @@ import { clearSurvivorPicks } from './collections/survivorpicks';
 import { getSystemValues } from '../imports/api/collections/systemvals';
 import { clearTeams, initTeams } from './collections/teams';
 import { clearTiebreakers } from './collections/tiebreakers';
-import { getCurrentUser, getUsers } from '../imports/api/collections/users';
-
-const resetUser = function resetUser (user) {
-	user.done_registering = false;
-	user.leagues = [];
-	user.survivor = false;
-	user.owe = 0;
-	user.paid = 0;
-	user.selected_week = {};
-	user.total_points = 0;
-	user.total_games = 0;
-	user.overall_place = undefined;
-	user.overall_tied_flag = false;
-	if (ACCOUNT_TYPES.indexOf(user.payment_type) === -1) user.payment_type = 'Zelle';
-	user.save();
-};
+import { getCurrentUser, getUsers, resetUser } from '../imports/api/collections/users';
 
 /**
  * Before new year begins, reset all data i.e. clear out games, teams, picks, etc. and reset users back to empty
@@ -57,7 +42,7 @@ export const initPoolOnServer = new ValidatedMethod({
 				user_id: user._id,
 				year: poolYear,
 				league: user.league || DEFAULT_LEAGUE,
-				type: 'O'
+				type: 'O',
 			};
 
 			if (overallPlace && overallPlace <= 3) {
@@ -76,8 +61,8 @@ export const initPoolOnServer = new ValidatedMethod({
 		clearTiebreakers.call({});
 
 		// Clear out/default old user info i.e. referred_by, done_registering, leagues, survivor, owe, paid, selected_week, total_points, total_games, overall_place, overall_tied_flag
-		users.forEach(user => {
-			if (user._id !== currUser._id) resetUser(user);
+		users.forEach(({ _id: userId }) => {
+			if (userId !== currUser._id) resetUser.call({ userId });
 		});
 
 		// When done, update lastUpdated in systemvals, then refill teams and games
@@ -85,8 +70,8 @@ export const initPoolOnServer = new ValidatedMethod({
 		systemVals.save();
 		initTeams.call({});
 		initSchedule.call({});
-		resetUser(currUser);
+		resetUser.call({ userId: currUser._id });
 
 		console.log(`Finished updating pool from ${poolYear} to ${currYear}!`);
-	}
+	},
 });

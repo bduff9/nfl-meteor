@@ -101,11 +101,13 @@ export const handleError = (err, opts = {}, cb = null, hide = false) => {
 export const sortForDash = (pointsSort, gamesSort, user1, user2) => {
 	if (pointsSort) {
 		if (user1.total_points < user2.total_points) return -1 * pointsSort;
+
 		if (user1.total_points > user2.total_points) return pointsSort;
 	}
 
 	if (gamesSort) {
 		if (user1.total_games < user2.total_games) return -1 * gamesSort;
+
 		if (user1.total_games > user2.total_games) return gamesSort;
 	}
 
@@ -118,10 +120,12 @@ export const weekPlacer = (week, user1, user2) => {
 
 	// First, sort by points
 	if (user1.points_earned > user2.points_earned) return -1;
+
 	if (user1.points_earned < user2.points_earned) return 1;
 
 	// Then, sort by games correct
 	if (user1.games_correct > user2.games_correct) return -1;
+
 	if (user1.games_correct > user2.games_correct) return 1;
 
 	// Stop here if last game hasn't been played
@@ -129,10 +133,12 @@ export const weekPlacer = (week, user1, user2) => {
 
 	// Otherwise, sort by whomever didn't go over the last game's score
 	if (lastScoreDiff1 >= 0 && lastScoreDiff2 < 0) return -1;
+
 	if (lastScoreDiff1 < 0 && lastScoreDiff2 >= 0) return 1;
 
 	// Next, sort by the closer to the last games score
 	if (Math.abs(lastScoreDiff1) < Math.abs(lastScoreDiff2)) return -1;
+
 	if (Math.abs(lastScoreDiff1) > Math.abs(lastScoreDiff2)) return 1;
 
 	// Finally, if we get here, then they are identical
@@ -142,10 +148,12 @@ export const weekPlacer = (week, user1, user2) => {
 export const overallPlacer = (user1, user2) => {
 	// First, sort by points
 	if (user1.total_points > user2.total_points) return -1;
+
 	if (user1.total_points < user2.total_points) return 1;
 
 	// Then, sort by games correct
 	if (user1.total_games > user2.total_games) return -1;
+
 	if (user1.total_games < user2.total_games) return 1;
 
 	// Finally, if we get here, then they are identical

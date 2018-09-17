@@ -56,6 +56,7 @@
     }
   },
   "devDependencies": {
+    "@types/meteor": "1.4.21",
     "ajv": "6.5.3",
     "autoprefixer": "^6.3.7",
     "babel-eslint": "9.0.0",

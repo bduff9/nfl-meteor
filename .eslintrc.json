@@ -59,6 +59,16 @@
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "comma-dangle": ["error", "always-multiline"],
     "one-var": ["error", "never"],
-    "no-var": "error"
+    "no-var": "error",
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": "return" },
+      { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*"},
+      { "blankLine": "any", "prev": ["const", "let", "var"], "next": ["const", "let", "var"]},
+      { "blankLine": "always", "prev": ["block", "block-like", "if"], "next": "*"},
+      { "blankLine": "always", "prev": "*", "next": ["block", "block-like", "if"]},
+      { "blankLine": "any", "prev": "export", "next": "*" },
+      { "blankLine": "any", "prev": "*", "next": "export" }
+    ]
   }
 }

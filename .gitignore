@@ -36,8 +36,6 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-settings.json
-prod-settings.json
-mup.*
+# nfl-meteor specific
 *.orig
 backup

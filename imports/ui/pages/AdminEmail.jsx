@@ -12,7 +12,7 @@ import { POOL_COST, SURVIVOR_COST } from '../../api/constants';
 import { handleError } from '../../api/global';
 import { deleteUser, getAdminUsers, updateUserAdmin, resetUser } from '../../api/collections/users';
 
-class AdminUsers extends Component {
+class AdminEmail extends Component {
 	constructor (props) {
 		super(props);
 
@@ -20,42 +20,13 @@ class AdminUsers extends Component {
 			emailBody: '',
 			emailModal: false,
 			emailSubject: '',
-			show: 'Registered',
 		};
 
 		this._sendEmail = this._sendEmail.bind(this);
-		this._toggleEmail = this._toggleEmail.bind(this);
 		this._updateEmailBody = this._updateEmailBody.bind(this);
 		this._updateEmailSubject = this._updateEmailSubject.bind(this);
 	}
 
-	_approveUser ({ _id: userId }, ev) {
-		updateUserAdmin.call({ userId, done_registering: true }, handleError);
-	}
-	_deleteUser ({ _id: userId }, ev) {
-		deleteUser.call({ userId }, handleError);
-	}
-	_getUserStatus ({ done_registering, trusted, verified }) {
-		if (!verified) return <span className="text-danger">Unverified</span>;
-
-		if (!trusted) return <span className="text-warning">Untrusted</span>;
-
-		if (!done_registering) return <span className="text-warning">Verified</span>;
-
-		return <span className="text-success">Registered</span>;
-	}
-	_removeUser ({ _id: userId }, ev) {
-		resetUser.call({ userId, isDropOut: true }, handleError);
-	}
-	_resetPassword ({ email }, ev) {
-		Accounts.forgotPassword({ email }, err => {
-			if (err) {
-				handleError(err);
-			} else {
-				Bert.alert({ type: 'success', message: 'Password reset email has been sent' });
-			}
-		});
-	}
 	_sendEmail (ev) {
 		const { users } = this.props;
 		const { emailBody, emailSubject } = this.state;
@@ -69,61 +40,6 @@ class AdminUsers extends Component {
 				this.setState({ emailBody: '', emailModal: false, emailSubject: '' });
 			}
 		});
-	}
-	_toggleAdmin ({ _id, is_admin }, ev) {
-		updateUserAdmin.call({ userId: _id, isAdmin: !is_admin }, handleError);
-	}
-	_toggleEmail (ev) {
-		this.setState(({ emailModal }, props) => ({ emailModal: !emailModal }));
-	}
-	_togglePaid ({ _id, owe, paid, survivor }, ev) {
-		const maxPaid = owe;
-
-		sweetAlert({
-			title: `How much did they pay? ($${paid})`,
-			type: 'input',
-			inputType: 'number',
-			inputValue: owe - paid,
-			showCancelButton: true,
-			closeOnConfirm: false,
-		}, value => {
-			let amount;
-			let newValue;
-
-			if (value === false) return false;
-
-			amount = parseInt(value, 10);
-			newValue = paid + amount;
-
-			if (value === '' || isNaN(amount)) {
-				sweetAlert.showInputError(`Please enter a valid integer (${value})`);
-
-				return false;
-			} else if (amount === 0) {
-				sweetAlert.showInputError('Please enter a value greater than 0');
-
-				return false;
-			} else if (newValue < 0) {
-				sweetAlert.showInputError(`New value must be 0 or greater (${newValue})`);
-
-				return false;
-			} else if (newValue > maxPaid) {
-				sweetAlert.showInputError(`New value must be ${maxPaid} or less (${newValue})`);
-
-				return false;
-			}
-
-			updateUserAdmin.call({ userId: _id, paid: newValue }, err => {
-				if (err) {
-					handleError(err);
-				} else {
-					sweetAlert.close();
-				}
-			});
-		});
-	}
-	_toggleSurvivor ({ _id, survivor }, ev) {
-		updateUserAdmin.call({ userId: _id, survivor: !survivor }, handleError);
 	}
 	_updateEmailBody (ev) {
 		const emailBody = ev.target.value;
@@ -164,14 +80,10 @@ class AdminUsers extends Component {
 
 		return (
 			<div className="row admin-wrapper">
-				<Helmet title="User Admin" />
+				<Helmet title="Email Users" />
 				{pageReady ? (
 					<div className="col-xs-12">
-						<h3 className="title-text text-xs-center text-md-left hidden-md-up">User Admin</h3>
-						<button type="button" className="btn btn-primary" onClick={this._toggleEmail}>
-							<i className="fa fa-fw fa-envelope"></i>
-							Send Email to All
-						</button>
+						<h3 className="title-text text-xs-center text-md-left hidden-md-up">Email Users</h3>
 						&nbsp; &nbsp;Filter:&nbsp;
 						<div className="btn-group" role="group" aria-label="Filter Users">
 							<button type="button" className="btn btn-info" disabled={show === 'Registered'} onClick={() => this.setState({ show: 'Registered' })}>Registered</button>
@@ -276,7 +188,7 @@ class AdminUsers extends Component {
 	}
 }
 
-AdminUsers.propTypes = {
+AdminEmail.propTypes = {
 	pageReady: PropTypes.bool.isRequired,
 	users: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
@@ -292,4 +204,4 @@ export default createContainer(() => {
 		pageReady: allUsersReady,
 		users,
 	};
-}, AdminUsers);
+}, AdminEmail);

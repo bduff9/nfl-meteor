@@ -27,28 +27,30 @@ import EditProfile from '../../ui/pages/EditProfile';
 import ViewPayments from '../../ui/pages/ViewPayments';
 import AdminUsers from '../../ui/pages/AdminUsers';
 import AdminLogs from '../../ui/pages/AdminLogs';
+import AdminEmail from '../../ui/pages/AdminLogs';
 import { NotFound } from '../../ui/pages/NotFound';
 
 function requireAuth (nextState, replace) {
 	if (!Meteor.userId()) {
 		replace({
 			pathname: '/login',
-			state: { nextPathname: nextState.location.pathname }
+			state: { nextPathname: nextState.location.pathname },
 		});
 	}
 }
 
 function requireNoAuth (nextState, replace) {
 	const { location } = nextState;
+
 	if (Meteor.userId()) {
 		if (location.state && location.state.nextPathname) {
 			replace({
 				pathname: location.state.nextPathname,
-				state: { nextPathname: null }
+				state: { nextPathname: null },
 			});
 		} else {
 			replace({
-				pathname: '/'
+				pathname: '/',
 			});
 		}
 	}
@@ -56,27 +58,30 @@ function requireNoAuth (nextState, replace) {
 
 function validateUser (nextState, replace) {
 	const { done_registering } = Meteor.user();
+
 	if (!done_registering) {
 		replace({
-			pathname: '/users/create'
+			pathname: '/users/create',
 		});
 	}
 }
 
 function noValidateUser (nextState, replace) {
 	const { done_registering } = Meteor.user();
+
 	if (done_registering) {
 		replace({
-			pathname: '/'
+			pathname: '/',
 		});
 	}
 }
 
 function verifyEmail (nextState, replace) {
 	const { params } = nextState;
+
 	if (Meteor.userId()) {
 		replace({
-			pathname: '/'
+			pathname: '/',
 		});
 	} else {
 		Accounts.verifyEmail(params.token, (err) => {
@@ -85,7 +90,7 @@ function verifyEmail (nextState, replace) {
 			} else {
 				Bert.alert('Your email is now verified!', 'success');
 				replace({
-					pathname: '/users/create'
+					pathname: '/users/create',
 				});
 			}
 		});
@@ -93,25 +98,29 @@ function verifyEmail (nextState, replace) {
 }
 
 function clearOldQuickPick (nextState, replace) {
-	const { params } = nextState,
-			{ team_short, user_id } = params;
+	const { params } = nextState;
+	const { team_short, user_id } = params;
+
 	Session.set(`quick-pick-${user_id}-${team_short}`, null);
 }
 
 function verifyAdmin (nextState, replace) {
 	const user = Meteor.user();
+
 	if (!user.is_admin) {
 		replace({
-			pathname: '/'
+			pathname: '/',
 		});
 	}
 }
 
 function logOut (nextState, replace) {
-	const { location } = nextState,
-			user = Meteor.user();
+	const { location } = nextState;
+	const user = Meteor.user();
+
 	if (Meteor.userId()) {
 		removeSelectedWeek.call({ userId: user._id }, handleError);
+
 		Meteor.logout((err) => {
 			writeLog.call({ userId: user._id, action: 'LOGOUT', message: `${user.first_name} ${user.last_name} successfully signed out` }, handleError);
 			Object.keys(Session.keys).forEach(key => Session.set(key, undefined));
@@ -119,7 +128,7 @@ function logOut (nextState, replace) {
 		});
 	} else if (!location.state || !location.state.isLogout) {
 		replace({
-			pathname: '/login'
+			pathname: '/login',
 		});
 	}
 }
@@ -151,6 +160,7 @@ export const Routes = () => (
 			<Route path="/admin" onEnter={verifyAdmin}>
 				<Route path="users" component={AdminUsers} onEnter={validateUser} />
 				<Route path="logs" component={AdminLogs} onEnter={validateUser} />
+				<Route path="email" component={AdminEmail} onEnter={validateUser} />
 			</Route>
 		</Route>
 		<Route path="*" component={NotFound} />

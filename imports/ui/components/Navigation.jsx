@@ -24,29 +24,39 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 
 	if (pageReady && !logoutOnly) {
 		if (currentUser) msgCt += (currentUser.paid ? 0 : 1);
+
 		if (currentWeekTiebreaker) msgCt += (currentWeekTiebreaker.submitted || nextGame.notFound ? 0 : 1);
+
 		if (currentUser.survivor) msgCt += (currentUser.survivor && !survivorPicks.filter(s => s.week === currentWeek)[0] || survivorPicks.filter(s => s.week === currentWeek)[0].pick_id ? 0 : 1);
 	}
 
 	const _initPool = (ev) => {
 		ev.preventDefault();
+
 		if (confirm(`Are you sure you want to do this?  All data will be reset for the ${getCurrentSeasonYear()} season`)) {
 			Meteor.call('initPoolOnServer', {}, err => {
 				if (err) return handleError(err);
+
 				Meteor.logout();
 			});
 		}
+
 		return false;
 	};
+
 	const _refreshGames = (ev) => {
 		ev.preventDefault();
 		Meteor.call('Games.refreshGameData', {}, handleError);
+
 		return false;
 	};
+
 	const _selectWeek = (newWeek, ev) => {
 		ev.preventDefault();
+
 		if (newWeek > 0 && newWeek < 18) updateSelectedWeek.call({ week: newWeek }, handleError);
 	};
+
 	const _confirmSurvivorPool = (ev) => {
 		sweetAlert({
 			title: 'Register for Survivor Pool?',
@@ -63,6 +73,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 			});
 		});
 	};
+
 	const _confirmGoToSlack = (ev) => {
 		sweetAlert({
 			title: 'Open Slack?',
@@ -131,7 +142,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 						}
 						{currentUser.survivor ? [
 							(survivorPicks.length === 17 ? <li key="make-survivor-picks"><Link to="/survivor/set" activeClassName="active">Make Survivor Picks</Link></li> : null),
-							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null)
+							(nextGame.week > 1 || nextGame.game > 1 ? <li key="view-survivor-picks"><Link to="/survivor/view" activeClassName="active">View Survivor Picks</Link></li> : null),
 						]
 							:
 							hasSeasonStarted ? (
@@ -168,7 +179,7 @@ const Navigation = ({ currentUser, currentWeek, currentWeekTiebreaker, logoutOnl
 							<li><Link to="/admin/users" activeClassName="active">Manage Users</Link></li>
 							<li><Link to="/admin/logs" activeClassName="active">View Logs</Link></li>
 							<li><a href="#" onClick={_refreshGames}>Refresh Games</a></li>
-							<li><Link to="/admin/email" activeClassName="active" title="TODO:">Email Users</Link></li>
+							<li><Link to="/admin/email" activeClassName="active">Email Users</Link></li>
 							{getCurrentSeasonYear() > systemVals.year_updated ? <li><a href="#" onClick={_initPool}>Init Pool for {getCurrentSeasonYear()} Season</a></li> : null}
 						</ul>
 					)
@@ -203,7 +214,7 @@ Navigation.propTypes = {
 	tiebreaker: PropTypes.object.isRequired,
 	unreadMessages: PropTypes.arrayOf(PropTypes.object).isRequired,
 	_toggleMenu: PropTypes.func.isRequired,
-	_toggleRightSlider: PropTypes.func.isRequired
+	_toggleRightSlider: PropTypes.func.isRequired,
 };
 
 export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSlider, selectedWeek, ...rest }) => {
@@ -227,9 +238,13 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 
 	if (!logoutOnly) {
 		if (nextGameReady) nextGame = getNextGame.call({});
+
 		if (messagesReady) unreadMessages = getUnreadMessages.call({});
+
 		if (survivorReady) survivorPicks = getMySurvivorPicks.call({ league: currentLeague });
+
 		if (tiebreakerReady) tiebreaker = getTiebreaker.call({ league: currentLeague, week: selectedWeek });
+
 		if (currentWeekTiebreakerReady) currentWeekTiebreaker = getTiebreaker.call({ league: currentLeague, week: currentWeek });
 	}
 
@@ -245,6 +260,6 @@ export default createContainer(({ currentUser, currentWeek, logoutOnly, rightSli
 		survivorPicks,
 		systemVals,
 		tiebreaker,
-		unreadMessages
+		unreadMessages,
 	};
 }, Navigation);

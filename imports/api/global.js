@@ -173,3 +173,29 @@ export const pad = (toPad, ln, padWith = '0') => {
 
 	return padded;
 };
+
+/**
+ * Finds next unused point value to assign user.
+ * Used for missed picks, quick picks, and auto picks
+ *
+ * @param {Array} userPicks All users picks for a given week
+ * @param {Object} user Need for first and last name
+ * @returns {Number} The next unused point value
+ */
+export const getNextPointValue = (userPicks, user) => {
+	const pointsUsed = userPicks.filter(pick => pick.points).map(pick => pick.points);
+	const maxPointVal = userPicks.length;
+	let pointVal = 1;
+
+	while (pointsUsed.indexOf(pointVal) > -1) {
+		if (pointVal === maxPointVal) {
+			console.error(`While trying to assign max points to user ${user.first_name} ${user.last_name}, reached max point value of ${maxPointVal}, meaning all points from 1 to ${maxPointVal} are used, yet somehow we got into this block where a pick was missed.  Should be impossible so adding this long comment just to ensure visibility if it ever happens.`);
+
+			return null;
+		} else {
+			pointVal++;
+		}
+	}
+
+	return pointVal;
+};

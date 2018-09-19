@@ -46,16 +46,17 @@ const QuickPick = ({ isError, msg, pageReady }) => {
 QuickPick.propTypes = {
 	isError: PropTypes.bool.isRequired,
 	msg: PropTypes.string,
-	pageReady: PropTypes.bool.isRequired
+	pageReady: PropTypes.bool.isRequired,
 };
 
 export default createContainer(({ params }) => {
-	const { team_short, user_id } = params,
-			currentUserID = Meteor.userId(),
-			sessionKey = `quick-pick-${user_id}-${team_short}`,
-			SUCCESS_MSG = 'You have successfully made your game 1 pick!  Please be sure to set the rest of your picks and then submit them for this week.';
-	let msg = Session.get(sessionKey),
-			isError = false;
+	const { team_short, user_id } = params;
+	const currentUserID = Meteor.userId();
+	const sessionKey = `quick-pick-${user_id}-${team_short}`;
+	const SUCCESS_MSG = 'You have successfully made your game 1 pick!  Please be sure to set the rest of your picks and then submit them for this week.';
+	let msg = Session.get(sessionKey);
+	let isError = false;
+
 	if (currentUserID && currentUserID !== user_id) {
 		msg = 'Error!  You cannot set someone else\'s picks!';
 		isError = true;
@@ -69,9 +70,10 @@ export default createContainer(({ params }) => {
 			isError = true;
 		}
 	}
+
 	return {
 		isError,
 		msg,
-		pageReady: !!msg
+		pageReady: !!msg,
 	};
 }, QuickPick);

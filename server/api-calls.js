@@ -56,6 +56,7 @@ API = {
 		games.forEach((gameObj, i) => {
 			gameObj.team.forEach(team => {
 				if (team.isHome === '1') hTeamData = team;
+
 				if (team.isHome === '0') vTeamData = team;
 			});
 
@@ -80,18 +81,26 @@ API = {
 
 			// Update home team data
 			if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
+
 			if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
+
 			if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
+
 			if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
+
 			if (!hTeam.bye_week || hTeam.bye_week === w) hTeam.bye_week = w + 1;
 
 			hTeam.save();
 
 			// Update visiting team data
 			if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
+
 			if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
+
 			if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
+
 			if (vTeamData.rushOffenseRank) vTeam.rush_offense = parseInt(vTeamData.rushOffenseRank, 10);
+
 			if (!vTeam.bye_week || vTeam.bye_week === w) vTeam.bye_week = w + 1;
 
 			vTeam.save();
@@ -131,12 +140,14 @@ API = {
 
 			gameObj.team.forEach(team => {
 				if (team.isHome === '1') hTeamData = team;
+
 				if (team.isHome === '0') vTeamData = team;
 			});
 
 			game = findGame.call({ week: weekToUpdate, home_short: hTeamData.id, visitor_short: vTeamData.id }, handleError);
 
 			if (hTeamData.spread) game.home_spread = Math.round(parseFloat(hTeamData.spread) * 10) / 10;
+
 			if (vTeamData.spread) game.visitor_spread = Math.round(parseFloat(vTeamData.spread) * 10) / 10;
 
 			game.save();
@@ -145,8 +156,11 @@ API = {
 			hTeam = getTeamByShortSync({ short_name: hTeamData.id });
 
 			if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
+
 			if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
+
 			if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
+
 			if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
 
 			hTeam.save();
@@ -155,8 +169,11 @@ API = {
 			vTeam = getTeamByShortSync({ short_name: vTeamData.id });
 
 			if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
+
 			if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
+
 			if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
+
 			if (vTeamData.rushOffenseRank) vTeam.rush_offense = parseInt(vTeamData.rushOffenseRank, 10);
 
 			vTeam.save();
@@ -195,6 +212,7 @@ API = {
 
 				gameObj.team.forEach(team => {
 					if (team.isHome === '1') hTeamData = team;
+
 					if (team.isHome === '0') vTeamData = team;
 				});
 
@@ -270,6 +288,7 @@ API = {
 					completeCount++;
 
 					if (!wasComplete) justCompleted++;
+
 					// Update the team's history array
 					// Updated 2016-09-13 to ensure history always gets filled in
 					console.log(`Game ${game.game} complete, updating history...`);
@@ -297,16 +316,22 @@ API = {
 
 				// Update home team data
 				if (hTeamData.passDefenseRank) hTeam.pass_defense = parseInt(hTeamData.passDefenseRank, 10);
+
 				if (hTeamData.passOffenseRank) hTeam.pass_offense = parseInt(hTeamData.passOffenseRank, 10);
+
 				if (hTeamData.rushDefenseRank) hTeam.rush_defense = parseInt(hTeamData.rushDefenseRank, 10);
+
 				if (hTeamData.rushOffenseRank) hTeam.rush_offense = parseInt(hTeamData.rushOffenseRank, 10);
 
 				hTeam.save();
 
 				// Update visiting team data
 				if (vTeamData.passDefenseRank) vTeam.pass_defense = parseInt(vTeamData.passDefenseRank, 10);
+
 				if (vTeamData.passOffenseRank) vTeam.pass_offense = parseInt(vTeamData.passOffenseRank, 10);
+
 				if (vTeamData.rushDefenseRank) vTeam.rush_defense = parseInt(vTeamData.rushDefenseRank, 10);
+
 				if (vTeamData.rushOffenseRank) vTeam.rush_offense = parseInt(vTeamData.rushOffenseRank, 10);
 
 				vTeam.save();

@@ -7,7 +7,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { dbVersion } from '../../api/constants';
-import { handleError } from '../../api/global';
+import { getNextPointValue, handleError } from '../../api/global';
 import { gameHasStarted, getGameByID } from './games';
 import { getTeamByID } from './teams';
 import { getUserByID } from './users';
@@ -22,29 +22,21 @@ export const assignPointsToMissed = new ValidatedMethod({
 	validate: new SimpleSchema({
 		gameCount: { type: Number, label: 'Number of Games', min: 13, max: 16 },
 		gameId: { type: String, label: 'Game ID' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
 	run ({ gameCount, gameId, week }) {
 		if (Meteor.isServer) {
 			const missedPicks = Pick.find({ game_id: gameId, points: null }).fetch();
+
 			if (missedPicks.length) console.log(`${missedPicks.length} users missed game ${gameId} in week ${week}`);
+
 			missedPicks.forEach(missedPick => {
 				const { league, user_id } = missedPick;
 				const user = missedPick.getUser();
 				const { auto_pick_count, auto_pick_strategy } = user;
 				const game = missedPick.getGame();
 				const usersPicks = Pick.find({ league, user_id, week }).fetch();
-				const pointsUsed = usersPicks.filter(pick => pick.points).map(pick => pick.points);
-				const maxPointVal = gameCount;
-				let pointVal = 1;
-
-				while (pointsUsed.indexOf(pointVal) > -1) {
-					if (pointVal === maxPointVal) {
-						console.error(`While trying to assign max points to user ${user.first_name} ${user.last_name}, reached max point value of ${maxPointVal}, meaning all points from 1 to ${maxPointVal} are used, yet somehow we got into this block where a pick was missed.  Should be impossible so adding this long comment just to ensure visibility if it ever happens.`);
-					} else {
-						pointVal++;
-					}
-				}
+				const pointVal = getNextPointValue(usersPicks, user);
 
 				missedPick.points = pointVal;
 
@@ -68,7 +60,7 @@ export const assignPointsToMissed = new ValidatedMethod({
 				missedPick.save();
 			});
 		}
-	}
+	},
 });
 export const assignPointsToMissedSync = Meteor.wrapAsync(assignPointsToMissed.call, assignPointsToMissed);
 
@@ -78,18 +70,26 @@ export const autoPick = new ValidatedMethod({
 		available: { type: [Number], label: 'Available Points', minCount: 1, maxCount: 16 },
 		league: { type: String, label: 'League' },
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
-		type: { type: String, label: 'Auto Pick Type', allowedValues: ['home', 'away', 'random'] }
+		type: { type: String, label: 'Auto Pick Type', allowedValues: ['home', 'away', 'random'] },
 	}).validator(),
 	run ({ available, league, selectedWeek, type }) {
 		if (!this.userId) throw new Meteor.Error('Picks.autoPick.notLoggedIn', 'Must be logged in to update picks');
+
 		if (Meteor.isServer) {
-			const picks = Pick.find({ league, user_id: this.userId, week: selectedWeek }).fetch(),
-					pointsLeft = Object.assign([], available);
-			let game, randomTeam, teamId, teamShort, pointIndex, point;
+			const picks = Pick.find({ league, user_id: this.userId, week: selectedWeek }).fetch();
+			const pointsLeft = Object.assign([], available);
+			let game;
+			let randomTeam;
+			let teamId;
+			let teamShort;
+			let pointIndex;
+			let point;
+
 			picks.forEach(pick => {
 				if (!pick.hasStarted() && !pick.pick_id) {
 					game = getGameByID.call({ gameId: pick.game_id });
 					randomTeam = Math.random();
+
 					if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
 						teamId = game.home_id;
 						teamShort = game.home_short;
@@ -97,6 +97,7 @@ export const autoPick = new ValidatedMethod({
 						teamId = game.visitor_id;
 						teamShort = game.visitor_short;
 					}
+
 					pointIndex = Math.floor(Math.random() * pointsLeft.length);
 					point = pointsLeft.splice(pointIndex, 1);
 					pick.pick_id = teamId;
@@ -106,22 +107,25 @@ export const autoPick = new ValidatedMethod({
 			});
 			picks.forEach(pick => { pick.save(); });
 		}
-	}
+	},
 });
 export const autoPickSync = Meteor.wrapAsync(autoPick.call, autoPick);
 
 export const getAllPicks = new ValidatedMethod({
 	name: 'Picks.getAllPicks',
 	validate: new SimpleSchema({
-		league: { type: String, label: 'League' }
+		league: { type: String, label: 'League' },
 	}).validator(),
 	run ({ league }) {
 		const user_id = this.userId;
 		const picks = Pick.find({ league }, { sort: { user_id: 1, week: 1, game: 1 } }).fetch();
+
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
+
 		if (!picks) throw new Meteor.Error('No picks found');
+
 		return picks;
-	}
+	},
 });
 export const getAllPicksSync = Meteor.wrapAsync(getAllPicks.call, getAllPicks);
 
@@ -129,13 +133,15 @@ export const getAllPicksForUser = new ValidatedMethod({
 	name: 'Picks.getAllPicksForUser',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
-		user_id: { type: String, label: 'User ID' }
+		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	run ({ league, user_id }) {
 		const picks = Pick.find({ league, user_id }, { sort: { week: 1, game: 1 } }).fetch();
+
 		if (!picks) throw new Meteor.Error(`No picks found for user ${user_id}`);
+
 		return picks;
-	}
+	},
 });
 export const getAllPicksForUserSync = Meteor.wrapAsync(getAllPicksForUser.call, getAllPicksForUser);
 
@@ -143,15 +149,18 @@ export const getAllPicksForWeek = new ValidatedMethod({
 	name: 'Picks.getAllPicksForWeek',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
 	run ({ league, week }) {
 		const user_id = this.userId;
 		const picks = Pick.find({ league, week }, { sort: { user_id: 1, game: 1 } }).fetch();
+
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
+
 		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
+
 		return picks;
-	}
+	},
 });
 export const getAllPicksForWeekSync = Meteor.wrapAsync(getAllPicksForWeek.call, getAllPicksForWeek);
 
@@ -160,12 +169,13 @@ export const getPickForFirstGameOfWeek = new ValidatedMethod({
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
 		user_id: { type: String, label: 'User ID' },
-		week: { type: Number, label: 'Week' }
+		week: { type: Number, label: 'Week' },
 	}).validator(),
 	run ({ league, user_id, week }) {
 		const firstGamePick = Pick.findOne({ game: 1, league, user_id, week });
+
 		return firstGamePick;
-	}
+	},
 });
 export const getPickForFirstGameOfWeekSync = Meteor.wrapAsync(getPickForFirstGameOfWeek.call, getPickForFirstGameOfWeek);
 
@@ -174,14 +184,17 @@ export const getPicksForWeek = new ValidatedMethod({
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
 		user_id: { type: String, label: 'User ID', optional: true },
-		week: { type: Number, label: 'Week', min: 1, max: 17 }
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
 	run ({ league, user_id = this.userId, week }) {
 		const picks = Pick.find({ league, user_id, week }, { sort: { game: 1 } }).fetch();
+
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
+
 		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
+
 		return picks;
-	}
+	},
 });
 export const getPicksForWeekSync = Meteor.wrapAsync(getPicksForWeek.call, getPicksForWeek);
 
@@ -189,11 +202,11 @@ export const migratePicksForUser = new ValidatedMethod({
 	name: 'Picks.migratePicksForUser',
 	validate: new SimpleSchema({
 		newUserId: { type: String, label: 'New User ID' },
-		oldUserId: { type: String, label: 'Old User ID' }
+		oldUserId: { type: String, label: 'Old User ID' },
 	}).validator(),
 	run ({ newUserId, oldUserId }) {
 		Pick.update({ user_id: oldUserId }, { $set: { user_id: newUserId }}, { multi: true });
-	}
+	},
 });
 export const migratePicksForUserSync = Meteor.wrapAsync(migratePicksForUser.call, migratePicksForUser);
 
@@ -201,12 +214,14 @@ export const resetPicks = new ValidatedMethod({
 	name: 'Picks.resetPicks',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
-		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 }
+		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
 	run ({ league, selectedWeek }) {
 		const user_id = this.userId;
 		let picks;
+
 		if (!user_id) throw new Meteor.Error('Not Logged In', 'Must be logged in to reset picks');
+
 		if (Meteor.isServer) {
 			picks = Pick.find({ league, user_id, week: selectedWeek }).fetch();
 			picks.forEach(pick => {
@@ -218,7 +233,7 @@ export const resetPicks = new ValidatedMethod({
 				}
 			});
 		}
-	}
+	},
 });
 export const resetPicksSync = Meteor.wrapAsync(resetPicks.call, resetPicks);
 
@@ -237,13 +252,17 @@ export const setPick = new ValidatedMethod({
 		toData: { type: Object, label: 'To List' },
 		'toData.gameId': { type: String, label: 'To Game ID', optional: true },
 		'toData.teamId': { type: String, label: 'To Team ID', optional: true },
-		'toData.teamShort': { type: String, label: 'To Team Name', optional: true }
+		'toData.teamShort': { type: String, label: 'To Team Name', optional: true },
 	}).validator(),
 	run ({ addOnly, fromData, league, pointVal, removeOnly, selectedWeek, toData }) {
 		let pick;
+
 		if (!this.userId) throw new Meteor.Error('Users.picks.set.notLoggedIn', 'Must be logged in to update picks');
+
 		if (fromData.gameId && gameHasStarted.call({ gameId: fromData.gameId }, handleError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
+
 		if (toData.gameId && gameHasStarted.call({ gameId: toData.gameId }, handleError)) throw new Meteor.Error('Users.picks.set.gameAlreadyStarted', 'This game has already begun');
+
 		if (Meteor.isServer) {
 			if (!addOnly && fromData.gameId !== toData.gameId) {
 				pick = Pick.findOne({ game_id: fromData.gameId, league: league, user_id: this.userId, week: selectedWeek });
@@ -252,6 +271,7 @@ export const setPick = new ValidatedMethod({
 				pick.points = undefined;
 				pick.save();
 			}
+
 			if (!removeOnly) {
 				pick = Pick.findOne({ game_id: toData.gameId, league: league, user_id: this.userId, week: selectedWeek });
 				pick.pick_id = toData.teamId;
@@ -260,7 +280,7 @@ export const setPick = new ValidatedMethod({
 				pick.save();
 			}
 		}
-	}
+	},
 });
 export const setPickSync = Meteor.wrapAsync(setPick.call, setPick);
 
@@ -274,36 +294,36 @@ if (dbVersion < 2) {
 		fields: {
 			week: {
 				type: Number,
-				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
+				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }],
 			},
 			game_id: String,
 			game: {
 				type: Number,
-				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 0 }, { type: 'lte', param: 16 }] }]
+				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 0 }, { type: 'lte', param: 16 }] }],
 			},
 			pick_id: {
 				type: String,
-				optional: true
+				optional: true,
 			},
 			pick_short: {
 				type: String,
 				validators: [{ type: 'length', param: 3 }],
-				optional: true
+				optional: true,
 			},
 			points: {
 				type: Number,
 				validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }] }],
-				optional: true
+				optional: true,
 			},
 			winner_id: {
 				type: String,
-				optional: true
+				optional: true,
 			},
 			winner_short: {
 				type: String,
 				validators: [{ type: 'length', param: 3 }],
-				optional: true
-			}
+				optional: true,
+			},
 		},
 		helpers: {
 			hasStarted () {
@@ -311,9 +331,10 @@ if (dbVersion < 2) {
 			},
 			getTeam () {
 				const team = getTeamByID.call({ teamId: this.pick_id });
+
 				return team;
-			}
-		}
+			},
+		},
 	});
 } else {
 	PicksConditional = new Mongo.Collection('picks');
@@ -325,57 +346,60 @@ if (dbVersion < 2) {
 			user_id: String,
 			league: {
 				type: String,
-				default: 'public'
+				default: 'public',
 			},
 			week: {
 				type: Number,
-				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }]
+				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 1 }, { type: 'lte', param: 17 }] }],
 			},
 			game_id: String,
 			game: {
 				type: Number,
-				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 0 }, { type: 'lte', param: 16 }] }]
+				validators: [{ type: 'and', param: [{ type: 'required' }, { type: 'gte', param: 0 }, { type: 'lte', param: 16 }] }],
 			},
 			pick_id: {
 				type: String,
-				optional: true
+				optional: true,
 			},
 			pick_short: {
 				type: String,
 				validators: [{ type: 'length', param: 3 }],
-				optional: true
+				optional: true,
 			},
 			points: {
 				type: Number,
 				validators: [{ type: 'and', param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }] }],
-				optional: true
+				optional: true,
 			},
 			winner_id: {
 				type: String,
-				optional: true
+				optional: true,
 			},
 			winner_short: {
 				type: String,
 				validators: [{ type: 'length', param: 3 }],
-				optional: true
-			}
+				optional: true,
+			},
 		},
 		helpers: {
 			getGame () {
 				const game = getGameByID.call({ gameId: this.game_id });
+
 				return game;
 			},
 			getTeam () {
 				const team = getTeamByID.call({ teamId: this.pick_id });
+
 				return team;
 			},
 			getUser () {
 				const user = getUserByID.call({ user_id: this.user_id });
+
 				return user;
 			},
 			hasStarted () {
 				return gameHasStarted.call({ gameId: this.game_id });
-			}
+			},
 		},
 		indexes: {
 			onePick: {
@@ -383,23 +407,23 @@ if (dbVersion < 2) {
 					user_id: 1,
 					league: 1,
 					week: 1,
-					game: 1
+					game: 1,
 				},
 				options: {
-					unique: true
-				}
+					unique: true,
+				},
 			},
 			onePick2: {
 				fields: {
 					user_id: 1,
 					league: 1,
-					game_id: 1
+					game_id: 1,
 				},
 				options: {
-					unique: true
-				}
-			}
-		}
+					unique: true,
+				},
+			},
+		},
 	});
 }
 

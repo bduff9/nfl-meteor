@@ -27,7 +27,7 @@ import EditProfile from '../../ui/pages/EditProfile';
 import ViewPayments from '../../ui/pages/ViewPayments';
 import AdminUsers from '../../ui/pages/AdminUsers';
 import AdminLogs from '../../ui/pages/AdminLogs';
-import AdminEmail from '../../ui/pages/AdminLogs';
+import AdminEmail from '../../ui/pages/AdminEmail';
 import { NotFound } from '../../ui/pages/NotFound';
 
 function requireAuth (nextState, replace) {

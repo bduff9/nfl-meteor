@@ -66,10 +66,11 @@ class AdminEmail extends Component {
 	_sendEmail (ev) {
 		const { emailBody, emailSubject, emailTo } = this.state;
 		const subject = emailSubject.replace(EMAIL_SUBJECT_PREFIX, '');
+		const bcc = emailTo.split(',');
 
 		//TODO: change template on the fly (only real use case is for initial pool invite email?)
 		//TODO: can we bring in actual template and show what the email will look like?
-		Meteor.call('Email.sendEmail', { bcc: emailTo, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commissioners' }, subject, template: 'weeklyEmail' }, err => {
+		Meteor.call('Email.sendEmail', { bcc, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commissioners' }, subject, template: 'weeklyEmail' }, err => {
 			if (err) {
 				handleError(err);
 			} else {

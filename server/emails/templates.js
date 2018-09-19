@@ -15,14 +15,15 @@ export default {
 		route: {
 			path: '/all-submit',
 			data: ({ query }) => {
-				const { userID, week } = query,
-						user = getUserByID.call({ user_id: userID });
+				const { userID, week } = query;
+				const user = getUserByID.call({ user_id: userID });
+
 				return {
 					user,
-					week
+					week,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	approveUser: {
@@ -31,15 +32,16 @@ export default {
 		route: {
 			path: '/approve-user',
 			data: ({ query }) => {
-				const { adminID, newUserID } = query,
-						admin = getUserByID.call({ user_id: adminID }),
-						newUser = getUserByID.call({ user_id: newUserID });
+				const { adminID, newUserID } = query;
+				const admin = getUserByID.call({ user_id: adminID });
+				const newUser = getUserByID.call({ user_id: newUserID });
+
 				return {
 					admin,
-					newUser
+					newUser,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	interest: {
@@ -55,8 +57,8 @@ export default {
 					poolCost: POOL_COST,
 					survivorCost: SURVIVOR_COST,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	newUser: {
@@ -64,20 +66,21 @@ export default {
 		helpers: {
 			now () {
 				return formatDate(new Date(), true);
-			}
+			},
 		},
 		route: {
 			path: '/new-user',
 			data: ({ query }) => {
-				const { adminID, newUserID } = query,
-						admin = getUserByID.call({ user_id: adminID }),
-						newUser = getUserByID.call({ user_id: newUserID });
+				const { adminID, newUserID } = query;
+				const admin = getUserByID.call({ user_id: adminID });
+				const newUser = getUserByID.call({ user_id: newUserID });
+
 				return {
 					admin,
-					newUser
+					newUser,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	newUserWelcome: {
@@ -86,15 +89,16 @@ export default {
 		route: {
 			path: '/welcome-email',
 			data: ({ query }) => {
-				const { returning, userID, year } = query,
-						user = getUserByID.call({ user_id: userID });
+				const { returning, userID, year } = query;
+				const user = getUserByID.call({ user_id: userID });
+
 				return {
 					returning: returning === 'true',
 					user,
-					year
+					year,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	picksConfirm: {
@@ -103,27 +107,30 @@ export default {
 			sortPicks (picks) {
 				return picks.sort((pick1, pick2) => {
 					if (pick1.points > pick2.points) return -1;
+
 					if (pick1.points < pick2.points) return 1;
+
 					return 0;
 				});
-			}
+			},
 		},
 		route: {
 			path: '/picks-confirmation',
 			data: ({ query }) => {
-				const { league, userID: user_id, week: weekStr } = query,
-						week = parseInt(weekStr, 10),
-						user = getUserByID.call({ user_id }),
-						picks = getPicksForWeek.call({ league, user_id, week }),
-						tiebreaker = getTiebreaker.call({ league, user_id, week });
+				const { league, userID: user_id, week: weekStr } = query;
+				const week = parseInt(weekStr, 10);
+				const user = getUserByID.call({ user_id });
+				const picks = getPicksForWeek.call({ league, user_id, week });
+				const tiebreaker = getTiebreaker.call({ league, user_id, week });
+
 				return {
 					picks,
 					tiebreaker,
 					user,
-					week
+					week,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	quickPick: {
@@ -133,21 +140,22 @@ export default {
 		route: {
 			path: '/quick-pick',
 			data: ({ query }) => {
-				const { hours, userID: user_id, week: weekStr } = query,
-						week = parseInt(weekStr, 10),
-						user = getUserByID.call({ user_id }),
-						game = getFirstGameOfWeek.call({ week }),
-						team1 = game.getTeam('home'),
-						team2 = game.getTeam('visitor');
+				const { hours, userID: user_id, week: weekStr } = query;
+				const week = parseInt(weekStr, 10);
+				const user = getUserByID.call({ user_id });
+				const game = getFirstGameOfWeek.call({ week });
+				const team1 = game.getTeam('home');
+				const team2 = game.getTeam('visitor');
+
 				return {
 					hours,
 					team1,
 					team2,
 					user,
-					week
+					week,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	quickPickConfirm: {
@@ -156,16 +164,17 @@ export default {
 		route: {
 			path: '/quick-pick-confirm',
 			data: ({ query }) => {
-				const { teamShort: short_name, userID: user_id, week } = query,
-						user = getUserByID.call({ user_id }),
-						team = getTeamByShort.call({ short_name });
+				const { teamShort: short_name, userID: user_id, week } = query;
+				const user = getUserByID.call({ user_id });
+				const team = getTeamByShort.call({ short_name });
+
 				return {
 					team,
 					user,
-					week
+					week,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	reminder: {
@@ -174,15 +183,16 @@ export default {
 		route: {
 			path: '/reminder',
 			data: ({ query }) => {
-				const { hours, userID: user_id, week } = query,
-						user = getUserByID.call({ user_id });
+				const { hours, userID: user_id, week } = query;
+				const user = getUserByID.call({ user_id });
+
 				return {
 					hours,
 					user,
-					week
+					week,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	resetPassword: {
@@ -191,14 +201,15 @@ export default {
 		route: {
 			path: '/reset-password',
 			data: ({ query }) => {
-				const { url, userID: user_id } = query,
-						user = getUserByID.call({ user_id });
+				const { url, userID: user_id } = query;
+				const user = getUserByID.call({ user_id });
+
 				return {
 					url,
-					user
+					user,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	verifyEmail: {
@@ -207,14 +218,15 @@ export default {
 		route: {
 			path: '/verify',
 			data: ({ query }) => {
-				const { url, userID: user_id } = query,
-						user = getUserByID.call({ user_id });
+				const { url, userID: user_id } = query;
+				const user = getUserByID.call({ user_id });
+
 				return {
 					url,
-					user
+					user,
 				};
-			}
-		}
+			},
+		},
 	},
 
 	weeklyEmail: {
@@ -223,8 +235,8 @@ export default {
 		route: {
 			path: '/pool-email',
 			data: ({ query }) => ({
-				message: query.message
-			})
-		}
-	}
+				message: query.message,
+			}),
+		},
+	},
 };

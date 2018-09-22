@@ -98,6 +98,12 @@ export const handleError = (err, opts = {}, cb = null, hide = false) => {
 	}
 };
 
+export const humanizeVariable = value => {
+	const result = value.replace(/([A-Z])/g, ' $1');
+
+	return result.charAt(0).toUpperCase() + result.slice(1);
+};
+
 export const sortForDash = (pointsSort, gamesSort, user1, user2) => {
 	if (pointsSort) {
 		if (user1.total_points < user2.total_points) return -1 * pointsSort;

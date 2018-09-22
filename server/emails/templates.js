@@ -1,7 +1,7 @@
 'use strict';
 
 import { POOL_COST, SURVIVOR_COST } from '../../imports/api/constants';
-import { formatDate, handleError } from '../../imports/api/global';
+import { formatDate } from '../../imports/api/global';
 import { getFirstGameOfWeek, getPaymentDue } from '../../imports/api/collections/games';
 import { getPicksForWeek } from '../../imports/api/collections/picks';
 import { getTeamByShort } from '../../imports/api/collections/teams';
@@ -24,6 +24,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	approveUser: {
@@ -42,6 +43,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	interest: {
@@ -58,6 +60,10 @@ export default {
 					survivorCost: SURVIVOR_COST,
 				};
 			},
+		},
+		adminScreen: {
+			path: '',
+			emailBody: false,
 		},
 	},
 
@@ -81,6 +87,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	newUserWelcome: {
@@ -99,6 +106,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	picksConfirm: {
@@ -131,6 +139,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	quickPick: {
@@ -156,6 +165,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	quickPickConfirm: {
@@ -175,6 +185,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	reminder: {
@@ -193,6 +204,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	resetPassword: {
@@ -210,6 +222,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	verifyEmail: {
@@ -227,6 +240,7 @@ export default {
 				};
 			},
 		},
+		adminScreen: false,
 	},
 
 	weeklyEmail: {
@@ -237,6 +251,9 @@ export default {
 			data: ({ query }) => ({
 				message: query.message,
 			}),
+		},
+		adminScreen: {
+			emailBody: 'message',
 		},
 	},
 };

@@ -20,14 +20,24 @@ class AdminEmail extends Component {
 		this.state = {
 			emailBody: '',
 			emailSubject: EMAIL_SUBJECT_PREFIX,
+			emailTemplate: '',
 			emailTo: '',
+			templates: [],
 		};
 
 		this._getMailingList = this._getMailingList.bind(this);
+		this._previewEmail = this._previewEmail.bind(this);
 		this._sendEmail = this._sendEmail.bind(this);
 		this._updateEmailBody = this._updateEmailBody.bind(this);
 		this._updateEmailSubject = this._updateEmailSubject.bind(this);
+		this._updateEmailTemplate = this._updateEmailTemplate.bind(this);
 		this._updateEmailTo = this._updateEmailTo.bind(this);
+	}
+
+	componentWillMount () {
+		Meteor.call('Email.getEmailTemplatesForAdminScreen', {}, (error, templates) => {
+			this.setState({ templates });
+		});
 	}
 
 	_getMailingList (type) {
@@ -63,14 +73,27 @@ class AdminEmail extends Component {
 
 		this.setState({ emailTo: mailingList });
 	}
+	_previewEmail () {
+		const { emailBody, emailTemplate } = this.state;
+
+		Meteor.call('Email.getEmailTemplateObject', { template: emailTemplate }, (error, templateObj) => {
+			const templatePath = templateObj.route.path;
+			const field = templateObj.adminScreen.emailBody;
+			let url = `/emails/preview${templatePath}`;
+
+			if (field) url += `?${field}=${emailBody}`;
+
+			//TODO: can we bring in actual template and show what the email will look like on the same page?  Looks possible with Mailer.precompile (returns a blaze template) or Mailer.render (returns HTML string).  Would need to set up server method to accept template and/or data and then display it on screen somewhere
+			window.open(url, '_preview_email');
+		});
+	}
 	_sendEmail (ev) {
-		const { emailBody, emailSubject, emailTo } = this.state;
+		const { emailBody, emailSubject, emailTemplate, emailTo } = this.state;
 		const subject = emailSubject.replace(EMAIL_SUBJECT_PREFIX, '');
 		const bcc = emailTo.split(',');
 
-		//TODO: change template on the fly (only real use case is for initial pool invite email?)
-		//TODO: can we bring in actual template and show what the email will look like?
-		Meteor.call('Email.sendEmail', { bcc, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commissioners' }, subject, template: 'weeklyEmail' }, err => {
+
+		Meteor.call('Email.sendEmail', { bcc, data: { message: emailBody, preview: 'Here is your official weekly email from the NFL Confidence Pool commissioners' }, subject, template: emailTemplate }, err => {
 			if (err) {
 				handleError(err);
 			} else {
@@ -87,6 +110,11 @@ class AdminEmail extends Component {
 
 		this.setState({ emailSubject });
 	}
+	_updateEmailTemplate (ev) {
+		const emailTemplate = ev.target.value;
+
+		this.setState({ emailTemplate });
+	}
 	_updateEmailTo (ev) {
 		const emailTo = ev.target.value;
 
@@ -95,7 +123,7 @@ class AdminEmail extends Component {
 
 	render () {
 		const { pageReady } = this.props;
-		const { emailBody, emailSubject, emailTo } = this.state;
+		const { emailBody, emailSubject, emailTemplate, emailTo, templates } = this.state;
 
 		return (
 			<div className="row admin-wrapper admin-email-wrapper">
@@ -104,6 +132,15 @@ class AdminEmail extends Component {
 					<div className="col-xs-12">
 						<h3 className="title-text text-xs-center text-md-left hidden-md-up">Email Users</h3>
 						<div className="col-xs-12 email-all">
+							<div className="row form-group">
+								<label htmlFor="emailTemplate" className="col-xs-12 col-md-2 col-form-label">Template</label>
+								<div className="col-xs-12 col-md-10">
+									<select className="form-control" id="emailTemplate" name="emailTemplate" value={emailTemplate} onChange={this._updateEmailTemplate}>
+										<option value="">-- Select Template --</option>
+										{templates.map(({ template, description }) => <option value={template} key={template}>{description}</option>)}
+									</select>
+								</div>
+							</div>
 							<div className="row form-group">
 								<label htmlFor="emailGroup" className="col-xs-12 col-md-2 col-form-label">Add Group</label>
 								<div className="col-xs-12 col-md-10">
@@ -137,9 +174,11 @@ class AdminEmail extends Component {
 								</div>
 							</div>
 							<div className="row form-group">
-								<label htmlFor="sendEmail" className="col-xs-12 col-md-2 col-form-label"></label>
-								<div className="col-xs-12 col-md-10">
-									<button type="button" className="btn btn-block btn-primary" id="sendEmail" disabled={!emailTo || !emailBody} onClick={this._sendEmail}>Send</button>
+								<div className="col-xs-12 col-md-6">
+									<button type="button" className="btn btn-block btn-info" id="previewEmail" title="Opens in new tab" disabled={!emailTemplate} onClick={this._previewEmail}>Preview</button>
+								</div>
+								<div className="col-xs-12 col-md-6">
+									<button type="button" className="btn btn-block btn-primary" id="sendEmail" disabled={!emailBody || !emailTemplate || !emailTo} onClick={this._sendEmail}>Send</button>
 								</div>
 							</div>
 						</div>

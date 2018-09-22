@@ -7,6 +7,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { Mailer } from 'meteor/lookback:emails';
 
 import { EMAIL_SUBJECT_PREFIX, POOL_EMAIL_FROM, POOL_SITE_NAME } from '../../imports/api/constants';
+import { humanizeVariable } from '../../imports/api/global';
 import Templates from './templates';
 import TemplateHelpers from './template-helpers';
 
@@ -109,3 +110,30 @@ export const sendEmail = new ValidatedMethod({
 	},
 });
 export const sendEmailSync = Meteor.wrapAsync(sendEmail.call, sendEmail);
+
+export const getEmailTemplatesForAdminScreen = new ValidatedMethod({
+	name: 'Email.getEmailTemplatesForAdminScreen',
+	validate: null,
+	run () {
+		const listOfTemplates = Object.keys(Templates).map(template => ({ template, adminScreen: Templates[template].adminScreen }));
+		const adminTemplates = listOfTemplates.filter(template => template.adminScreen);
+
+		return adminTemplates.map(({ template }) => ({ template, description: humanizeVariable(template) }));
+	},
+});
+export const getEmailTemplatesForAdminScreenSync = Meteor.wrapAsync(getEmailTemplatesForAdminScreen.call, getEmailTemplatesForAdminScreen);
+
+export const getEmailTemplateObject = new ValidatedMethod({
+	name: 'Email.getEmailTemplateObject',
+	validate: new SimpleSchema({
+		template: { type: String, label: 'Template Key' },
+	}).validator(),
+	run ({ template }) {
+		const templateObject = Templates[template];
+
+		if (!templateObject) throw new Meteor.Error('Email.getEmailTemplateObject.NotFound', `Cannot find template ${template}`);
+
+		return templateObject;
+	},
+});
+export const getEmailTemplatePathSync = Meteor.wrapAsync(getEmailTemplateObject.call, getEmailTemplateObject);

@@ -53,7 +53,9 @@ Mailer.config({
 	testEmail: 'Brian Test <bduff9@gmail.com>',
 	logger: console,
 	silent: false,
-	addRoutes: process.env.NODE_ENV === 'development',
+	//TODO: go back to this once we have on page previews for the admin email screen
+	addRoutes: true,
+	//addRoutes: process.env.NODE_ENV === 'development',
 	language: 'html',
 	plainText: true,
 	plainTextOpts: {}, // Options for `html-to-text` module. See all here: https://www.npmjs.com/package/html-to-text

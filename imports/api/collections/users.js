@@ -26,7 +26,7 @@ export const deleteUser = new ValidatedMethod({
 		const myUser = User.findOne(this.userId);
 		const user = User.findOne(userId);
 
-		if (!this.userId || !myUser.is_admin || user.done_registering) throw new Meteor.Error('Users.deleteUser.notAuthorized', 'Not authorized to this function');
+		if (!this.userId || !myUser.is_admin || user.years_played.length > 1) throw new Meteor.Error('Users.deleteUser.notAuthorized', 'Not authorized to this function');
 
 		if (Meteor.isServer) {
 			user.remove();

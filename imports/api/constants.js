@@ -31,9 +31,9 @@ export const SURVIVOR_COST = 5;
  * Updated: 2017-10-03
  */
 export const WEEKLY_PRIZES = [0, 25, 15];
-export const OVERALL_PRIZES = [0, 250, 150, 100];
+export const OVERALL_PRIZES = [0, 240, 150, 100];
 export const LAST_PLACE_PRIZE = POOL_COST;
-export const SURVIVOR_PRIZES = [0, 100, 45];
+export const SURVIVOR_PRIZES = [0, 50, 28];
 
 /**
  * How many to insert into the pool history
@@ -64,7 +64,7 @@ export const ACTIONS = [
  * The week where misses count against players for the last place prize
  * Updated: 2017-10-03
  */
-export const NO_MISS_WEEK = 5;
+export const NO_MISS_WEEK = 4;
 
 /**
  * Payment due by end of this week

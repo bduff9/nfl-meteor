@@ -62,9 +62,9 @@ export const ACTIONS = [
 
 /**
  * The week where misses count against players for the last place prize
- * Updated: 2017-10-03
+ * Updated: 2018-10-02
  */
-export const NO_MISS_WEEK = 4;
+export const NO_MISS_WEEK = 5;
 
 /**
  * Payment due by end of this week

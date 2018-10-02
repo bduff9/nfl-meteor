@@ -121,8 +121,8 @@ export const sortForDash = (pointsSort, gamesSort, user1, user2) => {
 };
 
 export const weekPlacer = (week, user1, user2) => {
-	const lastScoreDiff1 = user1.last_score - user1.last_score_act;
-	const lastScoreDiff2 = user2.last_score - user2.last_score_act;
+	const lastScoreDiff1 = user1.last_score_act - user1.last_score;
+	const lastScoreDiff2 = user2.last_score_act - user2.last_score;
 
 	// First, sort by points
 	if (user1.points_earned > user2.points_earned) return -1;

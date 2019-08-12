@@ -1,0 +1,3 @@
+/* globals Modules */
+
+Modules.client = {};

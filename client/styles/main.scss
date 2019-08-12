@@ -1,20 +1,18 @@
-@import '{}/node_modules/bootstrap/scss/bootstrap.scss';
-@import '{}/node_modules/sweetalert/dev/sweetalert.scss';
-// BD: If we want theming for sweetalert, we can choose between facebook, google, and twitter themes (I prefer google or twitter)
-//@import '{}/node_modules/sweetalert/themes/twitter/twitter.scss';
+@import "{}/node_modules/bootstrap/scss/bootstrap.scss";
 
 /* Global */
-html, body {
+html,
+body {
   height: 100%;
 }
 
 label.error {
-  color: #C9302C;
+  color: #c9302c;
 }
 
 @media (min-width: 675px) {
   body {
-    background-image: url('/bkgd-pitch.png');
+    background-image: url("/bkgd-pitch.png");
     background-repeat: no-repeat;
     background-color: #000;
     background-size: cover;
@@ -31,7 +29,7 @@ label.error {
   position: relative;
   border: 1px solid black;
   border-radius: 5px;
-  background-color: #F5F5F7;
+  background-color: #f5f5f7;
   margin: 10% auto;
   float: none;
   padding: 60px;
@@ -48,13 +46,13 @@ label.error {
 }
 
 .title-text {
-  color: #ECEEEF;
+  color: #eceeef;
   padding-left: 30px;
   padding-top: 5px;
 }
 
 .reg-btns {
-  margin-bottom:10px;
+  margin-bottom: 10px;
 }
 
 .btn-social {
@@ -69,12 +67,12 @@ label.error {
 .btn-facebook {
   color: #fff;
   background-color: #3b5998;
-  border-color: rgba(0,0,0,0.2);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 .btn-google {
   color: #fff;
   background-color: #c23321;
-  border-color: rgba(0,0,0,0.2);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .bottom-wrapper {
@@ -97,7 +95,6 @@ label.error {
 
 @media print {
   .container-fluid {
-
     div.col-xs-10.hidden-xs-down.col-sm-3.col-lg-2.sidebar {
       display: none;
     }

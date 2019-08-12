@@ -9,8 +9,9 @@ if (Meteor.isClient) {
 	describe('404 Page', function () {
 		describe('NFL Image', function () {
 			it('Random image is valid', function () {
-				var imgName = _get404Image();
-				var imgIndex = imgs.indexOf(imgName);
+				let imgName = _get404Image();
+				let imgIndex = imgs.indexOf(imgName);
+
 				assert.notStrictEqual(imgIndex, -1);
 			});
 

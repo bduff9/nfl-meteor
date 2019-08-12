@@ -17,16 +17,16 @@ div.right-slider {
     transform: translate(100%);
   }
 
-  &.right-slider-enter.right-slider-enter-active {
+  &.right-slider-enter-active {
     transform: translate(0%);
     transition: transform 1000ms ease-in-out;
   }
 
-  &.right-slider-leave {
+  &.right-slider-exit {
     transform: translate(0%);
   }
 
-  &.right-slider-leave.right-slider-leave-active {
+  &.right-slider-exit-active {
     transform: translate(100%);
     transition: transform 1000ms ease-in-out;
   }

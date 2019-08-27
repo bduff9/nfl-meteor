@@ -6,7 +6,6 @@ import { NFLLog } from '../../imports/api/collections/nfllogs';
 import { addPoolHistory } from '../../imports/api/collections/poolhistorys';
 import {
 	getSortedSurvivorPicksSync,
-	TSurvivorPick,
 	TSortedSurvivor,
 } from '../../imports/api/collections/survivorpicks';
 import { getSystemValues } from '../../imports/api/collections/systemvals';
@@ -20,7 +19,7 @@ import { TWeek } from '../../imports/api/commonTypes';
 
 import { getTiebreakerFromServer } from './tiebreakers';
 
-export const clearNFLLogs = new ValidatedMethod({
+export const clearNFLLogs = new ValidatedMethod<{}>({
 	name: 'NFLLogs.clearNFLLogs',
 	validate: new SimpleSchema({}).validator(),
 	run (): void {
@@ -32,12 +31,15 @@ export const clearNFLLogsSync = Meteor.wrapAsync(
 	clearNFLLogs,
 );
 
-export const endOfSurvivorMessage = new ValidatedMethod({
+export type TEndOfSurvivorMessageProps = { league: string };
+export const endOfSurvivorMessage = new ValidatedMethod<
+	TEndOfSurvivorMessageProps
+>({
 	name: 'NFLLogs.endOfSurvivorMessage',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
 	}).validator(),
-	run ({ league }: { league: string }): void {
+	run ({ league }: TEndOfSurvivorMessageProps): void {
 		const users: TSortedSurvivor[] = getSortedSurvivorPicksSync({ league });
 		const MESSAGE = 'The survivor pool is now over.';
 		const systemVals = getSystemValues.call({});
@@ -82,12 +84,13 @@ export const endOfSurvivorMessageSync = Meteor.wrapAsync(
 	endOfSurvivorMessage,
 );
 
-export const endOfWeekMessage = new ValidatedMethod({
+export type TEndOfWeekMessageProps = { week: TWeek };
+export const endOfWeekMessage = new ValidatedMethod<TEndOfWeekMessageProps>({
 	name: 'NFLLog.insert.endOfWeekMessage',
 	validate: new SimpleSchema({
 		week: { type: Number, label: 'Week' },
 	}).validator(),
-	run ({ week }: { week: TWeek }): void {
+	run ({ week }: TEndOfWeekMessageProps): void {
 		const users: TUser[] = getUsers.call({ activeOnly: true });
 		const MESSAGE = `Week ${week} is now over.`;
 		const systemVals = getSystemValues.call({});

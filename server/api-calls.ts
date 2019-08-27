@@ -32,8 +32,9 @@ import {
 	TGame,
 } from '../imports/api/collections/games';
 
-import { updateLastGameOfWeekScore } from './collections/tiebreakers';
+import { insertAPICall } from './collections/apicalls';
 import { endOfWeekMessage } from './collections/nfllogs';
+import { updateLastGameOfWeekScore } from './collections/tiebreakers';
 
 export type TAPIBoolean = '0' | '1';
 export type TAPITeam = {
@@ -68,9 +69,17 @@ export const getGamesForWeek = (week: TWeek): TAPIMatchup[] => {
 
 	url += `/${currYear}/export`;
 
-	const response = HTTP.get(url, { params: data });
+	try {
+		const response = HTTP.get(url, { params: data });
 
-	return response.data.nflSchedule.matchup;
+		insertAPICall.call({ response: response.data, url, week, year: currYear });
+
+		return response.data.nflSchedule.matchup;
+	} catch (error) {
+		insertAPICall.call({ error, response: null, url, week, year: currYear });
+
+		return [];
+	}
 };
 
 export const populateGamesForWeek = (w: TWeek): void => {
@@ -441,7 +450,7 @@ export const refreshGameData = (): string => {
 					if (status !== 'P') {
 						// Game has started, assign highest available point total to missed picks
 						assignPointsToMissed.call(
-							{ week: w, gameId: game._id, gameCount },
+							{ gameId: game._id, week: w },
 							handleError,
 						);
 					}

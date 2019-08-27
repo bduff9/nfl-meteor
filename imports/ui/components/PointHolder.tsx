@@ -1,11 +1,5 @@
 import React, { FC, memo, useEffect, useRef } from 'react';
-import Sortable, {
-	create,
-	MoveEvent,
-	Options,
-	SortableEvent,
-	utils,
-} from 'sortablejs';
+import Sortable from 'sortablejs';
 
 import { setPick } from '../../api/collections/picks';
 import { TWeek, TGameNumber } from '../../api/commonTypes';
@@ -37,11 +31,11 @@ const PointHolder: FC<TPointHolderProps> = ({
 	const sortableInstance = useRef<Sortable | null>(null);
 	const pointBankRef = useRef<HTMLUListElement>(null);
 
-	const _handlePointAdd = (ev: SortableEvent): void => {
+	const _handlePointAdd = (ev: Sortable.SortableEvent): void => {
 		const { from, item, to } = ev;
 		const pointVal = parseInt(item.innerText, 10);
-		const addOnly = utils.is(from, '.pointBank');
-		const removeOnly = utils.is(to, '.pointBank');
+		const addOnly = Sortable.utils.is(from, '.pointBank');
+		const removeOnly = Sortable.utils.is(to, '.pointBank');
 
 		setPick.call(
 			{
@@ -60,28 +54,29 @@ const PointHolder: FC<TPointHolderProps> = ({
 		from.appendChild(item);
 	};
 
-	const _validatePointDrop = (ev: MoveEvent): boolean => {
+	const _validatePointDrop = (ev: Sortable.MoveEvent): boolean => {
 		const { dragged, to } = ev;
 
-		if (utils.is(to, '.pointBank')) return true;
+		if (Sortable.utils.is(to, '.pointBank')) return true;
 
-		if (utils.is(to, '.disabled')) return false;
+		if (Sortable.utils.is(to, '.disabled')) return false;
 
 		if (to.children.length > 0) return false;
 
-		const closestRow = utils.closest(to, '.row');
+		const closestRow = Sortable.utils.closest(to, '.row');
 
 		if (!closestRow) return false;
 
-		const usedPoints = Array.from(utils.find(closestRow, 'li')).filter(
-			(point): boolean => utils.is(point, '.points') && point !== dragged,
+		const usedPoints = Array.from(Sortable.utils.find(closestRow, 'li')).filter(
+			(point): boolean =>
+				Sortable.utils.is(point, '.points') && point !== dragged,
 		);
 
 		return usedPoints.length === 0;
 	};
 
 	useEffect((): void => {
-		const opts: Options = {
+		const opts: Sortable.Options = {
 			group: 'picks',
 			sort: false,
 			filter: '.disabled',
@@ -90,7 +85,7 @@ const PointHolder: FC<TPointHolderProps> = ({
 		};
 
 		if (pointBankRef.current)
-			sortableInstance.current = create(pointBankRef.current, opts);
+			sortableInstance.current = Sortable.create(pointBankRef.current, opts);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 

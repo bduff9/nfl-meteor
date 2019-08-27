@@ -18,7 +18,7 @@ import { DEFAULT_LEAGUE, PAYMENT_DUE_WEEK } from '../../api/constants';
 import { formatDate, handleError } from '../../api/global';
 
 import Loading from './Loading';
-import { Message } from './Message';
+import Message from './Message';
 
 export type TMessagesProps = {
 	currentUser: TUser;
@@ -53,13 +53,13 @@ const Messages: FC<TMessagesProps> = ({
 				<div className="message-list">
 					{firstGame && nextGame && pageReady ? (
 						<div className="all-message-wrapper">
-							{!paid ? (
+							{!paid && (
 								<Message
-									message={`Please pay before ${formatDate(paymentDue)}`}
+									message={`Please pay before ${formatDate(paymentDue, false)}`}
 									unread
 								/>
-							) : null}
-							{!submittedPicks && !nextGame.notFound ? (
+							)}
+							{!submittedPicks && !nextGame.notFound && (
 								<Message
 									message={`Your week ${currentWeek} picks are due by ${formatDate(
 										firstGame.kickoff,
@@ -67,8 +67,8 @@ const Messages: FC<TMessagesProps> = ({
 									)}`}
 									unread
 								/>
-							) : null}
-							{survivor && !submittedSurvivor ? (
+							)}
+							{survivor && !submittedSurvivor && (
 								<Message
 									message={`Your week ${currentWeek} survivor pick is due by ${formatDate(
 										firstGame.kickoff,
@@ -76,13 +76,13 @@ const Messages: FC<TMessagesProps> = ({
 									)}`}
 									unread
 								/>
-							) : null}
+							)}
 							{messages.map(
 								(message): JSX.Element => (
 									<Message
 										from={message.getUser()}
 										msgId={message._id}
-										message={message.message}
+										message={message.message || ''}
 										sent={formatDate(message.when, true)}
 										unread={!message.is_read}
 										key={`message-${message._id}`}
@@ -98,6 +98,8 @@ const Messages: FC<TMessagesProps> = ({
 		</div>
 	);
 };
+
+Messages.whyDidYouRender = true;
 
 export default withTracker(
 	(): TMessagesProps => {
@@ -125,10 +127,10 @@ export default withTracker(
 		const week3GamesReady = week3GamesHandle.ready();
 		const nextGameHandle = Meteor.subscribe('nextGameToStart');
 		const nextGameReady = nextGameHandle.ready();
-		let messages = [];
-		let firstGame = null;
-		let nextGame = null;
-		let tiebreaker = null;
+		let messages: TNFLLog[] = [];
+		let firstGame: TGame = {} as any;
+		let nextGame: TGame = {} as any;
+		let tiebreaker: TTiebreaker = {} as any;
 		let paymentDue = Session.get('paymentDue');
 		let submittedSurvivor = false;
 

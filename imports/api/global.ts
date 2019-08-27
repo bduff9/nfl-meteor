@@ -1,13 +1,15 @@
-import format from 'date-fns/format';
-import differenceInSeconds from 'date-fns/difference_in_seconds';
+import { differenceInSeconds, format } from 'date-fns';
 import { Meteor } from 'meteor/meteor';
 import { SwalOptions } from 'sweetalert/typings/modules/options';
 
+import { TDashboardUser } from '../ui/layouts/DashLayout';
+import { TSortByDir } from '../ui/pages/Dashboard';
+
 import {
-	TGameNumber,
 	TDateDifference,
+	TError,
+	TGameNumber,
 	TSortResult,
-	TWeek,
 } from './commonTypes';
 import { TUser } from './collections/users';
 import { TTiebreaker } from './collections/tiebreakers';
@@ -15,15 +17,17 @@ import { TPick } from './collections/picks';
 import { ALL_GAME_NUMBERS } from './constants';
 
 export const convertEpoch = (epoch: number): Date => {
-	let d = new Date(0);
+	const d = new Date(0);
 
 	d.setUTCSeconds(epoch);
 
 	return d;
 };
 
-export const formatDate = (dt: Date, incTime: boolean): string => {
-	const fmt = incTime ? 'h:mma [on] ddd, MMM Do' : 'ddd, MMM Do';
+export const formatDate = (dt: Date, incTime = false): string => {
+	if (!dt) return '';
+
+	const fmt = incTime ? "h:mma 'on' EEE, MMM do" : 'EEE, MMM do';
 
 	return format(dt, fmt);
 };
@@ -39,17 +43,14 @@ export const getColor = (
 	point: TGameNumber,
 	max: TGameNumber,
 ): { backgroundColor: string } => {
-	const BLUE = 0;
-	let perc = point / max;
-	let red = Math.round((1 - perc) * 510);
-	let green = Math.round(510 * perc);
-	let backgroundColor;
+	const MAX_COLOR = 255;
+	const DOUBLE_MAX_COLOR = MAX_COLOR * 2;
+	const percent = point / max;
+	const red = Math.min(Math.round((1 - percent) * DOUBLE_MAX_COLOR), MAX_COLOR);
+	const green = Math.min(Math.round(percent * DOUBLE_MAX_COLOR), MAX_COLOR);
+	const blue = 0;
 
-	green = green > 255 ? 255 : green;
-	red = red > 255 ? 255 : red;
-	backgroundColor = `rgb(${red}, ${green}, ${BLUE})`;
-
-	return { backgroundColor };
+	return { backgroundColor: `rgb(${red}, ${green}, ${blue})` };
 };
 
 export const getCurrentSeasonYear = (): number => {
@@ -60,10 +61,28 @@ export const getCurrentSeasonYear = (): number => {
 	return currYear;
 };
 
+export const getFormControlClass = (
+	touched: boolean | undefined,
+	error: string | undefined,
+	baseClass: string | undefined = 'form-control',
+): string => {
+	if (!touched) return baseClass;
+
+	if (error) return `${baseClass} is-invalid`;
+
+	return `${baseClass} is-valid`;
+};
+
+/**
+ * Currently not used since bootstrap v4 updated form validation styles
+ * @param error
+ * @param touched
+ * @param prefix
+ */
 export const getInputColor = (
-	error: boolean,
-	touched: boolean,
-	prefix: string,
+	error?: string,
+	touched?: boolean,
+	prefix?: string,
 ): string => {
 	if (!touched) return '';
 
@@ -78,17 +97,19 @@ export const getTimeDifferenceObject = (
 ): TDateDifference => {
 	const totalSeconds = differenceInSeconds(newerDate, olderDate);
 	let delta = totalSeconds;
-	let days = Math.floor(delta / 86400);
-	let hours;
-	let minutes;
-	let seconds;
+	const days = Math.floor(delta / 86400);
 
 	delta -= days * 86400;
-	hours = Math.floor(delta / 3600) % 24;
+
+	const hours = Math.floor(delta / 3600) % 24;
+
 	delta -= hours * 3600;
-	minutes = Math.floor(delta / 60) % 60;
+
+	const minutes = Math.floor(delta / 60) % 60;
+
 	delta -= minutes * 60;
-	seconds = delta % 60;
+
+	const seconds = delta % 60;
 
 	return {
 		days,
@@ -101,25 +122,30 @@ export const getTimeDifferenceObject = (
 };
 
 export const handleError = (
-	err: Error | Meteor.Error | Meteor.TypedError,
+	err: TError,
 	opts: Partial<SwalOptions> = {},
 	cb: (() => void) | null = null,
 	hide = false,
-): void => {
+): void | Promise<boolean> => {
 	if (!err) return;
 
 	if (Meteor.isClient && !hide) {
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		const sweetAlert = require('sweetalert');
 
 		opts.title = opts.title || 'Error Occurred';
 		opts.text = `${opts.text ||
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+			// @ts-ignore
 			err.reason ||
 			err.message ||
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+			// @ts-ignore
 			err.error ||
 			'Something went wrong, please try again'}`;
 		opts.icon = opts.icon || 'error';
 
-		sweetAlert(opts, cb);
+		return sweetAlert(opts);
 	} else {
 		console.error(opts.title || 'Caught error', err);
 
@@ -134,21 +160,21 @@ export const humanizeVariable = (value: string): string => {
 };
 
 export const sortForDash = (
-	pointsSort: TSortResult,
-	gamesSort: TSortResult,
-	user1: TUser,
-	user2: TUser,
+	pointsSort: TSortByDir,
+	gamesSort: TSortByDir,
+	user1: TDashboardUser,
+	user2: TDashboardUser,
 ): TSortResult => {
 	if (pointsSort) {
-		// @ts-ignore
-		if (user1.total_points < user2.total_points) return -1 * pointsSort;
+		if (user1.total_points < user2.total_points)
+			return (-1 * pointsSort) as TSortResult;
 
 		if (user1.total_points > user2.total_points) return pointsSort;
 	}
 
 	if (gamesSort) {
-		// @ts-ignore
-		if (user1.total_games < user2.total_games) return -1 * gamesSort;
+		if (user1.total_games < user2.total_games)
+			return (-1 * gamesSort) as TSortResult;
 
 		if (user1.total_games > user2.total_games) return gamesSort;
 	}
@@ -157,7 +183,6 @@ export const sortForDash = (
 };
 
 export const weekPlacer = (
-	week: TWeek,
 	user1: TTiebreaker,
 	user2: TTiebreaker,
 ): TSortResult => {
@@ -212,7 +237,11 @@ export const overallPlacer = (user1: TUser, user2: TUser): TSortResult => {
  * @param {Number} ln The length to pad to
  * @param {String} padWith (Optional) String to pad with, '0' by default
  */
-export const pad = (toPad: string | number, ln: number, padWith = '0'): string => {
+export const pad = (
+	toPad: string | number,
+	ln: number,
+	padWith = '0',
+): string => {
 	let padded = '' + toPad;
 
 	while (padded.length < ln) padded = '' + padWith + padded;
@@ -245,7 +274,7 @@ export const getNextPointValue = (
 
 	console.error(
 		`While trying to assign unused points to user ${user.first_name} ${
-		user.last_name
+			user.last_name
 		}, reached max point value of ${maxPointVal}, meaning all points from 1 to ${maxPointVal} are used, yet somehow we got into this block where a pick was missed.  Should be impossible so adding this long comment just to ensure visibility if it ever happens.`,
 	);
 

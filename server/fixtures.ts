@@ -1,7 +1,11 @@
-import differenceInHours from 'date-fns/difference_in_hours';
+import { differenceInHours } from 'date-fns';
 
 import { gamesExistSync } from '../imports/api/collections/games';
-import { createSystemValuesSync, getSystemValues, systemValuesExistSync } from '../imports/api/collections/systemvals';
+import {
+	createSystemValuesSync,
+	getSystemValues,
+	systemValuesExistSync,
+} from '../imports/api/collections/systemvals';
 import { teamsExistSync } from '../imports/api/collections/teams';
 import { FIRST_YEAR_FOR_SYSTEM_VALS } from '../imports/api/constants';
 
@@ -20,31 +24,35 @@ if (!systemValuesExistSync()) {
 	console.log('System values initialized!');
 } else {
 	const systemVal = getSystemValues.call({});
+	const conns = systemVal.current_connections;
 	let oldCt = 0;
-	let conns;
 
 	console.log('Cleaning up old connections...');
 
-	conns = systemVal.current_connections;
+	Object.keys(conns).forEach(
+		(connId: string): void => {
+			const conn = conns[connId];
+			const opened = new Date(conn.opened);
+			const now = new Date();
+			const hoursAgo = differenceInHours(now, opened);
 
-	Object.keys(conns).forEach((connId: string): void => {
-		let conn = conns[connId];
-		let opened = new Date(conn.opened);
-		let now = new Date();
-		let hoursAgo = differenceInHours(now, opened);
+			if (hoursAgo > 24) {
+				console.log(`Connection ${connId} ${hoursAgo} hours old, deleting...`);
+				delete conns[connId];
+				oldCt++;
+				console.log(`Connection ${connId} deleted!`);
+			}
+		},
+	);
 
-		if (hoursAgo > 24) {
-			console.log(`Connection ${connId} ${hoursAgo} hours old, deleting...`);
-			delete conns[connId];
-			oldCt++;
-			console.log(`Connection ${connId} deleted!`);
-		}
-	});
-
-	if (!systemVal.year_updated) systemVal.year_updated = FIRST_YEAR_FOR_SYSTEM_VALS;
+	if (!systemVal.year_updated) {
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		systemVal.year_updated = FIRST_YEAR_FOR_SYSTEM_VALS;
+	}
 
 	if (systemVal.games_updating) {
 		console.log('Games left as updating, fixing...');
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		systemVal.games_updating = false;
 		console.log('Games set to not currently updating!');
 	}

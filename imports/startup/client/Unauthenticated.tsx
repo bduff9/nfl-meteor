@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import React, { FC } from 'react';
 import {
 	Route,
@@ -9,14 +10,12 @@ import {
 export type TUnauthenticatedProps = RouteProps &
 	RouteComponentProps & {
 		authenticated: boolean;
-		loggingIn: boolean;
 	};
 
 const Unauthenticated: FC<TUnauthenticatedProps> = ({
 	authenticated,
 	component: Component,
 	location,
-	loggingIn,
 	...rest
 }): JSX.Element => (
 	<Route
@@ -24,6 +23,7 @@ const Unauthenticated: FC<TUnauthenticatedProps> = ({
 		render={(props): JSX.Element => {
 			const { state = {} } = location;
 			const { nextPathname } = state;
+			const loggingIn = Meteor.loggingIn();
 
 			if (!Component || loggingIn) return <></>;
 
@@ -33,5 +33,7 @@ const Unauthenticated: FC<TUnauthenticatedProps> = ({
 		}}
 	/>
 );
+
+Unauthenticated.whyDidYouRender = true;
 
 export default Unauthenticated;

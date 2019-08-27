@@ -9,71 +9,16 @@ import { dbVersion } from '../constants';
 
 import { getUserByID, TUser } from './users';
 
-/**
- * All pool history logic
- * @since 2017-06-26
- */
-
-export const addPoolHistory = new ValidatedMethod({
-	name: 'PoolHistorys.addPoolHistory',
-	validate: new SimpleSchema({
-		poolHistory: { type: Object, label: 'Pool History', blackbox: true },
-	}).validator(),
-	run({ poolHistory }) {
-		const newHistory = new PoolHistory(poolHistory);
-
-		newHistory.save();
-	},
-});
-export const addPoolHistorySync = Meteor.wrapAsync(
-	addPoolHistory.call,
-	addPoolHistory,
-);
-
-export const getPoolHistoryForYear = new ValidatedMethod({
-	name: 'PoolHistorys.getPoolHistoryForYear',
-	validate: new SimpleSchema({
-		league: { type: String, label: 'League' },
-		year: { type: Number, label: 'History Year' },
-	}).validator(),
-	run({ league, year }) {
-		const history = PoolHistory.find(
-			{ league, year },
-			{ sort: { type: 1, week: 1, place: 1 } },
-		).fetch();
-
-		if (!this.userId)
-			throw new Meteor.Error(
-				'Not Authorized',
-				'You are not currently signed in.  Please sign in and then try again.',
-			);
-
-		return history;
-	},
-});
-export const getPoolHistoryForYearSync = Meteor.wrapAsync(
-	getPoolHistoryForYear.call,
-	getPoolHistoryForYear,
-);
-
-export const migratePoolHistorysForUser = new ValidatedMethod({
-	name: 'PoolHistorys.migratePoolHistorysForUser',
-	validate: new SimpleSchema({
-		newUserId: { type: String, label: 'New User ID' },
-		oldUserId: { type: String, label: 'Old User ID' },
-	}).validator(),
-	run({ newUserId, oldUserId }) {
-		PoolHistory.update(
-			{ user_id: oldUserId },
-			{ $set: { user_id: newUserId } },
-			{ multi: true },
-		);
-	},
-});
-export const migratePoolHistorysForUserSync = Meteor.wrapAsync(
-	migratePoolHistorysForUser.call,
-	migratePoolHistorysForUser,
-);
+export type TPoolHistory = {
+	_id: string;
+	user_id: string;
+	year: number;
+	league: string;
+	type: 'O' | 'S' | 'W';
+	week?: TWeek | null;
+	place: number;
+	getUser: () => TUser;
+};
 
 let PoolHistorysConditional = null;
 let PoolHistoryConditional = null;
@@ -85,6 +30,7 @@ if (dbVersion > 1) {
 		collection: PoolHistorysConditional,
 		secured: true,
 		fields: {
+			// eslint-disable-next-line @typescript-eslint/camelcase
 			user_id: String,
 			year: {
 				type: Number,
@@ -105,22 +51,92 @@ if (dbVersion > 1) {
 			},
 		},
 		helpers: {
-			getUser() {
+			getUser (): TUser {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				return getUserByID.call({ user_id: this.user_id });
 			},
 		},
 	});
 }
 
-export type TPoolHistory = {
-	user_id: string;
-	year: number;
-	league: string;
-	type: 'O' | 'S' | 'W';
-	week?: TWeek | null;
-	place: number;
-	getUser: () => TUser;
-};
-
-//const PoolHistorys = PoolHistorysConditional;
 export const PoolHistory = PoolHistoryConditional;
+
+/**
+ * All pool history logic
+ * @since 2017-06-26
+ */
+
+export type TAddPoolHistoryProps = { poolHistory: TPoolHistory };
+export const addPoolHistory = new ValidatedMethod<TAddPoolHistoryProps>({
+	name: 'PoolHistorys.addPoolHistory',
+	validate: new SimpleSchema({
+		poolHistory: { type: Object, label: 'Pool History', blackbox: true },
+	}).validator(),
+	run ({ poolHistory }: TAddPoolHistoryProps): void {
+		const newHistory = new PoolHistory(poolHistory);
+
+		newHistory.save();
+	},
+});
+export const addPoolHistorySync = Meteor.wrapAsync(
+	addPoolHistory.call,
+	addPoolHistory,
+);
+
+export type TGetPoolHistoryForYearProps = { league: string; year: number };
+export const getPoolHistoryForYear = new ValidatedMethod<
+	TGetPoolHistoryForYearProps
+>({
+	name: 'PoolHistorys.getPoolHistoryForYear',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		year: { type: Number, label: 'History Year' },
+	}).validator(),
+	run ({ league, year }: TGetPoolHistoryForYearProps): TPoolHistory[] {
+		const history = PoolHistory.find(
+			{ league, year },
+			{ sort: { type: 1, week: 1, place: 1 } },
+		).fetch();
+
+		if (!this.userId)
+			throw new Meteor.Error(
+				'Not Authorized',
+				'You are not currently signed in.  Please sign in and then try again.',
+			);
+
+		return history;
+	},
+});
+export const getPoolHistoryForYearSync = Meteor.wrapAsync(
+	getPoolHistoryForYear.call,
+	getPoolHistoryForYear,
+);
+
+export type TMigratePoolHistoryForUsersProps = {
+	newUserId: string;
+	oldUserId: string;
+};
+export const migratePoolHistorysForUser = new ValidatedMethod<
+	TMigratePoolHistoryForUsersProps
+>({
+	name: 'PoolHistorys.migratePoolHistorysForUser',
+	validate: new SimpleSchema({
+		newUserId: { type: String, label: 'New User ID' },
+		oldUserId: { type: String, label: 'Old User ID' },
+	}).validator(),
+	run ({ newUserId, oldUserId }: TMigratePoolHistoryForUsersProps): void {
+		PoolHistory.update(
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			{ user_id: oldUserId },
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			{ $set: { user_id: newUserId } },
+			{ multi: true },
+		);
+	},
+});
+export const migratePoolHistorysForUserSync = Meteor.wrapAsync(
+	migratePoolHistorysForUser.call,
+	migratePoolHistorysForUser,
+);

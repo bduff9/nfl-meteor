@@ -16,7 +16,7 @@ Facebook.requestCredential = function (
 		options = {};
 	}
 
-	let config = ServiceConfiguration.configurations.findOne({
+	const config = ServiceConfiguration.configurations.findOne({
 		service: 'facebook',
 	});
 
@@ -27,20 +27,20 @@ Facebook.requestCredential = function (
 		return;
 	}
 
-	let credentialToken = Random.secret();
-	let mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(
+	const credentialToken = Random.secret();
+	const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(
 		navigator.userAgent,
 	);
-	let display = mobile ? 'touch' : 'popup';
+	const display = mobile ? 'touch' : 'popup';
 
 	let scope = 'email';
 
 	if (options && options.requestPermissions)
 		scope = options.requestPermissions.join(',');
 
-	let loginStyle = OAuth._loginStyle('facebook', config, options);
+	const loginStyle = OAuth._loginStyle('facebook', config, options);
 
-	let loginUrl =
+	const loginUrl =
 		'https://www.facebook.com/v2.8/dialog/oauth?client_id=' +
 		config.appId +
 		'&redirect_uri=' +

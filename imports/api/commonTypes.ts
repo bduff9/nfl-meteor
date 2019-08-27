@@ -10,7 +10,7 @@ export type Lit = string | number | boolean | undefined | null | void | {};
 
 export const tuple = <T extends Lit[]>(...args: T): T => args;
 
-export type TAutoPickStrategy = typeof AUTO_PICK_TYPES[number];
+export type TAutoPickStrategy = typeof AUTO_PICK_TYPES[number] | '';
 
 export type TDateDifference = {
 	days: number;
@@ -21,15 +21,31 @@ export type TDateDifference = {
 	totalSeconds: number;
 };
 
+export type TEmailTemplate = {
+	adminScreen:
+		| false
+		| {
+				emailBody: boolean;
+				path?: string;
+		  };
+	description?: string;
+	route: { path: string };
+	template: string;
+};
+
+export type TError = Error | Meteor.Error | Meteor.TypedError | undefined;
+
 export type TGameNumber = typeof ALL_GAME_NUMBERS[number];
 
 export type TGameStatus = 'P' | 'I' | '1' | '2' | 'H' | '3' | '4' | 'C';
 
 export type TGameTeam = 'home' | 'visitor' | 'winner';
 
+export type TLoginType = 'loginWithFacebook' | 'loginWithGoogle';
+
 export type TNFLLogAction = typeof ACTIONS[number];
 
-export type TPaymentTypes = typeof ACCOUNT_TYPES[number];
+export type TPaymentType = typeof ACCOUNT_TYPES[number];
 
 export type TRightSlider = null | 'messages' | 'rules' | 'scoreboard';
 

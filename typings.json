@@ -1,0 +1,7 @@
+{
+  "name": "nfl",
+  "globalDependencies": {
+    "meteor-astronomy": "github:emilianosantucci/meteor-astronomy-ts/.types/astronomy.d.ts#0c2adad0ade366e23ceea6ac64ffd462e52cbab5",
+    "meteor-validated-method": "github:twastvedt/typed-meteor-validated-method/index.d.ts#f5816fc26ca5b8c9eee211b193e87833f384da21"
+  }
+}

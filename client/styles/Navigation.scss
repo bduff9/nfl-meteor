@@ -1,86 +1,86 @@
 div.sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
-    display: block;
-    padding: 5px 15px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: #4B4A48;
-    border-right: 0 solid #100C08;
-    color: #fff;
-    box-shadow: 7px -10px 15px -5px #100C08;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  display: block;
+  padding: 5px 15px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #4b4a48;
+  border-right: 0 solid #100c08;
+  color: #fff;
+  box-shadow: 7px -10px 15px -5px #100c08;
 
-    h5 {
-      font-weight: bold;
-    }
+  h5 {
+    font-weight: bold;
+  }
 
-    .close-menu {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      cursor: pointer;
-    }
+  .close-menu {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+  }
 
-    .nav-sidebar {
-      margin-bottom: 15px;
+  .nav-sidebar {
+    margin-bottom: 15px;
 
-      li {
+    li {
+      .tag {
+        cursor: pointer;
 
-        .tag {
-          cursor: pointer;
-
-          &.tag-pulsate {
-            animation: pulsate 2s ease-out;
-            animation-iteration-count: infinite;
-          }
-        }
-
-        & > a {
-          white-space: nowrap;
-          margin-left: -15px;
-          padding: 4px 4px 4px 15px;
-          color: #fff;
-
-          &.active {
-            background-color: #C6C3BA;
-            color: black;
-            pointer-events: none;
-            padding-right: 100%;
-            font-weight: bolder;
-            box-shadow: inset -5px 0 15px #100C08;
-          }
-
-          &.disabled-link {
-            opacity: 0.5;
-            pointer-events: none;
-            cursor: not-allowed;
-          }
-        }
-
-        & > i {
-          cursor: pointer;
-
-          &.disabled {
-            color: transparent;
-            cursor: default;
-          }
+        &.tag-pulsate {
+          animation: pulsate 2s ease-out;
+          animation-iteration-count: infinite;
         }
       }
-    }
 
-    .external-link {
-      margin-left: 3px;
-      font-size: 10px;
+      & > a {
+        white-space: nowrap;
+        margin-left: -15px;
+        padding: 4px 4px 4px 15px;
+        color: #fff;
+
+        &.active {
+          background-color: #c6c3ba;
+          color: black;
+          pointer-events: none;
+          padding-right: 100%;
+          font-weight: bolder;
+          box-shadow: inset -5px 0 15px #100c08;
+        }
+
+        &.disabled-link {
+          opacity: 0.5;
+          pointer-events: none;
+          cursor: not-allowed;
+        }
+      }
+
+      svg {
+        cursor: pointer;
+      }
+
+      & .disabled {
+        color: transparent;
+        cursor: default;
+        visibility: hidden;
+      }
     }
+  }
+
+  .external-link {
+    margin-left: 3px;
+    font-size: 10px;
+  }
 }
 
 @keyframes pulsate {
   0% {
     transform: scale(1.5, 1.5);
-    opacity: 1.0;
+    opacity: 1;
   }
 
   50% {
@@ -90,7 +90,7 @@ div.sidebar {
 
   100% {
     transform: scale(1.5, 1.5);
-    opacity: 1.0;
+    opacity: 1;
   }
 }
 
@@ -98,11 +98,19 @@ div.sidebar {
   animation: glowing 3500ms infinite;
 }
 
-$glow: #00FF00;
+$glow: #00ff00;
 
 @keyframes glowing {
-  0% { box-shadow: 0 0 0 $glow; }
-  40% { box-shadow: 0 0 25px $glow; }
-  60% { box-shadow: 0 0 25px $glow; }
-  100% { box-shadow: 0 0 0 $glow; }
+  0% {
+    box-shadow: 0 0 0 $glow;
+  }
+  40% {
+    box-shadow: 0 0 25px $glow;
+  }
+  60% {
+    box-shadow: 0 0 25px $glow;
+  }
+  100% {
+    box-shadow: 0 0 0 $glow;
+  }
 }

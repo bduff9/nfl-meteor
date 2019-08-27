@@ -4,7 +4,7 @@ import { Class } from 'meteor/jagi:astronomy';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
-import { TWeek, TGameNumber } from '../commonTypes';
+import { TWeek, TGameNumber, TAutoPickStrategy } from '../commonTypes';
 import { dbVersion } from '../constants';
 import { getNextPointValue, handleError } from '../global';
 
@@ -12,62 +12,336 @@ import { gameHasStarted, getGameByID, TGame } from './games';
 import { getTeamByID, TTeam } from './teams';
 import { getUserByID, TUser } from './users';
 
+export type TPick = {
+	_id: string;
+	user_id: string;
+	league: string;
+	week: TWeek;
+	game_id: string;
+	game: TGameNumber;
+	pick_id?: string | null;
+	pick_short?: string | null;
+	points?: number | null;
+	winner_id?: string | null;
+	winner_short?: string | null;
+	getGame: () => TGame;
+	getTeam: () => TTeam;
+	getUser: () => TUser;
+	hasStarted: () => boolean;
+};
+
+let PicksConditional = null;
+let PickConditional = null;
+
+if (dbVersion < 2) {
+	PickConditional = Class.create({
+		name: 'Pick',
+		secured: true,
+		fields: {
+			week: {
+				type: Number,
+				validators: [
+					{
+						type: 'and',
+						param: [
+							{ type: 'required' },
+							{ type: 'gte', param: 1 },
+							{ type: 'lte', param: 17 },
+						],
+					},
+				],
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			game_id: String,
+			game: {
+				type: Number,
+				validators: [
+					{
+						type: 'and',
+						param: [
+							{ type: 'required' },
+							{ type: 'gte', param: 0 },
+							{ type: 'lte', param: 16 },
+						],
+					},
+				],
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			pick_id: {
+				type: String,
+				optional: true,
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			pick_short: {
+				type: String,
+				validators: [{ type: 'length', param: 3 }],
+				optional: true,
+			},
+			points: {
+				type: Number,
+				validators: [
+					{
+						type: 'and',
+						param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }],
+					},
+				],
+				optional: true,
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			winner_id: {
+				type: String,
+				optional: true,
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			winner_short: {
+				type: String,
+				validators: [{ type: 'length', param: 3 }],
+				optional: true,
+			},
+		},
+		helpers: {
+			hasStarted (): boolean {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				return gameHasStarted.call({ gameId: this.game_id });
+			},
+			getTeam (): TTeam {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				const team: TTeam = getTeamByID.call({ teamId: this.pick_id });
+
+				return team;
+			},
+		},
+	});
+} else {
+	PicksConditional = new Mongo.Collection('picks');
+	PickConditional = Class.create({
+		name: 'Pick',
+		collection: PicksConditional,
+		secured: true,
+		fields: {
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			user_id: String,
+			league: {
+				type: String,
+				default: 'public',
+			},
+			week: {
+				type: Number,
+				validators: [
+					{
+						type: 'and',
+						param: [
+							{ type: 'required' },
+							{ type: 'gte', param: 1 },
+							{ type: 'lte', param: 17 },
+						],
+					},
+				],
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			game_id: String,
+			game: {
+				type: Number,
+				validators: [
+					{
+						type: 'and',
+						param: [
+							{ type: 'required' },
+							{ type: 'gte', param: 0 },
+							{ type: 'lte', param: 16 },
+						],
+					},
+				],
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			pick_id: {
+				type: String,
+				optional: true,
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			pick_short: {
+				type: String,
+				validators: [{ type: 'length', param: 3 }],
+				optional: true,
+			},
+			points: {
+				type: Number,
+				validators: [
+					{
+						type: 'and',
+						param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }],
+					},
+				],
+				optional: true,
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			winner_id: {
+				type: String,
+				optional: true,
+			},
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			winner_short: {
+				type: String,
+				validators: [{ type: 'length', param: 3 }],
+				optional: true,
+			},
+		},
+		helpers: {
+			getGame (): TGame {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				const game = getGameByID.call({ gameId: this.game_id });
+
+				return game;
+			},
+			getTeam (): TTeam {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				const team: TTeam = getTeamByID.call({ teamId: this.pick_id });
+
+				return team;
+			},
+			getUser (): TUser {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				const user: TUser = getUserByID.call({ user_id: this.user_id });
+
+				return user;
+			},
+			hasStarted (): boolean {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				return gameHasStarted.call({ gameId: this.game_id });
+			},
+		},
+		indexes: {
+			onePick: {
+				fields: {
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					user_id: 1,
+					league: 1,
+					week: 1,
+					game: 1,
+				},
+				options: {
+					unique: true,
+				},
+			},
+			onePick2: {
+				fields: {
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					user_id: 1,
+					league: 1,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					game_id: 1,
+				},
+				options: {
+					unique: true,
+				},
+			},
+		},
+	});
+}
+
+export const Picks = PicksConditional;
+export const Pick = PickConditional;
+
 /**
  * All pick logic
  * @since 2017-06-26
  */
 
-export const assignPointsToMissed = new ValidatedMethod({
+const isAutoPickHome = (strategy: TAutoPickStrategy): boolean => {
+	if (strategy === 'Home') return true;
+
+	if (strategy === 'Away') return false;
+
+	if (strategy === 'Random') return Math.random() < 0.5;
+
+	throw new Meteor.Error(
+		`Invalid strategy found (${strategy}), this should be impossible!`,
+	);
+};
+
+export type TAssignPointsToMissedProps = { gameId: string; week: TWeek };
+export const assignPointsToMissed = new ValidatedMethod<
+	TAssignPointsToMissedProps
+>({
 	name: 'Picks.assignPointsToMissed',
 	validate: new SimpleSchema({
-		gameCount: { type: Number, label: 'Number of Games', min: 13, max: 16 },
 		gameId: { type: String, label: 'Game ID' },
 		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
-	run({ gameCount, gameId, week }) {
+	run ({ gameId, week }: TAssignPointsToMissedProps): void {
 		if (Meteor.isServer) {
-			const missedPicks = Pick.find({ game_id: gameId, points: null }).fetch();
+			const missedPicks: TPick[] = Pick.find({
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				game_id: gameId,
+				points: null,
+			}).fetch();
 
 			if (missedPicks.length)
 				console.log(
 					`${missedPicks.length} users missed game ${gameId} in week ${week}`,
 				);
 
-			missedPicks.forEach(missedPick => {
-				const { league, user_id } = missedPick;
-				const user = missedPick.getUser();
-				const { auto_pick_count, auto_pick_strategy } = user;
-				const game = missedPick.getGame();
-				const usersPicks = Pick.find({ league, user_id, week }).fetch();
-				const pointVal = getNextPointValue(usersPicks, user);
+			missedPicks.forEach(
+				(missedPick): void => {
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					const { league, user_id } = missedPick;
+					const user = missedPick.getUser();
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					const { auto_pick_count, auto_pick_strategy } = user;
+					const game = missedPick.getGame();
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					const usersPicks = Pick.find({ league, user_id, week }).fetch();
+					const pointVal = getNextPointValue(usersPicks, user);
 
-				missedPick.points = pointVal;
+					missedPick.points = pointVal;
 
-				if (auto_pick_strategy && auto_pick_count > 0) {
-					user.auto_pick_count -= 1;
-					user.save();
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					if (auto_pick_strategy && auto_pick_count > 0) {
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						user.auto_pick_count -= 1;
+						// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+						// @ts-ignore
+						user.save();
 
-					if (
-						auto_pick_strategy === 'Home' ||
-						(auto_pick_strategy === 'Random' && Math.random() < 0.5)
-					) {
-						missedPick.pick_id = game.home_id;
-						missedPick.pick_short = game.home_short;
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						if (isAutoPickHome(auto_pick_strategy)) {
+							// eslint-disable-next-line @typescript-eslint/camelcase
+							missedPick.pick_id = game.home_id;
+							// eslint-disable-next-line @typescript-eslint/camelcase
+							missedPick.pick_short = game.home_short;
+						} else {
+							// eslint-disable-next-line @typescript-eslint/camelcase
+							missedPick.pick_id = game.visitor_id;
+							// eslint-disable-next-line @typescript-eslint/camelcase
+							missedPick.pick_short = game.visitor_short;
+						}
+
+						console.log(
+							// eslint-disable-next-line @typescript-eslint/camelcase
+							`Auto picked ${auto_pick_strategy} team for ${pointVal} points for user ${user_id}`,
+						);
 					} else {
-						//if (auto_pick_strategy === 'Away' || auto_pick_strategy === 'Random') {
-						missedPick.pick_id = game.visitor_id;
-						missedPick.pick_short = game.visitor_short;
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						console.log(`Auto assigned ${pointVal} points to user ${user_id}`);
 					}
 
-					console.log(
-						`Auto picked ${auto_pick_strategy} team for ${pointVal} points for user ${user_id}`,
-					);
-				} else {
-					console.log(`Auto assigned ${pointVal} points to user ${user_id}`);
-				}
-
-				missedPick.save();
-			});
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+					// @ts-ignore
+					missedPick.save();
+				},
+			);
 		}
 	},
 });
@@ -76,7 +350,13 @@ export const assignPointsToMissedSync = Meteor.wrapAsync(
 	assignPointsToMissed,
 );
 
-export const autoPick = new ValidatedMethod({
+export type TAutoPickProps = {
+	available: number[];
+	league: string;
+	selectedWeek: TWeek;
+	type: TAutoPickStrategy;
+};
+export const autoPick = new ValidatedMethod<TAutoPickProps>({
 	name: 'Picks.autoPick',
 	validate: new SimpleSchema({
 		available: {
@@ -90,10 +370,10 @@ export const autoPick = new ValidatedMethod({
 		type: {
 			type: String,
 			label: 'Auto Pick Type',
-			allowedValues: ['home', 'away', 'random'],
+			allowedValues: ['Home', 'Away', 'Random'],
 		},
 	}).validator(),
-	run({ available, league, selectedWeek, type }) {
+	run ({ available, league, selectedWeek, type }: TAutoPickProps): void {
 		if (!this.userId)
 			throw new Meteor.Error(
 				'Picks.autoPick.notLoggedIn',
@@ -101,59 +381,67 @@ export const autoPick = new ValidatedMethod({
 			);
 
 		if (Meteor.isServer) {
-			const picks = Pick.find({
+			const picks: TPick[] = Pick.find({
 				league,
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				user_id: this.userId,
 				week: selectedWeek,
 			}).fetch();
 			const pointsLeft = Object.assign([], available);
 			let game;
-			let randomTeam;
-			let teamId;
-			let teamShort;
+			let teamId: string;
+			let teamShort: string;
 			let pointIndex;
 			let point;
 
-			picks.forEach(pick => {
-				if (!pick.hasStarted() && !pick.pick_id) {
-					game = getGameByID.call({ gameId: pick.game_id });
-					randomTeam = Math.random();
+			picks.forEach(
+				(pick): void => {
+					if (!pick.hasStarted() && !pick.pick_id) {
+						game = getGameByID.call({ gameId: pick.game_id });
 
-					if (type === 'home' || (type === 'random' && randomTeam < 0.5)) {
-						teamId = game.home_id;
-						teamShort = game.home_short;
-					} else if (type === 'away' || type === 'random') {
-						teamId = game.visitor_id;
-						teamShort = game.visitor_short;
+						if (isAutoPickHome(type)) {
+							teamId = game.home_id;
+							teamShort = game.home_short;
+						} else {
+							teamId = game.visitor_id;
+							teamShort = game.visitor_short;
+						}
+
+						pointIndex = Math.floor(Math.random() * pointsLeft.length);
+						point = pointsLeft.splice(pointIndex, 1);
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						pick.pick_id = teamId;
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						pick.pick_short = teamShort;
+						pick.points = point[0];
 					}
+				},
+			);
 
-					pointIndex = Math.floor(Math.random() * pointsLeft.length);
-					point = pointsLeft.splice(pointIndex, 1);
-					pick.pick_id = teamId;
-					pick.pick_short = teamShort;
-					pick.points = point[0];
-				}
-			});
-			picks.forEach(pick => {
-				pick.save();
-			});
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+			// @ts-ignore
+			picks.forEach((pick): void => pick.save());
 		}
 	},
 });
 export const autoPickSync = Meteor.wrapAsync(autoPick.call, autoPick);
 
-export const getAllPicks = new ValidatedMethod({
+export type TGetAllPicksProps = { league: string };
+export const getAllPicks = new ValidatedMethod<TGetAllPicksProps>({
 	name: 'Picks.getAllPicks',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
 	}).validator(),
-	run({ league }) {
+	run ({ league }: TGetAllPicksProps): TPick[] {
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		const user_id = this.userId;
 		const picks = Pick.find(
 			{ league },
+			// eslint-disable-next-line @typescript-eslint/camelcase
 			{ sort: { user_id: 1, week: 1, game: 1 } },
 		).fetch();
 
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
 
 		if (!picks) throw new Meteor.Error('No picks found');
@@ -163,61 +451,84 @@ export const getAllPicks = new ValidatedMethod({
 });
 export const getAllPicksSync = Meteor.wrapAsync(getAllPicks.call, getAllPicks);
 
-export const getAllPicksForUser = new ValidatedMethod({
-	name: 'Picks.getAllPicksForUser',
-	validate: new SimpleSchema({
-		league: { type: String, label: 'League' },
-		user_id: { type: String, label: 'User ID' },
-	}).validator(),
-	run({ league, user_id }) {
-		const picks = Pick.find(
-			{ league, user_id },
-			{ sort: { week: 1, game: 1 } },
-		).fetch();
+export type TGetAllPicksForUserProps = { league: string; user_id: string };
+export const getAllPicksForUser = new ValidatedMethod<TGetAllPicksForUserProps>(
+	{
+		name: 'Picks.getAllPicksForUser',
+		validate: new SimpleSchema({
+			league: { type: String, label: 'League' },
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			user_id: { type: String, label: 'User ID' },
+		}).validator(),
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		run ({ league, user_id }: TGetAllPicksForUserProps): TPick[] {
+			const picks = Pick.find(
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				{ league, user_id },
+				{ sort: { week: 1, game: 1 } },
+			).fetch();
 
-		if (!picks) throw new Meteor.Error(`No picks found for user ${user_id}`);
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			if (!picks) throw new Meteor.Error(`No picks found for user ${user_id}`);
 
-		return picks;
+			return picks;
+		},
 	},
-});
+);
 export const getAllPicksForUserSync = Meteor.wrapAsync(
 	getAllPicksForUser.call,
 	getAllPicksForUser,
 );
 
-export const getAllPicksForWeek = new ValidatedMethod({
-	name: 'Picks.getAllPicksForWeek',
-	validate: new SimpleSchema({
-		league: { type: String, label: 'League' },
-		week: { type: Number, label: 'Week', min: 1, max: 17 },
-	}).validator(),
-	run({ league, week }) {
-		const user_id = this.userId;
-		const picks = Pick.find(
-			{ league, week },
-			{ sort: { user_id: 1, game: 1 } },
-		).fetch();
+export type TGetAllPicksForWeekProps = { league: string; week: TWeek };
+export const getAllPicksForWeek = new ValidatedMethod<TGetAllPicksForWeekProps>(
+	{
+		name: 'Picks.getAllPicksForWeek',
+		validate: new SimpleSchema({
+			league: { type: String, label: 'League' },
+			week: { type: Number, label: 'Week', min: 1, max: 17 },
+		}).validator(),
+		run ({ league, week }: TGetAllPicksForWeekProps): TPick[] {
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			const user_id = this.userId;
+			const picks = Pick.find(
+				{ league, week },
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				{ sort: { user_id: 1, game: 1 } },
+			).fetch();
 
-		if (!user_id) throw new Meteor.Error('You are not signed in!');
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			if (!user_id) throw new Meteor.Error('You are not signed in!');
 
-		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
+			if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
 
-		return picks;
+			return picks;
+		},
 	},
-});
+);
 export const getAllPicksForWeekSync = Meteor.wrapAsync(
 	getAllPicksForWeek.call,
 	getAllPicksForWeek,
 );
 
-export const getPickForFirstGameOfWeek = new ValidatedMethod({
+export type TGetPickForFirstGameOfWeekProps = {
+	league: string;
+	user_id: string;
+	week: TWeek;
+};
+export const getPickForFirstGameOfWeek = new ValidatedMethod<
+	TGetPickForFirstGameOfWeekProps
+>({
 	name: 'Picks.getPickForFirstGameOfWeek',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		user_id: { type: String, label: 'User ID' },
 		week: { type: Number, label: 'Week' },
 	}).validator(),
-	run({ league, user_id, week }) {
+	// eslint-disable-next-line @typescript-eslint/camelcase
+	run ({ league, user_id, week }: TGetPickForFirstGameOfWeekProps): TPick {
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		const firstGamePick = Pick.findOne({ game: 1, league, user_id, week });
 
 		return firstGamePick;
@@ -228,19 +539,34 @@ export const getPickForFirstGameOfWeekSync = Meteor.wrapAsync(
 	getPickForFirstGameOfWeek,
 );
 
-export const getPicksForWeek = new ValidatedMethod({
+export type TGetPicksForWeekProps = {
+	league: string;
+	user_id?: string;
+	week: TWeek;
+};
+export const getPicksForWeek = new ValidatedMethod<TGetPicksForWeekProps>({
 	name: 'Picks.getPicksForWeek',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		user_id: { type: String, label: 'User ID', optional: true },
 		week: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
-	run({ league, user_id = this.userId, week }) {
+	run ({
+		league,
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+		// @ts-ignore
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		user_id = this.userId,
+		week,
+	}: TGetPicksForWeekProps): TPick[] {
 		const picks = Pick.find(
+			// eslint-disable-next-line @typescript-eslint/camelcase
 			{ league, user_id, week },
 			{ sort: { game: 1 } },
 		).fetch();
 
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		if (!user_id) throw new Meteor.Error('You are not signed in!');
 
 		if (!picks) throw new Meteor.Error(`No picks found for week ${week}`);
@@ -253,15 +579,23 @@ export const getPicksForWeekSync = Meteor.wrapAsync(
 	getPicksForWeek,
 );
 
-export const migratePicksForUser = new ValidatedMethod({
+export type TMigratePicksForUserProps = {
+	newUserId: string;
+	oldUserId: string;
+};
+export const migratePicksForUser = new ValidatedMethod<
+	TMigratePicksForUserProps
+>({
 	name: 'Picks.migratePicksForUser',
 	validate: new SimpleSchema({
 		newUserId: { type: String, label: 'New User ID' },
 		oldUserId: { type: String, label: 'Old User ID' },
 	}).validator(),
-	run({ newUserId, oldUserId }) {
+	run ({ newUserId, oldUserId }: TMigratePicksForUserProps): void {
 		Pick.update(
+			// eslint-disable-next-line @typescript-eslint/camelcase
 			{ user_id: oldUserId },
+			// eslint-disable-next-line @typescript-eslint/camelcase
 			{ $set: { user_id: newUserId } },
 			{ multi: true },
 		);
@@ -272,16 +606,19 @@ export const migratePicksForUserSync = Meteor.wrapAsync(
 	migratePicksForUser,
 );
 
-export const resetPicks = new ValidatedMethod({
+export type TResetPicksProps = { league: string; selectedWeek: TWeek };
+export const resetPicks = new ValidatedMethod<TResetPicksProps>({
 	name: 'Picks.resetPicks',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
-	run({ league, selectedWeek }) {
+	run ({ league, selectedWeek }: TResetPicksProps): void {
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		const user_id = this.userId;
-		let picks;
+		let picks: TPick[];
 
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		if (!user_id)
 			throw new Meteor.Error(
 				'Not Logged In',
@@ -289,21 +626,42 @@ export const resetPicks = new ValidatedMethod({
 			);
 
 		if (Meteor.isServer) {
+			// eslint-disable-next-line @typescript-eslint/camelcase
 			picks = Pick.find({ league, user_id, week: selectedWeek }).fetch();
-			picks.forEach(pick => {
-				if (!pick.hasStarted()) {
-					pick.pick_id = undefined;
-					pick.pick_short = undefined;
-					pick.points = undefined;
-					pick.save();
-				}
-			});
+			picks.forEach(
+				(pick): void => {
+					if (!pick.hasStarted()) {
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						pick.pick_id = undefined;
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						pick.pick_short = undefined;
+						pick.points = undefined;
+						// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+						// @ts-ignore
+						pick.save();
+					}
+				},
+			);
 		}
 	},
 });
 export const resetPicksSync = Meteor.wrapAsync(resetPicks.call, resetPicks);
 
-export const setPick = new ValidatedMethod({
+export type TSetPickData = {
+	gameId: string;
+	teamId: string;
+	teamShort: string;
+};
+export type TSetPickProps = {
+	addOnly: boolean;
+	fromData: TSetPickData;
+	league: string;
+	pointVal: number;
+	removeOnly: boolean;
+	selectedWeek: TWeek;
+	toData: TSetPickData;
+};
+export const setPick = new ValidatedMethod<TSetPickProps>({
 	name: 'Picks.add',
 	validate: new SimpleSchema({
 		addOnly: { type: Boolean, label: 'Add Only' },
@@ -324,7 +682,7 @@ export const setPick = new ValidatedMethod({
 		'toData.teamId': { type: String, label: 'To Team ID', optional: true },
 		'toData.teamShort': { type: String, label: 'To Team Name', optional: true },
 	}).validator(),
-	run({
+	run ({
 		addOnly,
 		fromData,
 		league,
@@ -332,7 +690,7 @@ export const setPick = new ValidatedMethod({
 		removeOnly,
 		selectedWeek,
 		toData,
-	}) {
+	}: TSetPickProps): void {
 		let pick;
 
 		if (!this.userId)
@@ -362,12 +720,16 @@ export const setPick = new ValidatedMethod({
 		if (Meteor.isServer) {
 			if (!addOnly && fromData.gameId !== toData.gameId) {
 				pick = Pick.findOne({
+					// eslint-disable-next-line @typescript-eslint/camelcase
 					game_id: fromData.gameId,
 					league: league,
+					// eslint-disable-next-line @typescript-eslint/camelcase
 					user_id: this.userId,
 					week: selectedWeek,
 				});
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				pick.pick_id = undefined;
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				pick.pick_short = undefined;
 				pick.points = undefined;
 				pick.save();
@@ -375,12 +737,16 @@ export const setPick = new ValidatedMethod({
 
 			if (!removeOnly) {
 				pick = Pick.findOne({
+					// eslint-disable-next-line @typescript-eslint/camelcase
 					game_id: toData.gameId,
 					league: league,
+					// eslint-disable-next-line @typescript-eslint/camelcase
 					user_id: this.userId,
 					week: selectedWeek,
 				});
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				pick.pick_id = toData.teamId;
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				pick.pick_short = toData.teamShort;
 				pick.points = pointVal;
 				pick.save();
@@ -389,212 +755,3 @@ export const setPick = new ValidatedMethod({
 	},
 });
 export const setPickSync = Meteor.wrapAsync(setPick.call, setPick);
-
-let PicksConditional = null;
-let PickConditional = null;
-
-if (dbVersion < 2) {
-	PickConditional = Class.create({
-		name: 'Pick',
-		secured: true,
-		fields: {
-			week: {
-				type: Number,
-				validators: [
-					{
-						type: 'and',
-						param: [
-							{ type: 'required' },
-							{ type: 'gte', param: 1 },
-							{ type: 'lte', param: 17 },
-						],
-					},
-				],
-			},
-			game_id: String,
-			game: {
-				type: Number,
-				validators: [
-					{
-						type: 'and',
-						param: [
-							{ type: 'required' },
-							{ type: 'gte', param: 0 },
-							{ type: 'lte', param: 16 },
-						],
-					},
-				],
-			},
-			pick_id: {
-				type: String,
-				optional: true,
-			},
-			pick_short: {
-				type: String,
-				validators: [{ type: 'length', param: 3 }],
-				optional: true,
-			},
-			points: {
-				type: Number,
-				validators: [
-					{
-						type: 'and',
-						param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }],
-					},
-				],
-				optional: true,
-			},
-			winner_id: {
-				type: String,
-				optional: true,
-			},
-			winner_short: {
-				type: String,
-				validators: [{ type: 'length', param: 3 }],
-				optional: true,
-			},
-		},
-		helpers: {
-			hasStarted() {
-				return gameHasStarted.call({ gameId: this.game_id });
-			},
-			getTeam() {
-				const team = getTeamByID.call({ teamId: this.pick_id });
-
-				return team;
-			},
-		},
-	});
-} else {
-	PicksConditional = new Mongo.Collection('picks');
-	PickConditional = Class.create({
-		name: 'Pick',
-		collection: PicksConditional,
-		secured: true,
-		fields: {
-			user_id: String,
-			league: {
-				type: String,
-				default: 'public',
-			},
-			week: {
-				type: Number,
-				validators: [
-					{
-						type: 'and',
-						param: [
-							{ type: 'required' },
-							{ type: 'gte', param: 1 },
-							{ type: 'lte', param: 17 },
-						],
-					},
-				],
-			},
-			game_id: String,
-			game: {
-				type: Number,
-				validators: [
-					{
-						type: 'and',
-						param: [
-							{ type: 'required' },
-							{ type: 'gte', param: 0 },
-							{ type: 'lte', param: 16 },
-						],
-					},
-				],
-			},
-			pick_id: {
-				type: String,
-				optional: true,
-			},
-			pick_short: {
-				type: String,
-				validators: [{ type: 'length', param: 3 }],
-				optional: true,
-			},
-			points: {
-				type: Number,
-				validators: [
-					{
-						type: 'and',
-						param: [{ type: 'gte', param: 1 }, { type: 'lte', param: 16 }],
-					},
-				],
-				optional: true,
-			},
-			winner_id: {
-				type: String,
-				optional: true,
-			},
-			winner_short: {
-				type: String,
-				validators: [{ type: 'length', param: 3 }],
-				optional: true,
-			},
-		},
-		helpers: {
-			getGame() {
-				const game = getGameByID.call({ gameId: this.game_id });
-
-				return game;
-			},
-			getTeam() {
-				const team = getTeamByID.call({ teamId: this.pick_id });
-
-				return team;
-			},
-			getUser() {
-				const user = getUserByID.call({ user_id: this.user_id });
-
-				return user;
-			},
-			hasStarted() {
-				return gameHasStarted.call({ gameId: this.game_id });
-			},
-		},
-		indexes: {
-			onePick: {
-				fields: {
-					user_id: 1,
-					league: 1,
-					week: 1,
-					game: 1,
-				},
-				options: {
-					unique: true,
-				},
-			},
-			onePick2: {
-				fields: {
-					user_id: 1,
-					league: 1,
-					game_id: 1,
-				},
-				options: {
-					unique: true,
-				},
-			},
-		},
-	});
-}
-
-export type TPick = {
-	user_id: string;
-	league: string;
-	week: TWeek;
-	game_id: string;
-	game: TGameNumber;
-	pick_id?: string | null;
-	pick_short?: string | null;
-	points?: number | null;
-	winner_id?: string | null;
-	winner_short?: string | null;
-	getGame: () => TGame;
-	getTeam: () => TTeam;
-	getUser: () => TUser;
-	hasStarted: () => boolean;
-};
-
-export const Picks = PicksConditional;
-export const Pick = PickConditional;

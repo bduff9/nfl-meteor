@@ -11,8 +11,8 @@ import {
 	YAxis,
 } from 'recharts';
 
-import { TWeek } from '../../api/commonTypes.js';
-import Loading from '../pages/Loading.jsx';
+import { TWeek } from '../../api/commonTypes';
+import Loading from '../pages/Loading';
 
 export type TSurvivorUser = {
 	_id: string;
@@ -21,18 +21,23 @@ export type TSurvivorUser = {
 	pick_short: string;
 };
 export type TGraphData = {
-	x: string;
-	[k: string]: string;
+	count: number;
+	[k: string]: string | number | boolean;
 };
 export type TSurvivorLayoutProps = {
 	alive: TSurvivorUser[];
 	dead: TSurvivorUser[];
 	graphData: TGraphData[];
-	isOverall: boolean;
 	pageReady: boolean;
-	week: TWeek;
-	weekForSec: number;
-};
+	weekForSec: TWeek;
+} & (
+	| {
+			isOverall: true;
+	  }
+	| {
+			isOverall: false;
+			week: TWeek;
+	  });
 
 export const SurvivorLayout: FC<TSurvivorLayoutProps> = ({
 	alive,
@@ -138,5 +143,7 @@ export const SurvivorLayout: FC<TSurvivorLayoutProps> = ({
 		)}
 	</div>
 );
+
+SurvivorLayout.whyDidYouRender = true;
 
 export default SurvivorLayout;

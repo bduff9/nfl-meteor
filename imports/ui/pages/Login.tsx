@@ -1,13 +1,14 @@
 import { Accounts } from 'meteor/accounts-base';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
-import React, { FC, useState } from 'react';
+import React, { FC, memo, useState } from 'react';
 import Helmet from 'react-helmet';
 import Isvg from 'react-inlinesvg';
 import sweetAlert from 'sweetalert';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { getSystemValues } from '../../api/collections/systemvals';
+import { TError } from '../../api/commonTypes';
 import { handleError } from '../../api/global';
 import LoginForm from '../components/LoginForm';
 
@@ -32,7 +33,7 @@ const Login: FC<{}> = (): JSX.Element => {
 
 		Accounts.forgotPassword(
 			{ email },
-			(err: Error | Meteor.Error | Meteor.TypedError | undefined): void => {
+			(err: TError): void => {
 				if (err) {
 					handleError(err);
 				} else {
@@ -55,8 +56,10 @@ const Login: FC<{}> = (): JSX.Element => {
 		};
 		const serviceName = service.replace('loginWith', '').toLowerCase();
 
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 		// @ts-ignore
 		setLoading(serviceName);
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 		// @ts-ignore
 		Meteor[service](
 			options,
@@ -66,9 +69,9 @@ const Login: FC<{}> = (): JSX.Element => {
 					handleError(err, { title: err.message, icon: 'danger' });
 				} else {
 					Bert.alert({
+						icon: 'fa fa-thumbs-up',
 						message: 'Welcome!',
 						type: 'success',
-						icon: 'fa-thumbs-up',
 					});
 				}
 			},
@@ -96,10 +99,10 @@ const Login: FC<{}> = (): JSX.Element => {
 				</div>
 				<div className="login-form">
 					<LoginForm
-						loading={loading}
-						type={type}
 						forgotPassword={_forgotPassword}
+						loading={loading}
 						setLoading={setLoading}
+						type={type}
 					/>
 				</div>
 				<div className="reg-btns">
@@ -119,7 +122,7 @@ const Login: FC<{}> = (): JSX.Element => {
 							>
 								<FontAwesomeIcon icon={['fab', 'facebook']} />
 								{loading === 'facebook' && (
-									<FontAwesomeIcon icon="spinner" fixedWidth pulse />
+									<FontAwesomeIcon icon={['fad', 'spinner']} fixedWidth pulse />
 								)}
 							</button>
 						</div>
@@ -132,7 +135,7 @@ const Login: FC<{}> = (): JSX.Element => {
 							>
 								<FontAwesomeIcon icon={['fab', 'google']} />
 								{loading === 'google' && (
-									<FontAwesomeIcon icon="spinner" fixedWidth pulse />
+									<FontAwesomeIcon icon={['fad', 'spinner']} fixedWidth pulse />
 								)}
 							</button>
 						</div>
@@ -163,4 +166,6 @@ const Login: FC<{}> = (): JSX.Element => {
 	);
 };
 
-export default Login;
+Login.whyDidYouRender = true;
+
+export default memo(Login);

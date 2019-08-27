@@ -1,9 +1,11 @@
-import { Meteor } from 'meteor/meteor';
-import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Accounts } from 'meteor/accounts-base';
+import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Mailer } from 'meteor/lookback:emails';
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { Meteor } from 'meteor/meteor';
 
+import { TUser } from '../../imports/api/collections/users';
+import { TEmailTemplate } from '../../imports/api/commonTypes';
 import {
 	EMAIL_SUBJECT_PREFIX,
 	POOL_EMAIL_FROM,
@@ -13,25 +15,26 @@ import { humanizeVariable } from '../../imports/api/global';
 
 import Templates from './templates';
 import TemplateHelpers from './template-helpers';
-import { TUser } from '../../imports/api/collections/users';
 
 Accounts.emailTemplates.siteName = POOL_SITE_NAME;
 Accounts.emailTemplates.from = POOL_EMAIL_FROM;
 
 Accounts.emailTemplates.verifyEmail = {
 	subject: (): string => `${EMAIL_SUBJECT_PREFIX}Verify Your Email Address`,
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 	// @ts-ignore
 	html: (user: TUser, urlWithHash: string): string => {
 		const url = urlWithHash.replace('#/', '');
-		let body;
 
 		console.log(`Sending Verify Email email to ${user.email}...`);
-		body = Mailer.render('verifyEmail', {
+
+		const body = Mailer.render('verifyEmail', {
 			preview:
 				'Please confirm your recent registration request for the NFL Confidence Pool',
 			url,
 			user,
 		});
+
 		console.log(`Successfully sent Verify Email email to ${user.email}!`);
 
 		return body;
@@ -40,17 +43,19 @@ Accounts.emailTemplates.verifyEmail = {
 
 Accounts.emailTemplates.resetPassword = {
 	subject: (): string => `${EMAIL_SUBJECT_PREFIX}Reset Password Request`,
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 	// @ts-ignore
 	html: (user: TUser, urlWithHash: string): string => {
 		const url = urlWithHash.replace('#/', '');
-		let body;
 
 		console.log(`Sending Reset Password email to ${user.email}...`);
-		body = Mailer.render('resetPassword', {
+
+		const body = Mailer.render('resetPassword', {
 			preview: 'We just received a password reset request from your account',
 			url,
 			user,
 		});
+
 		console.log(`Successfully sent Reset Password email to ${user.email}!`);
 
 		return body;
@@ -105,7 +110,7 @@ export const sendEmail = new ValidatedMethod({
 		},
 		to: { type: String, label: 'Send To Email Address', optional: true },
 	}).validator(),
-	run({
+	run ({
 		attachments = [],
 		bcc = [],
 		data = {},
@@ -150,25 +155,18 @@ export const sendEmail = new ValidatedMethod({
 });
 export const sendEmailSync = Meteor.wrapAsync(sendEmail.call, sendEmail);
 
-type TEmailTemplate = {
-	adminScreen:
-	| false
-	| {
-		emailBody: boolean;
-		path?: string;
-	};
-	description?: string;
-	template: string;
-};
-
 export const getEmailTemplatesForAdminScreen = new ValidatedMethod({
 	name: 'Email.getEmailTemplatesForAdminScreen',
-	validate: null,
-	run(): TEmailTemplate[] {
+	validate: new SimpleSchema({}).validator(),
+	run (): TEmailTemplate[] {
 		const listOfTemplates = Object.keys(Templates).map(
 			(template): TEmailTemplate => ({
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 				// @ts-ignore
 				adminScreen: Templates[template].adminScreen,
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				// @ts-ignore
+				route: Templates[template].route,
 				template,
 			}),
 		);
@@ -177,9 +175,10 @@ export const getEmailTemplatesForAdminScreen = new ValidatedMethod({
 		);
 
 		return adminTemplates.map(
-			({ adminScreen, template }): TEmailTemplate => ({
+			({ adminScreen, route, template }): TEmailTemplate => ({
 				adminScreen,
 				description: humanizeVariable(template),
+				route,
 				template,
 			}),
 		);
@@ -195,7 +194,8 @@ export const getEmailTemplateObject = new ValidatedMethod({
 	validate: new SimpleSchema({
 		template: { type: String, label: 'Template Key' },
 	}).validator(),
-	run({ template }: { template: string }): any {
+	run ({ template }: { template: string }): TEmailTemplate {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 		// @ts-ignore
 		const templateObject = Templates[template];
 

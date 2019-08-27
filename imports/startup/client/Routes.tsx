@@ -1,7 +1,7 @@
-import React, { ComponentType, FC, lazy, Suspense } from 'react';
+import React, { ComponentType, FC, lazy, memo, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-import Loading from '../../ui/components/Loading';
+import Loading from '../../ui/pages/Loading';
 import AuthedLayout from '../../ui/layouts/AuthedLayout';
 
 import Authenticated from './Authenticated';
@@ -40,7 +40,6 @@ const VerifyEmail = lazy(
 
 export type TRoutesProps = {
 	authenticated: boolean;
-	loggingIn: boolean;
 };
 
 const Routes: FC<TRoutesProps> = (props): JSX.Element => (
@@ -78,4 +77,6 @@ const Routes: FC<TRoutesProps> = (props): JSX.Element => (
 	</Suspense>
 );
 
-export default Routes;
+Routes.whyDidYouRender = true;
+
+export default memo(Routes);

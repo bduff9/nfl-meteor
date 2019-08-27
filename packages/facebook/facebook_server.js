@@ -1,12 +1,12 @@
 Facebook = {};
 
 OAuth.registerService('facebook', 2, null, function (query) {
-	let response = getTokenResponse(query);
-	let accessToken = response.accessToken;
+	const response = getTokenResponse(query);
+	const accessToken = response.accessToken;
 
 	// include all fields from facebook
 	// http://developers.facebook.com/docs/reference/login/public-profile-and-friend-list/
-	let whitelisted = [
+	const whitelisted = [
 		'id',
 		'email',
 		'name',
@@ -18,14 +18,14 @@ OAuth.registerService('facebook', 2, null, function (query) {
 		'age_range',
 	];
 
-	let identity = getIdentity(accessToken, whitelisted);
+	const identity = getIdentity(accessToken, whitelisted);
 
-	let serviceData = {
+	const serviceData = {
 		accessToken: accessToken,
 		expiresAt: +new Date() + 1000 * response.expiresIn,
 	};
 
-	let fields = _.pick(identity, whitelisted);
+	const fields = _.pick(identity, whitelisted);
 
 	_.extend(serviceData, fields);
 
@@ -36,7 +36,7 @@ OAuth.registerService('facebook', 2, null, function (query) {
 });
 
 // checks whether a string parses as JSON
-let isJSON = function (str) {
+const isJSON = function (str) {
 	try {
 		JSON.parse(str);
 
@@ -50,7 +50,7 @@ let isJSON = function (str) {
 // - accessToken
 // - expiresIn: lifetime of token in seconds
 var getTokenResponse = function (query) {
-	let config = ServiceConfiguration.configurations.findOne({
+	const config = ServiceConfiguration.configurations.findOne({
 		service: 'facebook',
 	});
 
@@ -81,8 +81,8 @@ var getTokenResponse = function (query) {
 	}
 
 	// Handle response
-	let fbAccessToken = responseContent.access_token;
-	let fbExpires = responseContent.expires_in;
+	const fbAccessToken = responseContent.access_token;
+	const fbExpires = responseContent.expires_in;
 
 	if (!fbAccessToken) {
 		throw new Error(

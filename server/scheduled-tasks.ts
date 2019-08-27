@@ -1,4 +1,4 @@
-import differenceInHours from 'date-fns/difference_in_hours';
+import { differenceInHours } from 'date-fns';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { Meteor } from 'meteor/meteor';
@@ -10,18 +10,23 @@ import {
 } from '../imports/api/collections/games';
 import { getPickForFirstGameOfWeek } from '../imports/api/collections/picks';
 import { getSystemValues } from '../imports/api/collections/systemvals';
-import { getUnsubmittedPicksForWeek } from '../imports/api/collections/tiebreakers';
+import {
+	getUnsubmittedPicksForWeek,
+	TTiebreaker,
+} from '../imports/api/collections/tiebreakers';
+import { TError } from '../imports/api/commonTypes';
 import { EMAIL_SUBJECT_PREFIX, MAX_SMS_LENGTH } from '../imports/api/constants';
 import { handleError } from '../imports/api/global';
 
-import { sendSMS } from './twilio';
-import { sendEmail } from './emails/email';
+import { updateGames } from './api-calls';
 import { refreshGames } from './collections/games';
+import { sendEmail } from './emails/email';
+import { sendSMS } from './twilio';
 
-export const clearCronHistory = new ValidatedMethod({
+export const clearCronHistory = new ValidatedMethod<{}>({
 	name: 'CronHistory.clearCronHistory',
 	validate: new SimpleSchema({}).validator(),
-	run() {
+	run (): void {
 		SyncedCron._collection.remove({});
 	},
 });
@@ -37,17 +42,17 @@ SyncedCron.config({
 
 SyncedCron.add({
 	name: 'Update spread and ranks outside of games',
-	schedule: parse =>
+	schedule: (parse): void =>
 		parse
 			.recur()
 			.on(5, 17)
 			.hour(),
-	job: () => API.updateGames(),
+	job: () => updateGames(),
 });
 
 SyncedCron.add({
 	name: 'Update games every hour on the hour',
-	schedule: parse =>
+	schedule: (parse): void =>
 		parse
 			.recur()
 			.first()
@@ -57,7 +62,7 @@ SyncedCron.add({
 
 SyncedCron.add({
 	name: 'Update games every minute when needed',
-	schedule: parse =>
+	schedule: (parse): void =>
 		parse
 			.recur()
 			.every(1)
@@ -77,7 +82,7 @@ SyncedCron.add({
 
 SyncedCron.add({
 	name: 'Send notifications',
-	schedule: parse =>
+	schedule: (parse): void =>
 		parse
 			.recur()
 			.on(30)
@@ -98,103 +103,132 @@ SyncedCron.add({
 
 		if (unstartedGames.length) return;
 
-		let notSubmitted = getUnsubmittedPicksForWeek.call({ week });
-
-		notSubmitted.forEach(tb => {
-			const { league } = tb;
-			const user = tb.getUser();
-			const {
-				_id,
-				email,
-				first_name,
-				last_name,
-				notifications,
-				phone_number,
-			} = user;
-
-			notifications.forEach(notification => {
-				const { hours_before, is_quick, type } = notification;
-
-				if (hours_before <= lowerLimit || hours_before > upperLimit) return;
-
-				if (is_quick) {
-					const pick1 = getPickForFirstGameOfWeek.call({
-						league,
-						user_id: _id,
-						week,
-					});
-
-					if (!pick1.pick_id || !pick1.pick_short || !pick1.points) {
-						sendEmail.call(
-							{
-								data: {
-									hours: hours_before,
-									preview:
-										'This is an automated email to allow you one-click access to make your pick for the first game of the week',
-									team1: homeTeam,
-									team2: visitingTeam,
-									user,
-									week,
-								},
-								subject: `Time's almost up, ${first_name}!`,
-								template: 'quickPick',
-								to: email,
-							},
-							err => {
-								if (err) {
-									handleError(err);
-								} else {
-									console.log(
-										`Sent quick pick email to ${first_name} ${last_name}!`,
-									);
-								}
-							},
-						);
-					}
-				} else {
-					if (type.indexOf('email') > -1) {
-						sendEmail.call(
-							{
-								data: {
-									hours: hours_before,
-									preview:
-										"Don't lose out on points this week, act now to submit your picks!",
-									user,
-									week,
-								},
-								subject: `Hurry up, ${first_name}!`,
-								template: 'reminder',
-								to: email,
-							},
-							err => {
-								if (err) {
-									handleError(err);
-								} else {
-									console.log(
-										`Sent reminder email to ${first_name} ${last_name}!`,
-									);
-								}
-							},
-						);
-					}
-
-					if (type.indexOf('text') > -1) {
-						let msg = `${EMAIL_SUBJECT_PREFIX}${first_name}, this is your reminder to submit your picks for week ${week} as you now have less than ${hours_before} hours!`;
-
-						if (msg.length + POOL_URL.length < MAX_SMS_LENGTH)
-							msg += ` ${POOL_URL}`;
-
-						sendSMS(`+1${phone_number}`, msg, err => {
-							console.log(`Sent reminder text to ${first_name} ${last_name}!`);
-						});
-					}
-				}
-			});
+		const notSubmitted: TTiebreaker[] = getUnsubmittedPicksForWeek.call({
+			week,
 		});
+
+		notSubmitted.forEach(
+			(tb): void => {
+				const { league } = tb;
+				const user = tb.getUser();
+				const {
+					_id,
+					email,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					first_name,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					last_name,
+					notifications,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					phone_number,
+				} = user;
+
+				notifications.forEach(
+					(notification): void => {
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						const { hours_before, is_quick, type } = notification;
+
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						if (hours_before <= lowerLimit || hours_before > upperLimit) return;
+
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						if (is_quick) {
+							const pick1 = getPickForFirstGameOfWeek.call({
+								league,
+								// eslint-disable-next-line @typescript-eslint/camelcase
+								user_id: _id,
+								week,
+							});
+
+							if (!pick1.pick_id || !pick1.pick_short || !pick1.points) {
+								sendEmail.call(
+									{
+										data: {
+											// eslint-disable-next-line @typescript-eslint/camelcase
+											hours: hours_before,
+											preview:
+												'This is an automated email to allow you one-click access to make your pick for the first game of the week',
+											team1: homeTeam,
+											team2: visitingTeam,
+											user,
+											week,
+										},
+										// eslint-disable-next-line @typescript-eslint/camelcase
+										subject: `Time's almost up, ${first_name}!`,
+										template: 'quickPick',
+										to: email,
+									},
+									(err: TError): void => {
+										if (err) {
+											handleError(err);
+										} else {
+											console.log(
+												// eslint-disable-next-line @typescript-eslint/camelcase
+												`Sent quick pick email to ${first_name} ${last_name}!`,
+											);
+										}
+									},
+								);
+							}
+						} else {
+							if (type.indexOf('email') > -1) {
+								sendEmail.call(
+									{
+										data: {
+											// eslint-disable-next-line @typescript-eslint/camelcase
+											hours: hours_before,
+											preview:
+												"Don't lose out on points this week, act now to submit your picks!",
+											user,
+											week,
+										},
+										// eslint-disable-next-line @typescript-eslint/camelcase
+										subject: `Hurry up, ${first_name}!`,
+										template: 'reminder',
+										to: email,
+									},
+									(err: TError): void => {
+										if (err) {
+											handleError(err);
+										} else {
+											console.log(
+												// eslint-disable-next-line @typescript-eslint/camelcase
+												`Sent reminder email to ${first_name} ${last_name}!`,
+											);
+										}
+									},
+								);
+							}
+
+							if (type.indexOf('text') > -1) {
+								// eslint-disable-next-line @typescript-eslint/camelcase
+								let msg = `${EMAIL_SUBJECT_PREFIX}${first_name}, this is your reminder to submit your picks for week ${week} as you now have less than ${hours_before} hours!`;
+
+								if (msg.length + POOL_URL.length < MAX_SMS_LENGTH)
+									msg += ` ${POOL_URL}`;
+
+								sendSMS(
+									// eslint-disable-next-line @typescript-eslint/camelcase
+									`+1${phone_number}`,
+									msg,
+									(err: Error | null): void => {
+										if (err === null) {
+											console.log(
+												// eslint-disable-next-line @typescript-eslint/camelcase
+												`Sent reminder text to ${first_name} ${last_name}!`,
+											);
+										}
+									},
+								);
+							}
+						}
+					},
+				);
+			},
+		);
+
 		return `Email task run for ${notSubmitted.length} users`;
 	},
 });
 
-Meteor.startup(() => {
-	SyncedCron.start();
-});
+Meteor.startup((): void => SyncedCron.start());

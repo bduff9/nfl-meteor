@@ -37,16 +37,14 @@ const NFLPool: FC<TNFLPoolProps> = ({
 			]}
 		/>
 		{pageReady ? (
-			<Routes
-				authenticated={authenticated}
-				loggingIn={loggingIn}
-				key={`current-user-${userID}`}
-			/>
+			<Routes authenticated={authenticated} key={`current-user-${userID}`} />
 		) : (
 			<Loading />
 		)}
 	</div>
 );
+
+NFLPool.whyDidYouRender = true;
 
 export default withTracker(
 	(): TNFLPoolProps => {

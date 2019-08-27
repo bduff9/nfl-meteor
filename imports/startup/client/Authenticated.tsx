@@ -26,10 +26,9 @@ const Authenticated: FC<TAuthenticatedProps> = ({
 		{...rest}
 		render={(props): JSX.Element => {
 			const { pathname } = location;
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 			// @ts-ignore
 			const currentUser: TUser | null = Meteor.user();
-
-			console.log('authenticated');
 
 			if (!Component || loggingIn) return <></>;
 
@@ -38,10 +37,12 @@ const Authenticated: FC<TAuthenticatedProps> = ({
 				authenticated &&
 				currentUser &&
 				!currentUser.done_registering
-			)
+			) {
 				return <Redirect to="/users/create" />;
+			}
 
-			if (authenticated) return <Component {...props} />;
+			if (authenticated)
+				return <Component {...{ ...props, authenticated, loggingIn }} />;
 
 			return (
 				<Redirect
@@ -54,5 +55,7 @@ const Authenticated: FC<TAuthenticatedProps> = ({
 		}}
 	/>
 );
+
+Authenticated.whyDidYouRender = true;
 
 export default Authenticated;

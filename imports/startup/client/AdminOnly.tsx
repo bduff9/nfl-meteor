@@ -12,6 +12,7 @@ const AdminOnly: FC<RouteProps> = ({
 		{...rest}
 		render={(props): JSX.Element => {
 			const loggingIn = Meteor.loggingIn();
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 			// @ts-ignore
 			const currentUser: TUser | null = Meteor.user();
 			const authenticated = !loggingIn && !!currentUser;
@@ -25,5 +26,7 @@ const AdminOnly: FC<RouteProps> = ({
 		}}
 	/>
 );
+
+AdminOnly.whyDidYouRender = true;
 
 export default AdminOnly;

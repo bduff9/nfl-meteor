@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import React, { FC, useEffect } from 'react';
+import React, { FC, memo, useEffect } from 'react';
 import { NavLink, RouteComponentProps } from 'react-router-dom';
 import Helmet from 'react-helmet';
 
@@ -66,4 +66,6 @@ const NotFound: FC<RouteComponentProps> = ({ location }): JSX.Element => {
 	);
 };
 
-export default NotFound;
+NotFound.whyDidYouRender = true;
+
+export default memo(NotFound);

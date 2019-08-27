@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FormikProps, withFormik } from 'formik';
+import { ErrorMessage, Field, Form, FormikProps, withFormik } from 'formik';
 import { Accounts } from 'meteor/accounts-base';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
@@ -7,8 +7,11 @@ import React, { FC } from 'react';
 import sweetAlert from 'sweetalert';
 import Yup, { addMethod, string, ref, Schema, ObjectSchema } from 'yup';
 
-import { handleError } from '../../api/global';
+import { TError } from '../../api/commonTypes';
+import { handleError, getFormControlClass } from '../../api/global';
 import { TLoginType, TLoginLoading } from '../pages/Login';
+
+import FormError from './FormError';
 
 export type TLoginFormValues = {
 	confirmPassword: string;
@@ -30,49 +33,36 @@ const LoginForm: FC<TLoginFormProps & FormikProps<TLoginFormValues>> = ({
 	type,
 	values,
 	forgotPassword,
-	handleBlur,
-	handleChange,
-	handleSubmit,
 }): JSX.Element => (
-	<form onSubmit={handleSubmit}>
+	<Form className="needs-validation" noValidate>
 		<div className="form-inputs">
-			<input
+			<Field
 				type="email"
 				name="email"
-				className="form-control"
+				className={getFormControlClass(touched.email, errors.email)}
 				placeholder="Email"
-				value={values.email}
-				onChange={handleChange}
-				onBlur={handleBlur}
 			/>
-			{errors.email && touched.email && (
-				<div className="text-danger">{errors.email}</div>
-			)}
-			<input
+			<ErrorMessage component={FormError} name="email" />
+			<Field
 				type="password"
 				name="password"
-				className="form-control"
+				className={getFormControlClass(touched.password, errors.password)}
 				placeholder="Password"
-				value={values.password}
-				onChange={handleChange}
-				onBlur={handleBlur}
 			/>
-			{errors.password && touched.password && (
-				<div className="text-danger">{errors.password}</div>
-			)}
-			{type === 'register' ? (
-				<input
-					type="password"
-					name="confirmPassword"
-					className="form-control"
-					placeholder="Confirm Password"
-					value={values.confirmPassword}
-					onChange={handleChange}
-					onBlur={handleBlur}
-				/>
-			) : null}
-			{errors.confirmPassword && touched.confirmPassword && (
-				<div className="text-danger">{errors.confirmPassword}</div>
+			<ErrorMessage component={FormError} name="password" />
+			{type === 'register' && (
+				<>
+					<Field
+						type="password"
+						name="confirmPassword"
+						className={getFormControlClass(
+							touched.confirmPassword,
+							errors.confirmPassword,
+						)}
+						placeholder="Confirm Password"
+					/>
+					<ErrorMessage component={FormError} name="confirmPassword" />
+				</>
 			)}
 		</div>
 		<br />
@@ -86,7 +76,9 @@ const LoginForm: FC<TLoginFormProps & FormikProps<TLoginFormValues>> = ({
 					<strong>
 						{type === 'login' ? 'Sign In With Email' : 'Register With Email'}
 					</strong>
-					{isSubmitting && <FontAwesomeIcon icon="spinner" fixedWidth pulse />}
+					{isSubmitting && (
+						<FontAwesomeIcon icon={['fad', 'spinner']} fixedWidth pulse />
+					)}
 				</button>
 				<button
 					type="button"
@@ -95,20 +87,23 @@ const LoginForm: FC<TLoginFormProps & FormikProps<TLoginFormValues>> = ({
 				>
 					Forgot password?
 				</button>
-				{loading === 'verify' ? (
+				{loading === 'verify' && (
 					<div className="text-center text-success">
-						<FontAwesomeIcon icon="check" fixedWidth />{' '}
+						<FontAwesomeIcon icon={['fad', 'check']} fixedWidth />{' '}
 						<strong>Please check your email to verify your account</strong>
 					</div>
-				) : null}
+				)}
 			</div>
 		</div>
-	</form>
+	</Form>
 );
 
+LoginForm.whyDidYouRender = true;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 addMethod(string, 'sameAs', function (ref, message): Schema<any> {
 	return this.test('sameAs', message, function (value): boolean {
-		let other = this.resolve(ref);
+		const other = this.resolve(ref);
 
 		return !other || !value || value === other;
 	});
@@ -136,6 +131,7 @@ export default withFormik<TLoginFormProps, TLoginFormValues>({
 			confirmPassword:
 				props.type === 'register'
 					? Yup.string()
+						// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 						// @ts-ignore
 						.sameAs(ref('password'), 'Please enter the same password again')
 						.required('Please enter your password again')
@@ -149,17 +145,21 @@ export default withFormik<TLoginFormProps, TLoginFormValues>({
 		if (type === 'register') {
 			Accounts.createUser(
 				{ email, password },
-				(err: Error | Meteor.Error | Meteor.TypedError | undefined): void => {
+				(err: TError): void => {
 					setSubmitting(false);
 
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 					// @ts-ignore
 					if (err && err.reason !== 'Login forbidden') {
+						// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 						// @ts-ignore
 						if (err.error && err.reason) {
 							setSubmitting(false);
 							handleError(err, {
+								// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 								// @ts-ignore
 								title: `${err.error}`,
+								// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 								// @ts-ignore
 								text: err.reason,
 								icon: 'warning',
@@ -182,12 +182,14 @@ export default withFormik<TLoginFormProps, TLoginFormValues>({
 			Meteor.loginWithPassword(
 				email,
 				password,
-				(err: Error | Meteor.Error | Meteor.TypedError | undefined): void => {
+				(err: TError): void => {
 					if (err) {
 						setSubmitting(false);
 
-						// @ts-ignore
-						if (err.reason === 'User not found') {
+						if (
+							err instanceof Meteor.Error &&
+							err.reason === 'User not found'
+						) {
 							handleError(err, {
 								title: 'User not found!',
 								text:
@@ -201,7 +203,7 @@ export default withFormik<TLoginFormProps, TLoginFormValues>({
 						Bert.alert({
 							message: 'Welcome back!',
 							type: 'success',
-							icon: 'fa-thumbs-up',
+							icon: 'fa fa-thumbs-up',
 						});
 					}
 				},

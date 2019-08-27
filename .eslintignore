@@ -6,3 +6,7 @@ public
 .eslintignore
 dist
 .meteor
+
+packages/
+typings/
+vandelay-js.js

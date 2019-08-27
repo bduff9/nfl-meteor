@@ -94,25 +94,17 @@ label.error {
 }
 
 @media print {
-  .container-fluid {
-    div.col-xs-10.hidden-xs-down.col-sm-3.col-lg-2.sidebar {
-      display: none;
-    }
+  .ml-print-0 {
+    margin-left: 0 !important;
+  }
 
-    div.col-xs-12.col-sm-9.offset-sm-3.col-lg-10.offset-lg-2.main {
+  .container-fluid {
+    div.col-12.col-sm-9.col-lg-10.main {
       width: 100%;
       margin-left: 0;
 
-      button.btn {
-        display: none;
-      }
-
       .view-pick-results-table {
         page-break-inside: avoid;
-      }
-
-      .hide-for-print {
-        display: none;
       }
 
       .show-for-print {

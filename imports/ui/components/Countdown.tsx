@@ -32,4 +32,6 @@ const Countdown: FC<TCountdownProps> = ({ nextKickoff, week }): JSX.Element => {
 	return <span title={`Countdown to start of week ${week}`}>{timeString}</span>;
 };
 
+Countdown.whyDidYouRender = true;
+
 export default Countdown;

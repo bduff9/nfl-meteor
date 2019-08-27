@@ -7,9 +7,9 @@ import { handleError } from '../../api/global';
 
 export type TMessageProps = {
 	from?: TUser | null;
-	msgId: string;
+	msgId?: string;
 	message: string;
-	sent: string;
+	sent?: string;
 	unread: boolean;
 };
 
@@ -34,14 +34,14 @@ const Message: FC<TMessageProps> = ({
 	};
 
 	return (
-		<div className={'row message' + (unread ? ' unread' : '')}>
-			<div className="col-6 text-left">{fromStr ? fromStr : null}</div>
-			<div className="col-6 text-right">{sent ? sent : null}</div>
+		<div className={`row message${unread ? ' unread' : ''}`}>
+			<div className="col-6 text-left">{fromStr && fromStr}</div>
+			<div className="col-6 text-right">{sent && sent}</div>
 			<div className="col-12 text-left">{message}</div>
 			{(from || sent) && (
 				<div className="col-12 text-center">
 					<button type="button" className="btn btn-danger" onClick={_deleteMsg}>
-						<FontAwesomeIcon icon="trash" fixedWidth />
+						<FontAwesomeIcon icon={['fad', 'trash']} fixedWidth />
 						Delete
 					</button>
 					<button
@@ -49,8 +49,9 @@ const Message: FC<TMessageProps> = ({
 						className="btn btn-primary"
 						onClick={_toggleMsgRead}
 					>
-						<i
-							className={'fa fa-fw fa-' + (unread ? 'envelope-o' : 'envelope')}
+						<FontAwesomeIcon
+							icon={['fad', unread ? 'envelope-open' : 'envelope']}
+							fixedWidth
 						/>
 						{unread ? 'Mark Read' : 'Mark Unread'}
 					</button>
@@ -59,5 +60,7 @@ const Message: FC<TMessageProps> = ({
 		</div>
 	);
 };
+
+Message.whyDidYouRender = true;
 
 export default Message;

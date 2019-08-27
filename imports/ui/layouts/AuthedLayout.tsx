@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
@@ -23,13 +24,18 @@ import { getCurrentUser, TUser } from '../../api/collections/users';
 import { TRightSlider, TWeek } from '../../api/commonTypes';
 import AdminOnly from '../../startup/client/AdminOnly';
 import UnfinishedRegistration from '../../startup/client/UnfinishedRegistration';
-import Loading from '../components/Loading';
+import Loading from '../pages/Loading';
 import Navigation from '../components/Navigation';
 import RightSlider from '../components/RightSlider';
 
-const AdminLogs = lazy(
+const AdminEmail = lazy(
 	(): Promise<{
 		default: ComponentType<{}>;
+	}> => import('../pages/AdminEmail'),
+);
+const AdminLogs = lazy(
+	(): Promise<{
+		default: ComponentType<RouteComponentProps>;
 	}> => import('../pages/AdminLogs'),
 );
 const AdminUsers = lazy(
@@ -44,7 +50,7 @@ const Dashboard = lazy(
 );
 const EditProfile = lazy(
 	(): Promise<{
-		default: ComponentType<{}>;
+		default: ComponentType<RouteComponentProps>;
 	}> => import('../pages/EditProfile'),
 );
 const MakePicks = lazy(
@@ -89,8 +95,10 @@ const ViewSurvivor = lazy(
 );
 
 export type AuthedLayoutProps = RouteComponentProps & {
+	authenticated: boolean;
 	currentUser: TUser;
 	currentWeek: TWeek | null;
+	loggingIn: boolean;
 	selectedWeek: TWeek;
 };
 
@@ -123,10 +131,12 @@ const AuthedLayout: FC<AuthedLayoutProps> = (props): JSX.Element => {
 		<div className="col-12 authed-layout-wrapper">
 			<div className="row">
 				<Helmet title="Welcome" />
-				<i
-					className="fa fa-lg fa-bars hidden-sm-up mobile-menu"
+				<span
+					className="d-md-none d-print-none mobile-menu"
 					onClick={toggleMenu}
-				/>
+				>
+					<FontAwesomeIcon icon={['fad', 'bars']} size="lg" />
+				</span>
 				<Navigation
 					{...rest}
 					currentWeek={currentWeek || 1}
@@ -135,9 +145,15 @@ const AuthedLayout: FC<AuthedLayoutProps> = (props): JSX.Element => {
 					toggleMenu={toggleMenu}
 					toggleRightSlider={toggleRightSlider}
 				/>
-				<div className="col-12 col-sm-9 ml-sm-auto col-lg-10 main">
+				<div className="col-12 col-sm-9 ml-sm-auto ml-print-0 col-lg-10 main">
 					<Suspense fallback={<Loading />}>
 						<Switch>
+							<AdminOnly
+								exact
+								path="/admin/email"
+								component={AdminEmail}
+								{...props}
+							/>
 							<AdminOnly
 								exact
 								path="/admin/logs"
@@ -210,7 +226,7 @@ const AuthedLayout: FC<AuthedLayoutProps> = (props): JSX.Element => {
 				classNames="right-slider"
 				timeout={1000}
 			>
-				{rightSlider && (
+				{rightSlider ? (
 					<RightSlider
 						type={rightSlider}
 						week={scoreboardWeek || currentWeek}
@@ -218,11 +234,15 @@ const AuthedLayout: FC<AuthedLayoutProps> = (props): JSX.Element => {
 						toggleRightSlider={toggleRightSlider}
 						key={`right-slider-${rightSlider}`}
 					/>
+				) : (
+					<></>
 				)}
 			</CSSTransition>
 		</div>
 	);
 };
+
+AuthedLayout.whyDidYouRender = true;
 
 export default withRouter(
 	withTracker<AuthedLayoutProps, RouteComponentProps>(

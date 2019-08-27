@@ -1,8 +1,7 @@
 .edit-profile-wrapper {
-
   .edit-profile {
     position: relative;
-    background-color: rgba(255, 255, 255, .85);
+    background-color: rgba(255, 255, 255, 0.85);
     margin: 1% auto;
     padding: 20px 15px 40px 15px;
     border-radius: 5px;
@@ -12,11 +11,17 @@
     padding-bottom: 10px;
   }
 
-  .save-wrapper, .save-btn, .prev-play {
+  .save-wrapper,
+  .save-btn,
+  .prev-play {
     margin-top: 30px;
     .social-btns {
       padding: 0 30px 0 30px;
       margin-bottom: 7px;
     }
+  }
+
+  .form-check.form-check-inline {
+    padding-left: 15px;
   }
 }

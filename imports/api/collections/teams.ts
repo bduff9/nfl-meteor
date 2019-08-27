@@ -6,69 +6,39 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import { TWeek } from '../commonTypes';
 
-/**
- * The team schema, which stores all info about NFL teams and their season history
- */
+export type THistory = {
+	week: TWeek;
+	game_id: string;
+	opponent_id: string;
+	opponent_short: string;
+	was_home: boolean;
+	did_win: boolean;
+	did_tie: boolean;
+	final_score: string;
+	getOpponent: () => TTeam;
+};
 
-export const getAllNFLTeams = new ValidatedMethod({
-	name: 'Teams.getAllNFLTeams',
-	validate: new SimpleSchema({}).validator(),
-	run () {
-		const teams = Team.find({ short_name: { $ne: 'TIE' } }).fetch();
-
-		if (!this.userId) throw new Meteor.Error('You are not signed in');
-
-		if (!teams) throw new Meteor.Error('No NFL teams found');
-
-		return teams;
-	},
-});
-export const getAllNFLTeamsSync = Meteor.wrapAsync(
-	getAllNFLTeams.call,
-	getAllNFLTeams,
-);
-
-export const getTeamByID = new ValidatedMethod({
-	name: 'Teams.getTeamByID',
-	validate: new SimpleSchema({
-		teamId: { type: String, label: 'Team ID' },
-	}).validator(),
-	run ({ teamId }) {
-		return Team.findOne(teamId);
-	},
-});
-export const getTeamByIDSync = Meteor.wrapAsync(getTeamByID.call, getTeamByID);
-
-export const getTeamByShort = new ValidatedMethod({
-	name: 'Teams.getTeamByShort',
-	validate: new SimpleSchema({
-		short_name: { type: String, label: 'Team Short Name' },
-	}).validator(),
-	run ({ short_name }) {
-		const team = Team.findOne({ short_name });
-
-		if (!team)
-			throw new Meteor.Error(
-				'Teams.getTeamByShort.noTeamFound',
-				'No team found',
-			);
-
-		return team;
-	},
-});
-export const getTeamByShortSync = Meteor.wrapAsync(
-	getTeamByShort.call,
-	getTeamByShort,
-);
-
-export const teamsExist = new ValidatedMethod({
-	name: 'Teams.teamsExist',
-	validate: new SimpleSchema({}).validator(),
-	run () {
-		return Team.find().count() > 0;
-	},
-});
-export const teamsExistSync = Meteor.wrapAsync(teamsExist.call, teamsExist);
+export type TTeam = {
+	_id: string;
+	city: string;
+	name: string;
+	short_name: string;
+	alt_short_name: string;
+	conference: 'AFC' | 'NFC';
+	division: 'East' | 'North' | 'South' | 'West';
+	rank: number;
+	logo: string;
+	logo_small: string;
+	primary_color: string;
+	secondary_color: string;
+	rush_defense?: number | null;
+	pass_defense?: number | null;
+	rush_offense?: number | null;
+	pass_offense?: number | null;
+	bye_week?: number | null;
+	history: THistory[];
+	isInHistory: (gameId: string) => boolean;
+};
 
 /**
  * Game history, sub-schema in team
@@ -91,34 +61,32 @@ const History = Class.create({
 			],
 			optional: true,
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		game_id: String,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		opponent_id: String,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		opponent_short: String,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		was_home: Boolean,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		did_win: Boolean,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		did_tie: Boolean,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		final_score: String,
 	},
 	helpers: {
-		getOpponent () {
+		getOpponent (): TTeam {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+			// @ts-ignore
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			const team = Team.findOne(this.opponent_id);
 
 			return team;
 		},
 	},
 });
-
-export type THistory = {
-	week: TWeek;
-	game_id: string;
-	opponent_id: string;
-	opponent_short: string;
-	was_home: boolean;
-	did_win: boolean;
-	did_tie: boolean;
-	final_score: string;
-	getOpponent: () => TTeam;
-};
 
 /**
  * Team schema
@@ -131,10 +99,12 @@ export const Team = Class.create({
 	fields: {
 		city: String,
 		name: String,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		short_name: {
 			type: String,
 			validators: [{ type: 'length', param: 3 }],
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		alt_short_name: {
 			type: String,
 			validators: [
@@ -168,15 +138,19 @@ export const Team = Class.create({
 			optional: true,
 		},
 		logo: String,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		logo_small: String,
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		primary_color: {
 			type: String,
 			validators: [{ type: 'regexp', param: /^#(?:[0-9a-f]{3}){1,2}$/i }],
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		secondary_color: {
 			type: String,
 			validators: [{ type: 'regexp', param: /^#(?:[0-9a-f]{3}){1,2}$/i }],
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		rush_defense: {
 			type: Number,
 			validators: [
@@ -187,6 +161,7 @@ export const Team = Class.create({
 			],
 			optional: true,
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		pass_defense: {
 			type: Number,
 			validators: [
@@ -197,6 +172,7 @@ export const Team = Class.create({
 			],
 			optional: true,
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		rush_offense: {
 			type: Number,
 			validators: [
@@ -207,6 +183,7 @@ export const Team = Class.create({
 			],
 			optional: true,
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		pass_offense: {
 			type: Number,
 			validators: [
@@ -217,6 +194,7 @@ export const Team = Class.create({
 			],
 			optional: true,
 		},
+		// eslint-disable-next-line @typescript-eslint/camelcase
 		bye_week: {
 			type: Number,
 			validators: [
@@ -229,13 +207,15 @@ export const Team = Class.create({
 		},
 		history: {
 			type: [History],
-			default: () => [],
+			default: (): THistory[] => [],
 		},
 	},
 	helpers: {
-		isInHistory (gameId) {
-			const allHist = this.history;
-			const thisHist = allHist.filter(h => h.game_id === gameId);
+		isInHistory (gameId: string): boolean {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+			// @ts-ignore
+			const allHist: THistory[] = this.history;
+			const thisHist = allHist.filter((h): boolean => h.game_id === gameId);
 
 			return thisHist.length > 0;
 		},
@@ -243,6 +223,7 @@ export const Team = Class.create({
 	indexes: {
 		shortName: {
 			fields: {
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				short_name: 1,
 			},
 			options: {
@@ -253,23 +234,72 @@ export const Team = Class.create({
 	meteorMethods: {},
 });
 
-export type TTeam = {
-	city: string;
-	name: string;
-	short_name: string;
-	alt_short_name: string;
-	conference: 'AFC' | 'NFC';
-	division: 'East' | 'North' | 'South' | 'West';
-	rank: number;
-	logo: string;
-	logo_small: string;
-	primary_color: string;
-	secondary_color: string;
-	rush_defense?: number | null;
-	pass_defense?: number | null;
-	rush_offense?: number | null;
-	pass_offense?: number | null;
-	bye_week?: number | null;
-	history: THistory[];
-	isInHistory: (gameId: string) => boolean;
-};
+/**
+ * The team schema, which stores all info about NFL teams and their season history
+ */
+
+export const getAllNFLTeams = new ValidatedMethod<{}>({
+	name: 'Teams.getAllNFLTeams',
+	validate: new SimpleSchema({}).validator(),
+	run (): TTeam[] {
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		const teams = Team.find({ short_name: { $ne: 'TIE' } }).fetch();
+
+		if (!this.userId) throw new Meteor.Error('You are not signed in');
+
+		if (!teams) throw new Meteor.Error('No NFL teams found');
+
+		return teams;
+	},
+});
+export const getAllNFLTeamsSync = Meteor.wrapAsync(
+	getAllNFLTeams.call,
+	getAllNFLTeams,
+);
+
+export type TGetTeamByIDProps = { teamId: string };
+export const getTeamByID = new ValidatedMethod<TGetTeamByIDProps>({
+	name: 'Teams.getTeamByID',
+	validate: new SimpleSchema({
+		teamId: { type: String, label: 'Team ID' },
+	}).validator(),
+	run ({ teamId }: TGetTeamByIDProps): TTeam {
+		return Team.findOne(teamId);
+	},
+});
+export const getTeamByIDSync = Meteor.wrapAsync(getTeamByID.call, getTeamByID);
+
+export type TGetTeamByShortProps = { short_name: string };
+export const getTeamByShort = new ValidatedMethod<TGetTeamByShortProps>({
+	name: 'Teams.getTeamByShort',
+	validate: new SimpleSchema({
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		short_name: { type: String, label: 'Team Short Name' },
+	}).validator(),
+	// eslint-disable-next-line @typescript-eslint/camelcase
+	run ({ short_name }: TGetTeamByShortProps): TTeam {
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		const team = Team.findOne({ short_name });
+
+		if (!team)
+			throw new Meteor.Error(
+				'Teams.getTeamByShort.noTeamFound',
+				'No team found',
+			);
+
+		return team;
+	},
+});
+export const getTeamByShortSync = Meteor.wrapAsync(
+	getTeamByShort.call,
+	getTeamByShort,
+);
+
+export const teamsExist = new ValidatedMethod<{}>({
+	name: 'Teams.teamsExist',
+	validate: new SimpleSchema({}).validator(),
+	run (): boolean {
+		return Team.find().count() > 0;
+	},
+});
+export const teamsExistSync = Meteor.wrapAsync(teamsExist.call, teamsExist);

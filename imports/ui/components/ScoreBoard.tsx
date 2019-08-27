@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { FC, useEffect } from 'react';
+import React, { FC, Fragment, useEffect } from 'react';
 
 import { formatDate, handleError, pad } from '../../api/global';
 import { getGamesForWeek, TGame } from '../../api/collections/games';
@@ -12,7 +12,7 @@ import { TWeek, TGameStatus } from '../../api/commonTypes';
 import Loading from './Loading';
 
 export type TScoreboardContainerProps = {
-	changeScoreboardWeek: (w: number) => void;
+	changeScoreboardWeek: (w: TWeek) => void;
 	week: TWeek;
 };
 export type TScoreBoardProps = TScoreboardContainerProps & {
@@ -80,8 +80,10 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 				<div className="text-center week-disp">
 					<span>
 						{week > 1 && (
-							<span onClick={(): void => changeScoreboardWeek(week - 1)}>
-								<FontAwesomeIcon icon="caret-left" fixedWidth />
+							<span
+								onClick={(): void => changeScoreboardWeek((week - 1) as TWeek)}
+							>
+								<FontAwesomeIcon icon={['fad', 'caret-left']} fixedWidth />
 							</span>
 						)}
 					</span>
@@ -92,8 +94,10 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 					</span>
 					<span>
 						{week < 17 && (
-							<span onClick={(): void => changeScoreboardWeek(week + 1)}>
-								<FontAwesomeIcon icon="caret-right" fixedWidth />
+							<span
+								onClick={(): void => changeScoreboardWeek((week + 1) as TWeek)}
+							>
+								<FontAwesomeIcon icon={['fad', 'caret-right']} fixedWidth />
 							</span>
 						)}
 					</span>
@@ -104,25 +108,22 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 							<tbody>
 								{games.map(
 									(game, i): JSX.Element => {
-										let rows = [];
-										let thisKickoff = formatDate(game.kickoff, false);
+										const thisKickoff = formatDate(game.kickoff, false);
 
-										if (lastKickoff !== thisKickoff) {
-											rows.push(
-												<tr
-													className="text-center date-head"
-													key={`kickoff-${game.kickoff}`}
-												>
-													<td colSpan={3}>
-														<u>{thisKickoff}</u>
-													</td>
-												</tr>,
-											);
-											lastKickoff = thisKickoff;
-										}
+										console.log(thisKickoff, game.kickoff);
 
 										return (
-											<>
+											<Fragment key={`scoreboard-game-${game._id}`}>
+												{lastKickoff !== thisKickoff && (
+													<tr
+														className="text-center date-head"
+														key={`kickoff-${game.kickoff}`}
+													>
+														<td colSpan={3}>
+															<u>{(lastKickoff = thisKickoff)}</u>
+														</td>
+													</tr>
+												)}
 												<tr
 													className={
 														'away-score' +
@@ -135,7 +136,7 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 														{game.has_possession === 'V' && (
 															<FontAwesomeIcon
 																className="has-possession"
-																icon="lemon"
+																icon={['fad', 'lemon']}
 																size="lg"
 															/>
 														)}
@@ -155,7 +156,7 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 														{game.has_possession === 'H' && (
 															<FontAwesomeIcon
 																className="has-possession"
-																icon="lemon"
+																icon={['fad', 'lemon']}
 																size="lg"
 															/>
 														)}
@@ -170,7 +171,7 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 														<td colSpan={3} />
 													</tr>
 												)}
-											</>
+											</Fragment>
 										);
 									},
 								)}
@@ -184,6 +185,8 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 		</div>
 	);
 };
+
+ScoreBoard.whyDidYouRender = true;
 
 export default withTracker<TScoreBoardProps, TScoreboardContainerProps>(
 	({ week, changeScoreboardWeek }): TScoreBoardProps => {

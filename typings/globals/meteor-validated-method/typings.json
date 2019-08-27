@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/twastvedt/typed-meteor-validated-method/f5816fc26ca5b8c9eee211b193e87833f384da21/index.d.ts",
+    "raw": "github:twastvedt/typed-meteor-validated-method/index.d.ts#f5816fc26ca5b8c9eee211b193e87833f384da21",
+    "typings": "https://raw.githubusercontent.com/twastvedt/typed-meteor-validated-method/f5816fc26ca5b8c9eee211b193e87833f384da21/index.d.ts"
+  }
+}

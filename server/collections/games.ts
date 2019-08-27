@@ -26,7 +26,7 @@ import { getLowestScore } from './users';
 export const clearGames = new ValidatedMethod({
 	name: 'Games.clearGames',
 	validate: new SimpleSchema({}).validator(),
-	run(): void {
+	run (): void {
 		Game.remove({});
 	},
 });
@@ -48,7 +48,7 @@ export const getEmptyUserPicks = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	// eslint-disable-next-line @typescript-eslint/camelcase
-	run({ leagues, user_id }: { leagues: string[]; user_id: string }): void {
+	run ({ leagues, user_id }: { leagues: string[]; user_id: string }): void {
 		const currWeek: TWeek = currentWeek.call({});
 
 		leagues.forEach(
@@ -190,7 +190,7 @@ export const getEmptyUserSurvivorPicks = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	// eslint-disable-next-line @typescript-eslint/camelcase
-	run({ leagues, user_id }: { leagues: string[]; user_id: string }): void {
+	run ({ leagues, user_id }: { leagues: string[]; user_id: string }): void {
 		leagues.forEach(
 			(league): void => {
 				const survivorPicks: TEmptySurvivorPick[] = Game.find(
@@ -233,7 +233,7 @@ export const getEmptyUserTiebreakers = new ValidatedMethod({
 		user_id: { type: String, label: 'User ID' },
 	}).validator(),
 	// eslint-disable-next-line @typescript-eslint/camelcase
-	run({ leagues, user_id }: { leagues: string[]; user_id: string }): void {
+	run ({ leagues, user_id }: { leagues: string[]; user_id: string }): void {
 		leagues.forEach(
 			(league): void => {
 				const tiebreakers: TEmptyTiebreaker[] = Game.find(
@@ -267,7 +267,7 @@ export const getEmptyUserTiebreakersSync = Meteor.wrapAsync(
 export const initSchedule = new ValidatedMethod({
 	name: 'Games.insert',
 	validate: new SimpleSchema({}).validator(),
-	run(): void {
+	run (): void {
 		populateGames();
 	},
 });
@@ -279,7 +279,7 @@ export const initScheduleSync = Meteor.wrapAsync(
 export const refreshGames = new ValidatedMethod({
 	name: 'Games.refreshGameData',
 	validate: new SimpleSchema({}).validator(),
-	run(): string {
+	run (): string {
 		const gamesInProgress = Game.find({
 			game: { $ne: 0 },
 			status: { $ne: 'C' },
@@ -303,7 +303,7 @@ export const refreshGamesSync = Meteor.wrapAsync(
 export const removeBonusPointGames = new ValidatedMethod({
 	name: 'Games.removeBonusPointGames',
 	validate: new SimpleSchema({}).validator(),
-	run(): void {
+	run (): void {
 		Game.remove({ game: 0 }, { multi: true });
 	},
 });

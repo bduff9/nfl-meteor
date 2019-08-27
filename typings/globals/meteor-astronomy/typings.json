@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/emilianosantucci/meteor-astronomy-ts/0c2adad0ade366e23ceea6ac64ffd462e52cbab5/.types/astronomy.d.ts",
+    "raw": "github:emilianosantucci/meteor-astronomy-ts/.types/astronomy.d.ts#0c2adad0ade366e23ceea6ac64ffd462e52cbab5",
+    "typings": "https://raw.githubusercontent.com/emilianosantucci/meteor-astronomy-ts/0c2adad0ade366e23ceea6ac64ffd462e52cbab5/.types/astronomy.d.ts"
+  }
+}

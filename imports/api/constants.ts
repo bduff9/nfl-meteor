@@ -1,6 +1,4 @@
-'use strict';
-
-import { tuple } from "./commonTypes";
+import { tuple } from './commonTypes';
 
 /**
  * Constants for the pool
@@ -122,7 +120,7 @@ export const DIGITAL_ACCOUNTS = tuple('Zelle', 'PayPal', 'Venmo');
 /**
  * Types of auto picking
  */
-export const AUTO_PICK_TYPES = tuple('Home', 'Away', 'Random');
+export const AUTO_PICK_TYPES = tuple('Away', 'Home', 'Random');
 
 /**
  * Default auto pick count for users

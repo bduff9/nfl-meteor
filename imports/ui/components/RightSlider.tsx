@@ -4,7 +4,7 @@ import React, { FC } from 'react';
 import { TRightSlider, TWeek } from '../../api/commonTypes';
 
 import Messages from './Messages';
-import { Rules } from './Rules';
+import Rules from './Rules';
 import ScoreBoard from './ScoreBoard';
 
 type RightSliderProps = {
@@ -44,11 +44,13 @@ const RightSlider: FC<RightSliderProps> = ({
 	return (
 		<div className="col-12 col-sm-5 col-md-4 right-slider">
 			<span className="close-slider" onClick={closeRightSlider}>
-				<FontAwesomeIcon icon="times" fixedWidth />
+				<FontAwesomeIcon icon={['fad', 'times']} fixedWidth />
 			</span>
 			{getSliderContent()}
 		</div>
 	);
 };
+
+RightSlider.whyDidYouRender = true;
 
 export default RightSlider;

@@ -1,14 +1,18 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { FC } from 'react';
 import {
 	Pie,
 	PieChart,
+	// eslint-disable-next-line import/named
+	PieLabelRenderProps,
 	ResponsiveContainer,
 	Tooltip,
-	PieLabelRenderProps,
 } from 'recharts';
 
 import { TPick } from '../../api/collections/picks';
 import { TTiebreaker } from '../../api/collections/tiebreakers';
+import { TWeek } from '../../api/commonTypes';
+import { TDashSortBy } from '../pages/Dashboard';
 import Loading from '../pages/Loading';
 
 export type TDashboardCurrentUser = {
@@ -20,7 +24,9 @@ export type TDashboardCurrentUser = {
 	incorrectPicks: TPick[];
 	incorrectPoints: number;
 	myPlace: number;
-	tied: boolean;
+	overall_place?: number;
+	overall_tied_flag?: '' | 'T';
+	tied: '' | 'T';
 	tiedMe: number;
 };
 export type TDashboardUser = {
@@ -28,31 +34,26 @@ export type TDashboardUser = {
 	first_name: string;
 	formattedPlace: string;
 	last_name: string;
-	missed_games: 'Y' | '';
-	overall_place: number;
-	overall_tied_flag: boolean;
+	missed_games?: 'Y' | '';
+	overall_place?: number;
+	overall_tied_flag?: boolean;
 	place: number;
+	possible_games?: number;
 	possible_points?: number;
 	team_name: string;
 	tiebreaker?: TTiebreaker;
 	total_games: number;
 	total_points: number;
 };
-export type TDashSort = {
-	games_correct?: -1 | 1;
-	points_earned?: -1 | 1;
-	total_games?: -1 | 1;
-	total_points?: -1 | 1;
-};
 export type TDashLayoutProps = {
+	changeSortBy: (s: TDashSortBy, f: string) => void;
 	data: TDashboardUser[];
 	highestScore: number;
-	isOverall: boolean;
+	myTiebreaker?: TTiebreaker;
 	myUser: TDashboardCurrentUser;
 	pageReady: boolean;
-	sort: TDashSort;
-	changeSortBy: (s: TDashSort, f: string) => void;
-};
+	sort: TDashSortBy;
+} & ({ isOverall: true } | { isOverall: false; week: TWeek });
 
 const DashLayout: FC<TDashLayoutProps> = ({
 	data,
@@ -77,6 +78,12 @@ const DashLayout: FC<TDashLayoutProps> = ({
 		tiedMe,
 		_id: userId,
 	} = myUser;
+	const picksAndPointsSum =
+		correctPoints +
+		incorrectPoints +
+		(correctPicks ? correctPicks.length : 0) +
+		(incorrectPicks ? incorrectPicks.length : 0);
+	const hasData = picksAndPointsSum > 0;
 
 	const _customLabel = ({ cx, cy }: PieLabelRenderProps): JSX.Element => (
 		<text x={cx} y={cy} textAnchor="middle" dominantBaseline="central">
@@ -88,61 +95,58 @@ const DashLayout: FC<TDashLayoutProps> = ({
 		<div className="col-12 dashboard-layout">
 			{pageReady ? (
 				<div className="row text-center">
-					{correctPoints ||
-						incorrectPoints ||
-						correctPicks.length ||
-						(incorrectPicks.length && (
-							<div className="col-12 col-md-6">
-								<ResponsiveContainer height={200}>
-									<PieChart margin={{ left: 10, right: 10 }}>
-										<Pie
-											data={[
-												{
-													name: 'Points Earned',
-													value: correctPoints,
-													fill: '#5cb85c',
-												},
-												{
-													name: 'Points Missed',
-													value: incorrectPoints,
-													fill: '#d9534f',
-												},
-											]}
-											dataKey="value"
-											outerRadius="70%"
-										/>
-										<Pie
-											data={[
-												{
-													name: 'Games Correct',
-													value: correctPicks.length,
-													fill: '#5cb85c',
-												},
-												{
-													name: 'Games Incorrect',
-													value: incorrectPicks.length,
-													fill: '#d9534f',
-												},
-											]}
-											dataKey="value"
-											innerRadius="80%"
-											outerRadius="100%"
-											label
-										/>
-										<Tooltip />
-									</PieChart>
-								</ResponsiveContainer>
-								<h4>My Results</h4>
-								<span className="text-muted">
-									Outer: Games correct vs. incorrect
-								</span>
-								<br />
-								<span className="text-muted">
-									Inner: Points correct vs. incorrect
-								</span>
-							</div>
-						))}
-					{myPlace && (
+					{hasData && (
+						<div className="col-12 col-md-6">
+							<ResponsiveContainer height={200}>
+								<PieChart margin={{ left: 10, right: 10 }}>
+									<Pie
+										data={[
+											{
+												name: 'Points Earned',
+												value: correctPoints,
+												fill: '#5cb85c',
+											},
+											{
+												name: 'Points Missed',
+												value: incorrectPoints,
+												fill: '#d9534f',
+											},
+										]}
+										dataKey="value"
+										outerRadius="70%"
+									/>
+									<Pie
+										data={[
+											{
+												name: 'Games Correct',
+												value: correctPicks.length,
+												fill: '#5cb85c',
+											},
+											{
+												name: 'Games Incorrect',
+												value: incorrectPicks.length,
+												fill: '#d9534f',
+											},
+										]}
+										dataKey="value"
+										innerRadius="80%"
+										outerRadius="100%"
+										label
+									/>
+									<Tooltip />
+								</PieChart>
+							</ResponsiveContainer>
+							<h4>My Results</h4>
+							<span className="text-muted">
+								Outer: Games correct vs. incorrect
+							</span>
+							<br />
+							<span className="text-muted">
+								Inner: Points correct vs. incorrect
+							</span>
+						</div>
+					)}
+					{!!myPlace && data.length > 1 && (
 						<div className="col-12 col-md-6">
 							<ResponsiveContainer height={200}>
 								<PieChart margin={{ left: 10, right: 10 }}>
@@ -184,31 +188,34 @@ const DashLayout: FC<TDashLayoutProps> = ({
 										onClick={(): void => changeSortBy(sort, 'points')}
 									>
 										Points Earned&nbsp;
-										{pointsSort ? (
-											<i
-												className={
-													'fa fa-sort-' + (pointsSort === 1 ? 'asc' : 'desc')
-												}
-											/>
-										) : null}
+										{pointsSort === 1 && (
+											<FontAwesomeIcon icon={['fad', 'sort-size-up']} />
+										)}
+										{pointsSort === -1 && (
+											<FontAwesomeIcon icon={['fad', 'sort-size-down']} />
+										)}
 									</th>
 									<th
 										className="can-sort"
 										onClick={(): void => changeSortBy(sort, 'games')}
 									>
 										Games Correct&nbsp;
-										{gamesSort ? (
-											<i
-												className={
-													'fa fa-sort-' + (gamesSort === 1 ? 'asc' : 'desc')
-												}
-											/>
-										) : null}
+										{gamesSort === 1 && (
+											<FontAwesomeIcon icon={['fad', 'sort-size-up']} />
+										)}
+										{gamesSort === -1 && (
+											<FontAwesomeIcon icon={['fad', 'sort-size-down']} />
+										)}
 									</th>
-									{isOverall ? <th>Missed Games?</th> : null}
-									{!isOverall ? <th>Tiebreaker</th> : null}
-									{!isOverall ? <th>Last Game</th> : null}
-									{!isOverall ? <th>Elim</th> : null}
+									{isOverall ? (
+										<th>Missed Games?</th>
+									) : (
+										<>
+											<th>Tiebreaker</th>
+											<th>Last Game</th>
+											<th>Elim</th>
+										</>
+									)}
 								</tr>
 							</thead>
 							<tbody>
@@ -252,5 +259,7 @@ const DashLayout: FC<TDashLayoutProps> = ({
 		</div>
 	);
 };
+
+DashLayout.whyDidYouRender = true;
 
 export default DashLayout;

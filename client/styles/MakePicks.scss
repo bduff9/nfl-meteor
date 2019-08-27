@@ -2,12 +2,14 @@ $pointBankWidth: 75px;
 $footerHeight: 60px;
 $footerHeightLarge: 120px;
 
+.points {
+  width: $pointBankWidth;
+}
 
 @media (min-width: 675px) {
   .make-picks-wrapper {
-
     .points {
-      background-color: #FFF;
+      background-color: #fff;
       border: 1px solid #000;
       list-style-type: none;
       padding: 4px 0;
@@ -21,9 +23,8 @@ $footerHeightLarge: 120px;
 
 @media (max-width: 674px) {
   .make-picks-wrapper {
-
     .points {
-      background-color: #FFF;
+      background-color: #fff;
       border: 1px solid #000;
       list-style-type: none;
       padding: 2px 0;
@@ -36,29 +37,35 @@ $footerHeightLarge: 120px;
 }
 
 .make-picks-wrapper {
-
   .pointBank {
-    width: $pointBankWidth * 2;
+    box-sizing: border-box;
+    width: $pointBankWidth * 2 + 10;
     padding-left: 0;
     position: fixed;
     z-index: 1;
     min-height: 34px;
     border: 1px dashed white;
     background-color: rgba(255, 255, 255, 0.45);
+
+    .points {
+      float: left;
+      margin-left: 3px;
+    }
   }
 
   .makePickTable,
   .tiebreakerTable {
     width: 75%;
     margin-left: ($pointBankWidth * 2) + 20px;
-    background-color: rgba(255, 255, 255, .85);
+    background-color: rgba(255, 255, 255, 0.85);
 
     .homePoints ul,
     .visitorPoints ul {
-      background-color: #CCC;
+      box-sizing: border-box;
+      background-color: #ccc;
       width: $pointBankWidth;
       height: 34px;
-      border: 1px solid #AAA;
+      border: 1px solid #aaa;
       padding-left: 0;
     }
 
@@ -102,7 +109,7 @@ $footerHeightLarge: 120px;
       margin-left: -9px;
 
       .points {
-        padding:2px 0;
+        padding: 2px 0;
       }
     }
 
@@ -112,7 +119,6 @@ $footerHeightLarge: 120px;
       width: 81%;
 
       td {
-
         .row {
           display: flex;
           flex-flow: row wrap;
@@ -122,8 +128,7 @@ $footerHeightLarge: 120px;
             content: normal;
           }
 
-          .col-xs-6 {
-
+          .col-6 {
             &:before,
             &:after {
               content: normal;
@@ -167,11 +172,9 @@ $footerHeightLarge: 120px;
   }
 
   @media (min-width: 768px) {
-
     .pointBank {
-
       .points {
-        width: 50%;
+        //width: 50%;
       }
     }
   }

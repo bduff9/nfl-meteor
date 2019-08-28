@@ -92,7 +92,7 @@ const Login: FC<{}> = (): JSX.Element => {
 					</div>
 				</div>
 				<div className="row">
-					<div className="login-title text-center">
+					<div className="login-title text-center col-12">
 						<h2>{`${currYear} NFL Confidence Pool`}</h2>
 						<h4>{type === 'login' ? 'Login' : 'Registration'}</h4>
 					</div>

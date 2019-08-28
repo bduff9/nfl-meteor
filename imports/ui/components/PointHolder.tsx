@@ -77,11 +77,11 @@ const PointHolder: FC<TPointHolderProps> = ({
 
 	useEffect((): void => {
 		const opts: Sortable.Options = {
-			group: 'picks',
-			sort: false,
 			filter: '.disabled',
+			group: 'picks',
 			onAdd: _handlePointAdd,
 			onMove: _validatePointDrop,
+			sort: false,
 		};
 
 		if (pointBankRef.current)

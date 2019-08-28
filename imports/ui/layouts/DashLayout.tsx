@@ -240,9 +240,12 @@ const DashLayout: FC<TDashLayoutProps> = ({
 													</td>
 													<td>
 														{row.possible_points &&
-														row.possible_points < highestScore
-															? 'X'
-															: ''}
+															row.possible_points < highestScore && (
+																<FontAwesomeIcon
+																	icon={['fad', 'skull-crossbones']}
+																	fixedWidth
+																/>
+															)}
 													</td>
 												</>
 											)}

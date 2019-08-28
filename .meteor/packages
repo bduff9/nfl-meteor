@@ -5,10 +5,8 @@
 # but you can also edit it by hand.
 
 meteor-base             # Packages every Meteor app needs to have
-mobile-experience       # Packages for a great mobile UX
 mongo                   # The database Meteor supports right now
 reactive-var            # Reactive variable for tracker
-jquery                  # Helpful client-side library
 tracker                 # Meteor's client-side reactive programming library
 
 standard-minifier-js    # JS minifier run for production mode
@@ -23,17 +21,13 @@ service-configuration
 email
 fourseven:scss
 juliancwirko:postcss
-orgztion:meteor-global-tether
-fortawesome:fontawesome
 react-meteor-data
 themeteorchef:bert
-splendido:accounts-meld
 aldeed:simple-schema
 mdg:validated-method
 http
 session
 percolate:synced-cron
-themeteorchef:jquery-validation
 tmeasday:publish-counts
 blaze-html-templates
 practicalmeteor:mocha

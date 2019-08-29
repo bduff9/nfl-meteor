@@ -140,7 +140,7 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 			handleError,
 		);
 		Bert.alert({
-			icon: 'fa fa-check',
+			icon: 'fas fa-check',
 			message: `Your unset picks have been automatically set ${
 				type === 'Random' ? 'randomly' : `to the ${type} teams`
 			}!`,
@@ -218,7 +218,7 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 			handleError,
 		);
 		Bert.alert({
-			icon: 'fa fa-check',
+			icon: 'fas fa-check',
 			message: 'Your picks have been reset!',
 			type: 'success',
 		});

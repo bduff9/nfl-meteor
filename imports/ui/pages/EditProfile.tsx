@@ -40,7 +40,7 @@ const EditProfile: FC<TEditProfileProps> = ({
 					handleError(err, { title: err.message, icon: 'danger' });
 				} else {
 					Bert.alert({
-						icon: 'fa fa-check',
+						icon: 'fas fa-check',
 						message: 'Successfully linked!',
 						type: 'success',
 					});

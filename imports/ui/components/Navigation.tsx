@@ -73,7 +73,7 @@ const selectWeek = (newWeek: TWeek): false => {
 	return false;
 };
 
-const confirmGoToSlack = (): void => {
+const confirmGoToSlack = (): false => {
 	sweetAlert({
 		title: 'Open Slack?',
 		text:
@@ -102,6 +102,8 @@ const confirmGoToSlack = (): void => {
 			if (slackWin) slackWin.focus();
 		},
 	);
+
+	return false;
 };
 
 export type TNavigationProps = {
@@ -111,7 +113,7 @@ export type TNavigationProps = {
 	openMenu: boolean;
 	selectedWeek: TWeek;
 	toggleMenu: () => void;
-	toggleRightSlider: (r: TRightSlider) => void;
+	toggleRightSlider: (r: TRightSlider) => false;
 };
 
 export type TNavigationDataProps = TNavigationProps & {
@@ -341,7 +343,10 @@ const Navigation: FC<TNavigationDataProps> = ({
 						</ul>
 						<ul className="nav nav-sidebar flex-column">
 							<li>
-								<a href="#" onClick={(): void => toggleRightSlider('messages')}>
+								<a
+									href="#"
+									onClick={(): false => toggleRightSlider('messages')}
+								>
 									{msgCt > 0 ? <strong>Messages</strong> : 'Messages'}&nbsp;
 									{msgCt > 0 && (
 										<span
@@ -354,14 +359,14 @@ const Navigation: FC<TNavigationDataProps> = ({
 								</a>
 							</li>
 							<li>
-								<a href="#" onClick={(): void => toggleRightSlider('rules')}>
+								<a href="#" onClick={(): false => toggleRightSlider('rules')}>
 									Rules
 								</a>
 							</li>
 							<li>
 								<a
 									href="#"
-									onClick={(): void => toggleRightSlider('scoreboard')}
+									onClick={(): false => toggleRightSlider('scoreboard')}
 								>
 									{showCountdown && nextGame ? (
 										<Countdown

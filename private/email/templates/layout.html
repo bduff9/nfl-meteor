@@ -59,8 +59,8 @@
 			}
 			/* What it does: A work-around for email clients meddling in triggered links. */
 			*[x-apple-data-detectors],  /* iOS */
-      .unstyle-auto-detected-links *,
-      .aBn {
+			.unstyle-auto-detected-links *,
+			.aBn {
 				border-bottom: 0 !important;
 				cursor: default !important;
 				color: inherit !important;
@@ -108,93 +108,97 @@
 
 		<style>
 			.email-content {
-			  height: 100%;
-			  box-sizing: inherit;
+				box-sizing: inherit;
 			}
 
 			.email-inner-content {
-			  position: relative;
-			  background-color: #F5F5F7;
-			  box-sizing: border-box;
-			  text-align: left;
+				position: relative;
+				background-color: #F5F5F7;
+				box-sizing: border-box;
+				text-align: left;
 			}
 
 			.ball-logo {
-			  margin: 0 auto;
+				margin: 0 auto;
 			}
 
 			h1,
 			p,
 			ul,
 			li {
-			  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-			  color: black;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+				color: black;
 			}
 
 			p {
-			  font-size: 1.5rem;
+				font-size: 1.5rem;
 			}
 
 			h1 {
-			  margin-bottom: .5em;
+				margin-bottom: .5em;
 			}
 
 			.preview-text {
-			  display: none;
-			  max-height: 0;
-			  overflow: hidden;
+				display: none;
+				max-height: 0;
+				overflow: hidden;
 			}
 
 			.quick-pick-buttons {
-			  text-align: center;
+				text-align: center;
 			}
 
 			.tag-at {
-			  font-size: 18px;
+				font-size: 18px;
 			}
 
 			@media (min-width: 992px) {
-			  .email-content {
-			    padding: 5em 17em;
-			    background-image: url('{{ poolURL }}/bkgd-pitch.png');
-			    background-repeat: no-repeat;
-			    background-size: cover;
-			  }
-			  .email-inner-content {
-			    border: 1px solid black;
-			    border-radius: 5px;
-			    padding: 10px 30px 30px 30px;
-			    margin: 10% auto;
-			  }
-			  .ball-logo {
-			    width: 200px;
-			  }
+				.email-content {
+					padding: 5em 17em;
+					background-image: url('{{ poolURL }}/bkgd-pitch.png');
+					background-repeat: no-repeat;
+					background-size: cover;
+				}
+
+				.email-inner-content {
+					border: 1px solid black;
+					border-radius: 5px;
+					padding: 10px 30px 30px 30px;
+					margin: 10% auto;
+				}
+
+				.ball-logo {
+					width: 200px;
+				}
 			}
+
 			@media (max-width: 991px) {
-			  .email-content {
-			    background-color: black;
-			    background-image: none;
-			    padding: 0;
-			  }
-			  .email-inner-content {
-			    border: none;
-			    border-radius: 0;
-			    padding: 10px 30px 30px 30px;
-			    margin-top: 0;
-			    margin-bottom: 0;
-			    overflow: auto;
-			    width: 100%;
-			    height: 100%;
-			  }
-			  .ball-logo {
-			    width: 145px;
-			  }
+				.email-content {
+					background-color: black;
+					background-image: none;
+					padding: 0;
+				}
+
+				.email-inner-content {
+					border: none;
+					border-radius: 0;
+					padding: 10px 30px 30px 30px;
+					margin-top: 0;
+					margin-bottom: 0;
+					overflow: auto;
+					width: 100%;
+					height: 100%;
+				}
+
+				.ball-logo {
+					width: 145px;
+				}
 			}
 
 			{{{ css }}}
 
 			p {
-			  margin-bottom: 0 !important;
+				margin-bottom: 0 !important;
 			}
 		</style>
 	</head>
@@ -220,6 +224,5 @@
 				<div>{{{ body }}}</div>
 			</div>
 		</div>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	</body>
 </html>

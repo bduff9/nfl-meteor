@@ -116,7 +116,7 @@ const AdminEmail: FC<TAdminEmailProps> = ({
 					handleError(err);
 				} else {
 					Bert.alert({
-						icon: 'fa fa-check',
+						icon: 'fas fa-check',
 						message: 'Email has been successfully sent!',
 						type: 'success',
 					});

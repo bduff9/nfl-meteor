@@ -122,7 +122,7 @@ export default withFormik<TResetPasswordFormProps, TResetPasswordFormValues>({
 				setSubmitting(false);
 			} else {
 				Bert.alert({
-					icon: 'fa fa-check',
+					icon: 'fas fa-check',
 					message: 'Your password has been successfully reset',
 					type: 'success',
 				});

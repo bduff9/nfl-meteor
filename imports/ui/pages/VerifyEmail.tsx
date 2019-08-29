@@ -28,7 +28,7 @@ const VerifyEmail: FC<TVerifyEmailProps> = ({
 					handleError(err);
 				} else {
 					Bert.alert({
-						icon: 'fa fa-check',
+						icon: 'fas fa-check',
 						message: 'Your email is now verified!',
 						type: 'success',
 					});

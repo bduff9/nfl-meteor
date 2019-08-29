@@ -76,7 +76,7 @@ const AdminUsers: FC<TAdminUsersProps> = ({
 					handleError(err);
 				} else {
 					Bert.alert({
-						icon: 'fa fa-check',
+						icon: 'fas fa-check',
 						message: 'Password reset email has been sent',
 						type: 'success',
 					});

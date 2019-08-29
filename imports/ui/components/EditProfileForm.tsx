@@ -740,7 +740,7 @@ export default withFormik<TEditProfileFormProps, TEditProfileFormValues>({
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				if (done_registering) {
 					Bert.alert({
-						icon: 'fa fa-check',
+						icon: 'fas fa-check',
 						// eslint-disable-next-line @typescript-eslint/camelcase
 						message: `Thanks for registering, ${first_name}`,
 						type: 'success',

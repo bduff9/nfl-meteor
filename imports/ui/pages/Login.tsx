@@ -69,7 +69,7 @@ const Login: FC<{}> = (): JSX.Element => {
 					handleError(err, { title: err.message, icon: 'danger' });
 				} else {
 					Bert.alert({
-						icon: 'fa fa-thumbs-up',
+						icon: 'fas fa-thumbs-up',
 						message: 'Welcome!',
 						type: 'success',
 					});

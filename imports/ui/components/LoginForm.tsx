@@ -203,7 +203,7 @@ export default withFormik<TLoginFormProps, TLoginFormValues>({
 						Bert.alert({
 							message: 'Welcome back!',
 							type: 'success',
-							icon: 'fa fa-thumbs-up',
+							icon: 'fas fa-thumbs-up',
 						});
 					}
 				},

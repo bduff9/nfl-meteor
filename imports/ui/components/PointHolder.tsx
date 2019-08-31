@@ -1,4 +1,5 @@
-import React, { FC, memo, useEffect, useRef } from 'react';
+import React, { FC, forwardRef, memo, useEffect, useRef } from 'react';
+import SortableFC from 'react-sortablejs';
 import Sortable from 'sortablejs';
 
 import { setPick } from '../../api/collections/picks';
@@ -12,6 +13,7 @@ export type TPointHolderProps = {
 	league: string;
 	numGames: number;
 	points: number[];
+	pointsReady: boolean;
 	selectedWeek: TWeek;
 	teamId?: string;
 	teamShort?: string;
@@ -24,12 +26,38 @@ const PointHolder: FC<TPointHolderProps> = ({
 	league,
 	numGames,
 	points,
+	pointsReady,
 	selectedWeek,
 	teamId,
 	teamShort,
 }): JSX.Element => {
-	const sortableInstance = useRef<Sortable | null>(null);
-	const pointBankRef = useRef<HTMLUListElement>(null);
+	if (!pointsReady) return <></>;
+
+	const disabledItems = disabledPoints.map(
+		(point): JSX.Element => (
+			<li
+				className="points text-center disabled"
+				data-id={point}
+				style={getColor(point as TGameNumber, numGames as TGameNumber)}
+				key={`point-${point}`}
+			>
+				{point}
+			</li>
+		),
+	);
+	const enabledItems = points.map(
+		(point): JSX.Element => (
+			<li
+				className="points text-center"
+				data-id={point}
+				style={getColor(point as TGameNumber, numGames as TGameNumber)}
+				key={`point-${point}`}
+			>
+				{point}
+			</li>
+		),
+	);
+	const items = [...disabledItems, ...enabledItems];
 
 	const _handlePointAdd = (ev: Sortable.SortableEvent): void => {
 		const { from, item, to } = ev;
@@ -75,87 +103,46 @@ const PointHolder: FC<TPointHolderProps> = ({
 		return usedPoints.length === 0;
 	};
 
-	useEffect((): void => {
-		const opts: Sortable.Options = {
-			filter: '.disabled',
-			forceFallback: true,
-			group: 'picks',
-			onAdd: _handlePointAdd,
-			onMove: _validatePointDrop,
-			onStart: (): void => {
-				document.ontouchmove = (ev): void => ev.preventDefault();
-			},
-			onEnd: (): void => {
-				document.ontouchmove = (): true => true;
-			},
-			scroll: false,
-			sort: false,
-		};
+	const PointList = forwardRef<HTMLUListElement>(
+		({ children }, ref): JSX.Element => (
+			<ul
+				className={className}
+				data-game-id={gameId}
+				data-team-id={teamId}
+				data-team-short={teamShort}
+				ref={ref}
+			>
+				{children}
+			</ul>
+		),
+	);
 
-		if (pointBankRef.current)
-			sortableInstance.current = Sortable.create(pointBankRef.current, opts);
-
-		const listToDisable = document.querySelectorAll('.points'); //needed for IOS devices on Safari browser (FIX)
-
-		if (listToDisable) {
-			listToDisable.forEach(
-				(item): void => {
-					item.addEventListener(
-						'touchstart',
-						(event): void => {
-							event.preventDefault();
-						},
-					);
-				},
-			);
-		}
-
-		window.addEventListener(
-			'touchmove',
-			(): void => {
-				return;
-			},
-			{ passive: false },
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	PointList.displayName = 'PointList';
 
 	return (
-		<ul
+		<SortableFC
 			className={className}
-			data-game-id={gameId}
-			data-team-id={teamId}
-			data-team-short={teamShort}
-			ref={pointBankRef}
+			options={{
+				filter: '.disabled',
+				group: 'picks',
+				onAdd: _handlePointAdd,
+				onMove: _validatePointDrop,
+				onStart: (): void => {
+					document.ontouchmove = (ev): void => ev.preventDefault();
+				},
+				onEnd: (): void => {
+					document.ontouchmove = (): true => true;
+				},
+				scroll: false,
+				sort: false,
+			}}
+			tag={PointList}
 		>
-			{disabledPoints.map(
-				(point): JSX.Element => (
-					<li
-						className="points text-center disabled"
-						data-id={point}
-						style={getColor(point as TGameNumber, numGames as TGameNumber)}
-						key={`point-${point}`}
-					>
-						{point}
-					</li>
-				),
-			)}
-			{points.map(
-				(point): JSX.Element => (
-					<li
-						className="points text-center"
-						data-id={point}
-						style={getColor(point as TGameNumber, numGames as TGameNumber)}
-						key={`point-${point}`}
-					>
-						{point}
-					</li>
-				),
-			)}
-		</ul>
+			{items}
+		</SortableFC>
 	);
 };
 
 PointHolder.whyDidYouRender = true;
 
-export default memo(PointHolder);
+export default PointHolder;

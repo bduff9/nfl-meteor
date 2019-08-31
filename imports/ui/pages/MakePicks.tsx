@@ -39,19 +39,24 @@ import TeamHover from '../components/TeamHover';
 
 import Loading from './Loading';
 
-export type TPointArrays = {
-	available: number[];
-	unavailable: number[];
-	used: number[];
-};
-const populatePoints = (
-	games: TGame[],
-	picks: TPick[],
-	ready: boolean,
-): TPointArrays => {
-	if (!ready) {
+export type TPointArrays =
+	| {
+			available: number[];
+			ready: true;
+			unavailable: number[];
+			used: number[];
+	  }
+	| {
+			available: [];
+			ready: false;
+			unavailable: [];
+			used: [];
+	  };
+const populatePoints = (games: TGame[], picks: TPick[]): TPointArrays => {
+	if (picks.length === 0 || games.length === 0) {
 		return {
 			available: [],
+			ready: false,
 			unavailable: [],
 			used: [],
 		};
@@ -75,7 +80,7 @@ const populatePoints = (
 		if (allUsed.indexOf(i) === -1) available.push(i);
 	}
 
-	return { available, unavailable, used };
+	return { available, ready: true, unavailable, used };
 };
 
 export type TMakePicksProps = {
@@ -99,6 +104,7 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 	tiebreaker,
 }): JSX.Element => {
 	const [available, setAvailable] = useState<number[]>([]);
+	const [pointsReady, setPointsReady] = useState<boolean>(false);
 	const [unavailable, setUnavailable] = useState<number[]>([]);
 	const [used, setUsed] = useState<number[]>([]);
 	const [hoverGame, setHoverGame] = useState<TGame | null>(null);
@@ -117,9 +123,10 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 		if (notAllowed) history.push('/picks/view');
 
 		if (pageReady) {
-			const pointArrays = populatePoints(games, picks, pageReady);
+			const pointArrays = populatePoints(games, picks);
 
 			setAvailable(pointArrays.available);
+			setPointsReady(pointArrays.ready);
 			setUnavailable(pointArrays.unavailable);
 			setUsed(pointArrays.used);
 		}
@@ -296,7 +303,10 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 							league={currentLeague}
 							numGames={games.length}
 							points={available}
+							pointsReady={pointsReady}
 							selectedWeek={selectedWeek}
+							key={`point-bank-has-${available.length +
+								unavailable.length}-points`}
 						/>
 						<table className="table table-hover makePickTable">
 							<thead className="thead-default">
@@ -351,9 +361,13 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 																			? [thisPick.points]
 																			: []
 																	}
+																	pointsReady={pointsReady}
 																	selectedWeek={selectedWeek}
 																	teamId={visitTeam._id}
 																	teamShort={visitTeam.short_name}
+																	key={`${
+																		visitorPicked && thisPick.points ? 1 : 0
+																	}-points-for-visitor-in-${game._id}`}
 																/>
 															)}
 														</div>
@@ -418,9 +432,13 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 																			? [thisPick.points]
 																			: []
 																	}
+																	pointsReady={pointsReady}
 																	selectedWeek={selectedWeek}
 																	teamId={homeTeam._id}
 																	teamShort={homeTeam.short_name}
+																	key={`${
+																		homePicked && thisPick.points ? 1 : 0
+																	}-points-for-home-in-${game._id}`}
 																/>
 															)}
 														</div>

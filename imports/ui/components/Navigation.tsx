@@ -326,7 +326,7 @@ const Navigation: FC<TNavigationDataProps> = ({
 								</>
 							) : hasSeasonStarted ? (
 								<li>
-									<a href="javascript:void(0)" className="disabled-link">
+									<a href="#" className="disabled-link">
 										No Survivor Pool
 									</a>
 								</li>

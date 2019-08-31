@@ -39,17 +39,20 @@ $footerHeightLarge: 120px;
 .make-picks-wrapper {
   .pointBank {
     box-sizing: border-box;
-    width: $pointBankWidth * 2 + 10;
+    width: $pointBankWidth * 2 + 5;
     padding-left: 0;
     position: fixed;
-    z-index: 1;
-    min-height: 34px;
+    min-height: 32px;
     border: 1px dashed white;
     background-color: rgba(255, 255, 255, 0.45);
+    z-index: 99999;
 
     .points {
       float: left;
-      margin-left: 3px;
+
+      &:nth-child(odd) {
+        margin-right: 3px;
+      }
     }
   }
 
@@ -58,13 +61,14 @@ $footerHeightLarge: 120px;
     width: 75%;
     margin-left: ($pointBankWidth * 2) + 20px;
     background-color: rgba(255, 255, 255, 0.85);
+    z-index: 1;
 
     .homePoints ul,
     .visitorPoints ul {
       box-sizing: border-box;
       background-color: #ccc;
-      width: $pointBankWidth;
-      height: 34px;
+      width: $pointBankWidth + 2px;
+      height: 32px;
       border: 1px solid #aaa;
       padding-left: 0;
     }
@@ -105,11 +109,12 @@ $footerHeightLarge: 120px;
 
   @media (max-width: 767px) {
     .pointBank {
-      width: $pointBankWidth;
+      width: $pointBankWidth + 2px;
       margin-left: -9px;
 
       .points {
         padding: 2px 0;
+        margin: 0;
       }
     }
 

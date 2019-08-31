@@ -362,8 +362,7 @@ const AdminUsers: FC<TAdminUsersProps> = ({
 														/>
 													</span>
 												</>
-											) : user.years_played &&
-											user.years_played.length === 1 ? (
+											) : user.years_played && user.years_played.length < 2 ? (
 												<span
 													title={`Delete ${user.first_name} ${user.last_name}`}
 													onClick={(): void => _deleteUser(user)}

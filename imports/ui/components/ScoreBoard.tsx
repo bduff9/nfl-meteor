@@ -110,8 +110,6 @@ const ScoreBoard: FC<TScoreBoardProps> = ({
 									(game, i): JSX.Element => {
 										const thisKickoff = formatDate(game.kickoff, false);
 
-										console.log(thisKickoff, game.kickoff);
-
 										return (
 											<Fragment key={`scoreboard-game-${game._id}`}>
 												{lastKickoff !== thisKickoff && (

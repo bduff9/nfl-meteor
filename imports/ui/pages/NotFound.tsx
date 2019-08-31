@@ -7,13 +7,13 @@ import { writeLog } from '../../api/collections/nfllogs';
 import { handleError } from '../../api/global';
 
 const imgs = [
-	'rivers.jpg',
 	'bigben.png',
 	'cutler.jpg',
 	'goodell.jpg',
 	'manziel.jpg',
 	'peterson.jpg',
 	'ref.jpg',
+	'rivers.jpg',
 	'rodgers.jpg',
 	'sherman.jpg',
 ];

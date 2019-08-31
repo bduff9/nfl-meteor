@@ -34,6 +34,10 @@ const NFLPool: FC<TNFLPoolProps> = ({
 					name: 'viewport',
 					content: 'width=device-width, initial-scale=1, user-scalable=no',
 				},
+				{
+					name: 'theme-color',
+					content: '#8c8c8c',
+				},
 			]}
 		/>
 		{pageReady ? (

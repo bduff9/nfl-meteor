@@ -78,14 +78,45 @@ const PointHolder: FC<TPointHolderProps> = ({
 	useEffect((): void => {
 		const opts: Sortable.Options = {
 			filter: '.disabled',
+			forceFallback: true,
 			group: 'picks',
 			onAdd: _handlePointAdd,
 			onMove: _validatePointDrop,
+			onStart: (): void => {
+				document.ontouchmove = (ev): void => ev.preventDefault();
+			},
+			onEnd: (): void => {
+				document.ontouchmove = (): true => true;
+			},
+			scroll: false,
 			sort: false,
 		};
 
 		if (pointBankRef.current)
 			sortableInstance.current = Sortable.create(pointBankRef.current, opts);
+
+		const listToDisable = document.querySelectorAll('.points'); //needed for IOS devices on Safari browser (FIX)
+
+		if (listToDisable) {
+			listToDisable.forEach(
+				(item): void => {
+					item.addEventListener(
+						'touchstart',
+						(event): void => {
+							event.preventDefault();
+						},
+					);
+				},
+			);
+		}
+
+		window.addEventListener(
+			'touchmove',
+			(): void => {
+				return;
+			},
+			{ passive: false },
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 

@@ -295,190 +295,209 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 			<Helmet title={`Set Week ${selectedWeek} Picks`} />
 			{pageReady ? (
 				<>
-					<div className="col-12" key="picks">
-						<h3 className="title-text text-center text-md-left d-md-none">{`Set Week ${selectedWeek} Picks`}</h3>
-						<PointHolder
-							className="pointBank"
-							disabledPoints={unavailable}
-							league={currentLeague}
-							numGames={games.length}
-							points={available}
-							pointsReady={pointsReady}
-							selectedWeek={selectedWeek}
-							key={`point-bank-has-${available.length +
-								unavailable.length}-points`}
-						/>
-						<table className="table table-hover makePickTable">
-							<thead className="thead-default">
-								<tr>
-									<th>
-										<div className="row">
-											<div className="col-6 text-center">Away</div>
-											<div className="col-6 text-center">Home</div>
-										</div>
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{games.map(
-									(game, i): JSX.Element => {
-										const homeTeam = game.getTeam('home');
-										const visitTeam = game.getTeam('visitor');
-										const thisPick = picks[i];
-										const homePicked = thisPick.pick_id === homeTeam._id;
-										const visitorPicked = thisPick.pick_id === visitTeam._id;
-										const started = game.kickoff <= new Date();
-
-										return (
-											<tr
-												className={
-													(homePicked || visitorPicked ? 'done' : '') +
-													(started ? ' disabled' : '')
-												}
-												title={
-													started
-														? 'This game has already begun, no changes allowed'
-														: undefined
-												}
-												key={`game-for-picks-${game._id}`}
-											>
-												<td>
-													<div className="row">
-														<div className="col-6 col-md-2 visitorPoints">
-															{(visitorPicked || !started) && (
-																<PointHolder
-																	className="pull-md-right"
-																	disabledPoints={
-																		visitorPicked && started && thisPick.points
-																			? [thisPick.points]
-																			: []
-																	}
-																	gameId={game._id}
-																	league={currentLeague}
-																	numGames={games.length}
-																	points={
-																		visitorPicked && !started && thisPick.points
-																			? [thisPick.points]
-																			: []
-																	}
-																	pointsReady={pointsReady}
-																	selectedWeek={selectedWeek}
-																	teamId={visitTeam._id}
-																	teamShort={visitTeam.short_name}
-																	key={`${
-																		visitorPicked && thisPick.points ? 1 : 0
-																	}-points-for-visitor-in-${game._id}`}
-																/>
-															)}
-														</div>
-														<div className="col-6 col-md-2 text-center text-md-right visitorLogo">
-															<img src={`/NFLLogos/${visitTeam.logo}`} />
-														</div>
-														<div className="col-6 col-md-2 text-center text-md-right visitorName">
-															<span
-																onMouseEnter={(ev): void =>
-																	_setHover(visitTeam._id, game, false, ev)
-																}
-																onMouseLeave={(ev): void =>
-																	_setHover(undefined, undefined, undefined, ev)
-																}
-															>
-																<FontAwesomeIcon
-																	className="text-primary d-none d-md-inline team-hover-link"
-																	icon={['fad', 'info-circle']}
-																	fixedWidth
-																/>
-															</span>
-															&nbsp;{visitTeam.city}
-															<br />
-															{visitTeam.name}
-														</div>
-														<div className="col-6 col-md-2 text-center text-md-left homeName">
-															{homeTeam.city}&nbsp;
-															<span
-																onMouseEnter={(ev): void =>
-																	_setHover(homeTeam._id, game, true, ev)
-																}
-																onMouseLeave={(ev): void =>
-																	_setHover(undefined, undefined, undefined, ev)
-																}
-															>
-																<FontAwesomeIcon
-																	className="text-primary d-none d-sm-inline team-hover-link"
-																	icon={['fad', 'info-circle']}
-																	fixedWidth
-																/>
-															</span>
-															<br />
-															{homeTeam.name}
-														</div>
-														<div className="col-6 col-md-2 text-center text-md-left homeLogo">
-															<img src={`/NFLLogos/${homeTeam.logo}`} />
-														</div>
-														<div className="col-6 col-md-2 homePoints">
-															{(homePicked || !started) && (
-																<PointHolder
-																	className="pull-md-left"
-																	disabledPoints={
-																		homePicked && started && thisPick.points
-																			? [thisPick.points]
-																			: []
-																	}
-																	gameId={game._id}
-																	league={currentLeague}
-																	numGames={games.length}
-																	points={
-																		homePicked && !started && thisPick.points
-																			? [thisPick.points]
-																			: []
-																	}
-																	pointsReady={pointsReady}
-																	selectedWeek={selectedWeek}
-																	teamId={homeTeam._id}
-																	teamShort={homeTeam.short_name}
-																	key={`${
-																		homePicked && thisPick.points ? 1 : 0
-																	}-points-for-home-in-${game._id}`}
-																/>
-															)}
-														</div>
-													</div>
-												</td>
-											</tr>
-										);
-									},
-								)}
-							</tbody>
-						</table>
-						{lastVisitingTeam && lastHomeTeam && (
-							<table className="table table-hover tiebreakerTable">
+					<div className="col-12 row pr-0" key="picks">
+						<h3 className="col-12 pr-0 title-text text-center text-md-left d-md-none">{`Set Week ${selectedWeek} Picks`}</h3>
+						<div className="col-12 pr-1 mb-1">
+							<PointHolder
+								className="pointBank"
+								disabledPoints={unavailable}
+								league={currentLeague}
+								numGames={games.length}
+								points={available}
+								pointsReady={pointsReady}
+								selectedWeek={selectedWeek}
+								key={`point-bank-has-${available.length}-available-and-${
+									unavailable.length
+								}-unavailable-points`}
+							/>
+						</div>
+						<div className="col-12 pr-0 table-wrapper">
+							<table className="table table-hover mx-auto makePickTable">
 								<thead className="thead-default">
 									<tr>
-										<th>Tiebreaker</th>
+										<th>
+											<div className="row">
+												<div className="col-6 text-center">Away</div>
+												<div className="col-6 text-center">Home</div>
+											</div>
+										</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td>{`Without going over, input the total number of points scored in the ${
-											lastVisitingTeam.city
-										} ${lastVisitingTeam.name} vs. ${lastHomeTeam.city} ${
-											lastHomeTeam.name
-										} game`}</td>
-									</tr>
-									<tr>
-										<td>
-											<input
-												type="number"
-												className="form-control"
-												defaultValue={`${tiebreaker.last_score || 0}`}
-												onBlur={_setTiebreakerWrapper}
-												ref={tiebreakerEl}
-											/>
-										</td>
-									</tr>
+									{games.map(
+										(game, i): JSX.Element => {
+											const homeTeam = game.getTeam('home');
+											const visitTeam = game.getTeam('visitor');
+											const thisPick = picks[i];
+											const homePicked = thisPick.pick_id === homeTeam._id;
+											const visitorPicked = thisPick.pick_id === visitTeam._id;
+											const started = game.kickoff <= new Date();
+
+											return (
+												<tr
+													className={
+														(homePicked || visitorPicked ? 'done' : '') +
+														(started ? ' disabled' : '')
+													}
+													title={
+														started
+															? 'This game has already begun, no changes allowed'
+															: undefined
+													}
+													key={`game-for-picks-${game._id}`}
+												>
+													<td>
+														<div className="row">
+															<div className="col-6 col-md-2 visitorPoints">
+																{(visitorPicked || !started) && (
+																	<PointHolder
+																		className="pull-md-right"
+																		disabledPoints={
+																			visitorPicked &&
+																			started &&
+																			thisPick.points
+																				? [thisPick.points]
+																				: []
+																		}
+																		gameId={game._id}
+																		league={currentLeague}
+																		numGames={games.length}
+																		points={
+																			visitorPicked &&
+																			!started &&
+																			thisPick.points
+																				? [thisPick.points]
+																				: []
+																		}
+																		pointsReady={pointsReady}
+																		selectedWeek={selectedWeek}
+																		teamId={visitTeam._id}
+																		teamShort={visitTeam.short_name}
+																		key={`${
+																			visitorPicked && thisPick.points ? 1 : 0
+																		}-points-for-visitor-in-${game._id}`}
+																	/>
+																)}
+															</div>
+															<div className="col-6 col-md-2 text-center text-md-right visitorLogo">
+																<img src={`/NFLLogos/${visitTeam.logo}`} />
+															</div>
+															<div className="col-6 col-md-2 text-center text-md-right visitorName">
+																<span
+																	onMouseEnter={(ev): void =>
+																		_setHover(visitTeam._id, game, false, ev)
+																	}
+																	onMouseLeave={(ev): void =>
+																		_setHover(
+																			undefined,
+																			undefined,
+																			undefined,
+																			ev,
+																		)
+																	}
+																>
+																	<FontAwesomeIcon
+																		className="text-primary d-none d-md-inline team-hover-link"
+																		icon={['fad', 'info-circle']}
+																		fixedWidth
+																	/>
+																</span>
+																&nbsp;{visitTeam.city}
+																<br />
+																{visitTeam.name}
+															</div>
+															<div className="col-6 col-md-2 text-center text-md-left homeName">
+																{homeTeam.city}&nbsp;
+																<span
+																	onMouseEnter={(ev): void =>
+																		_setHover(homeTeam._id, game, true, ev)
+																	}
+																	onMouseLeave={(ev): void =>
+																		_setHover(
+																			undefined,
+																			undefined,
+																			undefined,
+																			ev,
+																		)
+																	}
+																>
+																	<FontAwesomeIcon
+																		className="text-primary d-none d-sm-inline team-hover-link"
+																		icon={['fad', 'info-circle']}
+																		fixedWidth
+																	/>
+																</span>
+																<br />
+																{homeTeam.name}
+															</div>
+															<div className="col-6 col-md-2 text-center text-md-left homeLogo">
+																<img src={`/NFLLogos/${homeTeam.logo}`} />
+															</div>
+															<div className="col-6 col-md-2 homePoints">
+																{(homePicked || !started) && (
+																	<PointHolder
+																		className="pull-md-left"
+																		disabledPoints={
+																			homePicked && started && thisPick.points
+																				? [thisPick.points]
+																				: []
+																		}
+																		gameId={game._id}
+																		league={currentLeague}
+																		numGames={games.length}
+																		points={
+																			homePicked && !started && thisPick.points
+																				? [thisPick.points]
+																				: []
+																		}
+																		pointsReady={pointsReady}
+																		selectedWeek={selectedWeek}
+																		teamId={homeTeam._id}
+																		teamShort={homeTeam.short_name}
+																		key={`${
+																			homePicked && thisPick.points ? 1 : 0
+																		}-points-for-home-in-${game._id}`}
+																	/>
+																)}
+															</div>
+														</div>
+													</td>
+												</tr>
+											);
+										},
+									)}
 								</tbody>
 							</table>
-						)}
+							{lastVisitingTeam && lastHomeTeam && (
+								<table className="table table-hover mx-auto tiebreakerTable">
+									<thead className="thead-default">
+										<tr>
+											<th>Tiebreaker</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>{`Without going over, input the total number of points scored in the ${
+												lastVisitingTeam.city
+											} ${lastVisitingTeam.name} vs. ${lastHomeTeam.city} ${
+												lastHomeTeam.name
+											} game`}</td>
+										</tr>
+										<tr>
+											<td>
+												<input
+													type="number"
+													className="form-control"
+													defaultValue={`${tiebreaker.last_score || 0}`}
+													onBlur={_setTiebreakerWrapper}
+													ref={tiebreakerEl}
+												/>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							)}
+						</div>
 					</div>
 					<div
 						className="col-12 col-sm-9 col-md-10 text-center pick-buttons"

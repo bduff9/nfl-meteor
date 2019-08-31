@@ -96,8 +96,12 @@ const PointHolder: FC<TPointHolderProps> = ({
 		if (!closestRow) return false;
 
 		const usedPoints = Array.from(Sortable.utils.find(closestRow, 'li')).filter(
-			(point): boolean =>
-				Sortable.utils.is(point, '.points') && point !== dragged,
+			(point): boolean => {
+				const isPoint = Sortable.utils.is(point, '.points');
+				const isDragged = point.innerText === dragged.innerText;
+
+				return isPoint && !isDragged;
+			},
 		);
 
 		return usedPoints.length === 0;

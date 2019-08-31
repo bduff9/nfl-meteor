@@ -2,63 +2,47 @@ $pointBankWidth: 75px;
 $footerHeight: 60px;
 $footerHeightLarge: 120px;
 
-.points {
-  width: $pointBankWidth;
-}
-
-@media (min-width: 675px) {
-  .make-picks-wrapper {
-    .points {
-      background-color: #fff;
-      border: 1px solid #000;
-      list-style-type: none;
-      padding: 4px 0;
-
-      &.disabled {
-        opacity: 0.5;
-      }
-    }
-  }
-}
-
-@media (max-width: 674px) {
-  .make-picks-wrapper {
-    .points {
-      background-color: #fff;
-      border: 1px solid #000;
-      list-style-type: none;
-      padding: 2px 0;
-
-      &.disabled {
-        opacity: 0.5;
-      }
-    }
-  }
-}
-
 .make-picks-wrapper {
   .pointBank {
     box-sizing: border-box;
-    width: $pointBankWidth * 2 + 5;
     padding-left: 0;
-    position: fixed;
-    min-height: 32px;
+    min-height: 34px;
     border: 1px dashed white;
     background-color: rgba(255, 255, 255, 0.45);
     z-index: 99999;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-right: -3px;
+    margin-bottom: -3px;
 
     .points {
-      float: left;
-
-      &:nth-child(odd) {
-        margin-right: 3px;
-      }
+      margin-right: 3px;
+      margin-bottom: 3px;
     }
+  }
+
+  .points {
+    box-sizing: border-box;
+    width: $pointBankWidth;
+    background-color: #fff;
+    border: 1px solid #000;
+    list-style-type: none;
+    padding: 3px 0;
+
+    &.disabled {
+      opacity: 0.5;
+    }
+  }
+
+  .table-wrapper {
+    overflow-y: scroll;
   }
 
   .makePickTable,
   .tiebreakerTable {
-    width: 75%;
+    width: 100%;
+    max-width: 900x;
     margin-left: ($pointBankWidth * 2) + 20px;
     background-color: rgba(255, 255, 255, 0.85);
     z-index: 1;
@@ -68,7 +52,7 @@ $footerHeightLarge: 120px;
       box-sizing: border-box;
       background-color: #ccc;
       width: $pointBankWidth + 2px;
-      height: 32px;
+      height: 34px;
       border: 1px solid #aaa;
       padding-left: 0;
     }
@@ -108,21 +92,12 @@ $footerHeightLarge: 120px;
   }
 
   @media (max-width: 767px) {
-    .pointBank {
-      width: $pointBankWidth + 2px;
-      margin-left: -9px;
-
-      .points {
-        padding: 2px 0;
-        margin: 0;
-      }
+    .table-wrapper {
+      height: 78vh;
     }
 
     .makePickTable,
     .tiebreakerTable {
-      margin-left: 72px;
-      width: 81%;
-
       td {
         .row {
           display: flex;
@@ -177,10 +152,8 @@ $footerHeightLarge: 120px;
   }
 
   @media (min-width: 768px) {
-    .pointBank {
-      .points {
-        //width: 50%;
-      }
+    .table-wrapper {
+      height: 86vh;
     }
   }
 }

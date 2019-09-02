@@ -1,13 +1,16 @@
 .set-survivor-wrapper {
-
   .side-bar {
     position: fixed;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-bottom: -5px;
 
     .survivor-logo {
       width: 60px;
       height: 60px;
       background-color: #ccc;
-      margin-bottom: 3px;
+      margin-right: 5px;
+      margin-bottom: 5px;
       position: relative;
 
       .when-picked {

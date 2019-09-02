@@ -47,7 +47,7 @@ const ViewSurvivor: FC<RouteComponentProps & TViewSurvivorProps> = ({
 	return (
 		<div className="row view-survivor-wrapper">
 			<Helmet title={'View Survivor Picks'} />
-			<h3 className="title-text text-center text-md-left hidden-md-up">
+			<h3 className="col-12 title-text text-center text-md-left d-md-none">
 				View Survivor Picks
 			</h3>
 			{pageReady ? (

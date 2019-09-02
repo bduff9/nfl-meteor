@@ -58,7 +58,7 @@ const SetSurvivor: FC<RouteComponentProps & TSetSurvivorProps> = ({
 						Make Survivor Picks
 					</h3>
 					<div className="row">
-						<div className="col-md-4 d-none d-md-block side-bar">
+						<div className="col-md-6 d-none d-md-flex side-bar">
 							{teams.map(
 								(team): JSX.Element => {
 									const weekIndex = survivorPicks.findIndex(
@@ -66,24 +66,25 @@ const SetSurvivor: FC<RouteComponentProps & TSetSurvivorProps> = ({
 									);
 
 									return (
-										<div className="col-md-3 col-2" key={`team-${team._id}`}>
-											<div className="text-center survivor-logo">
-												<img
-													src={`/NFLLogos/${team.logo}`}
-													className={weekIndex !== -1 ? 'used' : undefined}
-												/>
-												{weekIndex !== -1 && (
-													<span className="tag tag-default when-picked">
-														{weekIndex + 1}
-													</span>
-												)}
-											</div>
+										<div
+											className="text-center survivor-logo"
+											key={`team-${team._id}`}
+										>
+											<img
+												src={`/NFLLogos/${team.logo}`}
+												className={weekIndex !== -1 ? 'used' : undefined}
+											/>
+											{weekIndex !== -1 && (
+												<span className="tag tag-default when-picked">
+													{weekIndex + 1}
+												</span>
+											)}
 										</div>
 									);
 								},
 							)}
 						</div>
-						<div className="col-md-7 offset-md-5 col-12">
+						<div className="col-md-5 offset-md-7 col-12">
 							<table className="table table-hover set-survivor-table">
 								<thead className="thead-default">
 									<tr>
@@ -95,7 +96,7 @@ const SetSurvivor: FC<RouteComponentProps & TSetSurvivorProps> = ({
 									{survivorPicks.map(
 										(pick): JSX.Element => (
 											<tr key={`survivor-${pick._id}`}>
-												<td className="text-right">
+												<td className="text-center">
 													{pick.winner_id &&
 														(pick.pick_id === pick.winner_id ? (
 															<FontAwesomeIcon

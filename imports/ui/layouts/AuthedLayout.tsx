@@ -28,6 +28,11 @@ import Loading from '../pages/Loading';
 import Navigation from '../components/Navigation';
 import RightSlider from '../components/RightSlider';
 
+const AdminAPICalls = lazy(
+	(): Promise<{
+		default: ComponentType<{}>;
+	}> => import('../pages/AdminAPICalls'),
+);
 const AdminEmail = lazy(
 	(): Promise<{
 		default: ComponentType<{}>;
@@ -148,6 +153,12 @@ const AuthedLayout: FC<AuthedLayoutProps> = (props): JSX.Element => {
 				<div className="col-12 col-sm-9 ml-sm-auto ml-print-0 col-lg-10 main">
 					<Suspense fallback={<Loading />}>
 						<Switch>
+							<AdminOnly
+								exact
+								path="/admin/api"
+								component={AdminAPICalls}
+								{...props}
+							/>
 							<AdminOnly
 								exact
 								path="/admin/email"

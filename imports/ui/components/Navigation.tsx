@@ -410,6 +410,11 @@ const Navigation: FC<TNavigationDataProps> = ({
 										Email Users
 									</NavLink>
 								</li>
+								<li>
+									<NavLink to="/admin/api" exact activeClassName="active">
+										Debug API Calls
+									</NavLink>
+								</li>
 								{getCurrentSeasonYear() > systemVals.year_updated && (
 									<li>
 										<a href="#" onClick={initPool}>

@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
+import * as yup from 'yup';
 
 import { currentWeek } from '../imports/api/collections/games';
 import { writeLog } from '../imports/api/collections/nfllogs';
@@ -15,6 +16,7 @@ const updateUserIfNeeded = (
 	field: string,
 	newValue: any,
 ): void => {
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 	// @ts-ignore
 	const oldValue = user[field];
 
@@ -22,6 +24,7 @@ const updateUserIfNeeded = (
 
 	if (newValue == null) return;
 
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 	// @ts-ignore
 	user[field] = newValue;
 };
@@ -33,7 +36,7 @@ Meteor.startup(
 		Meteor.onConnection(
 			(conn: Meteor.Connection): void => {
 				const systemVals = getSystemValues.call({});
-				let newConn = {
+				const newConn = {
 					opened: new Date(),
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					on_view_my_picks: false,
@@ -57,24 +60,31 @@ Meteor.startup(
 		);
 
 		Accounts.onCreateUser(
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 			// @ts-ignore
 			(options: any, user: TUser): TUser => {
 				const currWeek = currentWeek.call({});
 				const EMPTY_VAL = '';
+				const profile = options.profile || {};
+				const emailSchema = yup
+					.string()
+					.email()
+					.required();
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 				// @ts-ignore
 				let existingUser: TUser | undefined = Meteor.user();
-				let profile = options.profile || {};
 				let verified = true;
 				let email;
 				let firstName;
 				let lastName;
 				let service;
 
-				if (currWeek > 3)
+				if (currWeek > 3) {
 					throw new Meteor.Error(
 						'Registration has ended',
 						'No new users are allowed after the third week.  Please try again next year',
 					);
+				}
 
 				if (user.services.facebook) {
 					firstName = user.services.facebook.first_name;
@@ -89,12 +99,21 @@ Meteor.startup(
 				} else {
 					firstName = EMPTY_VAL;
 					lastName = EMPTY_VAL;
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 					// @ts-ignore
 					email = options.email;
 					service = 'password';
 					verified = false;
 				}
 
+				if (!emailSchema.isValidSync(email)) {
+					throw new Meteor.Error(
+						'Invalid email found',
+						`A valid email is required to register, however, the email '${email}' was given.  Please try again, or if you think this is incorrect, contact the admin`,
+					);
+				}
+
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 				// @ts-ignore
 				if (!existingUser) existingUser = Meteor.users.findOne({ email });
 
@@ -160,6 +179,7 @@ Meteor.startup(
 				if (!allowed || !user) return false;
 
 				if (methodName === 'createUser') {
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 					// @ts-ignore
 					Accounts.sendVerificationEmail(user._id);
 
@@ -167,6 +187,7 @@ Meteor.startup(
 				}
 
 				if (!user.verified) {
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 					// @ts-ignore
 					vEmails = user.emails.filter((email): boolean => email.verified);
 

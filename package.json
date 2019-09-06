@@ -124,7 +124,7 @@
     "husky": "3.0.5",
     "jest": "24.9.0",
     "lint-staged": "9.2.5",
-    "postcss": "7.0.17",
+    "postcss": "7.0.18",
     "postcss-load-config": "2.1.0",
     "stylelint": "10.1.0",
     "stylelint-config-standard": "18.3.0",

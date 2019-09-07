@@ -38,22 +38,31 @@ import { updateLastGameOfWeekScore } from './collections/tiebreakers';
 
 export type TAPIBoolean = '0' | '1';
 export type TAPITeam = {
-	inRedZone: TAPIBoolean;
-	score: number;
-	hasPossession: TAPIBoolean;
-	passOffenseRank: string;
-	rushOffenseRank: string;
-	passDefenseRank: string;
-	spread: string;
-	isHome: TAPIBoolean;
+	hasPossession: string;
 	id: string;
+	inRedZone: string;
+	isHome: string;
+	passDefenseRank: string;
+	passOffenseRank: string;
 	rushDefenseRank: string;
+	rushOffenseRank: string;
+	score: string;
+	spread: string;
 };
 export type TAPIMatchup = {
-	kickoff: string;
 	gameSecondsRemaining: string;
+	kickoff: string;
 	team: TAPITeam[];
 };
+export interface TAPINflSchedule {
+	matchup: TAPIMatchup[];
+	week: string;
+}
+export interface TAPIResponse {
+	encoding: string;
+	nflSchedule: TAPINflSchedule;
+	version: string;
+}
 
 export const getGamesForWeek = (week: TWeek): TAPIMatchup[] => {
 	const systemVals: TSystemVals = getSystemValues.call({});
@@ -71,10 +80,11 @@ export const getGamesForWeek = (week: TWeek): TAPIMatchup[] => {
 
 	try {
 		const response = HTTP.get(url, { params: data });
+		const apiResponse = response.data as TAPIResponse;
 
-		insertAPICall.call({ response: response.data, url, week, year: currYear });
+		insertAPICall.call({ response: apiResponse, url, week, year: currYear });
 
-		return response.data.nflSchedule.matchup;
+		return apiResponse.nflSchedule.matchup;
 	} catch (error) {
 		insertAPICall.call({ error, response: null, url, week, year: currYear });
 
@@ -399,7 +409,7 @@ export const refreshGameData = (): string => {
 					}
 
 					// eslint-disable-next-line @typescript-eslint/camelcase
-					game.home_score = hTeamData.score || 0;
+					game.home_score = parseInt(hTeamData.score || '0', 10);
 
 					if (vTeamData.spread) {
 						// eslint-disable-next-line @typescript-eslint/camelcase
@@ -408,7 +418,7 @@ export const refreshGameData = (): string => {
 					}
 
 					// eslint-disable-next-line @typescript-eslint/camelcase
-					game.visitor_score = vTeamData.score || 0;
+					game.visitor_score = parseInt(vTeamData.score || '0', 10);
 					game.status = status;
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					game.time_left = timeLeft;

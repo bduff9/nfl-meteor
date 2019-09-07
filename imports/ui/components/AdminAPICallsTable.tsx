@@ -59,13 +59,23 @@ const AdminAPICallsTable: FC<TAdminAPICallsProps> = ({
 							(apiCall): JSX.Element => (
 								<tr key={apiCall._id}>
 									<td>
-										<ReactJson
-											collapsed
-											src={apiCall.response}
-											theme="shapeshifter"
-										/>
+										{apiCall.response && (
+											<ReactJson
+												collapsed
+												src={apiCall.response}
+												theme="shapeshifter"
+											/>
+										)}
 									</td>
-									<td>{apiCall.error}</td>
+									<td>
+										{apiCall.error && (
+											<ReactJson
+												collapsed
+												src={apiCall.error}
+												theme="shapeshifter"
+											/>
+										)}
+									</td>
 									<td>{formatDate(apiCall.date, true)}</td>
 									<td>{apiCall.week}</td>
 									<td>{apiCall.year}</td>

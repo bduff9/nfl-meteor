@@ -148,18 +148,13 @@ const TeamHover: FC<TTeamHoverProps> = ({
 									<td>
 										<strong>
 											{`Week ${currentGame.week}: ${isHome ? 'vs. ' : '@ '}`}
-											{`${
-												currentGame.getTeam(isHome ? 'visitor' : 'home').name
-											}`}
-											{`${
-												isHome
-													? currentGame.home_spread != null
-														? ` (${currentGame.home_spread})`
-														: ''
-													: currentGame.visitor_spread != null
-														? ` (${currentGame.visitor_spread})`
-														: ''
-											}`}
+											{currentGame.getTeam(isHome ? 'visitor' : 'home').name}
+											{isHome && currentGame.home_spread != null
+												? ` (${currentGame.home_spread})`
+												: null}
+											{!isHome && currentGame.visitor_spread != null
+												? ` (${currentGame.visitor_spread})`
+												: null}
 										</strong>
 									</td>
 								</tr>

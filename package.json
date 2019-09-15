@@ -126,7 +126,7 @@
     "lint-staged": "9.2.5",
     "postcss": "7.0.18",
     "postcss-load-config": "2.1.0",
-    "stylelint": "10.1.0",
+    "stylelint": "11.0.0",
     "stylelint-config-standard": "18.3.0",
     "typescript": "3.6.2"
   }

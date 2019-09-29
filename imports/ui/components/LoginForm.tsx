@@ -37,29 +37,32 @@ const LoginForm: FC<TLoginFormProps & FormikProps<TLoginFormValues>> = ({
 	<Form className="needs-validation" noValidate>
 		<div className="form-inputs">
 			<Field
-				type="email"
-				name="email"
+				autoComplete="username email"
 				className={getFormControlClass(touched.email, errors.email)}
+				name="email"
 				placeholder="Email"
+				type="email"
 			/>
 			<ErrorMessage component={FormError} name="email" />
 			<Field
-				type="password"
-				name="password"
+				autoComplete={type === 'register' ? 'new-password' : 'current-password'}
 				className={getFormControlClass(touched.password, errors.password)}
+				name="password"
 				placeholder="Password"
+				type="password"
 			/>
 			<ErrorMessage component={FormError} name="password" />
 			{type === 'register' && (
 				<>
 					<Field
-						type="password"
-						name="confirmPassword"
+						autoComplete="new-password"
 						className={getFormControlClass(
 							touched.confirmPassword,
 							errors.confirmPassword,
 						)}
+						name="confirmPassword"
 						placeholder="Confirm Password"
+						type="password"
 					/>
 					<ErrorMessage component={FormError} name="confirmPassword" />
 				</>
@@ -110,11 +113,7 @@ addMethod(string, 'sameAs', function (ref, message): Schema<any> {
 });
 
 export default withFormik<TLoginFormProps, TLoginFormValues>({
-	mapPropsToValues: (): {
-		email: string;
-		password: string;
-		confirmPassword: string;
-	} => ({
+	mapPropsToValues: (): TLoginFormValues => ({
 		email: '',
 		password: '',
 		confirmPassword: '',

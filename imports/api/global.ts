@@ -16,6 +16,21 @@ import { TTiebreaker } from './collections/tiebreakers';
 import { TPick } from './collections/picks';
 import { ALL_GAME_NUMBERS } from './constants';
 
+export const arePointListsEqual = (
+	points1: number[],
+	points2: number[],
+): boolean => {
+	const ln = points1.length;
+
+	if (ln !== points2.length) return false;
+
+	for (let i = ln; i--; ) {
+		if (points1[i] !== points2[i]) return false;
+	}
+
+	return true;
+};
+
 export const convertEpoch = (epoch: number): Date => {
 	const d = new Date(0);
 

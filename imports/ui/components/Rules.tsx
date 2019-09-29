@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 
 import { POOL_COST } from '../../api/constants';
 
@@ -61,4 +61,4 @@ const Rules: FC<{}> = (): JSX.Element => {
 
 Rules.whyDidYouRender = true;
 
-export default Rules;
+export default memo(Rules);

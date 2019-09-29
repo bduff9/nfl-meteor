@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 import Helmet from 'react-helmet';
 
 import Routes from '../../startup/client/Routes';
@@ -15,7 +15,6 @@ export type TNFLPoolProps = {
 
 const NFLPool: FC<TNFLPoolProps> = ({
 	authenticated,
-	loggingIn,
 	pageReady,
 	userID,
 }): JSX.Element => (
@@ -66,4 +65,4 @@ export default withTracker(
 			userID,
 		};
 	},
-)(NFLPool);
+)(memo(NFLPool));

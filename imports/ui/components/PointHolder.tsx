@@ -1,4 +1,4 @@
-import React, { FC, forwardRef, memo, useEffect, useRef } from 'react';
+import React, { FC, forwardRef, memo } from 'react';
 import SortableFC from 'react-sortablejs';
 import Sortable from 'sortablejs';
 
@@ -149,4 +149,4 @@ const PointHolder: FC<TPointHolderProps> = ({
 
 PointHolder.whyDidYouRender = true;
 
-export default PointHolder;
+export default memo(PointHolder);

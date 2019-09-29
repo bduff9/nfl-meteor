@@ -33,7 +33,7 @@ import {
 import { TUser } from '../../api/collections/users';
 import { TWeek, TAutoPickStrategy, TError } from '../../api/commonTypes';
 import { DEFAULT_LEAGUE } from '../../api/constants';
-import { handleError } from '../../api/global';
+import { arePointListsEqual, handleError } from '../../api/global';
 import PointHolder from '../components/PointHolder';
 import TeamHover from '../components/TeamHover';
 
@@ -125,12 +125,19 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 		if (pageReady) {
 			const pointArrays = populatePoints(games, picks);
 
-			setAvailable(pointArrays.available);
+			if (!arePointListsEqual(available, pointArrays.available))
+				setAvailable(pointArrays.available);
+
+			if (!arePointListsEqual(unavailable, pointArrays.unavailable))
+				setUnavailable(pointArrays.unavailable);
+
+			if (!arePointListsEqual(used, pointArrays.used))
+				setUsed(pointArrays.used);
+
 			setPointsReady(pointArrays.ready);
-			setUnavailable(pointArrays.unavailable);
-			setUsed(pointArrays.used);
 		}
 	}, [
+		available,
 		currentWeek,
 		games,
 		history,
@@ -138,6 +145,8 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 		picks,
 		selectedWeek,
 		tiebreaker.submitted,
+		unavailable,
+		used,
 	]);
 
 	const _autopick = (type: TAutoPickStrategy, ev: MouseEvent): false => {

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 
 import { getLogByID, TNFLLog } from '../../api/collections/nfllogs';
 import { TUser } from '../../api/collections/users';
@@ -63,4 +63,4 @@ const Message: FC<TMessageProps> = ({
 
 Message.whyDidYouRender = true;
 
-export default Message;
+export default memo(Message);

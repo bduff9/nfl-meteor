@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 
 import { TRightSlider, TWeek } from '../../api/commonTypes';
 
@@ -53,4 +53,4 @@ const RightSlider: FC<RightSliderProps> = ({
 
 RightSlider.whyDidYouRender = true;
 
-export default RightSlider;
+export default memo(RightSlider);

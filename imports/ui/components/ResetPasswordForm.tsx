@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Form, FormikProps, withFormik, Field, ErrorMessage } from 'formik';
+import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { Bert } from 'meteor/themeteorchef:bert';
 import React, { FC } from 'react';
@@ -11,8 +12,9 @@ import { handleError, getFormControlClass } from '../../api/global';
 import FormError from './FormError';
 
 export type TResetPasswordFormValues = {
-	password: string;
 	confirm_password: string;
+	password: string;
+	username: string;
 };
 export type TResetPasswordFormProps = {
 	history: RouteComponentProps['history'];
@@ -23,12 +25,30 @@ const ResetPasswordForm: FC<
 	TResetPasswordFormProps & FormikProps<TResetPasswordFormValues>
 > = ({ errors, isSubmitting, touched }): JSX.Element => (
 	<Form className="needs-validation" noValidate>
+		<div className="row form-group d-none">
+			<label htmlFor="username" className="col-12 col-md-4 col-form-label">
+				Username
+			</label>
+			<div className="col-12 col-md-8">
+				<Field
+					autoComplete="username email"
+					className={getFormControlClass(touched.username, errors.username)}
+					id="username"
+					name="username"
+					placeholder="Username"
+					readOnly
+					type="hidden"
+				/>
+				<ErrorMessage component={FormError} name="password" />
+			</div>
+		</div>
 		<div className="row form-group">
 			<label htmlFor="password" className="col-12 col-md-4 col-form-label">
 				New Password
 			</label>
 			<div className="col-12 col-md-8">
 				<Field
+					autoComplete="new-password"
 					className={getFormControlClass(touched.password, errors.password)}
 					id="password"
 					name="password"
@@ -47,6 +67,7 @@ const ResetPasswordForm: FC<
 			</label>
 			<div className="col-12 col-md-8">
 				<Field
+					autoComplete="new-password"
 					className={getFormControlClass(
 						touched.confirm_password,
 						errors.confirm_password,
@@ -93,11 +114,16 @@ addMethod(string, 'sameAs', function (ref, message) {
 });
 
 export default withFormik<TResetPasswordFormProps, TResetPasswordFormValues>({
-	mapPropsToValues: (): TResetPasswordFormValues => ({
-		password: '',
-		// eslint-disable-next-line @typescript-eslint/camelcase
-		confirm_password: '',
-	}),
+	mapPropsToValues: (): TResetPasswordFormValues => {
+		console.log({ user: Meteor.user() });
+
+		return {
+			username: '',
+			password: '',
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			confirm_password: '',
+		};
+	},
 
 	validationSchema: (): ObjectSchema =>
 		Yup.object().shape({

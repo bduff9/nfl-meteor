@@ -21,8 +21,8 @@ const Unauthenticated: FC<TUnauthenticatedProps> = ({
 	<Route
 		{...rest}
 		render={(props): JSX.Element => {
-			const { state = {} } = location;
-			const { nextPathname } = state;
+			const { state } = location;
+			const { nextPathname } = state || {};
 			const loggingIn = Meteor.loggingIn();
 
 			if (!Component || loggingIn) return <></>;

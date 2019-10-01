@@ -92,7 +92,7 @@
     "@types/eslint": "6.1.1",
     "@types/jquery": "3.3.31",
     "@types/lodash": "4.14.141",
-    "@types/meteor": "1.4.31",
+    "@types/meteor": "1.4.32",
     "@types/node-sass": "4.11.0",
     "@types/postcss-load-config": "2.0.0",
     "@types/react": "16.9.3",

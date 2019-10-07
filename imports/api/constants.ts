@@ -64,7 +64,7 @@ export const ACTIONS = tuple(
  * The week where misses count against players for the last place prize
  * Updated: 2018-10-02
  */
-export const NO_MISS_WEEK = 5;
+export const NO_MISS_WEEK = 6;
 
 /**
  * Payment due by end of this week

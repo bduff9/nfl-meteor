@@ -34,7 +34,7 @@
     ]
   },
   "dependencies": {
-    "@babel/runtime": "7.6.2",
+    "@babel/runtime": "7.6.3",
     "@fortawesome/fontawesome-pro": "5.11.2",
     "@fortawesome/fontawesome-svg-core": "1.2.25",
     "@fortawesome/free-brands-svg-icons": "5.11.2",
@@ -82,8 +82,8 @@
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "7.5.5",
     "@babel/plugin-syntax-dynamic-import": "7.2.0",
-    "@babel/preset-env": "7.6.2",
-    "@babel/preset-react": "7.0.0",
+    "@babel/preset-env": "7.6.3",
+    "@babel/preset-react": "7.6.3",
     "@types/autoprefixer": "9.6.1",
     "@types/bcrypt": "10.0.28-alpha",
     "@types/bootstrap": "4.3.1",

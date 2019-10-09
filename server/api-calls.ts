@@ -315,27 +315,23 @@ export const updateGames = (): void => {
 
 export const refreshGameData = (): string => {
 	const weeksToRefresh: TWeek[] = getWeeksToRefresh.call({});
-	let games: TAPIMatchup[];
-	let gameCount: number;
-	let completeCount: number;
-	let justCompleted: number;
-	let game: TGame;
-	let hTeamData: TAPITeam;
-	let vTeamData: TAPITeam;
-	let hTeam;
-	let vTeam;
-	let winner;
-	let status: TGameStatus;
 
 	// eslint-disable-next-line @typescript-eslint/camelcase
 	toggleGamesUpdating.call({ is_updating: weeksToRefresh.length > 0 });
 
 	weeksToRefresh.forEach(
 		(w: TWeek): void => {
-			games = getGamesForWeek(w);
-			gameCount = games.length;
-			completeCount = 0;
-			justCompleted = 0;
+			const games = getGamesForWeek(w);
+			const gameCount = games.length;
+			let completeCount = 0;
+			let justCompleted = 0;
+			let game: TGame;
+			let hTeamData: TAPITeam;
+			let vTeamData: TAPITeam;
+			let hTeam;
+			let vTeam;
+			let winner;
+			let status: TGameStatus;
 
 			console.log(`Updating week ${w}, ${gameCount} games found`);
 
@@ -359,7 +355,9 @@ export const refreshGameData = (): string => {
 						visitor_short: vTeamData.id,
 					});
 
-					if (game.status === 'C') {
+					status = game.status;
+
+					if (status === 'C') {
 						wasComplete = true;
 
 						console.log(
@@ -396,7 +394,7 @@ export const refreshGameData = (): string => {
 					} else if (timeLeft <= 900 && timeLeft > 0) {
 						status = '4';
 					} else if (timeLeft === 0) {
-						status = 'C';
+						if (hTeamData.score && vTeamData.score) status = 'C';
 					} else {
 						// timeLeft is less than 0
 						status = 'I';
@@ -408,8 +406,10 @@ export const refreshGameData = (): string => {
 							Math.round(parseFloat(hTeamData.spread) * 10) / 10;
 					}
 
-					// eslint-disable-next-line @typescript-eslint/camelcase
-					game.home_score = parseInt(hTeamData.score || '0', 10);
+					if (hTeamData.score) {
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						game.home_score = parseInt(hTeamData.score, 10);
+					}
 
 					if (vTeamData.spread) {
 						// eslint-disable-next-line @typescript-eslint/camelcase
@@ -417,8 +417,11 @@ export const refreshGameData = (): string => {
 							Math.round(parseFloat(vTeamData.spread) * 10) / 10;
 					}
 
-					// eslint-disable-next-line @typescript-eslint/camelcase
-					game.visitor_score = parseInt(vTeamData.score || '0', 10);
+					if (vTeamData.score) {
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						game.visitor_score = parseInt(vTeamData.score, 10);
+					}
+
 					game.status = status;
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					game.time_left = timeLeft;

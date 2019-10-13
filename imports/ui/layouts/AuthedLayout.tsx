@@ -112,7 +112,9 @@ const AuthedLayout: FC<AuthedLayoutProps> = (props): JSX.Element => {
 	const logoutOnly = location.pathname.indexOf('create') > -1;
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
 	const [rightSlider, setRightSlider] = useState<TRightSlider>(null);
-	const [scoreboardWeek, setScoreboardWeek] = useState<TWeek>(currentWeek || 1);
+	const [scoreboardWeek, setScoreboardWeek] = useState<TWeek | null>(
+		currentWeek,
+	);
 
 	useEffect((): void => {
 		setOpenMenu(false);
@@ -240,7 +242,7 @@ const AuthedLayout: FC<AuthedLayoutProps> = (props): JSX.Element => {
 				{rightSlider ? (
 					<RightSlider
 						type={rightSlider}
-						week={scoreboardWeek || currentWeek}
+						week={scoreboardWeek || currentWeek || 1}
 						setScoreboardWeek={setScoreboardWeek}
 						toggleRightSlider={toggleRightSlider}
 						key={`right-slider-${rightSlider}`}
@@ -258,6 +260,8 @@ AuthedLayout.whyDidYouRender = true;
 export default withRouter(
 	withTracker<AuthedLayoutProps, RouteComponentProps>(
 		(props): AuthedLayoutProps => {
+			const loggingIn = Meteor.loggingIn();
+			const authenticated = !loggingIn && !!Meteor.userId();
 			const currentUser: TUser = getCurrentUser.call({});
 			const nextGameHandle = Meteor.subscribe('nextGame');
 			const nextGameReady = nextGameHandle.ready();
@@ -273,8 +277,10 @@ export default withRouter(
 
 			return {
 				...props,
+				authenticated,
 				currentUser,
 				currentWeek: week,
+				loggingIn,
 				selectedWeek,
 			};
 		},

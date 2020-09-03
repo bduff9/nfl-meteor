@@ -2,6 +2,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import {
 	faFacebook as fabFacebook,
 	faGoogle as fabGoogle,
+	faTwitter as fabTwitter,
 } from '@fortawesome/free-brands-svg-icons';
 import {
 	faAngleDoubleLeft as fadAngleDoubleLeft,
@@ -45,6 +46,7 @@ import {
 library.add(
 	fabFacebook,
 	fabGoogle,
+	fabTwitter,
 	fadAngleDoubleLeft,
 	fadAngleDoubleRight,
 	fadAngleLeft,

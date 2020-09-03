@@ -29,10 +29,12 @@ import Tooltip from './Tooltip';
 type TEditProfileFormProps = RouteComponentProps & {
 	hasFacebook: boolean;
 	hasGoogle: boolean;
+	hasTwitter: boolean;
 	isCreate: boolean;
 	user: TUser;
 	linkFacebook: () => void;
 	linkGoogle: () => void;
+	linkTwitter: () => void;
 };
 type TEditProfileFormValues = {
 	first_name: string;
@@ -61,10 +63,12 @@ const EditProfileForm: FC<
 	handleChange,
 	hasFacebook,
 	hasGoogle,
+	hasTwitter,
 	isCreate,
 	isSubmitting,
 	linkFacebook,
 	linkGoogle,
+	linkTwitter,
 	setFieldValue,
 	setTouched,
 	touched,
@@ -487,7 +491,7 @@ const EditProfileForm: FC<
 						as simple as a single click
 					</p>
 				</div>
-				<div className="col-12 offset-md-2 col-md-5 text-center social-btns">
+				<div className="col-12 offset-md-2 col-md-5 text-center social-btns d-none">
 					<button
 						type="button"
 						className="btn btn-primary btn-facebook btn-block"
@@ -496,6 +500,17 @@ const EditProfileForm: FC<
 					>
 						<FontAwesomeIcon icon={['fab', 'facebook']} />{' '}
 						{hasFacebook ? 'Facebook Linked!' : 'Link Facebook'}
+					</button>
+				</div>
+				<div className="col-12 offset-md-2 col-md-5 text-center social-btns">
+					<button
+						type="button"
+						className="btn btn-primary btn-twitter btn-block"
+						disabled={hasTwitter}
+						onClick={linkTwitter}
+					>
+						<FontAwesomeIcon icon={['fab', 'twitter']} />{' '}
+						{hasTwitter ? 'Twitter Linked!' : 'Link Twitter'}
 					</button>
 				</div>
 				<div className="col-12 col-md-5 text-center social-btns">

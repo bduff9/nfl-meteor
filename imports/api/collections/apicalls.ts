@@ -41,6 +41,7 @@ if (dbVersion >= 2) {
 			url: String,
 			week: {
 				type: Number,
+				optional: true,
 				validators: [
 					{
 						type: 'and',

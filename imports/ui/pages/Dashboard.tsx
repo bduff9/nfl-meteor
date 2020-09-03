@@ -4,6 +4,7 @@ import React, { FC, useState, FormEvent } from 'react';
 import Helmet from 'react-helmet';
 
 import { updateSelectedWeek } from '../../api/collections/users';
+import { TWeek } from '../../api/commonTypes';
 import { DEFAULT_LEAGUE, WEEKS_IN_SEASON } from '../../api/constants';
 import { handleError } from '../../api/global';
 import OverallDash from '../components/OverallDash';
@@ -18,6 +19,7 @@ export type TDashboardProps = {
 };
 export type TSortByDir = -1 | 1 | undefined;
 export type TDashSortBy = {
+	by_place?: TSortByDir;
 	total_games?: TSortByDir;
 	total_points?: TSortByDir;
 	games_correct?: TSortByDir;
@@ -32,7 +34,7 @@ const Dashboard: FC<TDashboardProps> = ({
 	const [sortBy, setSortBy] = useState<TDashSortBy | null>(null);
 	const [viewOverall, setViewOverall] = useState<boolean>(false);
 
-	const _nextOrd = (num: TSortByDir, otherNum: TSortByDir): TSortByDir => {
+	const _nextOrd = (num: TSortByDir, otherNum?: TSortByDir): TSortByDir => {
 		if (num === 1) return -1;
 
 		if (num === -1 && otherNum) return undefined;
@@ -41,8 +43,10 @@ const Dashboard: FC<TDashboardProps> = ({
 	};
 
 	const _changeSortBy = (currSort: TDashSortBy, col: string): void => {
-		const newSort = Object.assign({}, currSort);
+		let newSort = Object.assign({}, currSort);
 		const {
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			by_place,
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			total_games,
 			// eslint-disable-next-line @typescript-eslint/camelcase
@@ -53,7 +57,12 @@ const Dashboard: FC<TDashboardProps> = ({
 			points_earned: week_points,
 		} = newSort;
 
-		if (col === 'games') {
+		if (col === 'place') {
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			newSort = { by_place: _nextOrd(by_place) };
+		} else if (col === 'games') {
+			delete newSort.by_place;
+
 			if (viewOverall) {
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				newSort.total_games = _nextOrd(total_games, total_points);
@@ -62,6 +71,8 @@ const Dashboard: FC<TDashboardProps> = ({
 				newSort.games_correct = _nextOrd(week_games, week_points);
 			}
 		} else if (col === 'points') {
+			delete newSort.by_place;
+
 			if (viewOverall) {
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				newSort.total_points = _nextOrd(total_points, total_games);
@@ -139,7 +150,7 @@ const Dashboard: FC<TDashboardProps> = ({
 						<WeekDash
 							league={currentLeague}
 							sortBy={sortBy}
-							week={selectedWeek}
+							week={selectedWeek as TWeek}
 							changeSortBy={_changeSortBy}
 						/>
 					)}

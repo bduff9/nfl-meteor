@@ -34,3 +34,4 @@ practicalmeteor:mocha
 percolate:migrations
 lookback:emails
 typescript
+accounts-twitter

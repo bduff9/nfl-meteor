@@ -26,7 +26,7 @@ export default withTracker<TDashLayoutProps, TOverallDashProps>(
 		const usersHandle = Meteor.subscribe('overallPlaces');
 		const usersReady = usersHandle.ready();
 		// eslint-disable-next-line @typescript-eslint/camelcase
-		const sort = sortBy || { total_points: -1, total_games: -1 };
+		const sort = sortBy || { by_place: -1 };
 		let picks: TPick[] = [];
 		let myPicks: TPick[] = [];
 		let users: TUser[] = [];
@@ -76,28 +76,27 @@ export default withTracker<TDashLayoutProps, TOverallDashProps>(
 					};
 				},
 			);
-			myUser.correctPicks = myPicks.filter(
+			const correctPicks = myPicks.filter(
 				(pick): boolean => !!pick.winner_id && pick.pick_id === pick.winner_id,
 			);
-			myUser.incorrectPicks = myPicks.filter(
+
+			myUser.correctPicks = correctPicks.length;
+
+			const incorrectPicks = myPicks.filter(
 				(pick): boolean => !!pick.winner_id && pick.pick_id !== pick.winner_id,
 			);
-			myUser.correctPoints = myUser.correctPicks.reduce(
-				(prev, pick): number => {
-					if (pick.points) return prev + pick.points;
 
-					return prev;
-				},
-				0,
-			);
-			myUser.incorrectPoints = myUser.incorrectPicks.reduce(
-				(prev, pick): number => {
-					if (pick.points) return prev + pick.points;
+			myUser.incorrectPicks = incorrectPicks.length;
+			myUser.correctPoints = correctPicks.reduce((prev, pick): number => {
+				if (pick.points) return prev + pick.points;
 
-					return prev;
-				},
-				0,
-			);
+				return prev;
+			}, 0);
+			myUser.incorrectPoints = incorrectPicks.reduce((prev, pick): number => {
+				if (pick.points) return prev + pick.points;
+
+				return prev;
+			}, 0);
 			myUser.myPlace = myUser.overall_place || 1;
 
 			let aheadOfMe = 0;
@@ -106,7 +105,14 @@ export default withTracker<TDashLayoutProps, TOverallDashProps>(
 
 			myUser.tied = myUser.overall_tied_flag ? 'T' : '';
 			data
-				.sort(sortForDash.bind(null, sort.total_points, sort.total_games))
+				.sort(
+					sortForDash.bind(
+						null,
+						sort.by_place,
+						sort.total_points,
+						sort.total_games,
+					),
+				)
 				.forEach(
 					(u): void => {
 						const place = u.place;

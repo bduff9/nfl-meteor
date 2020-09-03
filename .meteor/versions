@@ -3,6 +3,7 @@ accounts-facebook@1.3.2
 accounts-google@1.3.3
 accounts-oauth@1.1.16
 accounts-password@1.5.1
+accounts-twitter@1.4.2
 aldeed:simple-schema@1.5.4
 allow-deny@1.1.0
 autoupdate@1.6.0
@@ -72,6 +73,7 @@ mongo-id@1.0.7
 npm-bcrypt@0.9.3
 npm-mongo@3.3.0-alpha190.9
 oauth@1.2.8
+oauth1@1.2.2
 oauth2@1.2.1
 observe-sequence@1.0.16
 ordered-dict@1.1.0
@@ -109,6 +111,7 @@ tmeasday:check-npm-versions@0.3.2
 tmeasday:publish-counts@0.8.0
 tmeasday:test-reporter-helpers@0.2.1
 tracker@1.2.0
+twitter-oauth@1.2.0
 typescript@3.5.2-beta182.17
 ui@1.0.13
 underscore@1.0.10

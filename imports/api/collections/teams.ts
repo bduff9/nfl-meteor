@@ -284,7 +284,8 @@ export const getTeamByShort = new ValidatedMethod<TGetTeamByShortProps>({
 		if (!team)
 			throw new Meteor.Error(
 				'Teams.getTeamByShort.noTeamFound',
-				'No team found',
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				`No team found (${short_name})`,
 			);
 
 		return team;

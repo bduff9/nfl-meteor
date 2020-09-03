@@ -24,6 +24,7 @@ const EditProfile: FC<TEditProfileProps> = ({
 	const user = Meteor.user() as TUser;
 	const hasFacebook = !!user.services && !!user.services.facebook;
 	const hasGoogle = !!user.services && !!user.services.google;
+	const hasTwitter = !!user.services && !!user.services.twitter;
 
 	const _oauthLink = (service: TLoginType): void => {
 		const options: Meteor.LoginWithExternalServiceOptions = {
@@ -66,10 +67,12 @@ const EditProfile: FC<TEditProfileProps> = ({
 							{...props}
 							hasFacebook={hasFacebook}
 							hasGoogle={hasGoogle}
+							hasTwitter={hasTwitter}
 							isCreate={isCreate}
 							user={user}
 							linkFacebook={(): void => _oauthLink('loginWithFacebook')}
 							linkGoogle={(): void => _oauthLink('loginWithGoogle')}
+							linkTwitter={(): void => _oauthLink('loginWithTwitter')}
 						/>
 					</div>
 				</div>

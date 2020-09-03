@@ -96,6 +96,11 @@ Meteor.startup(
 					lastName = user.services.google.family_name;
 					email = user.services.google.email;
 					service = 'google';
+				} else if (user.services.twitter) {
+					//TODO: remove
+					console.log('twitter', user.services.twitter);
+					email = user.services.twitter.email;
+					service = 'twitter';
 				} else {
 					firstName = EMPTY_VAL;
 					lastName = EMPTY_VAL;

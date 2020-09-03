@@ -41,7 +41,10 @@ export type TGameStatus = 'P' | 'I' | '1' | '2' | 'H' | '3' | '4' | 'C';
 
 export type TGameTeam = 'home' | 'visitor' | 'winner';
 
-export type TLoginType = 'loginWithFacebook' | 'loginWithGoogle';
+export type TLoginType =
+	| 'loginWithFacebook'
+	| 'loginWithGoogle'
+	| 'loginWithTwitter';
 
 export type TNFLLogAction = typeof ACTIONS[number];
 

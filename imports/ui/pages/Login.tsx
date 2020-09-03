@@ -8,19 +8,19 @@ import sweetAlert from 'sweetalert';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { getSystemValues } from '../../api/collections/systemvals';
-import { TError } from '../../api/commonTypes';
+import { TError, TLoginType } from '../../api/commonTypes';
 import { handleError } from '../../api/global';
 import LoginForm from '../components/LoginForm';
 
-export type TLoginLoading = 'facebook' | 'google' | 'verify' | null;
-export type TLoginType = 'login' | 'register';
+export type TLoginLoading = 'facebook' | 'google' | 'twitter' | 'verify' | null;
+export type TLoginFormType = 'login' | 'register';
 
 const Login: FC<{}> = (): JSX.Element => {
 	const systemVals = getSystemValues.call({});
 
 	const { year_updated: currYear } = systemVals;
 	const [loading, setLoading] = useState<TLoginLoading>(null);
-	const [type, setType] = useState<TLoginType>('login');
+	const [type, setType] = useState<TLoginFormType>('login');
 
 	const _forgotPassword = (email: string): false => {
 		if (!email) {
@@ -48,9 +48,7 @@ const Login: FC<{}> = (): JSX.Element => {
 		return false;
 	};
 
-	const _oauthLogin = (
-		service: 'loginWithFacebook' | 'loginWithGoogle',
-	): void => {
+	const _oauthLogin = (service: TLoginType): void => {
 		const options = {
 			requestPermissions: ['email'],
 		};
@@ -113,7 +111,7 @@ const Login: FC<{}> = (): JSX.Element => {
 						</div>
 					</div>
 					<div className="row">
-						<div className="col-12 col-md-6">
+						<div className="col-12 col-md-6 d-none">
 							<button
 								type="button"
 								className="btn text-center btn-block btn-social btn-facebook"
@@ -122,6 +120,19 @@ const Login: FC<{}> = (): JSX.Element => {
 							>
 								<FontAwesomeIcon icon={['fab', 'facebook']} />
 								{loading === 'facebook' && (
+									<FontAwesomeIcon icon={['fad', 'spinner']} fixedWidth pulse />
+								)}
+							</button>
+						</div>
+						<div className="col-12 col-md-6">
+							<button
+								type="button"
+								className="btn text-center btn-block btn-social btn-twitter"
+								disabled={!!loading}
+								onClick={(): void => _oauthLogin('loginWithTwitter')}
+							>
+								<FontAwesomeIcon icon={['fab', 'twitter']} />
+								{loading === 'twitter' && (
 									<FontAwesomeIcon icon={['fad', 'spinner']} fixedWidth pulse />
 								)}
 							</button>

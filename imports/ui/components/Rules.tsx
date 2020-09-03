@@ -54,6 +54,12 @@ const Rules: FC<{}> = (): JSX.Element => {
 					The maximum number of points in 16-game weeks is 136 points, 120 in
 					15-game weeks, 105 in 14-game weeks, and 91 in 13-game weeks.
 				</li>
+				<li>
+					If the season ends prior to week 9, then every player will be given a
+					refund. However, if season 9 completes and then the season ends early,
+					all prizes will be paid out at the point just like the season
+					completed.
+				</li>
 			</ol>
 		</div>
 	);

@@ -45,45 +45,45 @@ export type TNewTiebreaker = TTiebreaker & {
 const _updateUsers = ({
 	games,
 	picks,
-	selectedWeek,
 	tiebreakers,
 }: TUpdateUsers): TNewTiebreaker[] => {
-	const newTiebreakers = tiebreakers.map(
-		(tiebreaker): TNewTiebreaker => {
-			const newTiebreaker: TNewTiebreaker = Object.assign({}, tiebreaker);
-			const userPicks = picks.filter(
-				pick => pick.user_id === newTiebreaker.user_id,
-			);
-			let pts = 0;
-			let gms = 0;
-			let game;
+	console.log({ tiebreakers });
 
-			// eslint-disable-next-line @typescript-eslint/camelcase
-			newTiebreaker.full_name = tiebreaker.getFullName();
+	const newTiebreakers = tiebreakers
+		.map(
+			(tiebreaker): TNewTiebreaker => {
+				const userPicks = picks.filter(
+					pick => pick.user_id === tiebreaker.user_id,
+				);
+				let pts = 0;
+				let gms = 0;
+				let game;
 
-			userPicks.forEach(
-				(pick, i): void => {
-					game = games[i];
-
-					if (game.winner_id && pick.pick_id === game.winner_id) {
-						pts += pick.points || 0;
-						gms += 1;
-					}
-				},
-			);
-
-			if (newTiebreaker) {
 				// eslint-disable-next-line @typescript-eslint/camelcase
-				newTiebreaker.points_earned = pts;
+				(tiebreaker as TNewTiebreaker).full_name = tiebreaker.getFullName();
+
+				userPicks.forEach(
+					(pick, i): void => {
+						game = games[i];
+
+						if (game.winner_id && pick.pick_id === game.winner_id) {
+							pts += pick.points || 0;
+							gms += 1;
+						}
+					},
+				);
+
 				// eslint-disable-next-line @typescript-eslint/camelcase
-				newTiebreaker.games_correct = gms;
-			}
+				tiebreaker.points_earned = pts;
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				tiebreaker.games_correct = gms;
 
-			return newTiebreaker;
-		},
-	);
+				return tiebreaker;
+			},
+		)
+		.sort(weekPlacer);
 
-	newTiebreakers.sort(weekPlacer);
+	console.log({ newTiebreakers });
 
 	newTiebreakers.forEach(
 		(tiebreaker, i, allTiebreakers): void => {
@@ -119,6 +119,8 @@ const _updateUsers = ({
 			}
 		},
 	);
+
+	console.log({ newTiebreakers });
 
 	return newTiebreakers;
 };

@@ -7,7 +7,7 @@ import { TWeek } from '../../imports/api/commonTypes';
 import { TAPIMatchup } from '../api-calls';
 
 export type TInsertAPICallProps = {
-	error?: any;
+	error?: unknown;
 	response: { nflSchedule: { matchup: TAPIMatchup[] } };
 	url: string;
 	week: TWeek;
@@ -24,7 +24,7 @@ export const insertAPICall = new ValidatedMethod<TInsertAPICallProps>({
 			label: 'Response',
 		},
 		url: { type: String, label: 'API URL Called', min: 3 },
-		week: { type: Number, label: 'Week', min: 1, max: 17 },
+		week: { type: Number, label: 'Week', min: 1, max: 17, optional: true },
 		year: { type: Number, label: 'Year', min: 2019 },
 	}).validator(),
 	run ({ error, response, url, week, year }: TInsertAPICallProps): void {
@@ -43,4 +43,16 @@ export const insertAPICall = new ValidatedMethod<TInsertAPICallProps>({
 export const insertAPICallSync = Meteor.wrapAsync(
 	insertAPICall.call,
 	insertAPICall,
+);
+
+export const clearAPICalls = new ValidatedMethod({
+	name: 'APICalls.clearAPICalls',
+	validate: new SimpleSchema({}).validator(),
+	run (): void {
+		APICall.remove({});
+	},
+});
+export const clearAPICallsSync = Meteor.wrapAsync(
+	clearAPICalls.call,
+	clearAPICalls,
 );

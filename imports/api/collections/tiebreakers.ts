@@ -8,7 +8,7 @@ import { TWeek } from '../commonTypes';
 import { dbVersion } from '../constants';
 import { handleError } from '../global';
 
-import { gameHasStarted } from './games';
+import { gameHasStarted, getLastGameOfWeek, TGame } from './games';
 import { writeLog } from './nfllogs';
 import { getPicksForWeek, TPick } from './picks';
 import { getUserByID, getUserName, sendAllPicksInEmail, TUser } from './users';
@@ -416,12 +416,20 @@ export const setTiebreaker = new ValidatedMethod<TSetTiebreakerProps>({
 		const user_id = this.userId;
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const tb = Tiebreaker.findOne({ league, user_id, week });
+		const lastGame: TGame = getLastGameOfWeek.call({ week });
+		const hasStarted = lastGame.status !== 'P';
 
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		if (!user_id)
 			throw new Meteor.Error(
 				'Tiebreakers.setTiebreaker.notLoggedIn',
 				'Must be logged in to update tiebreaker',
+			);
+
+		if (hasStarted)
+			throw new Meteor.Error(
+				'Tiebreakers.setTiebreaker.gameAlreadyStarted',
+				'You cannot set the tiebreaker after the game has started',
 			);
 
 		if (Meteor.isServer) {

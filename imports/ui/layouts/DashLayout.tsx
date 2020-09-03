@@ -9,7 +9,6 @@ import {
 	Tooltip,
 } from 'recharts';
 
-import { TPick } from '../../api/collections/picks';
 import { TTiebreaker } from '../../api/collections/tiebreakers';
 import { TWeek } from '../../api/commonTypes';
 import { TDashSortBy } from '../pages/Dashboard';
@@ -19,9 +18,9 @@ export type TDashboardCurrentUser = {
 	_id: string;
 	aheadOfMe: number;
 	behindMe: number;
-	correctPicks: TPick[];
+	correctPicks: number;
 	correctPoints: number;
-	incorrectPicks: TPick[];
+	incorrectPicks: number;
 	incorrectPoints: number;
 	myPlace: number;
 	overall_place?: number;
@@ -65,6 +64,7 @@ const DashLayout: FC<TDashLayoutProps> = ({
 	changeSortBy,
 }): JSX.Element => {
 	const gamesSort = sort.total_games || sort.games_correct;
+	const placeSort = sort.by_place;
 	const pointsSort = sort.total_points || sort.points_earned;
 	const {
 		aheadOfMe,
@@ -81,8 +81,8 @@ const DashLayout: FC<TDashLayoutProps> = ({
 	const picksAndPointsSum =
 		correctPoints +
 		incorrectPoints +
-		(correctPicks ? correctPicks.length : 0) +
-		(incorrectPicks ? incorrectPicks.length : 0);
+		(correctPicks || 0) +
+		(incorrectPicks || 0);
 	const hasData = picksAndPointsSum > 0;
 
 	const _customLabel = ({ cx, cy }: PieLabelRenderProps): JSX.Element => (
@@ -119,12 +119,12 @@ const DashLayout: FC<TDashLayoutProps> = ({
 										data={[
 											{
 												name: 'Games Correct',
-												value: correctPicks.length,
+												value: correctPicks,
 												fill: '#5cb85c',
 											},
 											{
 												name: 'Games Incorrect',
-												value: incorrectPicks.length,
+												value: incorrectPicks,
 												fill: '#d9534f',
 											},
 										]}
@@ -180,7 +180,18 @@ const DashLayout: FC<TDashLayoutProps> = ({
 						<table className="table table-hover dashboard-table">
 							<thead className="thead-default">
 								<tr>
-									<th>Rank</th>
+									<th
+										className="can-sort"
+										onClick={(): void => changeSortBy(sort, 'place')}
+									>
+										Rank&nbsp;
+										{placeSort === 1 && (
+											<FontAwesomeIcon icon={['fad', 'sort-size-up']} />
+										)}
+										{placeSort === -1 && (
+											<FontAwesomeIcon icon={['fad', 'sort-size-down']} />
+										)}
+									</th>
 									<th>Team</th>
 									<th>Owner</th>
 									<th

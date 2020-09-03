@@ -175,11 +175,18 @@ export const humanizeVariable = (value: string): string => {
 };
 
 export const sortForDash = (
+	placeSort: TSortByDir,
 	pointsSort: TSortByDir,
 	gamesSort: TSortByDir,
 	user1: TDashboardUser,
 	user2: TDashboardUser,
 ): TSortResult => {
+	if (placeSort) {
+		if (user1.place < user2.place) return placeSort;
+
+		if (user1.place > user2.place) return (-1 * placeSort) as TSortResult;
+	}
+
 	if (pointsSort) {
 		if (user1.total_points < user2.total_points)
 			return (-1 * pointsSort) as TSortResult;
@@ -204,30 +211,70 @@ export const weekPlacer = (
 	const lastScoreDiff1 = (user1.last_score_act || 0) - (user1.last_score || 0);
 	const lastScoreDiff2 = (user2.last_score_act || 0) - (user2.last_score || 0);
 
-	// First, sort by points
-	if (user1.points_earned > user2.points_earned) return -1;
+	console.log({ user1, user2 });
 
-	if (user1.points_earned < user2.points_earned) return 1;
+	// First, sort by points
+	if (user1.points_earned > user2.points_earned) {
+		console.log('user1 has more points');
+
+		return -1;
+	}
+
+	if (user1.points_earned < user2.points_earned) {
+		console.log('user2 has more points');
+
+		return 1;
+	}
 
 	// Then, sort by games correct
-	if (user1.games_correct > user2.games_correct) return -1;
+	if (user1.games_correct > user2.games_correct) {
+		console.log('user1 has more games correct');
 
-	if (user1.games_correct > user2.games_correct) return 1;
+		return -1;
+	}
+
+	if (user1.games_correct > user2.games_correct) {
+		console.log('user2 has more games correct');
+
+		return 1;
+	}
 
 	// Stop here if last game hasn't been played
-	if (!user1.last_score_act && !user2.last_score_act) return 0;
+	if (!user1.last_score_act && !user2.last_score_act) {
+		console.log("Last game hasn't been played yet");
+
+		return 0;
+	}
 
 	// Otherwise, sort by whomever didn't go over the last game's score
-	if (lastScoreDiff1 >= 0 && lastScoreDiff2 < 0) return -1;
+	if (lastScoreDiff1 >= 0 && lastScoreDiff2 < 0) {
+		console.log('user2 went over last score');
 
-	if (lastScoreDiff1 < 0 && lastScoreDiff2 >= 0) return 1;
+		return -1;
+	}
+
+	if (lastScoreDiff1 < 0 && lastScoreDiff2 >= 0) {
+		console.log('user1 went over last score');
+
+		return 1;
+	}
 
 	// Next, sort by the closer to the last games score
-	if (Math.abs(lastScoreDiff1) < Math.abs(lastScoreDiff2)) return -1;
+	if (Math.abs(lastScoreDiff1) < Math.abs(lastScoreDiff2)) {
+		console.log('user1 is closer to last score');
 
-	if (Math.abs(lastScoreDiff1) > Math.abs(lastScoreDiff2)) return 1;
+		return -1;
+	}
+
+	if (Math.abs(lastScoreDiff1) > Math.abs(lastScoreDiff2)) {
+		console.log('user2 is closer to last score');
+
+		return 1;
+	}
 
 	// Finally, if we get here, then they are identical
+	console.log('points, games, and tiebreaker are identical');
+
 	return 0;
 };
 

@@ -21,7 +21,6 @@ import {
 	updateSurvivor,
 } from '../imports/api/collections/users';
 import { TWeek, TGameNumber, TGameStatus } from '../imports/api/commonTypes';
-import { WEEKS_IN_SEASON } from '../imports/api/constants';
 import { convertEpoch, handleError } from '../imports/api/global';
 import {
 	currentWeek,
@@ -55,7 +54,7 @@ export type TAPIMatchup = {
 	team: TAPITeam[];
 };
 export interface TAPINflSchedule {
-	matchup: TAPIMatchup[];
+	matchup?: TAPIMatchup[];
 	week: string;
 }
 export interface TAPIResponse {
@@ -63,28 +62,67 @@ export interface TAPIResponse {
 	nflSchedule: TAPINflSchedule;
 	version: string;
 }
+export interface TAPIFullResponse {
+	encoding: string;
+	fullNflSchedule: { nflSchedule: TAPINflSchedule[] };
+	version: string;
+}
+
+const getEntireSeason = (): TAPINflSchedule[] => {
+	const systemVals: TSystemVals = getSystemValues.call({});
+	const currYear = systemVals.year_updated;
+	let url;
+
+	if (Meteor.settings.mode === 'production' || !Meteor.settings.apiHost) {
+		url = `https://api.myfantasyleague.com/fflnetdynamic${currYear}/nfl_sched.json`;
+	} else {
+		url = `${
+			Meteor.settings.apiHost
+		}/${currYear}/export?TYPE=nflSchedule&JSON=1`;
+	}
+
+	try {
+		const response = HTTP.get(url, {
+			headers: {
+				'User-Agent': 'ASWNN-NFL',
+			},
+		});
+		const apiResponse = response.data as TAPIFullResponse;
+
+		insertAPICall.call({ response: apiResponse, url, year: currYear });
+
+		return apiResponse.fullNflSchedule.nflSchedule;
+	} catch (error) {
+		insertAPICall.call({ error, response: null, url, year: currYear });
+
+		return [];
+	}
+};
 
 export const getGamesForWeek = (week: TWeek): TAPIMatchup[] => {
 	const systemVals: TSystemVals = getSystemValues.call({});
 	const currYear = systemVals.year_updated;
-	const data = { TYPE: 'nflSchedule', JSON: '1', W: `${week}` };
 	let url;
 
 	if (Meteor.settings.mode === 'production' || !Meteor.settings.apiHost) {
-		url = 'http://www03.myfantasyleague.com';
+		url = `https://api.myfantasyleague.com/fflnetdynamic${currYear}/nfl_sched_${week}.json`;
 	} else {
-		url = Meteor.settings.apiHost;
+		url = `${
+			Meteor.settings.apiHost
+		}/${currYear}/export?TYPE=nflSchedule&W=${week}&JSON=1`;
 	}
 
-	url += `/${currYear}/export`;
-
 	try {
-		const response = HTTP.get(url, { params: data });
+		const response = HTTP.get(url, {
+			headers: {
+				'User-Agent': 'ASWNN-NFL',
+			},
+		});
 		const apiResponse = response.data as TAPIResponse;
 
 		insertAPICall.call({ response: apiResponse, url, week, year: currYear });
 
-		return apiResponse.nflSchedule.matchup;
+		return apiResponse.nflSchedule.matchup || [];
 	} catch (error) {
 		insertAPICall.call({ error, response: null, url, week, year: currYear });
 
@@ -92,8 +130,11 @@ export const getGamesForWeek = (week: TWeek): TAPIMatchup[] => {
 	}
 };
 
-export const populateGamesForWeek = (w: TWeek): void => {
-	const games = getGamesForWeek(w);
+const populateGamesForWeek = ({
+	matchup: games,
+	week,
+}: TAPINflSchedule): void => {
+	const w = parseInt(week, 10);
 	let game: TGame;
 	let hTeamData: TAPITeam;
 	let vTeamData: TAPITeam;
@@ -121,7 +162,7 @@ export const populateGamesForWeek = (w: TWeek): void => {
 			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 			// @ts-ignore
 			game = {
-				week: w,
+				week: (w as unknown) as TWeek,
 				game: (i + 1) as TGameNumber,
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				home_id: hTeam._id,
@@ -201,7 +242,13 @@ export const populateGamesForWeek = (w: TWeek): void => {
 };
 
 export const populateGames = (): void => {
-	for (let w = 1; w <= WEEKS_IN_SEASON; w++) populateGamesForWeek(w as TWeek);
+	const weeks = getEntireSeason();
+
+	for (const week of weeks) {
+		if (week.matchup) {
+			populateGamesForWeek(week);
+		}
+	}
 };
 
 export const updateGames = (): void => {

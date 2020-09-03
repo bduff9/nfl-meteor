@@ -115,6 +115,7 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 	const lastGame = games[games.length - 1];
 	const lastHomeTeam = lastGame && lastGame.getTeam('home');
 	const lastVisitingTeam = lastGame && lastGame.getTeam('visitor');
+	let lastGameStarted = false;
 
 	useEffect((): void => {
 		const notAllowed =
@@ -254,10 +255,12 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 
 	const _submitPicks = (
 		picksLeft: boolean,
-		noTiebreaker: boolean,
+		tiebreaker: number | null | undefined,
 		ev: MouseEvent<HTMLButtonElement>,
 	): false => {
-		const tiebreakerVal = tiebreakerEl.current ? tiebreakerEl.current.value : 0;
+		const tiebreakerVal = tiebreakerEl.current
+			? tiebreakerEl.current.value
+			: '0';
 
 		ev.preventDefault();
 
@@ -267,7 +270,7 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 				text: 'You must use all available points before you can submit',
 				icon: 'warning',
 			});
-		} else if (noTiebreaker && !tiebreakerVal) {
+		} else if (tiebreaker == null && !tiebreakerVal) {
 			sweetAlert({
 				title: 'Slow down!',
 				text:
@@ -293,7 +296,11 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 						closeModal: false,
 					},
 				},
-			}).then((): void => _handleSubmitPicks());
+			}).then(
+				(result: true | null): void => {
+					if (result) _handleSubmitPicks();
+				},
+			);
 		}
 
 		return false;
@@ -341,6 +348,8 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 											const homePicked = thisPick.pick_id === homeTeam._id;
 											const visitorPicked = thisPick.pick_id === visitTeam._id;
 											const started = game.kickoff <= new Date();
+
+											lastGameStarted = started;
 
 											return (
 												<tr
@@ -495,11 +504,12 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 										<tr>
 											<td>
 												<input
-													type="number"
 													className="form-control"
 													defaultValue={`${tiebreaker.last_score || 0}`}
-													onBlur={_setTiebreakerWrapper}
+													disabled={lastGameStarted}
+													onBlur={!lastGameStarted && _setTiebreakerWrapper}
 													ref={tiebreakerEl}
+													type="number"
 												/>
 											</td>
 										</tr>
@@ -583,7 +593,7 @@ const MakePicks: FC<RouteComponentProps & TMakePicksProps> = ({
 							type="submit"
 							className="btn btn-success"
 							onClick={(ev): false =>
-								_submitPicks(available.length !== 0, !tiebreaker.last_score, ev)
+								_submitPicks(available.length !== 0, tiebreaker.last_score, ev)
 							}
 						>
 							<FontAwesomeIcon

@@ -20,6 +20,7 @@ import {
 import { DEFAULT_LEAGUE } from '../imports/api/constants';
 import { getCurrentSeasonYear } from '../imports/api/global';
 
+import { clearAPICalls } from './collections/apicalls';
 import { clearGames, initSchedule } from './collections/games';
 import { clearNFLLogs } from './collections/nfllogs';
 import { clearPicks } from './collections/picks';
@@ -85,6 +86,7 @@ export const initPoolOnServer = new ValidatedMethod({
 		clearSurvivorPicks.call({});
 		clearTeams.call({});
 		clearTiebreakers.call({});
+		clearAPICalls.call({});
 
 		// Clear out/default old user info i.e. referred_by, done_registering, leagues, survivor, owe, paid, selected_week, total_points, total_games, overall_place, overall_tied_flag
 		users.forEach(

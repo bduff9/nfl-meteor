@@ -47,9 +47,7 @@ export default withTracker<TDashLayoutProps, TWeekDashProps>(
 			picksReady && tiebreakerReady && tiebreakersReady && usersReady;
 		const sort: TDashSortBy = sortBy || {
 			// eslint-disable-next-line @typescript-eslint/camelcase
-			points_earned: -1,
-			// eslint-disable-next-line @typescript-eslint/camelcase
-			games_correct: -1,
+			by_place: -1,
 		};
 		let myTiebreaker: TTiebreaker = {} as any;
 		let tiebreakers: TTiebreaker[] = [];
@@ -126,28 +124,18 @@ export default withTracker<TDashLayoutProps, TWeekDashProps>(
 					};
 				},
 			);
-			myUser.correctPicks = myPicks.filter(
-				(pick): boolean => !!pick.winner_id && pick.pick_id === pick.winner_id,
-			);
-			myUser.incorrectPicks = myPicks.filter(
+			myUser.correctPicks = myTiebreaker.games_correct;
+			const incorrectPicks = myPicks.filter(
 				(pick): boolean => !!pick.winner_id && pick.pick_id !== pick.winner_id,
 			);
-			myUser.correctPoints = myUser.correctPicks.reduce(
-				(prev, pick): number => {
-					if (pick.points) return prev + pick.points;
 
-					return prev;
-				},
-				0,
-			);
-			myUser.incorrectPoints = myUser.incorrectPicks.reduce(
-				(prev, pick): number => {
-					if (pick.points) return prev + pick.points;
+			myUser.incorrectPicks = incorrectPicks.length;
+			myUser.correctPoints = myTiebreaker.points_earned;
+			myUser.incorrectPoints = incorrectPicks.reduce((prev, pick): number => {
+				if (pick.points) return prev + pick.points;
 
-					return prev;
-				},
-				0,
-			);
+				return prev;
+			}, 0);
 			myUser.myPlace = myTiebreaker.place_in_week || 1;
 			let aheadOfMe = 0;
 			let tiedMe = 0;
@@ -155,7 +143,14 @@ export default withTracker<TDashLayoutProps, TWeekDashProps>(
 
 			myUser.tied = myTiebreaker.tied_flag ? 'T' : '';
 			data
-				.sort(sortForDash.bind(null, sort.points_earned, sort.games_correct))
+				.sort(
+					sortForDash.bind(
+						null,
+						sort.by_place,
+						sort.points_earned,
+						sort.games_correct,
+					),
+				)
 				.forEach(
 					(u): void => {
 						const place = u.place;

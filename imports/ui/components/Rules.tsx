@@ -56,7 +56,7 @@ const Rules: FC<{}> = (): JSX.Element => {
 				</li>
 				<li>
 					If the season ends prior to week 9, then every player will be given a
-					refund. However, if season 9 completes and then the season ends early,
+					refund. However, if week 9 completes and then the season ends early,
 					all prizes will be paid out at the point just like the season
 					completed.
 				</li>

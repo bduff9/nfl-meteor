@@ -52,8 +52,7 @@ type TEditProfileFormValues = {
 	do_reminder?: boolean;
 	quick_pick_hours?: number;
 	reminder_hours?: number;
-	reminder_types_email?: boolean;
-	reminder_types_text?: boolean;
+	reminderTypes?: ('email' | 'text')[];
 };
 
 const EditProfileForm: FC<
@@ -384,35 +383,33 @@ const EditProfileForm: FC<
 						<label className="form-check-label col-form-label">
 							<Field
 								className={getFormControlClass(
-									touched.reminder_types_email,
-									errors.reminder_types_email,
+									touched.reminderTypes,
+									errors.reminderTypes,
 									'form-check-input',
 								)}
 								type="checkbox"
-								name="reminder_types_email"
+								name="reminderTypes"
 								value="email"
-								checked={values.reminder_types_email}
 							/>
 							&nbsp;Email
 						</label>
-						<ErrorMessage component={FormError} name="reminder_types_email" />
+						<ErrorMessage component={FormError} name="reminderTypes" />
 						&nbsp; &nbsp;
 						<label className="form-check-label col-form-label">
 							<Field
 								className={getFormControlClass(
-									touched.reminder_types_text,
-									errors.reminder_types_text,
+									touched.reminderTypes,
+									errors.reminderTypes,
 									'form-check-input',
 								)}
 								type="checkbox"
-								name="reminder_types_text"
+								name="reminderTypes"
 								disabled={!!errors.phone_number || !values.phone_number}
 								value="text"
-								checked={values.reminder_types_text}
 							/>
 							&nbsp;Text
 						</label>
-						<ErrorMessage component={FormError} name="reminder_types_text" />
+						<ErrorMessage component={FormError} name="reminderTypes" />
 					</div>
 					<label className="col-12 col-md-3 col-form-label text-md-right">
 						Hours before first game:
@@ -567,10 +564,7 @@ export default withFormik<TEditProfileFormProps, TEditProfileFormValues>({
 		values.quick_pick_hours = 0;
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		values.reminder_hours = 0;
-		// eslint-disable-next-line @typescript-eslint/camelcase
-		values.reminder_types_email = false;
-		// eslint-disable-next-line @typescript-eslint/camelcase
-		values.reminder_types_text = false;
+		values.reminderTypes = [];
 
 		if (values.notifications) {
 			values.notifications.forEach(
@@ -579,11 +573,7 @@ export default withFormik<TEditProfileFormProps, TEditProfileFormValues>({
 					if (!notification.is_quick) {
 						// eslint-disable-next-line @typescript-eslint/camelcase
 						values.do_reminder = true;
-						// eslint-disable-next-line @typescript-eslint/camelcase
-						values.reminder_types_email =
-							notification.type.indexOf('email') > -1;
-						// eslint-disable-next-line @typescript-eslint/camelcase
-						values.reminder_types_text = notification.type.indexOf('text') > -1;
+						values.reminderTypes = notification.type;
 						// eslint-disable-next-line @typescript-eslint/camelcase
 						values.reminder_hours = notification.hours_before;
 					} else {
@@ -672,10 +662,7 @@ export default withFormik<TEditProfileFormProps, TEditProfileFormValues>({
 					),
 				otherwise: Yup.number(),
 			}),
-			// eslint-disable-next-line @typescript-eslint/camelcase
-			reminder_types_email: Yup.boolean(),
-			// eslint-disable-next-line @typescript-eslint/camelcase
-			reminder_types_text: Yup.boolean(),
+			reminderTypes: Yup.array().of(Yup.mixed().oneOf(['email', 'text'])),
 		}),
 
 	handleSubmit: (values, { props, setSubmitting }): void => {
@@ -702,13 +689,14 @@ export default withFormik<TEditProfileFormProps, TEditProfileFormValues>({
 			referred_by,
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			reminder_hours,
-			// eslint-disable-next-line @typescript-eslint/camelcase
-			reminder_types_email,
-			// eslint-disable-next-line @typescript-eslint/camelcase
-			reminder_types_text,
+			reminderTypes,
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			team_name,
 		} = values;
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		const reminder_types_email = reminderTypes.includes('email');
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		const reminder_types_text = reminderTypes.includes('text');
 		const { isCreate, history, user } = props;
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const done_registering =

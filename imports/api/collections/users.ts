@@ -42,7 +42,7 @@ import {
 } from './tiebreakers';
 
 export type TNotification = {
-	type: 'email' | 'text';
+	type: ('email' | 'text')[];
 	hours_before: number;
 	is_quick: boolean;
 };

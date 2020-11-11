@@ -61,7 +61,7 @@ if (dbVersion < 2) {
 						param: [
 							{ type: 'required' },
 							{ type: 'gte', param: 0 },
-							{ type: 'lte', param: 16 },
+							//{ type: 'lte', param: 16 },
 						],
 					},
 				],
@@ -152,7 +152,7 @@ if (dbVersion < 2) {
 						param: [
 							{ type: 'required' },
 							{ type: 'gte', param: 0 },
-							{ type: 'lte', param: 16 },
+							//{ type: 'lte', param: 16 },
 						],
 					},
 				],

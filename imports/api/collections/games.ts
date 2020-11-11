@@ -71,7 +71,7 @@ export const Game = Class.create({
 					param: [
 						{ type: 'required' },
 						{ type: 'gte', param: 0 },
-						{ type: 'lte', param: 16 },
+						//{ type: 'lte', param: 16 },
 					],
 				},
 			],
@@ -280,6 +280,44 @@ export const findGame = new ValidatedMethod<TFindGameProps>({
 	},
 });
 export const findGameSync = Meteor.wrapAsync(findGame.call, findGame);
+
+export type TFindFutureGameProps = {
+	home_short: string;
+	visitor_short: string;
+	week: TWeek;
+};
+export const findFutureGame = new ValidatedMethod<TFindFutureGameProps>({
+	name: 'Games.findFutureGame',
+	validate: new SimpleSchema({
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		home_short: { type: String, label: 'Home Short Name' },
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		visitor_short: { type: String, label: 'Visitor Short Name' },
+		week: { type: Number, label: 'Current Week' },
+	}).validator(),
+	// eslint-disable-next-line @typescript-eslint/camelcase
+	run ({ home_short, visitor_short, week }: TFindFutureGameProps): TGame {
+		const game = Game.findOne({
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			home_short,
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			visitor_short,
+			week: { $gt: week },
+		});
+
+		if (!game)
+			throw new Meteor.Error(
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				`No game found after week ${week} between ${home_short} and ${visitor_short}`,
+			);
+
+		return game;
+	},
+});
+export const findFutureGameSync = Meteor.wrapAsync(
+	findFutureGame.call,
+	findFutureGame,
+);
 
 export type TGameHasStartedProps = { gameId: string };
 export const gameHasStarted = new ValidatedMethod<TGameHasStartedProps>({

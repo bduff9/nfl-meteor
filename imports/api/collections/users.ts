@@ -336,7 +336,6 @@ if (dbVersion < 2) {
 			payment_type: {
 				type: String,
 				validators: [{ type: 'choice', param: ACCOUNT_TYPES }],
-				default: 'Cash',
 			},
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			payment_account: {
@@ -459,6 +458,23 @@ export const deleteUser = new ValidatedMethod<TDeleteUserProps>({
 	},
 });
 export const deleteUserSync = Meteor.wrapAsync(deleteUser.call, deleteUser);
+
+export type TGetAdminsProps = {};
+export const getAdmins = new ValidatedMethod<TGetAdminsProps>({
+	name: 'Users.getAdmins',
+	validate: new SimpleSchema({}).validator(),
+	run (): TUser[] {
+		if (Meteor.isServer) {
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			const admins: TUser[] = User.find({ is_admin: true }).fetch();
+
+			return admins;
+		}
+
+		return [];
+	},
+});
+export const getAdminsSync = Meteor.wrapAsync(getAdmins.call, getAdmins);
 
 export const getAdminUsers = new ValidatedMethod<{}>({
 	name: 'Users.getAdminUsers',

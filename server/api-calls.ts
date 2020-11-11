@@ -2,7 +2,12 @@ import { isAfter } from 'date-fns';
 import { HTTP } from 'meteor/http';
 import { Meteor } from 'meteor/meteor';
 
-import { assignPointsToMissed, Picks } from '../imports/api/collections/picks';
+import {
+	assignPointsToMissed,
+	getPicksForWeek,
+	Picks,
+	TPick,
+} from '../imports/api/collections/picks';
 import { SurvivorPicks } from '../imports/api/collections/survivorpicks';
 import {
 	getSystemValues,
@@ -15,25 +20,48 @@ import {
 	TTeam,
 } from '../imports/api/collections/teams';
 import {
+	getAdmins,
 	getAllLeagues,
+	getUsers,
+	TUser,
 	updatePlaces,
 	updatePoints,
 	updateSurvivor,
 } from '../imports/api/collections/users';
-import { TWeek, TGameNumber, TGameStatus } from '../imports/api/commonTypes';
-import { convertEpoch, handleError } from '../imports/api/global';
+import {
+	TWeek,
+	TGameNumber,
+	TGameStatus,
+	TError,
+	TAdminMessage,
+} from '../imports/api/commonTypes';
+import {
+	convertDateToEpoch,
+	convertEpoch,
+	handleError,
+} from '../imports/api/global';
 import {
 	currentWeek,
 	findGame,
 	getFirstGameOfWeek,
 	getWeeksToRefresh,
+	getGamesForWeek as getDBGamesForWeek,
 	insertGame,
 	TGame,
+	findFutureGame,
 } from '../imports/api/collections/games';
+import { WEEKS_IN_SEASON } from '../imports/api/constants';
 
 import { insertAPICall } from './collections/apicalls';
 import { endOfWeekMessage } from './collections/nfllogs';
 import { updateLastGameOfWeekScore } from './collections/tiebreakers';
+import { sendEmail } from './emails/email';
+import { updateKickoff, redoGameNumbers } from './collections/games';
+import {
+	fixUsersPicks,
+	fixTooHighPoints,
+	fixTooLowPoints,
+} from './collections/picks';
 
 export type TAPIBoolean = '0' | '1';
 export type TAPITeam = {
@@ -69,7 +97,7 @@ export interface TAPIFullResponse {
 }
 
 const getEntireSeason = (): TAPINflSchedule[] => {
-	const systemVals: TSystemVals = getSystemValues.call({});
+	const systemVals = (getSystemValues.call({}) as unknown) as TSystemVals;
 	const currYear = systemVals.year_updated;
 	let url;
 
@@ -100,7 +128,7 @@ const getEntireSeason = (): TAPINflSchedule[] => {
 };
 
 export const getGamesForWeek = (week: TWeek): TAPIMatchup[] => {
-	const systemVals: TSystemVals = getSystemValues.call({});
+	const systemVals = (getSystemValues.call({}) as unknown) as TSystemVals;
 	const currYear = systemVals.year_updated;
 	let url;
 
@@ -130,28 +158,37 @@ export const getGamesForWeek = (week: TWeek): TAPIMatchup[] => {
 	}
 };
 
+const getHomeTeamFromAPI = (apiGame: TAPIMatchup): TAPITeam | undefined =>
+	apiGame.team.find((team): boolean => team.isHome === '1');
+
+const getVisitorTeamFromAPI = (apiGame: TAPIMatchup): TAPITeam | undefined =>
+	apiGame.team.find((team): boolean => team.isHome === '0');
+
 const populateGamesForWeek = ({
 	matchup: games,
 	week,
 }: TAPINflSchedule): void => {
 	const w = parseInt(week, 10);
 	let game: TGame;
-	let hTeamData: TAPITeam;
-	let vTeamData: TAPITeam;
 	let hTeam;
 	let vTeam;
+
+	if (!games) {
+		throw new Error(`No games found for week ${week}`);
+	}
 
 	console.log('Week ' + w + ': ' + games.length + ' games');
 
 	games.forEach(
 		(gameObj, i): void => {
-			gameObj.team.forEach(
-				(team): void => {
-					if (team.isHome === '1') hTeamData = team;
+			const hTeamData = getHomeTeamFromAPI(gameObj);
+			const vTeamData = getVisitorTeamFromAPI(gameObj);
 
-					if (team.isHome === '0') vTeamData = team;
-				},
-			);
+			if (!hTeamData || !vTeamData)
+				throw new Meteor.Error(
+					'Missing data',
+					`Home team is ${hTeamData}, visitor is ${vTeamData}`,
+				);
 
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			hTeam = getTeamByShortSync({ short_name: hTeamData.id });
@@ -251,9 +288,277 @@ export const populateGames = (): void => {
 	}
 };
 
+const sendAdminEmail = (
+	invalidAPIGames: TAPIMatchup[],
+	invalidDBGames: TGame[],
+): void => {
+	const admins = (getAdmins.call({}) as unknown) as TUser[];
+	const emails = admins.map(({ email }): string => email);
+	const messages: TAdminMessage[] = [];
+	let week: null | TWeek = null;
+
+	invalidAPIGames.forEach(
+		(game): void => {
+			const home = getHomeTeamFromAPI(game);
+			const visitor = getVisitorTeamFromAPI(game);
+			const message: TAdminMessage = {
+				game: `${visitor} @ ${home} starting at ${game.kickoff}`,
+				reason: 'Game is found in API but not in database',
+			};
+
+			messages.push(message);
+		},
+	);
+
+	invalidDBGames.forEach(
+		(game): void => {
+			if (!week) week = game.week;
+
+			const message: TAdminMessage = {
+				game: `${game.visitor_short} @ ${game.home_short} starting at ${
+					game.kickoff
+				}`,
+				reason: 'Game is found in database but not in API',
+			};
+
+			messages.push(message);
+		},
+	);
+
+	sendEmail.call(
+		{
+			data: {
+				messages,
+				week,
+			},
+			subject: `Issue with week ${week} games found`,
+			template: 'adminNotice',
+			bcc: emails,
+		},
+		(err: TError): void => {
+			if (err) {
+				handleError(err);
+			} else {
+				console.log(`Sent admin emails on invalid games found in week ${week}`);
+			}
+		},
+	);
+};
+
+const healPicks = (week: TWeek): void => {
+	const games = (getDBGamesForWeek.call({ week }) as unknown) as TGame[];
+	const gameIDs = games.map(({ _id }): string => _id);
+	const minPoint = 1;
+	const maxPoint = games.length;
+	const users = (getUsers.call({ activeOnly: true }) as unknown) as TUser[];
+
+	for (const user of users) {
+		const leagues = user.leagues;
+
+		for (const league of leagues) {
+			let picks = (getPicksForWeek.call({
+				league,
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				user_id: user._id,
+				week,
+			}) as unknown) as TPick[];
+
+			if (picks.length !== games.length) {
+				picks = (fixUsersPicks.call({
+					league,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					user_id: user._id,
+					week,
+				}) as unknown) as TPick[];
+			} else {
+				const foundPicks = picks.filter(
+					(pick): boolean => gameIDs.includes(pick.game_id),
+				);
+
+				if (foundPicks.length !== picks.length) {
+					picks = (fixUsersPicks.call({
+						league,
+						// eslint-disable-next-line @typescript-eslint/camelcase
+						user_id: user._id,
+						week,
+					}) as unknown) as TPick[];
+				}
+			}
+
+			const [tooLow, , tooHigh] = picks.reduce(
+				(acc, { points }): [number, number, number] => {
+					if (points === null || points === undefined) {
+						acc[1]++;
+					} else if (points < minPoint) {
+						acc[0]++;
+					} else if (points > maxPoint) {
+						acc[2]++;
+					} else {
+						acc[1]++;
+					}
+
+					return acc;
+				},
+				[0, 0, 0],
+			);
+
+			if (tooHigh > 0) {
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				fixTooHighPoints.call({ league, user_id: user._id, week });
+			}
+
+			if (tooLow > 0) {
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				fixTooLowPoints.call({ league, user_id: user._id, week });
+			}
+		}
+	}
+};
+
+const updateGameMeta = (game: TGame, week: TWeek, kickoff: number): void => {
+	const oldWeek = game.week;
+
+	updateKickoff.call({ gameID: game._id, week, kickoff });
+	redoGameNumbers.call({ week });
+	redoGameNumbers.call({ week: oldWeek });
+};
+
+const findAPIGame = (
+	allAPIWeeks: TAPINflSchedule[],
+	gameToFind: TGame,
+): [TWeek, null | TAPIMatchup] => {
+	for (let i = 0; i < allAPIWeeks.length; i++) {
+		const apiWeek = allAPIWeeks[i];
+		const week = parseInt(apiWeek.week, 10) as TWeek;
+
+		if (!apiWeek.matchup) continue;
+
+		const found = apiWeek.matchup.find(
+			(game): boolean => {
+				return game.team.every(
+					(team): boolean =>
+						(team.isHome === '1' && team.id === gameToFind.home_short) ||
+						(team.isHome === '0' && team.id === gameToFind.visitor_short),
+				);
+			},
+		);
+
+		if (found) return [week, found];
+	}
+
+	return [17, null];
+};
+
+const healWeek = (week: TWeek, allAPIWeeks: TAPINflSchedule[]): void => {
+	console.log(`Healing week ${week}...`);
+
+	const currentAPIWeek = allAPIWeeks.find(
+		({ week: w }): boolean => parseInt(w, 10) === week,
+	);
+	const currentDBWeek = (getDBGamesForWeek.call({
+		week,
+	}) as unknown) as TGame[];
+	const validDBGames: TGame[] = [];
+	const invalidDBGames: TGame[] = [];
+	const validAPIGames: TAPIMatchup[] = [];
+	const invalidAPIGames: TAPIMatchup[] = [];
+
+	if (!currentAPIWeek || !currentAPIWeek.matchup) return;
+
+	const apiGames = currentAPIWeek.matchup;
+
+	for (let i = apiGames.length; i--; ) {
+		const game = apiGames[i];
+		const homeTeam = getHomeTeamFromAPI(game);
+		const visitingTeam = getVisitorTeamFromAPI(game);
+		const kickoffEpoch = parseInt(game.kickoff, 10);
+
+		if (!homeTeam || !visitingTeam) {
+			throw new Meteor.Error(
+				'Missing data',
+				`Home team is ${homeTeam}, visitor is ${visitingTeam}`,
+			);
+		}
+
+		const gameIndex = currentDBWeek.findIndex(
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			({ home_short, visitor_short }): boolean =>
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				home_short === homeTeam.id && visitor_short === visitingTeam.id,
+		);
+
+		if (gameIndex > -1) {
+			const dbGame = currentDBWeek[gameIndex];
+
+			if (kickoffEpoch !== convertDateToEpoch(dbGame.kickoff)) {
+				updateGameMeta(dbGame, week, kickoffEpoch);
+			}
+
+			validAPIGames.push(game);
+			apiGames.splice(i, 1);
+			validDBGames.push(dbGame);
+			currentDBWeek.splice(gameIndex, 1);
+		} else {
+			try {
+				const futureGame = (findFutureGame.call({
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					home_short: homeTeam.id,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					visitor_short: visitingTeam.id,
+					week,
+				}) as unknown) as TGame;
+				const futureWeek = futureGame.week;
+
+				updateGameMeta(futureGame, week, kickoffEpoch);
+				healPicks(futureWeek);
+				healPicks(week);
+			} catch (error) {
+				invalidAPIGames.push(game);
+				apiGames.splice(i, 1);
+			}
+		}
+	}
+
+	for (let i = currentDBWeek.length; i--; ) {
+		const game = currentDBWeek[i];
+		const [foundWeek, foundAPIGame] = findAPIGame(allAPIWeeks, game);
+
+		if (foundAPIGame) {
+			updateGameMeta(game, foundWeek, parseInt(foundAPIGame.kickoff, 10));
+			healPicks(week);
+			healPicks(foundWeek);
+		} else {
+			invalidDBGames.push(game);
+		}
+
+		currentDBWeek.splice(i, 1);
+	}
+
+	if (invalidAPIGames.length > 0 || invalidDBGames.length > 0) {
+		sendAdminEmail(invalidAPIGames, invalidDBGames);
+	}
+
+	console.log(`Finished healing week ${week}`);
+};
+
+const healFutureWeeks = (currentWeek: TWeek): void => {
+	const allSchedule = getEntireSeason();
+
+	for (let week = currentWeek; week <= WEEKS_IN_SEASON; week++) {
+		healWeek(week, allSchedule);
+		healPicks(week);
+	}
+};
+
 export const updateGames = (): void => {
-	const week: TWeek = currentWeek.call();
-	const firstGameOfWeek: TGame = getFirstGameOfWeek.call({ week }, handleError);
+	const week = (currentWeek.call({}) as unknown) as TWeek;
+
+	healFutureWeeks(week);
+
+	const firstGameOfWeek = (getFirstGameOfWeek.call(
+		{ week },
+		handleError,
+	) as unknown) as TGame;
 	const weekHasStarted = isAfter(firstGameOfWeek.kickoff, new Date());
 	const weekToUpdate = weekHasStarted ? ((week + 1) as TWeek) : week;
 	const games = getGamesForWeek(weekToUpdate);
@@ -262,18 +567,16 @@ export const updateGames = (): void => {
 
 	games.forEach(
 		(gameObj): void => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-			// @ts-ignore
-			const hTeamData: TAPITeam = gameObj.team.find(
-				(team): boolean => team.isHome === '1',
-			);
-			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-			// @ts-ignore
-			const vTeamData: TAPITeam = gameObj.team.find(
-				(team): boolean => team.isHome === '0',
-			);
+			const hTeamData = getHomeTeamFromAPI(gameObj);
+			const vTeamData = getVisitorTeamFromAPI(gameObj);
 
-			const game: TGame = findGame.call(
+			if (!hTeamData || !vTeamData)
+				throw new Meteor.Error(
+					'Missing data',
+					`Home team is ${hTeamData}, visitor is ${vTeamData}`,
+				);
+
+			const game = (findGame.call(
 				{
 					week: weekToUpdate,
 					// eslint-disable-next-line @typescript-eslint/camelcase
@@ -282,7 +585,7 @@ export const updateGames = (): void => {
 					visitor_short: vTeamData.id,
 				},
 				handleError,
-			);
+			) as unknown) as TGame;
 
 			if (hTeamData.spread) {
 				// eslint-disable-next-line @typescript-eslint/camelcase
@@ -361,13 +664,16 @@ export const updateGames = (): void => {
 };
 
 export const refreshGameData = (): string => {
-	const weeksToRefresh: TWeek[] = getWeeksToRefresh.call({});
+	const weeksToRefresh = (getWeeksToRefresh.call({}) as unknown) as TWeek[];
+	const allSchedule = getEntireSeason();
 
 	// eslint-disable-next-line @typescript-eslint/camelcase
 	toggleGamesUpdating.call({ is_updating: weeksToRefresh.length > 0 });
 
 	weeksToRefresh.forEach(
 		(w: TWeek): void => {
+			healWeek(w, allSchedule);
+
 			const games = getGamesForWeek(w);
 			const gameCount = games.length;
 			let completeCount = 0;
@@ -394,13 +700,13 @@ export const refreshGameData = (): string => {
 						},
 					);
 
-					game = findGame.call({
+					game = (findGame.call({
 						week: w,
 						// eslint-disable-next-line @typescript-eslint/camelcase
 						home_short: hTeamData.id,
 						// eslint-disable-next-line @typescript-eslint/camelcase
 						visitor_short: vTeamData.id,
-					});
+					}) as unknown) as TGame;
 
 					status = game.status;
 
@@ -681,7 +987,7 @@ export const refreshGameData = (): string => {
 					}, now updating users...`,
 				);
 
-				const leagues: string[] = getAllLeagues.call({});
+				const leagues = (getAllLeagues.call({}) as unknown) as string[];
 
 				leagues.forEach(
 					(league): void => {

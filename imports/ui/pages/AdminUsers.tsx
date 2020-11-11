@@ -411,7 +411,7 @@ const AdminUsers: FC<TAdminUsersProps> = ({
 										<td style={{ whiteSpace: 'nowrap' }}>
 											{user.services.facebook && (
 												<FontAwesomeIcon
-													className="text-primary"
+													className="text-facebook"
 													icon={['fab', 'facebook']}
 													fixedWidth
 												/>
@@ -427,6 +427,13 @@ const AdminUsers: FC<TAdminUsersProps> = ({
 												<FontAwesomeIcon
 													className="text-warning"
 													icon={['fad', 'lock']}
+													fixedWidth
+												/>
+											)}
+											{user.services.twitter && (
+												<FontAwesomeIcon
+													className="text-twitter"
+													icon={['fab', 'twitter']}
 													fixedWidth
 												/>
 											)}

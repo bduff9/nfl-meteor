@@ -30,10 +30,10 @@ export const SURVIVOR_COST = 5;
  * Prize levels
  * Updated: 2017-10-03
  */
-export const WEEKLY_PRIZES = [0, 30, 15];
-export const OVERALL_PRIZES = [0, 270, 150, 100];
+export const WEEKLY_PRIZES = [0, 25, 10];
+export const OVERALL_PRIZES = [0, 210, 125, 75];
 export const LAST_PLACE_PRIZE = POOL_COST;
-export const SURVIVOR_PRIZES = [0, 60, 25];
+export const SURVIVOR_PRIZES = [0, 60, 20];
 
 /**
  * How many to insert into the pool history
@@ -62,9 +62,9 @@ export const ACTIONS = tuple(
 
 /**
  * The week where misses count against players for the last place prize
- * Updated: 2018-10-02
+ * Updated: 2020-09-29
  */
-export const NO_MISS_WEEK = 6;
+export const NO_MISS_WEEK = 4;
 
 /**
  * Payment due by end of this week
@@ -109,8 +109,10 @@ export const MAX_SMS_LENGTH = 160;
 
 /**
  * All supported account types for payments
+ *
+ * Removed Cash option for 2020 COVID season
  */
-export const ACCOUNT_TYPES = tuple('Cash', 'PayPal', 'Zelle', 'Venmo');
+export const ACCOUNT_TYPES = tuple(/*'Cash',*/ 'PayPal', 'Zelle', 'Venmo');
 
 /**
  * The account types that require an account name

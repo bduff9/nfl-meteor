@@ -1,0 +1,17 @@
+<h1>Hello,</h1>
+
+<p>This is a notification that games were found in week {{ week }} that could not be auto fixed.</p>
+
+<ul>
+	{{#each message in messages}}
+	<li>Game: {{ message.game }}
+		<ul>
+			<li>{{ message.reason }}</li>
+		</ul>
+	</li>
+	{{/each}}
+</ul>
+
+<p>Click below to view API calls</p>
+
+<a href="{{ poolURL }}/admin/api" class="btn btn-primary">View API Calls</a>

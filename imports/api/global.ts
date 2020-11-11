@@ -39,6 +39,9 @@ export const convertEpoch = (epoch: number): Date => {
 	return d;
 };
 
+export const convertDateToEpoch = (date: Date): number =>
+	Math.floor(date.getTime() / 1000);
+
 export const formatDate = (dt: Date, incTime = false): string => {
 	if (!dt) return '';
 

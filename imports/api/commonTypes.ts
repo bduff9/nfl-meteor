@@ -10,6 +10,8 @@ export type Lit = string | number | boolean | undefined | null | void | {};
 
 export const tuple = <T extends Lit[]>(...args: T): T => args;
 
+export type TAdminMessage = { game: string; reason: string };
+
 export type TAutoPickStrategy = typeof AUTO_PICK_TYPES[number] | '';
 
 export type TDateDifference = {

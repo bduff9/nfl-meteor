@@ -15,7 +15,11 @@ import {
 	TTiebreaker,
 } from '../../imports/api/collections/tiebreakers';
 import { getUserByID, TUser } from '../../imports/api/collections/users';
-import { TSortResult, TWeek } from '../../imports/api/commonTypes';
+import {
+	TAdminMessage,
+	TSortResult,
+	TWeek,
+} from '../../imports/api/commonTypes';
 
 type TEmailData = {
 	query: {
@@ -24,7 +28,7 @@ type TEmailData = {
 };
 
 const convertStringToWeek = (week: string): TWeek => {
-	let weekIndex = parseInt(week, 10) - 1;
+	const weekIndex = parseInt(week, 10) - 1;
 
 	if (ALL_WEEKS[weekIndex]) return ALL_WEEKS[weekIndex];
 
@@ -32,6 +36,30 @@ const convertStringToWeek = (week: string): TWeek => {
 };
 
 export default {
+	adminNotice: {
+		path: 'email/templates/admin-notice.html',
+		helpers: {},
+		route: {
+			path: '/admin-notice',
+			data: ({
+				query,
+			}: TEmailData): {
+				messages: TAdminMessage[];
+				week: TWeek;
+			} => {
+				const { messages: messagesStr, week: weekStr } = query;
+				const messages = JSON.parse(messagesStr) as TAdminMessage[];
+				const week = convertStringToWeek(weekStr);
+
+				return {
+					messages,
+					week,
+				};
+			},
+		},
+		adminScreen: false,
+	},
+
 	allSubmit: {
 		path: 'email/templates/all-submit.html',
 		helpers: {},

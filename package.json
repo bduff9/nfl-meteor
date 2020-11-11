@@ -15,7 +15,7 @@
     "predebug": "meteor npm run initApp",
     "predeploy": "mup setup",
     "prestart": "meteor npm run initApp",
-    "start": "meteor --settings settings.json",
+    "start": "meteor --inspect --settings settings.json",
     "test": "meteor test --driver-package=practicalmeteor:mocha --port=3004"
   },
   "husky": {

@@ -2,10 +2,11 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { Meteor } from 'meteor/meteor';
 
-import { getNextGame1 } from '../../imports/api/collections/games';
+import { Game, getNextGame1, TGame } from '../../imports/api/collections/games';
 import { Pick, TPick } from '../../imports/api/collections/picks';
-import { getTeamByShort } from '../../imports/api/collections/teams';
+import { getTeamByShort, TTeam } from '../../imports/api/collections/teams';
 import { getUserByID, TUser } from '../../imports/api/collections/users';
+import { TWeek } from '../../imports/api/commonTypes';
 import { getNextPointValue, handleError } from '../../imports/api/global';
 
 export const addPick = new ValidatedMethod({
@@ -47,35 +48,42 @@ export const doQuickPick = new ValidatedMethod({
 		team_short: string;
 		user_id: string;
 	}): boolean {
-		const game = getNextGame1.call({});
+		const game = (getNextGame1.call({}) as unknown) as TGame;
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const { _id: game_id, home_short, notFound, visitor_short, week } = game;
 		let setPick = false;
 		let user: TUser | null = null;
 		let team;
 		// eslint-disable-next-line @typescript-eslint/camelcase
-		let team_id;
+		let team_id: string;
 		let city;
 		let name;
 
 		try {
 			// eslint-disable-next-line @typescript-eslint/camelcase
-			user = getUserByID.call({ user_id });
+			user = (getUserByID.call({ user_id }) as unknown) as TUser;
 			// eslint-disable-next-line @typescript-eslint/camelcase
-			team = getTeamByShort.call({ short_name: team_short });
+			team = (getTeamByShort.call({
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				short_name: team_short,
+			}) as unknown) as TTeam;
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			team_id = team._id;
 			city = team.city;
 			name = team.name;
 		} catch (err) {
-			console.error('Failed to do quick pick', err);
+			throw new Meteor.Error(
+				'Picks.doQuickPick.quickPickFailed',
+				`Failed to do quick pick: ${err}`,
+			);
 		}
 
-		if (!user)
+		if (!user) {
 			throw new Meteor.Error(
 				'Picks.doQuickPick.invalidUserID',
 				'Invalid user ID! Please only use valid quick pick links.',
 			);
+		}
 
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		if (!team_id)
@@ -104,11 +112,11 @@ export const doQuickPick = new ValidatedMethod({
 				const thisPick = Pick.findOne({ league, game_id, user_id });
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				const myPicks = Pick.find({ league, user_id, week }).fetch();
-				let nextPointValue;
 
 				if (thisPick.pick_id || thisPick.pick_short || thisPick.points) return;
 
-				nextPointValue = getNextPointValue(myPicks, user);
+				const nextPointValue = getNextPointValue(myPicks, user);
+
 				setPick = true;
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				thisPick.pick_id = team_id;
@@ -209,4 +217,171 @@ export const removeBonusPointPicks = new ValidatedMethod({
 export const removeBonusPointPicksSync = Meteor.wrapAsync(
 	removeBonusPointPicks.call,
 	removeBonusPointPicks,
+);
+
+export const fixUsersPicks = new ValidatedMethod({
+	name: 'Games.fixUsersPicks',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		user_id: { type: String, label: 'User ID' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
+	}).validator(),
+	run ({
+		league,
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		user_id,
+		week,
+	}: {
+		league: string;
+		user_id: string;
+		week: TWeek;
+	}): void {
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		const picks: TPick[] = Pick.find({ league, user_id, week }).fetch();
+		const games: TGame[] = Game.find({ week }).fetch();
+
+		for (const pick of picks) {
+			const gameID = pick.game_id;
+			const found = games.find(({ _id }): boolean => _id === gameID);
+
+			if (!found) {
+				Pick.remove({ _id: pick._id });
+			}
+		}
+
+		for (const game of games) {
+			const gameID = game._id;
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			const found = picks.find(({ game_id }): boolean => game_id === gameID);
+
+			if (!found) {
+				const newPick: TPick = new Pick({
+					game: game.game,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					game_id: gameID,
+					league,
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					user_id,
+					week,
+				} as TPick);
+
+				newPick.save();
+			}
+		}
+	},
+});
+export const fixUsersPicksSync = Meteor.wrapAsync(
+	fixUsersPicks.call,
+	fixUsersPicks,
+);
+
+const movePointUp = (pick: TPick, picks: TPick[]): void => {
+	if (pick.points === null || pick.points === undefined) return;
+
+	const moveTo = pick.points + 1;
+	const foundPick = picks.find(({ points }) => points === moveTo);
+
+	if (foundPick) movePointUp(foundPick, picks);
+
+	pick.points = moveTo;
+	pick.save();
+};
+
+export const fixTooLowPoints = new ValidatedMethod({
+	name: 'Games.fixTooLowPoints',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		user_id: { type: String, label: 'User ID' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
+	}).validator(),
+	run ({
+		league,
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		user_id,
+		week,
+	}: {
+		league: string;
+		user_id: string;
+		week: TWeek;
+	}): void {
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		const picks: TPick[] = Pick.find({ league, user_id, week }).fetch();
+		const lowest: TPick = picks.reduce((acc, pick): null | TPick => {
+			if (pick.points == null) return acc;
+
+			if (acc === null || acc.points == null || acc.points > pick.points)
+				return pick;
+
+			return acc;
+		}, null);
+
+		if (!lowest) return;
+
+		const diff = 1 - (lowest.points || 1);
+
+		for (let i = diff; i--; ) {
+			movePointUp(lowest, picks);
+		}
+	},
+});
+export const fixTooLowPointsSync = Meteor.wrapAsync(
+	fixTooLowPoints.call,
+	fixTooLowPoints,
+);
+
+const movePointDown = (pick: TPick, picks: TPick[]): void => {
+	if (pick.points === null || pick.points === undefined) return;
+
+	const moveTo = pick.points - 1;
+	const foundPick = picks.find(({ points }) => points === moveTo);
+
+	if (foundPick) movePointDown(foundPick, picks);
+
+	pick.points = moveTo;
+	pick.save();
+};
+
+export const fixTooHighPoints = new ValidatedMethod({
+	name: 'Games.fixTooHighPoints',
+	validate: new SimpleSchema({
+		league: { type: String, label: 'League' },
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		user_id: { type: String, label: 'User ID' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
+	}).validator(),
+	run ({
+		league,
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		user_id,
+		week,
+	}: {
+		league: string;
+		user_id: string;
+		week: TWeek;
+	}): void {
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		const picks: TPick[] = Pick.find({ league, user_id, week }).fetch();
+		const highest = picks.reduce((acc, pick): null | TPick => {
+			if (pick.points == null) return acc;
+
+			if (acc === null || acc.points == null || acc.points < pick.points)
+				return pick;
+
+			return acc;
+		}, null);
+
+		if (!highest) return;
+
+		const diff = (highest.points || picks.length) - picks.length;
+
+		for (let i = diff; i--; ) {
+			movePointDown(highest, picks);
+		}
+	},
+});
+export const fixTooHighPointsSync = Meteor.wrapAsync(
+	fixTooHighPoints.call,
+	fixTooHighPoints,
 );

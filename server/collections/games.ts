@@ -3,8 +3,11 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { Meteor } from 'meteor/meteor';
 
 import { Game, currentWeek, TGame } from '../../imports/api/collections/games';
+import { Pick, TPick } from '../../imports/api/collections/picks';
+import { TTiebreaker } from '../../imports/api/collections/tiebreakers';
 import { TUser } from '../../imports/api/collections/users';
 import { TGameNumber, TWeek } from '../../imports/api/commonTypes';
+import { convertEpoch } from '../../imports/api/global';
 import { populateGames, refreshGameData } from '../api-calls';
 
 import { addPick, getPick, removeAllPicksForUser } from './picks';
@@ -49,19 +52,19 @@ export const getEmptyUserPicks = new ValidatedMethod({
 	}).validator(),
 	// eslint-disable-next-line @typescript-eslint/camelcase
 	run ({ leagues, user_id }: { leagues: string[]; user_id: string }): void {
-		const currWeek: TWeek = currentWeek.call({});
+		const currWeek = (currentWeek.call({}) as unknown) as TWeek;
 
 		leagues.forEach(
 			(league): void => {
 				let lowestScoreUser: TUser | null = null;
 
 				if (currWeek > 1)
-					lowestScoreUser = getLowestScore.call({
+					lowestScoreUser = (getLowestScore.call({
 						// eslint-disable-next-line @typescript-eslint/camelcase
 						current_user_ids: [user_id],
 						league,
 						week: currWeek,
-					});
+					}) as unknown) as TUser;
 
 				const picks: TEmptyPick[] = Game.find(
 					{},
@@ -86,13 +89,13 @@ export const getEmptyUserPicks = new ValidatedMethod({
 						let lowScorePick = null;
 
 						if (lowestScoreUser && pick.week < currWeek) {
-							lowScorePick = getPick.call({
+							lowScorePick = (getPick.call({
 								// eslint-disable-next-line @typescript-eslint/camelcase
 								game_id: pick.game_id,
 								league,
 								// eslint-disable-next-line @typescript-eslint/camelcase
 								user_id: lowestScoreUser._id,
-							});
+							}) as unknown) as TPick;
 							const {
 								// eslint-disable-next-line @typescript-eslint/camelcase
 								pick_id,
@@ -118,18 +121,18 @@ export const getEmptyUserPicks = new ValidatedMethod({
 							});
 
 							if (pick.game === 1) {
-								const lowestTB = getTiebreakerFromServer.call({
+								const lowestTB = (getTiebreakerFromServer.call({
 									league,
 									// eslint-disable-next-line @typescript-eslint/camelcase
 									user_id: lowestScoreUser._id,
 									week: pick.week,
-								});
-								const userTB = getTiebreakerFromServer.call({
+								}) as unknown) as TTiebreaker;
+								const userTB = (getTiebreakerFromServer.call({
 									league,
 									// eslint-disable-next-line @typescript-eslint/camelcase
 									user_id,
 									week: pick.week,
-								});
+								}) as unknown) as TTiebreaker;
 								const {
 									// eslint-disable-next-line @typescript-eslint/camelcase
 									last_score,
@@ -310,4 +313,110 @@ export const removeBonusPointGames = new ValidatedMethod({
 export const removeBonusPointGamesSync = Meteor.wrapAsync(
 	removeBonusPointGames.call,
 	removeBonusPointGames,
+);
+
+const getNextGameNumber = (week: TWeek): TGameNumber => {
+	const maxGame: TGame = Game.findOne({ week }, { sort: { game: -1 } });
+
+	return (maxGame.game + 1) as TGameNumber;
+};
+
+export const updateKickoff = new ValidatedMethod({
+	name: 'Games.updateKickoff',
+	validate: new SimpleSchema({
+		gameID: { type: String, label: 'Game ID' },
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
+		kickoff: { type: Number, label: 'Kickoff' },
+	}).validator(),
+	run ({
+		gameID,
+		kickoff,
+		week,
+	}: {
+		gameID: string;
+		kickoff: number;
+		week: TWeek;
+	}): void {
+		const game: TGame = Game.findOne({ _id: gameID });
+		let gameNum: TGameNumber;
+
+		if (game.week === week) {
+			gameNum = game.game;
+		} else {
+			gameNum = getNextGameNumber(week);
+		}
+
+		try {
+			Game.update(
+				{ _id: gameID },
+				{ $set: { kickoff: convertEpoch(kickoff), game: gameNum, week } },
+			);
+			Pick.update(
+				// eslint-disable-next-line @typescript-eslint/camelcase
+				{ game_id: gameID },
+				{ $set: { game: gameNum, week } },
+				{ multi: true },
+			);
+		} catch (error) {
+			console.error('Failed to update kickoff', error);
+			throw new Meteor.Error('Failed to update kickoff', error);
+		}
+	},
+});
+export const updateKickoffSync = Meteor.wrapAsync(
+	updateKickoff.call,
+	updateKickoff,
+);
+
+const moveGameNumber = (game: TGame, gameNum: number): void => {
+	try {
+		game.game = gameNum as TGameNumber;
+		game.save();
+		Pick.update(
+			// eslint-disable-next-line @typescript-eslint/camelcase
+			{ game_id: game._id },
+			{ $set: { game: gameNum } },
+			{ multi: true },
+		);
+	} catch (error) {
+		console.error('Failed to move game number', error);
+		throw new Meteor.Error('Failed to move game number', error);
+	}
+};
+
+export const redoGameNumbers = new ValidatedMethod({
+	name: 'Games.redoGameNumbers',
+	validate: new SimpleSchema({
+		week: { type: Number, label: 'Week', min: 1, max: 17 },
+	}).validator(),
+	run ({ week }: { week: TWeek }): void {
+		const games: TGame[] = Game.find(
+			{ week },
+			{ sort: { kickoff: 1 } },
+		).fetch();
+		let nextOpen = getNextGameNumber(week);
+
+		for (let i = 0; i < games.length; i++) {
+			const expectedGame = i + 1;
+			const game = games[i];
+
+			if (game.game === expectedGame) continue;
+
+			const foundGame = games.find(
+				({ game }): boolean => game === expectedGame,
+			);
+
+			if (foundGame) {
+				moveGameNumber(foundGame, nextOpen++);
+			} else {
+				nextOpen--;
+			}
+
+			moveGameNumber(game, expectedGame);
+		}
+	},
+});
+export const redoGameNumbersSync = Meteor.wrapAsync(
+	redoGameNumbers.call,
+	redoGameNumbers,
 );

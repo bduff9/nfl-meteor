@@ -7,9 +7,16 @@ import { SyncedCron } from 'meteor/percolate:synced-cron';
 import {
 	getNextGame1,
 	getUnstartedGamesForWeek,
+	TGame,
 } from '../imports/api/collections/games';
-import { getPickForFirstGameOfWeek } from '../imports/api/collections/picks';
-import { getSystemValues } from '../imports/api/collections/systemvals';
+import {
+	getPickForFirstGameOfWeek,
+	TPick,
+} from '../imports/api/collections/picks';
+import {
+	getSystemValues,
+	TSystemVals,
+} from '../imports/api/collections/systemvals';
 import {
 	getUnsubmittedPicksForWeek,
 	TTiebreaker,
@@ -18,12 +25,13 @@ import { TError } from '../imports/api/commonTypes';
 import { EMAIL_SUBJECT_PREFIX, MAX_SMS_LENGTH } from '../imports/api/constants';
 import { handleError } from '../imports/api/global';
 
-import { updateGames } from './api-calls';
+//TODO: remove commented lines once confirmed to work
+//import { updateGames } from './api-calls';
 import { refreshGames } from './collections/games';
 import { sendEmail } from './emails/email';
 import { sendSMS } from './twilio';
 
-export const clearCronHistory = new ValidatedMethod<{}>({
+export const clearCronHistory = new ValidatedMethod({
 	name: 'CronHistory.clearCronHistory',
 	validate: new SimpleSchema({}).validator(),
 	run (): void {
@@ -40,19 +48,20 @@ SyncedCron.config({
 	log: false,
 });
 
-SyncedCron.add({
-	name: 'Update spread and ranks outside of games',
-	schedule: (parse): void =>
-		parse
-			.recur()
-			.on(5, 17)
-			.hour(),
-	job: () => updateGames(),
-});
+// Commented out since refreshGames below now calls updateGames if no games in progress
+// SyncedCron.add({
+// 	name: 'Update spread and ranks outside of games',
+// 	schedule: (parse): void =>
+// 		parse
+// 			.recur()
+// 			.on(5, 17)
+// 			.hour(),
+// 	job: () => updateGames(),
+// });
 
 SyncedCron.add({
 	name: 'Update games every hour on the hour',
-	schedule: (parse): void =>
+	schedule: (parse: later.ParseStatic): later.RecurrenceBuilder =>
 		parse
 			.recur()
 			.first()
@@ -62,13 +71,13 @@ SyncedCron.add({
 
 SyncedCron.add({
 	name: 'Update games every minute when needed',
-	schedule: (parse): void =>
+	schedule: (parse: later.ParseStatic): later.RecurrenceBuilder =>
 		parse
 			.recur()
 			.every(1)
 			.minute(),
 	job: () => {
-		const systemVals = getSystemValues.call({});
+		const systemVals = (getSystemValues.call({}) as unknown) as TSystemVals;
 
 		if (systemVals.games_updating)
 			return 'Games already updating, skipping every minute call';
@@ -82,14 +91,14 @@ SyncedCron.add({
 
 SyncedCron.add({
 	name: 'Send notifications',
-	schedule: (parse): void =>
+	schedule: (parse: later.ParseStatic): later.RecurrenceBuilder =>
 		parse
 			.recur()
 			.on(30)
 			.minute(),
 	job: () => {
 		const POOL_URL = Meteor.settings.baseURL;
-		const nextGame1 = getNextGame1.call({});
+		const nextGame1 = (getNextGame1.call({}) as unknown) as TGame;
 		const { kickoff, week } = nextGame1;
 		const homeTeam = nextGame1.getTeam('home');
 		const visitingTeam = nextGame1.getTeam('visitor');
@@ -99,13 +108,15 @@ SyncedCron.add({
 		let unstartedGames = [];
 
 		if (week > 1)
-			unstartedGames = getUnstartedGamesForWeek.call({ week: week - 1 });
+			unstartedGames = (getUnstartedGamesForWeek.call({
+				week: week - 1,
+			}) as unknown) as TGame[];
 
 		if (unstartedGames.length) return;
 
-		const notSubmitted: TTiebreaker[] = getUnsubmittedPicksForWeek.call({
+		const notSubmitted = (getUnsubmittedPicksForWeek.call({
 			week,
-		});
+		}) as unknown) as TTiebreaker[];
 
 		notSubmitted.forEach(
 			(tb): void => {
@@ -133,12 +144,12 @@ SyncedCron.add({
 
 						// eslint-disable-next-line @typescript-eslint/camelcase
 						if (is_quick) {
-							const pick1 = getPickForFirstGameOfWeek.call({
+							const pick1 = (getPickForFirstGameOfWeek.call({
 								league,
 								// eslint-disable-next-line @typescript-eslint/camelcase
 								user_id: _id,
 								week,
-							});
+							}) as unknown) as TPick;
 
 							if (!pick1.pick_id || !pick1.pick_short || !pick1.points) {
 								sendEmail.call(

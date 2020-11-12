@@ -292,6 +292,7 @@ const sendAdminEmail = (
 	invalidAPIGames: TAPIMatchup[],
 	invalidDBGames: TGame[],
 ): void => {
+	const TEAM_NOT_FOUND = { id: 'UNKNOWN' };
 	const admins = (getAdmins.call({}) as unknown) as TUser[];
 	const emails = admins.map(({ email }): string => email);
 	const messages: TAdminMessage[] = [];
@@ -299,10 +300,12 @@ const sendAdminEmail = (
 
 	invalidAPIGames.forEach(
 		(game): void => {
-			const home = getHomeTeamFromAPI(game);
-			const visitor = getVisitorTeamFromAPI(game);
+			const home = getHomeTeamFromAPI(game) || TEAM_NOT_FOUND;
+			const visitor = getVisitorTeamFromAPI(game) || TEAM_NOT_FOUND;
 			const message: TAdminMessage = {
-				game: `${visitor} @ ${home} starting at ${game.kickoff}`,
+				game: `${visitor.id} @ ${home.id} starting at ${convertEpoch(
+					parseInt(game.kickoff, 10),
+				)}`,
 				reason: 'Game is found in API but not in database',
 			};
 
@@ -329,9 +332,13 @@ const sendAdminEmail = (
 		{
 			data: {
 				messages,
+				preview:
+					'URGENT! Please read to resolve critical issues with the current NFL Pool schedule',
 				week,
 			},
-			subject: `Issue with week ${week} games found`,
+			subject: `${messages.length} ${
+				messages.length === 1 ? 'issue' : 'issues'
+			} with week ${week} games found`,
 			template: 'adminNotice',
 			bcc: emails,
 		},
@@ -346,6 +353,8 @@ const sendAdminEmail = (
 };
 
 const healPicks = (week: TWeek): void => {
+	console.log(`Healing picks for week ${week}...`);
+
 	const games = (getDBGamesForWeek.call({ week }) as unknown) as TGame[];
 	const gameIDs = games.map(({ _id }): string => _id);
 	const minPoint = 1;
@@ -413,6 +422,8 @@ const healPicks = (week: TWeek): void => {
 			}
 		}
 	}
+
+	console.log(`Finished healing picks for week ${week}`);
 };
 
 const updateGameMeta = (game: TGame, week: TWeek, kickoff: number): void => {
@@ -423,13 +434,16 @@ const updateGameMeta = (game: TGame, week: TWeek, kickoff: number): void => {
 	redoGameNumbers.call({ week: oldWeek });
 };
 
-const findAPIGame = (
+const findFutureAPIGame = (
 	allAPIWeeks: TAPINflSchedule[],
 	gameToFind: TGame,
 ): [TWeek, null | TAPIMatchup] => {
 	for (let i = 0; i < allAPIWeeks.length; i++) {
 		const apiWeek = allAPIWeeks[i];
+		const gameWeek = gameToFind.week;
 		const week = parseInt(apiWeek.week, 10) as TWeek;
+
+		if (week <= gameWeek) continue;
 
 		if (!apiWeek.matchup) continue;
 
@@ -450,7 +464,7 @@ const findAPIGame = (
 };
 
 const healWeek = (week: TWeek, allAPIWeeks: TAPINflSchedule[]): void => {
-	console.log(`Healing week ${week}...`);
+	console.log(`Healing games for week ${week}...`);
 
 	const currentAPIWeek = allAPIWeeks.find(
 		({ week: w }): boolean => parseInt(w, 10) === week,
@@ -521,7 +535,7 @@ const healWeek = (week: TWeek, allAPIWeeks: TAPINflSchedule[]): void => {
 
 	for (let i = currentDBWeek.length; i--; ) {
 		const game = currentDBWeek[i];
-		const [foundWeek, foundAPIGame] = findAPIGame(allAPIWeeks, game);
+		const [foundWeek, foundAPIGame] = findFutureAPIGame(allAPIWeeks, game);
 
 		if (foundAPIGame) {
 			updateGameMeta(game, foundWeek, parseInt(foundAPIGame.kickoff, 10));
@@ -538,7 +552,7 @@ const healWeek = (week: TWeek, allAPIWeeks: TAPINflSchedule[]): void => {
 		sendAdminEmail(invalidAPIGames, invalidDBGames);
 	}
 
-	console.log(`Finished healing week ${week}`);
+	console.log(`Finished healing games for week ${week}`);
 };
 
 const healFutureWeeks = (currentWeek: TWeek): void => {
@@ -555,10 +569,9 @@ export const updateGames = (): void => {
 
 	healFutureWeeks(week);
 
-	const firstGameOfWeek = (getFirstGameOfWeek.call(
-		{ week },
-		handleError,
-	) as unknown) as TGame;
+	const firstGameOfWeek = (getFirstGameOfWeek.call({
+		week,
+	}) as unknown) as TGame;
 	const weekHasStarted = isAfter(firstGameOfWeek.kickoff, new Date());
 	const weekToUpdate = weekHasStarted ? ((week + 1) as TWeek) : week;
 	const games = getGamesForWeek(weekToUpdate);
@@ -569,6 +582,7 @@ export const updateGames = (): void => {
 		(gameObj): void => {
 			const hTeamData = getHomeTeamFromAPI(gameObj);
 			const vTeamData = getVisitorTeamFromAPI(gameObj);
+			let game: TGame;
 
 			if (!hTeamData || !vTeamData)
 				throw new Meteor.Error(
@@ -576,16 +590,23 @@ export const updateGames = (): void => {
 					`Home team is ${hTeamData}, visitor is ${vTeamData}`,
 				);
 
-			const game = (findGame.call(
-				{
+			try {
+				game = (findGame.call({
 					week: weekToUpdate,
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					home_short: hTeamData.id,
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					visitor_short: vTeamData.id,
-				},
-				handleError,
-			) as unknown) as TGame;
+				}) as unknown) as TGame;
+			} catch (error) {
+				console.error(
+					`No DB game found matching ${vTeamData.id} @ ${
+						hTeamData.id
+					} for week ${weekToUpdate}`,
+				);
+
+				return;
+			}
 
 			if (hTeamData.spread) {
 				// eslint-disable-next-line @typescript-eslint/camelcase

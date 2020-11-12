@@ -115,7 +115,7 @@ export const doQuickPick = new ValidatedMethod({
 
 				if (thisPick.pick_id || thisPick.pick_short || thisPick.points) return;
 
-				const nextPointValue = getNextPointValue(myPicks, user);
+				const nextPointValue = getNextPointValue(myPicks, user as TUser);
 
 				setPick = true;
 				// eslint-disable-next-line @typescript-eslint/camelcase
@@ -236,7 +236,7 @@ export const fixUsersPicks = new ValidatedMethod({
 		league: string;
 		user_id: string;
 		week: TWeek;
-	}): void {
+	}): TPick[] {
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const picks: TPick[] = Pick.find({ league, user_id, week }).fetch();
 		const games: TGame[] = Game.find({ week }).fetch();
@@ -264,11 +264,14 @@ export const fixUsersPicks = new ValidatedMethod({
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					user_id,
 					week,
-				} as TPick);
+				});
 
 				newPick.save();
 			}
 		}
+
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		return Pick.find({ league, user_id, week }).fetch();
 	},
 });
 export const fixUsersPicksSync = Meteor.wrapAsync(
@@ -308,14 +311,18 @@ export const fixTooLowPoints = new ValidatedMethod({
 	}): void {
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const picks: TPick[] = Pick.find({ league, user_id, week }).fetch();
-		const lowest: TPick = picks.reduce((acc, pick): null | TPick => {
-			if (pick.points == null) return acc;
+		const lowest: null | TPick = picks.reduce(
+			(acc, pick): TPick => {
+				if (pick.points == null) return acc;
 
-			if (acc === null || acc.points == null || acc.points > pick.points)
-				return pick;
+				if (acc === null || acc.points == null || acc.points > pick.points) {
+					return pick;
+				}
 
-			return acc;
-		}, null);
+				return acc;
+			},
+			(null as unknown) as TPick,
+		);
 
 		if (!lowest) return;
 
@@ -363,14 +370,18 @@ export const fixTooHighPoints = new ValidatedMethod({
 	}): void {
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const picks: TPick[] = Pick.find({ league, user_id, week }).fetch();
-		const highest = picks.reduce((acc, pick): null | TPick => {
-			if (pick.points == null) return acc;
+		const highest: null | TPick = picks.reduce(
+			(acc, pick): TPick => {
+				if (pick.points == null) return acc;
 
-			if (acc === null || acc.points == null || acc.points < pick.points)
-				return pick;
+				if (acc === null || acc.points == null || acc.points < pick.points) {
+					return pick;
+				}
 
-			return acc;
-		}, null);
+				return acc;
+			},
+			(null as unknown) as TPick,
+		);
 
 		if (!highest) return;
 

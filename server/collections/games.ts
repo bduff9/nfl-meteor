@@ -8,7 +8,7 @@ import { TTiebreaker } from '../../imports/api/collections/tiebreakers';
 import { TUser } from '../../imports/api/collections/users';
 import { TGameNumber, TWeek } from '../../imports/api/commonTypes';
 import { convertEpoch } from '../../imports/api/global';
-import { populateGames, refreshGameData } from '../api-calls';
+import { populateGames, refreshGameData, updateGames } from '../api-calls';
 
 import { addPick, getPick, removeAllPicksForUser } from './picks';
 import {
@@ -283,19 +283,27 @@ export const refreshGames = new ValidatedMethod({
 	name: 'Games.refreshGameData',
 	validate: new SimpleSchema({}).validator(),
 	run (): string {
+		const gamesLeft = Game.find({
+			status: { $ne: 'C' },
+		}).count();
+
+		if (gamesLeft === 0) {
+			return 'No more games left in the schedule, no updates needed';
+		}
+
 		const gamesInProgress = Game.find({
 			game: { $ne: 0 },
 			status: { $ne: 'C' },
 			kickoff: { $lte: new Date() },
 		}).count();
 
-		if (gamesInProgress === 0)
-			throw new Meteor.Error(
-				'No games found',
-				'There are no games currently in progress',
-			);
+		if (gamesInProgress > 0) {
+			return refreshGameData();
+		}
 
-		return refreshGameData();
+		updateGames();
+
+		return 'No games in progress, updated all future games instead';
 	},
 });
 export const refreshGamesSync = Meteor.wrapAsync(

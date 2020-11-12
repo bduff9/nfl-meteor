@@ -7,6 +7,13 @@ import { Mongo } from 'meteor/mongo';
 import { dbVersion } from '../constants';
 import { getCurrentSeasonYear } from '../global';
 
+type TConnection = {
+	opened: Date;
+	on_view_my_picks: boolean;
+	on_view_all_picks: boolean;
+	scoreboard_open: boolean;
+};
+
 const SystemVals = new Mongo.Collection('systemvals');
 let SystemValConditional = null;
 
@@ -31,21 +38,13 @@ if (dbVersion < 2) {
 			shouldUpdateFaster (): boolean {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 				// @ts-ignore
-				return Object.keys(this.current_connections).some(connId => {
-					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-					// @ts-ignore
-					const conn = this.current_connections[connId];
-
-					// Do we need to check time opened too? Maybe to prevent someone leaving this open all day?
-					switch (true) {
-						case conn.on_view_my_picks:
-						case conn.on_view_all_picks:
-						case conn.scoreboard_open:
-							return true;
-						default:
-							return false;
-					}
-				});
+				return Object.values<TConnection>(this.current_connections).some(
+					(conn): boolean =>
+						// Do we need to check time opened too? Maybe to prevent someone leaving this open all day?
+						conn.on_view_my_picks ||
+						conn.on_view_all_picks ||
+						conn.scoreboard_open,
+				);
 			},
 		},
 		indexes: {},
@@ -76,21 +75,13 @@ if (dbVersion < 2) {
 			shouldUpdateFaster (): boolean {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 				// @ts-ignore
-				return Object.keys(this.current_connections).some(connId => {
-					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-					// @ts-ignore
-					const conn = this.current_connections[connId];
-
-					// Do we need to check time opened too? Maybe to prevent someone leaving this open all day?
-					switch (true) {
-						case conn.on_view_my_picks:
-						case conn.on_view_all_picks:
-						case conn.scoreboard_open:
-							return true;
-						default:
-							return false;
-					}
-				});
+				return Object.values<TConnection>(this.current_connections).some(
+					(conn): boolean =>
+						// Do we need to check time opened too? Maybe to prevent someone leaving this open all day?
+						conn.on_view_my_picks ||
+						conn.on_view_all_picks ||
+						conn.scoreboard_open,
+				);
 			},
 		},
 		indexes: {},
@@ -103,16 +94,17 @@ export type TSystemVals = {
 	year_updated: number;
 	games_updating: boolean;
 	current_connections: {
-		[k: string]: string;
+		[k: string]: TConnection;
 	};
 	shouldUpdateFaster: () => boolean;
+	save: () => void;
 };
 
-export const createSystemValues = new ValidatedMethod<{}>({
+export const createSystemValues = new ValidatedMethod({
 	name: 'SystemVals.createSystemValues',
 	validate: new SimpleSchema({}).validator(),
 	run (): void {
-		const systemVal = new SystemVal({
+		const systemVal: TSystemVals = new SystemVal({
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			games_updating: false,
 			// eslint-disable-next-line @typescript-eslint/camelcase
@@ -129,7 +121,7 @@ export const createSystemValuesSync = Meteor.wrapAsync(
 	createSystemValues,
 );
 
-export const getSystemValues = new ValidatedMethod<{}>({
+export const getSystemValues = new ValidatedMethod({
 	name: 'SystemVals.getSystemValues',
 	validate: new SimpleSchema({}).validator(),
 	run (): TSystemVals {
@@ -145,7 +137,7 @@ export const getSystemValuesSync = Meteor.wrapAsync(
 	getSystemValues,
 );
 
-export const removeYearUpdated = new ValidatedMethod<{}>({
+export const removeYearUpdated = new ValidatedMethod({
 	name: 'SystemVals.removeYearUpdated',
 	validate: new SimpleSchema({}).validator(),
 	run (): void {
@@ -158,7 +150,7 @@ export const removeYearUpdatedSync = Meteor.wrapAsync(
 	removeYearUpdated,
 );
 
-export const systemValuesExist = new ValidatedMethod<{}>({
+export const systemValuesExist = new ValidatedMethod({
 	name: 'SystemVals.systemValuesExist',
 	validate: new SimpleSchema({}).validator(),
 	run (): boolean {
@@ -172,6 +164,8 @@ export const systemValuesExistSync = Meteor.wrapAsync(
 
 export type TToggleGamesUpdatingProps = { is_updating: boolean };
 export const toggleGamesUpdating = new ValidatedMethod<
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+	//@ts-ignore
 	TToggleGamesUpdatingProps
 >({
 	name: 'SystemVal.toggleGamesUpdating',
@@ -191,12 +185,16 @@ export const toggleGamesUpdatingSync = Meteor.wrapAsync(
 );
 
 export type TToggleScoreboardProps = { isOpen: boolean };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const toggleScoreboard = new ValidatedMethod<TToggleScoreboardProps>({
 	name: 'SystemVal.updateScoreboard',
 	validate: new SimpleSchema({
 		isOpen: { type: Boolean, label: 'Is Open' },
 	}).validator(),
 	run ({ isOpen }: TToggleScoreboardProps): void {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+		//@ts-ignore
 		if (!this.userId)
 			throw new Meteor.Error(
 				'SystemVal.updateScoreboard.not-signed-in',
@@ -204,6 +202,8 @@ export const toggleScoreboard = new ValidatedMethod<TToggleScoreboardProps>({
 			);
 
 		if (Meteor.isServer) {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+			//@ts-ignore
 			const connId = this.connection.id;
 			const systemVal = SystemVal.findOne();
 			const conn = systemVal.current_connections[connId];

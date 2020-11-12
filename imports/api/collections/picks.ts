@@ -28,6 +28,7 @@ export type TPick = {
 	getTeam: () => TTeam;
 	getUser: () => TUser;
 	hasStarted: () => boolean;
+	save: () => void;
 };
 
 let PicksConditional = null;
@@ -192,10 +193,11 @@ if (dbVersion < 2) {
 		},
 		helpers: {
 			getGame (): TGame {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-				// @ts-ignore
-				// eslint-disable-next-line @typescript-eslint/camelcase
-				const game = getGameByID.call({ gameId: this.game_id });
+				const game = (getGameByID.call({
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+					// @ts-ignore
+					gameId: this.game_id,
+				}) as unknown) as TGame;
 
 				return game;
 			},
@@ -273,6 +275,8 @@ const isAutoPickHome = (strategy: TAutoPickStrategy): boolean => {
 
 export type TAssignPointsToMissedProps = { gameId: string; week: TWeek };
 export const assignPointsToMissed = new ValidatedMethod<
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+	//@ts-ignore
 	TAssignPointsToMissedProps
 >({
 	name: 'Picks.assignPointsToMissed',
@@ -356,6 +360,8 @@ export type TAutoPickProps = {
 	selectedWeek: TWeek;
 	type: TAutoPickStrategy;
 };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const autoPick = new ValidatedMethod<TAutoPickProps>({
 	name: 'Picks.autoPick',
 	validate: new SimpleSchema({
@@ -374,6 +380,8 @@ export const autoPick = new ValidatedMethod<TAutoPickProps>({
 		},
 	}).validator(),
 	run ({ available, league, selectedWeek, type }: TAutoPickProps): void {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+		//@ts-ignore
 		if (!this.userId)
 			throw new Meteor.Error(
 				'Picks.autoPick.notLoggedIn',
@@ -383,6 +391,8 @@ export const autoPick = new ValidatedMethod<TAutoPickProps>({
 		if (Meteor.isServer) {
 			const picks: TPick[] = Pick.find({
 				league,
+				// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+				//@ts-ignore
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				user_id: this.userId,
 				week: selectedWeek,
@@ -397,7 +407,9 @@ export const autoPick = new ValidatedMethod<TAutoPickProps>({
 			picks.forEach(
 				(pick): void => {
 					if (!pick.hasStarted() && !pick.pick_id) {
-						game = getGameByID.call({ gameId: pick.game_id });
+						game = (getGameByID.call({
+							gameId: pick.game_id,
+						}) as unknown) as TGame;
 
 						if (isAutoPickHome(type)) {
 							teamId = game.home_id;
@@ -427,12 +439,16 @@ export const autoPick = new ValidatedMethod<TAutoPickProps>({
 export const autoPickSync = Meteor.wrapAsync(autoPick.call, autoPick);
 
 export type TGetAllPicksProps = { league: string };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const getAllPicks = new ValidatedMethod<TGetAllPicksProps>({
 	name: 'Picks.getAllPicks',
 	validate: new SimpleSchema({
 		league: { type: String, label: 'League' },
 	}).validator(),
 	run ({ league }: TGetAllPicksProps): TPick[] {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+		//@ts-ignore
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const user_id = this.userId;
 		const picks = Pick.find(
@@ -452,6 +468,8 @@ export const getAllPicks = new ValidatedMethod<TGetAllPicksProps>({
 export const getAllPicksSync = Meteor.wrapAsync(getAllPicks.call, getAllPicks);
 
 export type TGetAllPicksForUserProps = { league: string; user_id: string };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const getAllPicksForUser = new ValidatedMethod<TGetAllPicksForUserProps>(
 	{
 		name: 'Picks.getAllPicksForUser',
@@ -481,6 +499,8 @@ export const getAllPicksForUserSync = Meteor.wrapAsync(
 );
 
 export type TGetAllPicksForWeekProps = { league: string; week: TWeek };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const getAllPicksForWeek = new ValidatedMethod<TGetAllPicksForWeekProps>(
 	{
 		name: 'Picks.getAllPicksForWeek',
@@ -489,6 +509,8 @@ export const getAllPicksForWeek = new ValidatedMethod<TGetAllPicksForWeekProps>(
 			week: { type: Number, label: 'Week', min: 1, max: 17 },
 		}).validator(),
 		run ({ league, week }: TGetAllPicksForWeekProps): TPick[] {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+			//@ts-ignore
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			const user_id = this.userId;
 			const picks = Pick.find(
@@ -517,6 +539,8 @@ export type TGetPickForFirstGameOfWeekProps = {
 	week: TWeek;
 };
 export const getPickForFirstGameOfWeek = new ValidatedMethod<
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+	//@ts-ignore
 	TGetPickForFirstGameOfWeekProps
 >({
 	name: 'Picks.getPickForFirstGameOfWeek',
@@ -544,6 +568,8 @@ export type TGetPicksForWeekProps = {
 	user_id?: string;
 	week: TWeek;
 };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const getPicksForWeek = new ValidatedMethod<TGetPicksForWeekProps>({
 	name: 'Picks.getPicksForWeek',
 	validate: new SimpleSchema({
@@ -584,6 +610,8 @@ export type TMigratePicksForUserProps = {
 	oldUserId: string;
 };
 export const migratePicksForUser = new ValidatedMethod<
+	// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+	//@ts-ignore
 	TMigratePicksForUserProps
 >({
 	name: 'Picks.migratePicksForUser',
@@ -607,6 +635,8 @@ export const migratePicksForUserSync = Meteor.wrapAsync(
 );
 
 export type TResetPicksProps = { league: string; selectedWeek: TWeek };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const resetPicks = new ValidatedMethod<TResetPicksProps>({
 	name: 'Picks.resetPicks',
 	validate: new SimpleSchema({
@@ -614,6 +644,8 @@ export const resetPicks = new ValidatedMethod<TResetPicksProps>({
 		selectedWeek: { type: Number, label: 'Week', min: 1, max: 17 },
 	}).validator(),
 	run ({ league, selectedWeek }: TResetPicksProps): void {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+		//@ts-ignore
 		// eslint-disable-next-line @typescript-eslint/camelcase
 		const user_id = this.userId;
 		let picks: TPick[];
@@ -661,6 +693,8 @@ export type TSetPickProps = {
 	selectedWeek: TWeek;
 	toData: TSetPickData;
 };
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+//@ts-ignore
 export const setPick = new ValidatedMethod<TSetPickProps>({
 	name: 'Picks.add',
 	validate: new SimpleSchema({
@@ -693,6 +727,8 @@ export const setPick = new ValidatedMethod<TSetPickProps>({
 	}: TSetPickProps): void {
 		let pick;
 
+		// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+		//@ts-ignore
 		if (!this.userId)
 			throw new Meteor.Error(
 				'Users.picks.set.notLoggedIn',
@@ -723,6 +759,8 @@ export const setPick = new ValidatedMethod<TSetPickProps>({
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					game_id: fromData.gameId,
 					league: league,
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+					//@ts-ignore
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					user_id: this.userId,
 					week: selectedWeek,
@@ -740,6 +778,8 @@ export const setPick = new ValidatedMethod<TSetPickProps>({
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					game_id: toData.gameId,
 					league: league,
+					// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+					//@ts-ignore
 					// eslint-disable-next-line @typescript-eslint/camelcase
 					user_id: this.userId,
 					week: selectedWeek,

@@ -22,7 +22,7 @@ import {
 	updateUserSurvivor,
 	TUser,
 } from '../../api/collections/users';
-import { TWeek, TRightSlider } from '../../api/commonTypes';
+import { TWeek, TRightSlider, TError } from '../../api/commonTypes';
 import {
 	DEFAULT_LEAGUE,
 	SLACK_INVITE_URL,
@@ -61,7 +61,21 @@ const initPool = (ev: MouseEvent): false => {
 
 const refreshGames = (ev: MouseEvent): false => {
 	ev.preventDefault();
-	Meteor.call('Games.refreshGameData', {}, handleError);
+	Meteor.call(
+		'Games.refreshGameData',
+		{},
+		(error: TError, result: string): void => {
+			if (error) {
+				handleError(error);
+			} else {
+				handleError({} as TError, {
+					icon: 'success',
+					text: result,
+					title: 'Refreshing Games Finished',
+				});
+			}
+		},
+	);
 
 	return false;
 };

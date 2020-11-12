@@ -1,6 +1,6 @@
-<h1>Hello,</h1>
+<p>Hello,<br />&nbsp;</p>
 
-<p>This is a notification that games were found in week {{ week }} that could not be auto fixed.</p>
+<p>This is a notification that the following {{ messages.length }} games were found in week {{ week }} that could not be auto fixed:</p>
 
 <ul>
 	{{#each message in messages}}
@@ -12,6 +12,6 @@
 	{{/each}}
 </ul>
 
-<p>Click below to view API calls</p>
+<p>These will need to be manually fixed in MongoDB. You can also click below to view all API calls for this week.<br />&nbsp;</p>
 
 <a href="{{ poolURL }}/admin/api" class="btn btn-primary">View API Calls</a>

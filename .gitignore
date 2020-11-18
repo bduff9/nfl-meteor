@@ -39,3 +39,6 @@ jspm_packages
 # nfl-meteor specific
 *.orig
 backup
+
+# MacOS
+.DS_Store

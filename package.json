@@ -62,7 +62,7 @@
     "react-transition-group": "4.3.0",
     "recharts": "1.8.5",
     "react-sortablejs": "1.5.1",
-    "sortablejs": "<1.10.0",
+    "sortablejs": "<1.14.0",
     "sweetalert": "2.1.2",
     "tether": "1.4.7",
     "twilio": "3.36.0",

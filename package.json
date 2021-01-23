@@ -102,7 +102,7 @@
     "@types/react-helmet": "5.0.13",
     "@types/react-router-dom": "5.1.0",
     "@types/react-transition-group": "4.2.3",
-    "@types/recharts": "1.8.0",
+    "@types/recharts": "1.8.19",
     "@types/sortablejs": "1.10.0",
     "@types/stylelint": "9.10.1",
     "@types/tether": "1.4.4",

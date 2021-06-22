@@ -65,7 +65,7 @@
     "sortablejs": "<1.10.0",
     "sweetalert": "2.1.2",
     "tether": "1.4.7",
-    "twilio": "3.36.0",
+    "twilio": "3.64.0",
     "yup": "0.27.0"
   },
   "postcss": {

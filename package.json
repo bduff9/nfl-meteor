@@ -50,7 +50,7 @@
     "formik": "2.0.1",
     "jquery": "3.4.1",
     "meteor-node-stubs": "0.4.1",
-    "node-sass": "4.13.0",
+    "node-sass": "6.0.1",
     "react": "16.11.0",
     "react-dom": "16.11.0",
     "react-helmet": "5.2.1",

@@ -49,7 +49,7 @@
     "date-fns": "2.6.0",
     "formik": "2.0.1",
     "jquery": "3.4.1",
-    "meteor-node-stubs": "0.4.1",
+    "meteor-node-stubs": "1.2.8",
     "node-sass": "4.13.0",
     "react": "16.11.0",
     "react-dom": "16.11.0",
